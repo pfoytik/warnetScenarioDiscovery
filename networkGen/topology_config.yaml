@@ -1,0 +1,246 @@
+# Warnet Network Topology Configuration
+# This file defines all parameters for generating a Bitcoin network topology
+
+# ============================================================================
+# NETWORK PARAMETERS
+# ============================================================================
+network_parameters:
+  # Total number of nodes in the network
+  num_nodes: 50
+  
+  # Topology type: 'scale_free', 'small_world', 'hub_spoke', or 'random'
+  topology_type: scale_free
+  
+  # Random seed for reproducibility (optional)
+  # If not specified, a random seed will be used
+  seed: 42
+  
+  # Topology-specific parameters
+  topology_params:
+    # For scale_free topology:
+    # m: number of edges to attach from new node (default: 8)
+    m: 8
+    
+    # For small_world topology:
+    # k: each node connected to k nearest neighbors (default: 8)
+    # p: probability of rewiring (default: 0.1)
+    # k: 8
+    # p: 0.1
+    
+    # For hub_spoke topology:
+    # hub_ratio: proportion of nodes that are hubs (default: 0.1)
+    # hub_connections: [min, max] hub connections for spokes
+    # spoke_connections: [min, max] spoke-to-spoke connections
+    # hub_ratio: 0.1
+    # hub_connections: [2, 4]
+    # spoke_connections: [4, 6]
+    
+    # For random topology:
+    # p: edge probability (default: calculated for avg degree ~8)
+    # p: 0.04
+
+# ============================================================================
+# VERSION CONFIGURATION
+# ============================================================================
+version_configuration:
+  # Distribution of Bitcoin Core versions across nodes
+  # Values should sum to approximately 1.0
+  distribution:
+    '29.0': 0.35
+    '28.1': 0.30
+    '27.2': 0.20
+    '26.0': 0.10
+    '25.0': 0.05
+  
+  # Version clustering factor (0.0 - 1.0)
+  # 0.0 = completely random assignment
+  # 1.0 = highly clustered (similar versions tend to connect)
+  # This simulates version-based network segregation
+  clustering_factor: 0.3
+
+# ============================================================================
+# NODE CONFIGURATIONS
+# ============================================================================
+# Optional: Assign specific Bitcoin Core configuration parameters to nodes
+# These will be added to each node's bitcoin_config section
+node_configurations:
+  # Memory pool size in MB
+  maxmempool:
+    distribution:
+      50: 0.2    # 20% of nodes with 50MB mempool
+      300: 0.6   # 60% with default 300MB
+      1000: 0.15 # 15% with 1GB
+      5000: 0.05 # 5% with 5GB
+  
+  # Mempool expiry time in hours
+  mempoolexpiry:
+    distribution:
+      1: 0.1    # 10% expire after 1 hour
+      72: 0.8   # 80% use default 72 hours
+      336: 0.1  # 10% keep for 2 weeks
+  
+  # Maximum connections (inbound + outbound)
+  maxconnections:
+    distribution:
+      8: 0.1     # 10% minimal connections
+      125: 0.8   # 80% default
+      1000: 0.1  # 10% high connections
+  
+  # Minimum relay transaction fee in BTC/kB
+  # minrelaytxfee:
+  #   distribution:
+  #     0.00001: 0.3
+  #     0.001: 0.6   # Default
+  #     0.01: 0.1
+  
+  # Block-relay-only mode (no transaction relay)
+  # blocksonly:
+  #   distribution:
+  #     true: 0.2   # 20% blocks-only nodes
+  #     false: 0.8  # 80% full relay
+
+# ============================================================================
+# WARNET SETTINGS
+# ============================================================================
+warnet_settings:
+  # Enable Caddy reverse proxy
+  caddy_enabled: true
+  
+  # Fork observer configuration
+  fork_observer:
+    enabled: true
+    interval: 20  # Query interval in seconds
+
+# ============================================================================
+# OUTPUT CONFIGURATION
+# ============================================================================
+output:
+  # Output file path
+  file: network.yaml
+  
+  # Node name prefix
+  name_prefix: tank
+
+# ============================================================================
+# EXAMPLE CONFIGURATIONS FOR DIFFERENT TEST SCENARIOS
+# ============================================================================
+
+# Uncomment and modify for different test scenarios:
+
+# ---
+# # SCENARIO 1: Version Compatibility Testing
+# # Mixed versions with high clustering
+# network_parameters:
+#   num_nodes: 100
+#   topology_type: scale_free
+#   seed: 100
+# 
+# version_configuration:
+#   distribution:
+#     '29.0': 0.4
+#     '27.2': 0.4
+#     '25.0': 0.2
+#   clustering_factor: 0.7  # High clustering
+# 
+# output:
+#   file: scenario1_version_mix.yaml
+
+# ---
+# # SCENARIO 2: Resource-Constrained Network
+# # Low memory nodes with connection limits
+# network_parameters:
+#   num_nodes: 50
+#   topology_type: scale_free
+# 
+# node_configurations:
+#   maxmempool:
+#     distribution:
+#       50: 0.8   # Most nodes low memory
+#       300: 0.2
+#   maxconnections:
+#     distribution:
+#       8: 0.5    # Half with minimal connections
+#       125: 0.5
+# 
+# output:
+#   file: scenario2_resource_constrained.yaml
+
+# ---
+# # SCENARIO 3: Hub-and-Spoke with Critical Bridges
+# # Test network partition scenarios
+# network_parameters:
+#   num_nodes: 80
+#   topology_type: hub_spoke
+#   topology_params:
+#     hub_ratio: 0.15  # 15% hubs
+#     hub_connections: [3, 5]
+#     spoke_connections: [3, 5]
+# 
+# version_configuration:
+#   distribution:
+#     '29.0': 0.5
+#     '28.1': 0.5
+#   clustering_factor: 0.0  # Random version assignment
+# 
+# output:
+#   file: scenario3_hub_spoke.yaml
+
+# ---
+# # SCENARIO 4: Mixed Policy Network
+# # Different mempool and relay policies
+# network_parameters:
+#   num_nodes: 60
+#   topology_type: small_world
+#   topology_params:
+#     k: 8
+#     p: 0.15
+# 
+# node_configurations:
+#   maxmempool:
+#     distribution:
+#       50: 0.3
+#       300: 0.4
+#       1000: 0.3
+#   mempoolexpiry:
+#     distribution:
+#       1: 0.2
+#       72: 0.6
+#       336: 0.2
+#   blocksonly:
+#     distribution:
+#       true: 0.3   # 30% blocks-only
+#       false: 0.7
+# 
+# output:
+#   file: scenario4_mixed_policy.yaml
+
+# ---
+# # SCENARIO 5: Stress Test - Extreme Configuration
+# # Old versions + resource constraints + high transaction volume
+# network_parameters:
+#   num_nodes: 150
+#   topology_type: scale_free
+#   seed: 999
+# 
+# version_configuration:
+#   distribution:
+#     '29.0': 0.2
+#     '26.0': 0.3
+#     '25.0': 0.3
+#     '24.0': 0.2  # Very old version
+#   clustering_factor: 0.8  # High version clustering
+# 
+# node_configurations:
+#   maxmempool:
+#     distribution:
+#       50: 0.5    # Half with very low memory
+#       300: 0.3
+#       1000: 0.2
+#   maxconnections:
+#     distribution:
+#       8: 0.4
+#       125: 0.5
+#       1000: 0.1
+# 
+# output:
+#   file: scenario5_stress_test.yaml

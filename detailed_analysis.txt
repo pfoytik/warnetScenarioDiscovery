@@ -1,0 +1,186 @@
+================================================================================
+                     WARNET TEST RESULTS - DETAILED REPORT                      
+================================================================================
+
+Generated: 2025-09-29T19:40:03.465933
+Network: 8 nodes
+Total Tests: 6
+
+================================================================================
+SUMMARY
+================================================================================
+
+Tests with Forks:  3/6
+Tests with Errors: 0/6
+Total Duration:    3919.3s (65.3m)
+
+--------------------------------------------------------------------------------
+Test Durations
+--------------------------------------------------------------------------------
+
+======================================================================
+  version_partition │ ███████████████ 446.0
+   asymmetric_split │ ██████████████ 433.6
+flapping_connection │ ████████████████████████████ 840.2
+  rolling_isolation │ █████████████████████████████████████████ 1198.6
+      star_topology │ ███████████ 331.8
+    cascade_failure │ ██████████████████████ 669.0
+
+================================================================================
+DETAILED TEST RESULTS
+================================================================================
+
+1. version_partition
+--------------------------------------------------------------------------------
+Duration:      446.0s
+Start Time:    2025-09-29T18:26:02.509833
+End Time:      2025-09-29T18:33:28.508213
+Fork Detected: ✓ YES
+Fork Point:    Block 2468
+
+Block Production:
+  tank-0000: 0 blocks (2468 → 2468)
+  tank-0001: 0 blocks (2468 → 2468)
+  tank-0002: 0 blocks (2468 → 2468)
+  tank-0003: 0 blocks (2468 → 2468)
+  tank-0004: 1 blocks (2468 → 2469)
+  tank-0005: 1 blocks (2468 → 2469)
+  tank-0006: 1 blocks (2468 → 2469)
+  tank-0007: 1 blocks (2468 → 2469)
+  TOTAL: 4 blocks
+
+Mempool Statistics:
+  tank-0000: avg=93, max=116
+  tank-0001: avg=93, max=116
+  tank-0002: avg=93, max=116
+  tank-0003: avg=93, max=116
+
+2. asymmetric_split
+--------------------------------------------------------------------------------
+Duration:      433.6s
+Start Time:    2025-09-29T18:35:09.915228
+End Time:      2025-09-29T18:42:23.559825
+Fork Detected: ✓ YES
+Fork Point:    Block 2471
+
+Block Production:
+  tank-0000: 2 blocks (2471 → 2473)
+  tank-0001: 2 blocks (2471 → 2473)
+  tank-0002: 2 blocks (2471 → 2473)
+  tank-0003: 2 blocks (2471 → 2473)
+  tank-0004: 2 blocks (2471 → 2473)
+  tank-0005: 2 blocks (2471 → 2473)
+  tank-0006: 0 blocks (2471 → 2471)
+  tank-0007: 0 blocks (2471 → 2471)
+  TOTAL: 12 blocks
+
+Mempool Statistics:
+  tank-0000: avg=40, max=51
+  tank-0001: avg=40, max=52
+  tank-0002: avg=40, max=52
+  tank-0003: avg=40, max=52
+
+Chain Tips: 1 → 2
+
+3. flapping_connection
+--------------------------------------------------------------------------------
+Duration:      840.2s
+Start Time:    2025-09-29T18:44:04.818598
+End Time:      2025-09-29T18:58:05.032731
+Fork Detected: ✗ NO
+
+Block Production:
+  tank-0000: 5 blocks (2476 → 2481)
+  tank-0001: 5 blocks (2476 → 2481)
+  tank-0002: 5 blocks (2476 → 2481)
+  tank-0003: 5 blocks (2476 → 2481)
+  tank-0004: 5 blocks (2476 → 2481)
+  tank-0005: 5 blocks (2476 → 2481)
+  tank-0006: 5 blocks (2476 → 2481)
+  tank-0007: 5 blocks (2476 → 2481)
+  TOTAL: 40 blocks
+
+Chain Tips: 2 → 1
+
+4. rolling_isolation
+--------------------------------------------------------------------------------
+Duration:      1198.6s
+Start Time:    2025-09-29T18:59:16.782675
+End Time:      2025-09-29T19:19:15.345240
+Fork Detected: ✓ YES
+Fork Duration: 134.8s
+Fork Events:   1
+
+Block Production:
+  tank-0000: 8 blocks (2483 → 2491)
+  tank-0001: 8 blocks (2483 → 2491)
+  tank-0002: 8 blocks (2483 → 2491)
+  tank-0003: 8 blocks (2483 → 2491)
+  tank-0004: 8 blocks (2483 → 2491)
+  tank-0005: 8 blocks (2483 → 2491)
+  tank-0006: 8 blocks (2483 → 2491)
+  tank-0007: 8 blocks (2483 → 2491)
+  TOTAL: 64 blocks
+
+Chain Tips: 1 → 2
+
+5. star_topology
+--------------------------------------------------------------------------------
+Duration:      331.8s
+Start Time:    2025-09-29T19:20:26.159569
+End Time:      2025-09-29T19:25:58.003441
+Fork Detected: ✗ NO
+
+Block Production:
+  tank-0000: 1 blocks (2494 → 2495)
+  tank-0001: 1 blocks (2494 → 2495)
+  tank-0002: 1 blocks (2494 → 2495)
+  tank-0003: 1 blocks (2494 → 2495)
+  tank-0004: 1 blocks (2494 → 2495)
+  tank-0005: 1 blocks (2494 → 2495)
+  tank-0006: 1 blocks (2494 → 2495)
+  tank-0007: 1 blocks (2494 → 2495)
+  TOTAL: 8 blocks
+
+Mempool Statistics:
+  tank-0000: avg=27, max=49
+  tank-0001: avg=27, max=49
+  tank-0002: avg=27, max=49
+  tank-0003: avg=28, max=49
+
+6. cascade_failure
+--------------------------------------------------------------------------------
+Duration:      669.0s
+Start Time:    2025-09-29T19:27:40.241761
+End Time:      2025-09-29T19:38:49.270553
+Fork Detected: ✗ NO
+
+Block Production:
+  tank-0000: 2 blocks (2498 → 2500)
+  tank-0001: 2 blocks (2498 → 2500)
+  tank-0002: 2 blocks (2498 → 2500)
+  tank-0003: 2 blocks (2498 → 2500)
+  tank-0004: 2 blocks (2498 → 2500)
+  tank-0005: 2 blocks (2498 → 2500)
+  tank-0006: 2 blocks (2498 → 2500)
+  tank-0007: 2 blocks (2498 → 2500)
+  TOTAL: 16 blocks
+
+================================================================================
+NETWORK CONFIGURATION
+================================================================================
+
+Node            IP Address           Version             
+--------------------------------------------------------------------------------
+tank-0000       10.244.0.129         /Satoshi:29.0.0/    
+tank-0001       10.244.0.127         /Satoshi:29.0.0/    
+tank-0002       10.244.0.130         /Satoshi:29.0.0/    
+tank-0003       10.244.0.125         /Satoshi:29.0.0/    
+tank-0004       10.244.0.124         /Satoshi:28.1.0/    
+tank-0005       10.244.0.123         /Satoshi:28.1.0/    
+tank-0006       10.244.0.131         /Satoshi:28.1.0/    
+tank-0007       10.244.0.128         /Satoshi:28.1.0/    
+
+================================================================================
+END OF REPORT
+================================================================================

@@ -235,6 +235,43 @@ def compare_versions(nodes, version_a_prefix, version_b_prefix):
     print("="*80)
 
 
+def debug_rpc(nodes, command="getblockcount"):
+    """Debug RPC calls to see raw output"""
+    print("\n" + "="*80)
+    print(f"DEBUG: Testing RPC command '{command}'")
+    print("="*80)
+    
+    import subprocess
+    
+    for node in nodes[:3]:  # Test first 3 nodes
+        print(f"\n{node}:")
+        print("-"*80)
+        
+        cmd = ["warnet", "bitcoin", "rpc", node, command]
+        print(f"Command: {' '.join(cmd)}")
+        
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
+            print(f"Return code: {result.returncode}")
+            print(f"STDOUT: '{result.stdout}'")
+            print(f"STDERR: '{result.stderr}'")
+            
+            # Try to parse
+            if result.stdout:
+                try:
+                    import json
+                    parsed = json.loads(result.stdout)
+                    print(f"Parsed as JSON: {parsed}")
+                except json.JSONDecodeError as e:
+                    print(f"JSON parse error: {e}")
+                    print(f"Raw output type: {type(result.stdout)}")
+                    print(f"Raw output repr: {repr(result.stdout)}")
+        except Exception as e:
+            print(f"Error: {e}")
+    
+    print("\n" + "="*80)
+
+
 def main():
     """Main CLI entry point"""
     if len(sys.argv) < 2:
@@ -248,12 +285,14 @@ def main():
         print("  partition <g1> <g2>         - Partition network (e.g., '0,1,2' '3,4,5')")
         print("  monitor [duration]          - Monitor live (default 300s)")
         print("  compare <v1> <v2>           - Compare versions (e.g., '29.0' '28.1')")
+        print("  debug [command]             - Debug RPC calls (default: getblockcount)")
         print("\nExamples:")
         print("  python warnet_utils.py list")
         print("  python warnet_utils.py health")
         print("  python warnet_utils.py partition '0,1,2,3' '4,5,6,7'")
         print("  python warnet_utils.py monitor 600")
         print("  python warnet_utils.py compare '29.0' '28.1'")
+        print("  python warnet_utils.py debug")
         sys.exit(1)
     
     # Load config to get nodes
@@ -301,6 +340,10 @@ def main():
         version_a = sys.argv[2]
         version_b = sys.argv[3]
         compare_versions(nodes, version_a, version_b)
+    
+    elif command == "debug":
+        rpc_command = sys.argv[2] if len(sys.argv) > 2 else "getblockcount"
+        debug_rpc(nodes, rpc_command)
     
     else:
         print(f"Unknown command: {command}")

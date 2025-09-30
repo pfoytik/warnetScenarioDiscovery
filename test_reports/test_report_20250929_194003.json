@@ -1,0 +1,2685 @@
+{
+  "timestamp": "2025-09-29T19:40:03.465933",
+  "network": {
+    "nodes": [
+      "tank-0000",
+      "tank-0001",
+      "tank-0002",
+      "tank-0003",
+      "tank-0004",
+      "tank-0005",
+      "tank-0006",
+      "tank-0007"
+    ],
+    "node_info": {
+      "tank-0000": {
+        "ip": "10.244.0.129",
+        "version": "/Satoshi:29.0.0/"
+      },
+      "tank-0001": {
+        "ip": "10.244.0.127",
+        "version": "/Satoshi:29.0.0/"
+      },
+      "tank-0002": {
+        "ip": "10.244.0.130",
+        "version": "/Satoshi:29.0.0/"
+      },
+      "tank-0003": {
+        "ip": "10.244.0.125",
+        "version": "/Satoshi:29.0.0/"
+      },
+      "tank-0004": {
+        "ip": "10.244.0.124",
+        "version": "/Satoshi:28.1.0/"
+      },
+      "tank-0005": {
+        "ip": "10.244.0.123",
+        "version": "/Satoshi:28.1.0/"
+      },
+      "tank-0006": {
+        "ip": "10.244.0.131",
+        "version": "/Satoshi:28.1.0/"
+      },
+      "tank-0007": {
+        "ip": "10.244.0.128",
+        "version": "/Satoshi:28.1.0/"
+      }
+    }
+  },
+  "tests": [
+    {
+      "name": "version_partition",
+      "start_time": "2025-09-29T18:26:02.509833",
+      "end_time": "2025-09-29T18:33:28.508213",
+      "duration": 445.99838,
+      "fork_detected": true,
+      "error": null,
+      "metrics": {
+        "fork_point": 2468,
+        "reorg_analysis": {},
+        "summary_stats": {
+          "height_progression": {
+            "tank-0000": {
+              "start": 2468,
+              "end": 2468,
+              "blocks_produced": 0
+            },
+            "tank-0001": {
+              "start": 2468,
+              "end": 2468,
+              "blocks_produced": 0
+            },
+            "tank-0002": {
+              "start": 2468,
+              "end": 2468,
+              "blocks_produced": 0
+            },
+            "tank-0003": {
+              "start": 2468,
+              "end": 2468,
+              "blocks_produced": 0
+            },
+            "tank-0004": {
+              "start": 2468,
+              "end": 2469,
+              "blocks_produced": 1
+            },
+            "tank-0005": {
+              "start": 2468,
+              "end": 2469,
+              "blocks_produced": 1
+            },
+            "tank-0006": {
+              "start": 2468,
+              "end": 2469,
+              "blocks_produced": 1
+            },
+            "tank-0007": {
+              "start": 2468,
+              "end": 2469,
+              "blocks_produced": 1
+            }
+          },
+          "mempool_stats": {
+            "tank-0000": {
+              "avg_size": 92.66666666666667,
+              "max_size": 116,
+              "min_size": 70
+            },
+            "tank-0001": {
+              "avg_size": 93.33333333333333,
+              "max_size": 116,
+              "min_size": 72
+            },
+            "tank-0002": {
+              "avg_size": 93,
+              "max_size": 116,
+              "min_size": 71
+            },
+            "tank-0003": {
+              "avg_size": 93.33333333333333,
+              "max_size": 116,
+              "min_size": 72
+            },
+            "tank-0004": {
+              "avg_size": 17.666666666666668,
+              "max_size": 32,
+              "min_size": 10
+            },
+            "tank-0005": {
+              "avg_size": 18,
+              "max_size": 32,
+              "min_size": 10
+            },
+            "tank-0006": {
+              "avg_size": 18,
+              "max_size": 32,
+              "min_size": 10
+            },
+            "tank-0007": {
+              "avg_size": 18,
+              "max_size": 32,
+              "min_size": 10
+            }
+          },
+          "fork_duration": 0,
+          "fork_count": 0
+        },
+        "mempool_analysis": {
+          "tank-0000": {
+            "peak_size": 116,
+            "peak_bytes": 52507,
+            "final_size": 116,
+            "final_bytes": 52507
+          },
+          "tank-0001": {
+            "peak_size": 116,
+            "peak_bytes": 52507,
+            "final_size": 116,
+            "final_bytes": 52507
+          },
+          "tank-0002": {
+            "peak_size": 116,
+            "peak_bytes": 52507,
+            "final_size": 116,
+            "final_bytes": 52507
+          },
+          "tank-0003": {
+            "peak_size": 116,
+            "peak_bytes": 52507,
+            "final_size": 116,
+            "final_bytes": 52507
+          },
+          "tank-0004": {
+            "peak_size": 32,
+            "peak_bytes": 14401,
+            "final_size": 10,
+            "final_bytes": 4586
+          },
+          "tank-0005": {
+            "peak_size": 32,
+            "peak_bytes": 14401,
+            "final_size": 10,
+            "final_bytes": 4586
+          },
+          "tank-0006": {
+            "peak_size": 32,
+            "peak_bytes": 14401,
+            "final_size": 10,
+            "final_bytes": 4586
+          },
+          "tank-0007": {
+            "peak_size": 32,
+            "peak_bytes": 14401,
+            "final_size": 10,
+            "final_bytes": 4586
+          }
+        }
+      },
+      "pre_snapshot": {
+        "timestamp": "2025-09-29T18:26:02.509836",
+        "fork_detected": true,
+        "unique_tips": 2,
+        "nodes": {
+          "tank-0000": {
+            "height": 2467,
+            "best_hash": "7c061ddacb593ef1e433c53f3d6adbbadbc537e417c0f0a188460badb7d9c511",
+            "mempool": {
+              "loaded": true,
+              "size": 80,
+              "bytes": 47109,
+              "usage": 190544,
+              "total_fee": 0.00047145,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 12,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001348",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0001": {
+            "height": 2467,
+            "best_hash": "7c061ddacb593ef1e433c53f3d6adbbadbc537e417c0f0a188460badb7d9c511",
+            "mempool": {
+              "loaded": true,
+              "size": 83,
+              "bytes": 48843,
+              "usage": 199264,
+              "total_fee": 0.00048879,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 10,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001348",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0002": {
+            "height": 2467,
+            "best_hash": "7c061ddacb593ef1e433c53f3d6adbbadbc537e417c0f0a188460badb7d9c511",
+            "mempool": {
+              "loaded": true,
+              "size": 84,
+              "bytes": 49591,
+              "usage": 201376,
+              "total_fee": 0.00049627,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 11,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001348",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0003": {
+            "height": 2467,
+            "best_hash": "7c061ddacb593ef1e433c53f3d6adbbadbc537e417c0f0a188460badb7d9c511",
+            "mempool": {
+              "loaded": true,
+              "size": 88,
+              "bytes": 52122,
+              "usage": 212704,
+              "total_fee": 0.0005219,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 11,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001348",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0004": {
+            "height": 2467,
+            "best_hash": "7c061ddacb593ef1e433c53f3d6adbbadbc537e417c0f0a188460badb7d9c511",
+            "mempool": {
+              "loaded": true,
+              "size": 91,
+              "bytes": 54054,
+              "usage": 224528,
+              "total_fee": 0.00054122,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 12,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001348",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0005": {
+            "height": 2468,
+            "best_hash": "20f1a3dd9e860eb8c6b283b7c461a38cac551e03b99162e55aa87031fa2a1b47",
+            "mempool": {
+              "loaded": true,
+              "size": 4,
+              "bytes": 2454,
+              "usage": 10864,
+              "total_fee": 2.454e-05,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 15,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001348",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0006": {
+            "height": 2468,
+            "best_hash": "20f1a3dd9e860eb8c6b283b7c461a38cac551e03b99162e55aa87031fa2a1b47",
+            "mempool": {
+              "loaded": true,
+              "size": 8,
+              "bytes": 4809,
+              "usage": 21888,
+              "total_fee": 4.81e-05,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 11,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000134a",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0007": {
+            "height": 2468,
+            "best_hash": "20f1a3dd9e860eb8c6b283b7c461a38cac551e03b99162e55aa87031fa2a1b47",
+            "mempool": {
+              "loaded": true,
+              "size": 10,
+              "bytes": 5866,
+              "usage": 27552,
+              "total_fee": 5.871e-05,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 12,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000134a",
+            "difficulty": 4.656542373906925e-10
+          }
+        }
+      },
+      "post_snapshot": {
+        "timestamp": "2025-09-29T18:30:51.193135",
+        "fork_detected": true,
+        "unique_tips": 2,
+        "nodes": {
+          "tank-0000": {
+            "height": 2468,
+            "best_hash": "20f1a3dd9e860eb8c6b283b7c461a38cac551e03b99162e55aa87031fa2a1b47",
+            "mempool": {
+              "loaded": true,
+              "size": 120,
+              "bytes": 53843,
+              "usage": 273616,
+              "total_fee": 0.00053953,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 5,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000134a",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0001": {
+            "height": 2468,
+            "best_hash": "20f1a3dd9e860eb8c6b283b7c461a38cac551e03b99162e55aa87031fa2a1b47",
+            "mempool": {
+              "loaded": true,
+              "size": 121,
+              "bytes": 54183,
+              "usage": 275632,
+              "total_fee": 0.00054293,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 1,
+              "fullrbf": true
+            },
+            "peer_count": 5,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000134a",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0002": {
+            "height": 2468,
+            "best_hash": "20f1a3dd9e860eb8c6b283b7c461a38cac551e03b99162e55aa87031fa2a1b47",
+            "mempool": {
+              "loaded": true,
+              "size": 123,
+              "bytes": 54847,
+              "usage": 279296,
+              "total_fee": 0.00054959,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 5,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000134a",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0003": {
+            "height": 2468,
+            "best_hash": "20f1a3dd9e860eb8c6b283b7c461a38cac551e03b99162e55aa87031fa2a1b47",
+            "mempool": {
+              "loaded": true,
+              "size": 124,
+              "bytes": 55296,
+              "usage": 281664,
+              "total_fee": 0.0005541,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 5,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000134a",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0004": {
+            "height": 2470,
+            "best_hash": "3008551e0cda981b673a8a488a8d8b0c7335b5455c905d7f4225513621fdac56",
+            "mempool": {
+              "loaded": true,
+              "size": 18,
+              "bytes": 8193,
+              "usage": 41920,
+              "total_fee": 8.196e-05,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 5,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000134e",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0005": {
+            "height": 2470,
+            "best_hash": "3008551e0cda981b673a8a488a8d8b0c7335b5455c905d7f4225513621fdac56",
+            "mempool": {
+              "loaded": true,
+              "size": 21,
+              "bytes": 9077,
+              "usage": 46016,
+              "total_fee": 9.08e-05,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 8,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000134e",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0006": {
+            "height": 2470,
+            "best_hash": "3008551e0cda981b673a8a488a8d8b0c7335b5455c905d7f4225513621fdac56",
+            "mempool": {
+              "loaded": true,
+              "size": 22,
+              "bytes": 9449,
+              "usage": 48384,
+              "total_fee": 9.452e-05,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 6,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000134e",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0007": {
+            "height": 2470,
+            "best_hash": "3008551e0cda981b673a8a488a8d8b0c7335b5455c905d7f4225513621fdac56",
+            "mempool": {
+              "loaded": true,
+              "size": 23,
+              "bytes": 9919,
+              "usage": 50752,
+              "total_fee": 9.922e-05,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 7,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000134e",
+            "difficulty": 4.656542373906925e-10
+          }
+        }
+      }
+    },
+    {
+      "name": "asymmetric_split",
+      "start_time": "2025-09-29T18:35:09.915228",
+      "end_time": "2025-09-29T18:42:23.559825",
+      "duration": 433.644597,
+      "fork_detected": true,
+      "error": null,
+      "metrics": {
+        "fork_point": 2471,
+        "reorg_analysis": {},
+        "summary_stats": {
+          "height_progression": {
+            "tank-0000": {
+              "start": 2471,
+              "end": 2473,
+              "blocks_produced": 2
+            },
+            "tank-0001": {
+              "start": 2471,
+              "end": 2473,
+              "blocks_produced": 2
+            },
+            "tank-0002": {
+              "start": 2471,
+              "end": 2473,
+              "blocks_produced": 2
+            },
+            "tank-0003": {
+              "start": 2471,
+              "end": 2473,
+              "blocks_produced": 2
+            },
+            "tank-0004": {
+              "start": 2471,
+              "end": 2473,
+              "blocks_produced": 2
+            },
+            "tank-0005": {
+              "start": 2471,
+              "end": 2473,
+              "blocks_produced": 2
+            },
+            "tank-0006": {
+              "start": 2471,
+              "end": 2471,
+              "blocks_produced": 0
+            },
+            "tank-0007": {
+              "start": 2471,
+              "end": 2471,
+              "blocks_produced": 0
+            }
+          },
+          "mempool_stats": {
+            "tank-0000": {
+              "avg_size": 39.666666666666664,
+              "max_size": 51,
+              "min_size": 17
+            },
+            "tank-0001": {
+              "avg_size": 39.666666666666664,
+              "max_size": 52,
+              "min_size": 17
+            },
+            "tank-0002": {
+              "avg_size": 39.666666666666664,
+              "max_size": 52,
+              "min_size": 16
+            },
+            "tank-0003": {
+              "avg_size": 40,
+              "max_size": 52,
+              "min_size": 17
+            },
+            "tank-0004": {
+              "avg_size": 114.33333333333333,
+              "max_size": 126,
+              "min_size": 92
+            },
+            "tank-0005": {
+              "avg_size": 115,
+              "max_size": 128,
+              "min_size": 91
+            },
+            "tank-0006": {
+              "avg_size": 182.33333333333334,
+              "max_size": 193,
+              "min_size": 171
+            },
+            "tank-0007": {
+              "avg_size": 182,
+              "max_size": 193,
+              "min_size": 171
+            }
+          },
+          "fork_duration": 0,
+          "fork_count": 0
+        },
+        "mempool_analysis": {
+          "tank-0000": {
+            "peak_size": 51,
+            "peak_bytes": 26547,
+            "final_size": 51,
+            "final_bytes": 23418
+          },
+          "tank-0001": {
+            "peak_size": 52,
+            "peak_bytes": 26932,
+            "final_size": 50,
+            "final_bytes": 22958
+          },
+          "tank-0002": {
+            "peak_size": 52,
+            "peak_bytes": 26932,
+            "final_size": 51,
+            "final_bytes": 23418
+          },
+          "tank-0003": {
+            "peak_size": 52,
+            "peak_bytes": 26932,
+            "final_size": 51,
+            "final_bytes": 23418
+          },
+          "tank-0004": {
+            "peak_size": 126,
+            "peak_bytes": 53917,
+            "final_size": 125,
+            "final_bytes": 50449
+          },
+          "tank-0005": {
+            "peak_size": 128,
+            "peak_bytes": 54725,
+            "final_size": 126,
+            "final_bytes": 50861
+          },
+          "tank-0006": {
+            "peak_size": 193,
+            "peak_bytes": 78531,
+            "final_size": 193,
+            "final_bytes": 78531
+          },
+          "tank-0007": {
+            "peak_size": 193,
+            "peak_bytes": 78531,
+            "final_size": 193,
+            "final_bytes": 78531
+          }
+        }
+      },
+      "pre_snapshot": {
+        "timestamp": "2025-09-29T18:35:09.915242",
+        "fork_detected": false,
+        "unique_tips": 1,
+        "nodes": {
+          "tank-0000": {
+            "height": 2471,
+            "best_hash": "736efc7bd6e4cbef836726740d90865a8926e8d45dea6e12f83407f02abb7f43",
+            "mempool": {
+              "loaded": true,
+              "size": 40,
+              "bytes": 20579,
+              "usage": 89824,
+              "total_fee": 0.00020588,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 12,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001350",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0001": {
+            "height": 2471,
+            "best_hash": "736efc7bd6e4cbef836726740d90865a8926e8d45dea6e12f83407f02abb7f43",
+            "mempool": {
+              "loaded": true,
+              "size": 42,
+              "bytes": 21947,
+              "usage": 94576,
+              "total_fee": 0.00021956,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 8,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001350",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0002": {
+            "height": 2471,
+            "best_hash": "736efc7bd6e4cbef836726740d90865a8926e8d45dea6e12f83407f02abb7f43",
+            "mempool": {
+              "loaded": true,
+              "size": 44,
+              "bytes": 22705,
+              "usage": 98896,
+              "total_fee": 0.00022717,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 9,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001350",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0003": {
+            "height": 2471,
+            "best_hash": "736efc7bd6e4cbef836726740d90865a8926e8d45dea6e12f83407f02abb7f43",
+            "mempool": {
+              "loaded": true,
+              "size": 50,
+              "bytes": 25902,
+              "usage": 114000,
+              "total_fee": 0.00025917,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 1,
+              "fullrbf": true
+            },
+            "peer_count": 11,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001350",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0004": {
+            "height": 2471,
+            "best_hash": "736efc7bd6e4cbef836726740d90865a8926e8d45dea6e12f83407f02abb7f43",
+            "mempool": {
+              "loaded": true,
+              "size": 125,
+              "bytes": 53063,
+              "usage": 261936,
+              "total_fee": 0.00053103,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 11,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001350",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0005": {
+            "height": 2471,
+            "best_hash": "736efc7bd6e4cbef836726740d90865a8926e8d45dea6e12f83407f02abb7f43",
+            "mempool": {
+              "loaded": true,
+              "size": 130,
+              "bytes": 55626,
+              "usage": 274688,
+              "total_fee": 0.00055666,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 13,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001350",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0006": {
+            "height": 2471,
+            "best_hash": "736efc7bd6e4cbef836726740d90865a8926e8d45dea6e12f83407f02abb7f43",
+            "mempool": {
+              "loaded": true,
+              "size": 134,
+              "bytes": 57722,
+              "usage": 281312,
+              "total_fee": 0.00057762,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 10,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001350",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0007": {
+            "height": 2471,
+            "best_hash": "736efc7bd6e4cbef836726740d90865a8926e8d45dea6e12f83407f02abb7f43",
+            "mempool": {
+              "loaded": true,
+              "size": 135,
+              "bytes": 58120,
+              "usage": 283824,
+              "total_fee": 0.0005816,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 1,
+              "fullrbf": true
+            },
+            "peer_count": 12,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001350",
+            "difficulty": 4.656542373906925e-10
+          }
+        }
+      },
+      "post_snapshot": {
+        "timestamp": "2025-09-29T18:39:52.980842",
+        "fork_detected": true,
+        "unique_tips": 2,
+        "nodes": {
+          "tank-0000": {
+            "height": 2473,
+            "best_hash": "4f73f598253bd6517afb9f631d06b3479ab9b9bdbeb055e09edbdd4625433934",
+            "mempool": {
+              "loaded": true,
+              "size": 55,
+              "bytes": 24766,
+              "usage": 120272,
+              "total_fee": 0.00024786,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 9,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001354",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0001": {
+            "height": 2473,
+            "best_hash": "4f73f598253bd6517afb9f631d06b3479ab9b9bdbeb055e09edbdd4625433934",
+            "mempool": {
+              "loaded": true,
+              "size": 57,
+              "bytes": 25461,
+              "usage": 124288,
+              "total_fee": 0.00025483,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 7,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001354",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0002": {
+            "height": 2473,
+            "best_hash": "4f73f598253bd6517afb9f631d06b3479ab9b9bdbeb055e09edbdd4625433934",
+            "mempool": {
+              "loaded": true,
+              "size": 59,
+              "bytes": 26363,
+              "usage": 128944,
+              "total_fee": 0.00026385,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 8,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001354",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0003": {
+            "height": 2473,
+            "best_hash": "4f73f598253bd6517afb9f631d06b3479ab9b9bdbeb055e09edbdd4625433934",
+            "mempool": {
+              "loaded": true,
+              "size": 62,
+              "bytes": 27573,
+              "usage": 135504,
+              "total_fee": 0.00027596,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 9,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001354",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0004": {
+            "height": 2473,
+            "best_hash": "4f73f598253bd6517afb9f631d06b3479ab9b9bdbeb055e09edbdd4625433934",
+            "mempool": {
+              "loaded": true,
+              "size": 137,
+              "bytes": 55060,
+              "usage": 285760,
+              "total_fee": 0.00055107,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 9,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001354",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0005": {
+            "height": 2473,
+            "best_hash": "4f73f598253bd6517afb9f631d06b3479ab9b9bdbeb055e09edbdd4625433934",
+            "mempool": {
+              "loaded": true,
+              "size": 140,
+              "bytes": 56378,
+              "usage": 294464,
+              "total_fee": 0.00056425,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 1,
+              "fullrbf": true
+            },
+            "peer_count": 8,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001354",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0006": {
+            "height": 2471,
+            "best_hash": "736efc7bd6e4cbef836726740d90865a8926e8d45dea6e12f83407f02abb7f43",
+            "mempool": {
+              "loaded": true,
+              "size": 199,
+              "bytes": 80797,
+              "usage": 414176,
+              "total_fee": 0.00080861,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 2,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001350",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0007": {
+            "height": 2471,
+            "best_hash": "736efc7bd6e4cbef836726740d90865a8926e8d45dea6e12f83407f02abb7f43",
+            "mempool": {
+              "loaded": true,
+              "size": 199,
+              "bytes": 80797,
+              "usage": 411984,
+              "total_fee": 0.00080861,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 2,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001350",
+            "difficulty": 4.656542373906925e-10
+          }
+        }
+      }
+    },
+    {
+      "name": "flapping_connection",
+      "start_time": "2025-09-29T18:44:04.818598",
+      "end_time": "2025-09-29T18:58:05.032731",
+      "duration": 840.214133,
+      "fork_detected": false,
+      "error": null,
+      "metrics": {
+        "fork_point": null,
+        "reorg_analysis": {},
+        "summary_stats": {
+          "height_progression": {
+            "tank-0000": {
+              "start": 2476,
+              "end": 2481,
+              "blocks_produced": 5
+            },
+            "tank-0001": {
+              "start": 2476,
+              "end": 2481,
+              "blocks_produced": 5
+            },
+            "tank-0002": {
+              "start": 2476,
+              "end": 2481,
+              "blocks_produced": 5
+            },
+            "tank-0003": {
+              "start": 2476,
+              "end": 2481,
+              "blocks_produced": 5
+            },
+            "tank-0004": {
+              "start": 2476,
+              "end": 2481,
+              "blocks_produced": 5
+            },
+            "tank-0005": {
+              "start": 2476,
+              "end": 2481,
+              "blocks_produced": 5
+            },
+            "tank-0006": {
+              "start": 2476,
+              "end": 2481,
+              "blocks_produced": 5
+            },
+            "tank-0007": {
+              "start": 2476,
+              "end": 2481,
+              "blocks_produced": 5
+            }
+          },
+          "mempool_stats": {},
+          "fork_duration": 213.24918460845947,
+          "fork_count": 3
+        },
+        "mempool_analysis": {}
+      },
+      "pre_snapshot": {
+        "timestamp": "2025-09-29T18:44:04.818607",
+        "fork_detected": true,
+        "unique_tips": 2,
+        "nodes": {
+          "tank-0000": {
+            "height": 2475,
+            "best_hash": "3ba9dc8bb769456ba2175f9e22a2d3677db65714ed8ee5158f233aec928a2ca2",
+            "mempool": {
+              "loaded": true,
+              "size": 81,
+              "bytes": 40302,
+              "usage": 179552,
+              "total_fee": 0.00040329,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 1,
+              "fullrbf": true
+            },
+            "peer_count": 13,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001358",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0001": {
+            "height": 2475,
+            "best_hash": "3ba9dc8bb769456ba2175f9e22a2d3677db65714ed8ee5158f233aec928a2ca2",
+            "mempool": {
+              "loaded": true,
+              "size": 83,
+              "bytes": 41299,
+              "usage": 184496,
+              "total_fee": 0.00041327,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 10,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001358",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0002": {
+            "height": 2475,
+            "best_hash": "3ba9dc8bb769456ba2175f9e22a2d3677db65714ed8ee5158f233aec928a2ca2",
+            "mempool": {
+              "loaded": true,
+              "size": 87,
+              "bytes": 42920,
+              "usage": 192960,
+              "total_fee": 0.00042948,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 1,
+              "fullrbf": true
+            },
+            "peer_count": 11,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001358",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0003": {
+            "height": 2475,
+            "best_hash": "3ba9dc8bb769456ba2175f9e22a2d3677db65714ed8ee5158f233aec928a2ca2",
+            "mempool": {
+              "loaded": true,
+              "size": 90,
+              "bytes": 44072,
+              "usage": 198816,
+              "total_fee": 0.000441,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 11,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001358",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0004": {
+            "height": 2475,
+            "best_hash": "3ba9dc8bb769456ba2175f9e22a2d3677db65714ed8ee5158f233aec928a2ca2",
+            "mempool": {
+              "loaded": true,
+              "size": 94,
+              "bytes": 46015,
+              "usage": 210448,
+              "total_fee": 0.00046044,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 11,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001358",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0005": {
+            "height": 2476,
+            "best_hash": "7d4d92ceb8fb6bf23b4c9913a2d39ae9e6fe38a21c7f417ef43f537cbd9a5a66",
+            "mempool": {
+              "loaded": true,
+              "size": 6,
+              "bytes": 2531,
+              "usage": 13808,
+              "total_fee": 2.533e-05,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 15,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000135a",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0006": {
+            "height": 2476,
+            "best_hash": "7d4d92ceb8fb6bf23b4c9913a2d39ae9e6fe38a21c7f417ef43f537cbd9a5a66",
+            "mempool": {
+              "loaded": true,
+              "size": 9,
+              "bytes": 4768,
+              "usage": 26784,
+              "total_fee": 4.774e-05,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 1,
+              "fullrbf": true
+            },
+            "peer_count": 9,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000135a",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0007": {
+            "height": 2476,
+            "best_hash": "7d4d92ceb8fb6bf23b4c9913a2d39ae9e6fe38a21c7f417ef43f537cbd9a5a66",
+            "mempool": {
+              "loaded": true,
+              "size": 11,
+              "bytes": 5612,
+              "usage": 31248,
+              "total_fee": 5.621e-05,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 10,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000135a",
+            "difficulty": 4.656542373906925e-10
+          }
+        }
+      },
+      "post_snapshot": {
+        "timestamp": "2025-09-29T18:56:33.173387",
+        "fork_detected": false,
+        "unique_tips": 1,
+        "nodes": {
+          "tank-0000": {
+            "height": 2482,
+            "best_hash": "0c522c937cdeae28196ad2c3f172b32860c31534e82e10c87ae1f4ce60d6a80d",
+            "mempool": {
+              "loaded": true,
+              "size": 10,
+              "bytes": 4531,
+              "usage": 24656,
+              "total_fee": 4.536e-05,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 13,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001366",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0001": {
+            "height": 2482,
+            "best_hash": "0c522c937cdeae28196ad2c3f172b32860c31534e82e10c87ae1f4ce60d6a80d",
+            "mempool": {
+              "loaded": true,
+              "size": 15,
+              "bytes": 6987,
+              "usage": 38320,
+              "total_fee": 6.995e-05,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 11,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001366",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0002": {
+            "height": 2482,
+            "best_hash": "0c522c937cdeae28196ad2c3f172b32860c31534e82e10c87ae1f4ce60d6a80d",
+            "mempool": {
+              "loaded": true,
+              "size": 18,
+              "bytes": 8396,
+              "usage": 46288,
+              "total_fee": 8.406e-05,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 12,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001366",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0003": {
+            "height": 2482,
+            "best_hash": "0c522c937cdeae28196ad2c3f172b32860c31534e82e10c87ae1f4ce60d6a80d",
+            "mempool": {
+              "loaded": true,
+              "size": 23,
+              "bytes": 10422,
+              "usage": 57728,
+              "total_fee": 0.00010438,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 13,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001366",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0004": {
+            "height": 2482,
+            "best_hash": "0c522c937cdeae28196ad2c3f172b32860c31534e82e10c87ae1f4ce60d6a80d",
+            "mempool": {
+              "loaded": true,
+              "size": 25,
+              "bytes": 11083,
+              "usage": 62000,
+              "total_fee": 0.00011099,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 11,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001366",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0005": {
+            "height": 2482,
+            "best_hash": "0c522c937cdeae28196ad2c3f172b32860c31534e82e10c87ae1f4ce60d6a80d",
+            "mempool": {
+              "loaded": true,
+              "size": 30,
+              "bytes": 13225,
+              "usage": 72560,
+              "total_fee": 0.00013245,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 17,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001366",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0006": {
+            "height": 2482,
+            "best_hash": "0c522c937cdeae28196ad2c3f172b32860c31534e82e10c87ae1f4ce60d6a80d",
+            "mempool": {
+              "loaded": true,
+              "size": 33,
+              "bytes": 14325,
+              "usage": 78352,
+              "total_fee": 0.00014347,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 11,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001366",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0007": {
+            "height": 2482,
+            "best_hash": "0c522c937cdeae28196ad2c3f172b32860c31534e82e10c87ae1f4ce60d6a80d",
+            "mempool": {
+              "loaded": true,
+              "size": 38,
+              "bytes": 16230,
+              "usage": 87744,
+              "total_fee": 0.00016253,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 16,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001366",
+            "difficulty": 4.656542373906925e-10
+          }
+        }
+      }
+    },
+    {
+      "name": "rolling_isolation",
+      "start_time": "2025-09-29T18:59:16.782675",
+      "end_time": "2025-09-29T19:19:15.345240",
+      "duration": 1198.562565,
+      "fork_detected": true,
+      "error": null,
+      "metrics": {
+        "fork_point": null,
+        "reorg_analysis": {},
+        "summary_stats": {
+          "height_progression": {
+            "tank-0000": {
+              "start": 2483,
+              "end": 2491,
+              "blocks_produced": 8
+            },
+            "tank-0001": {
+              "start": 2483,
+              "end": 2491,
+              "blocks_produced": 8
+            },
+            "tank-0002": {
+              "start": 2483,
+              "end": 2491,
+              "blocks_produced": 8
+            },
+            "tank-0003": {
+              "start": 2483,
+              "end": 2491,
+              "blocks_produced": 8
+            },
+            "tank-0004": {
+              "start": 2483,
+              "end": 2491,
+              "blocks_produced": 8
+            },
+            "tank-0005": {
+              "start": 2483,
+              "end": 2491,
+              "blocks_produced": 8
+            },
+            "tank-0006": {
+              "start": 2483,
+              "end": 2491,
+              "blocks_produced": 8
+            },
+            "tank-0007": {
+              "start": 2483,
+              "end": 2491,
+              "blocks_produced": 8
+            }
+          },
+          "mempool_stats": {},
+          "fork_duration": 134.77047157287598,
+          "fork_count": 1
+        },
+        "mempool_analysis": {}
+      },
+      "pre_snapshot": {
+        "timestamp": "2025-09-29T18:59:16.782685",
+        "fork_detected": false,
+        "unique_tips": 1,
+        "nodes": {
+          "tank-0000": {
+            "height": 2483,
+            "best_hash": "4404b705cb919ee54ad7cd6ee8691f2d71f2017f763bd505ce45c7272a1e62a7",
+            "mempool": {
+              "loaded": true,
+              "size": 45,
+              "bytes": 20367,
+              "usage": 100272,
+              "total_fee": 0.00020387,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 13,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001368",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0001": {
+            "height": 2483,
+            "best_hash": "4404b705cb919ee54ad7cd6ee8691f2d71f2017f763bd505ce45c7272a1e62a7",
+            "mempool": {
+              "loaded": true,
+              "size": 49,
+              "bytes": 22196,
+              "usage": 108672,
+              "total_fee": 0.00022217,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 11,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001368",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0002": {
+            "height": 2483,
+            "best_hash": "4404b705cb919ee54ad7cd6ee8691f2d71f2017f763bd505ce45c7272a1e62a7",
+            "mempool": {
+              "loaded": true,
+              "size": 50,
+              "bytes": 22641,
+              "usage": 111232,
+              "total_fee": 0.00022662,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 12,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001368",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0003": {
+            "height": 2483,
+            "best_hash": "4404b705cb919ee54ad7cd6ee8691f2d71f2017f763bd505ce45c7272a1e62a7",
+            "mempool": {
+              "loaded": true,
+              "size": 56,
+              "bytes": 25228,
+              "usage": 123232,
+              "total_fee": 0.00025251,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 13,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001368",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0004": {
+            "height": 2483,
+            "best_hash": "4404b705cb919ee54ad7cd6ee8691f2d71f2017f763bd505ce45c7272a1e62a7",
+            "mempool": {
+              "loaded": true,
+              "size": 58,
+              "bytes": 26067,
+              "usage": 128816,
+              "total_fee": 0.0002609,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 11,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001368",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0005": {
+            "height": 2483,
+            "best_hash": "4404b705cb919ee54ad7cd6ee8691f2d71f2017f763bd505ce45c7272a1e62a7",
+            "mempool": {
+              "loaded": true,
+              "size": 64,
+              "bytes": 28866,
+              "usage": 140064,
+              "total_fee": 0.00028889,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 1,
+              "fullrbf": true
+            },
+            "peer_count": 17,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001368",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0006": {
+            "height": 2483,
+            "best_hash": "4404b705cb919ee54ad7cd6ee8691f2d71f2017f763bd505ce45c7272a1e62a7",
+            "mempool": {
+              "loaded": true,
+              "size": 66,
+              "bytes": 29764,
+              "usage": 144912,
+              "total_fee": 0.00029787,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 11,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001368",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0007": {
+            "height": 2483,
+            "best_hash": "4404b705cb919ee54ad7cd6ee8691f2d71f2017f763bd505ce45c7272a1e62a7",
+            "mempool": {
+              "loaded": true,
+              "size": 70,
+              "bytes": 31653,
+              "usage": 153840,
+              "total_fee": 0.0003168,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 16,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001368",
+            "difficulty": 4.656542373906925e-10
+          }
+        }
+      },
+      "post_snapshot": {
+        "timestamp": "2025-09-29T19:18:00.020853",
+        "fork_detected": true,
+        "unique_tips": 2,
+        "nodes": {
+          "tank-0000": {
+            "height": 2492,
+            "best_hash": "3277e51f606db1db4db3e7832c39278c093f531f57ae2c23d631a092a902ce3a",
+            "mempool": {
+              "loaded": true,
+              "size": 79,
+              "bytes": 33068,
+              "usage": 160560,
+              "total_fee": 0.00033092,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 11,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000137a",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0001": {
+            "height": 2492,
+            "best_hash": "3277e51f606db1db4db3e7832c39278c093f531f57ae2c23d631a092a902ce3a",
+            "mempool": {
+              "loaded": true,
+              "size": 80,
+              "bytes": 33328,
+              "usage": 162064,
+              "total_fee": 0.00033352,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 10,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000137a",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0002": {
+            "height": 2492,
+            "best_hash": "3277e51f606db1db4db3e7832c39278c093f531f57ae2c23d631a092a902ce3a",
+            "mempool": {
+              "loaded": true,
+              "size": 83,
+              "bytes": 34498,
+              "usage": 168352,
+              "total_fee": 0.00034522,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 1,
+              "fullrbf": true
+            },
+            "peer_count": 10,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000137a",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0003": {
+            "height": 2492,
+            "best_hash": "3277e51f606db1db4db3e7832c39278c093f531f57ae2c23d631a092a902ce3a",
+            "mempool": {
+              "loaded": true,
+              "size": 88,
+              "bytes": 36778,
+              "usage": 179552,
+              "total_fee": 0.00036802,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 1,
+              "fullrbf": true
+            },
+            "peer_count": 10,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000137a",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0004": {
+            "height": 2492,
+            "best_hash": "3277e51f606db1db4db3e7832c39278c093f531f57ae2c23d631a092a902ce3a",
+            "mempool": {
+              "loaded": true,
+              "size": 89,
+              "bytes": 37086,
+              "usage": 182688,
+              "total_fee": 0.0003711,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 9,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000137a",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0005": {
+            "height": 2492,
+            "best_hash": "3277e51f606db1db4db3e7832c39278c093f531f57ae2c23d631a092a902ce3a",
+            "mempool": {
+              "loaded": true,
+              "size": 93,
+              "bytes": 38552,
+              "usage": 189952,
+              "total_fee": 0.00038577,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 11,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000137a",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0006": {
+            "height": 2493,
+            "best_hash": "23c0275c90f886c8b81e137bdb92814a2e5001777112f869ba0196120fea676c",
+            "mempool": {
+              "loaded": true,
+              "size": 0,
+              "bytes": 0,
+              "usage": 32,
+              "total_fee": 0.0,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 9,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000137c",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0007": {
+            "height": 2493,
+            "best_hash": "23c0275c90f886c8b81e137bdb92814a2e5001777112f869ba0196120fea676c",
+            "mempool": {
+              "loaded": true,
+              "size": 4,
+              "bytes": 1578,
+              "usage": 8416,
+              "total_fee": 1.579e-05,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 10,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000137c",
+            "difficulty": 4.656542373906925e-10
+          }
+        }
+      }
+    },
+    {
+      "name": "star_topology",
+      "start_time": "2025-09-29T19:20:26.159569",
+      "end_time": "2025-09-29T19:25:58.003441",
+      "duration": 331.843872,
+      "fork_detected": false,
+      "error": null,
+      "metrics": {
+        "fork_point": null,
+        "reorg_analysis": {},
+        "summary_stats": {
+          "height_progression": {
+            "tank-0000": {
+              "start": 2494,
+              "end": 2495,
+              "blocks_produced": 1
+            },
+            "tank-0001": {
+              "start": 2494,
+              "end": 2495,
+              "blocks_produced": 1
+            },
+            "tank-0002": {
+              "start": 2494,
+              "end": 2495,
+              "blocks_produced": 1
+            },
+            "tank-0003": {
+              "start": 2494,
+              "end": 2495,
+              "blocks_produced": 1
+            },
+            "tank-0004": {
+              "start": 2494,
+              "end": 2495,
+              "blocks_produced": 1
+            },
+            "tank-0005": {
+              "start": 2494,
+              "end": 2495,
+              "blocks_produced": 1
+            },
+            "tank-0006": {
+              "start": 2494,
+              "end": 2495,
+              "blocks_produced": 1
+            },
+            "tank-0007": {
+              "start": 2494,
+              "end": 2495,
+              "blocks_produced": 1
+            }
+          },
+          "mempool_stats": {
+            "tank-0000": {
+              "avg_size": 27,
+              "max_size": 49,
+              "min_size": 5
+            },
+            "tank-0001": {
+              "avg_size": 27,
+              "max_size": 49,
+              "min_size": 5
+            },
+            "tank-0002": {
+              "avg_size": 27,
+              "max_size": 49,
+              "min_size": 5
+            },
+            "tank-0003": {
+              "avg_size": 28.5,
+              "max_size": 49,
+              "min_size": 8
+            },
+            "tank-0004": {
+              "avg_size": 27.5,
+              "max_size": 50,
+              "min_size": 5
+            },
+            "tank-0005": {
+              "avg_size": 30.5,
+              "max_size": 52,
+              "min_size": 9
+            },
+            "tank-0006": {
+              "avg_size": 29.5,
+              "max_size": 50,
+              "min_size": 9
+            },
+            "tank-0007": {
+              "avg_size": 32.5,
+              "max_size": 56,
+              "min_size": 9
+            }
+          },
+          "fork_duration": 0,
+          "fork_count": 0
+        },
+        "mempool_analysis": {
+          "tank-0000": {
+            "peak_size": 49,
+            "peak_bytes": 20407,
+            "final_size": 5,
+            "final_bytes": 1731
+          },
+          "tank-0001": {
+            "peak_size": 49,
+            "peak_bytes": 20407,
+            "final_size": 5,
+            "final_bytes": 1774
+          },
+          "tank-0002": {
+            "peak_size": 49,
+            "peak_bytes": 20431,
+            "final_size": 5,
+            "final_bytes": 1609
+          },
+          "tank-0003": {
+            "peak_size": 49,
+            "peak_bytes": 20407,
+            "final_size": 8,
+            "final_bytes": 2969
+          },
+          "tank-0004": {
+            "peak_size": 50,
+            "peak_bytes": 20653,
+            "final_size": 5,
+            "final_bytes": 1752
+          },
+          "tank-0005": {
+            "peak_size": 52,
+            "peak_bytes": 21292,
+            "final_size": 9,
+            "final_bytes": 3284
+          },
+          "tank-0006": {
+            "peak_size": 50,
+            "peak_bytes": 20663,
+            "final_size": 9,
+            "final_bytes": 3284
+          },
+          "tank-0007": {
+            "peak_size": 56,
+            "peak_bytes": 23602,
+            "final_size": 9,
+            "final_bytes": 3284
+          }
+        }
+      },
+      "pre_snapshot": {
+        "timestamp": "2025-09-29T19:20:26.159574",
+        "fork_detected": false,
+        "unique_tips": 1,
+        "nodes": {
+          "tank-0000": {
+            "height": 2494,
+            "best_hash": "67ab7fae4e2677172892d6a62fd3aecc3dbc725070958aae7fbbbd5b42b1de2d",
+            "mempool": {
+              "loaded": true,
+              "size": 3,
+              "bytes": 1009,
+              "usage": 6096,
+              "total_fee": 1.01e-05,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 11,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000137e",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0001": {
+            "height": 2494,
+            "best_hash": "67ab7fae4e2677172892d6a62fd3aecc3dbc725070958aae7fbbbd5b42b1de2d",
+            "mempool": {
+              "loaded": true,
+              "size": 6,
+              "bytes": 2451,
+              "usage": 13648,
+              "total_fee": 2.455e-05,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 1,
+              "fullrbf": true
+            },
+            "peer_count": 10,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000137e",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0002": {
+            "height": 2494,
+            "best_hash": "67ab7fae4e2677172892d6a62fd3aecc3dbc725070958aae7fbbbd5b42b1de2d",
+            "mempool": {
+              "loaded": true,
+              "size": 11,
+              "bytes": 3977,
+              "usage": 22080,
+              "total_fee": 3.984e-05,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 10,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000137e",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0003": {
+            "height": 2494,
+            "best_hash": "67ab7fae4e2677172892d6a62fd3aecc3dbc725070958aae7fbbbd5b42b1de2d",
+            "mempool": {
+              "loaded": true,
+              "size": 12,
+              "bytes": 4309,
+              "usage": 23904,
+              "total_fee": 4.317e-05,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 10,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000137e",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0004": {
+            "height": 2494,
+            "best_hash": "67ab7fae4e2677172892d6a62fd3aecc3dbc725070958aae7fbbbd5b42b1de2d",
+            "mempool": {
+              "loaded": true,
+              "size": 15,
+              "bytes": 5434,
+              "usage": 30512,
+              "total_fee": 5.443e-05,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 1,
+              "fullrbf": true
+            },
+            "peer_count": 10,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000137e",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0005": {
+            "height": 2494,
+            "best_hash": "67ab7fae4e2677172892d6a62fd3aecc3dbc725070958aae7fbbbd5b42b1de2d",
+            "mempool": {
+              "loaded": true,
+              "size": 19,
+              "bytes": 7244,
+              "usage": 41344,
+              "total_fee": 7.256e-05,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 11,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000137e",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0006": {
+            "height": 2494,
+            "best_hash": "67ab7fae4e2677172892d6a62fd3aecc3dbc725070958aae7fbbbd5b42b1de2d",
+            "mempool": {
+              "loaded": true,
+              "size": 21,
+              "bytes": 8037,
+              "usage": 45360,
+              "total_fee": 8.049e-05,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 10,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000137e",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0007": {
+            "height": 2494,
+            "best_hash": "67ab7fae4e2677172892d6a62fd3aecc3dbc725070958aae7fbbbd5b42b1de2d",
+            "mempool": {
+              "loaded": true,
+              "size": 26,
+              "bytes": 10035,
+              "usage": 55824,
+              "total_fee": 0.00010052,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 10,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000137e",
+            "difficulty": 4.656542373906925e-10
+          }
+        }
+      },
+      "post_snapshot": {
+        "timestamp": "2025-09-29T19:24:36.050145",
+        "fork_detected": false,
+        "unique_tips": 1,
+        "nodes": {
+          "tank-0000": {
+            "height": 2496,
+            "best_hash": "0b293b74d7d5b928b8e972a6f320f380bd86ca2c08f73515d8f6577d9d075ef2",
+            "mempool": {
+              "loaded": true,
+              "size": 12,
+              "bytes": 4538,
+              "usage": 24720,
+              "total_fee": 4.541e-05,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 12,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001382",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0001": {
+            "height": 2496,
+            "best_hash": "0b293b74d7d5b928b8e972a6f320f380bd86ca2c08f73515d8f6577d9d075ef2",
+            "mempool": {
+              "loaded": true,
+              "size": 14,
+              "bytes": 5457,
+              "usage": 28688,
+              "total_fee": 5.46e-05,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 3,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001382",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0002": {
+            "height": 2496,
+            "best_hash": "0b293b74d7d5b928b8e972a6f320f380bd86ca2c08f73515d8f6577d9d075ef2",
+            "mempool": {
+              "loaded": true,
+              "size": 19,
+              "bytes": 7554,
+              "usage": 40800,
+              "total_fee": 7.563e-05,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 1,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001382",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0003": {
+            "height": 2496,
+            "best_hash": "0b293b74d7d5b928b8e972a6f320f380bd86ca2c08f73515d8f6577d9d075ef2",
+            "mempool": {
+              "loaded": true,
+              "size": 18,
+              "bytes": 7320,
+              "usage": 38800,
+              "total_fee": 7.326e-05,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 1,
+              "fullrbf": true
+            },
+            "peer_count": 1,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001382",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0004": {
+            "height": 2496,
+            "best_hash": "0b293b74d7d5b928b8e972a6f320f380bd86ca2c08f73515d8f6577d9d075ef2",
+            "mempool": {
+              "loaded": true,
+              "size": 27,
+              "bytes": 10000,
+              "usage": 54096,
+              "total_fee": 0.00010011,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 2,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001382",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0005": {
+            "height": 2496,
+            "best_hash": "0b293b74d7d5b928b8e972a6f320f380bd86ca2c08f73515d8f6577d9d075ef2",
+            "mempool": {
+              "loaded": true,
+              "size": 27,
+              "bytes": 10030,
+              "usage": 54176,
+              "total_fee": 0.00010041,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 1,
+              "fullrbf": true
+            },
+            "peer_count": 2,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001382",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0006": {
+            "height": 2496,
+            "best_hash": "0b293b74d7d5b928b8e972a6f320f380bd86ca2c08f73515d8f6577d9d075ef2",
+            "mempool": {
+              "loaded": true,
+              "size": 27,
+              "bytes": 10092,
+              "usage": 54720,
+              "total_fee": 0.00010104,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 1,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001382",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0007": {
+            "height": 2496,
+            "best_hash": "0b293b74d7d5b928b8e972a6f320f380bd86ca2c08f73515d8f6577d9d075ef2",
+            "mempool": {
+              "loaded": true,
+              "size": 36,
+              "bytes": 13603,
+              "usage": 73632,
+              "total_fee": 0.00013621,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 1,
+              "fullrbf": true
+            },
+            "peer_count": 2,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001382",
+            "difficulty": 4.656542373906925e-10
+          }
+        }
+      }
+    },
+    {
+      "name": "cascade_failure",
+      "start_time": "2025-09-29T19:27:40.241761",
+      "end_time": "2025-09-29T19:38:49.270553",
+      "duration": 669.028792,
+      "fork_detected": false,
+      "error": null,
+      "metrics": {
+        "fork_point": null,
+        "reorg_analysis": {},
+        "summary_stats": {
+          "height_progression": {
+            "tank-0000": {
+              "start": 2498,
+              "end": 2500,
+              "blocks_produced": 2
+            },
+            "tank-0001": {
+              "start": 2498,
+              "end": 2500,
+              "blocks_produced": 2
+            },
+            "tank-0002": {
+              "start": 2498,
+              "end": 2500,
+              "blocks_produced": 2
+            },
+            "tank-0003": {
+              "start": 2498,
+              "end": 2500,
+              "blocks_produced": 2
+            },
+            "tank-0004": {
+              "start": 2498,
+              "end": 2500,
+              "blocks_produced": 2
+            },
+            "tank-0005": {
+              "start": 2498,
+              "end": 2500,
+              "blocks_produced": 2
+            },
+            "tank-0006": {
+              "start": 2498,
+              "end": 2500,
+              "blocks_produced": 2
+            },
+            "tank-0007": {
+              "start": 2498,
+              "end": 2500,
+              "blocks_produced": 2
+            }
+          },
+          "mempool_stats": {},
+          "fork_duration": 90.10012984275818,
+          "fork_count": 1
+        },
+        "mempool_analysis": {}
+      },
+      "pre_snapshot": {
+        "timestamp": "2025-09-29T19:27:40.241765",
+        "fork_detected": false,
+        "unique_tips": 1,
+        "nodes": {
+          "tank-0000": {
+            "height": 2497,
+            "best_hash": "475c5e81c41aa5b276a8d99cca1d8183f5a0c8f1fbd273cfb075448c5b84f4d6",
+            "mempool": {
+              "loaded": true,
+              "size": 65,
+              "bytes": 29370,
+              "usage": 141712,
+              "total_fee": 0.00029398,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 13,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001384",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0001": {
+            "height": 2497,
+            "best_hash": "475c5e81c41aa5b276a8d99cca1d8183f5a0c8f1fbd273cfb075448c5b84f4d6",
+            "mempool": {
+              "loaded": true,
+              "size": 68,
+              "bytes": 30720,
+              "usage": 147520,
+              "total_fee": 0.00030748,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 10,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001384",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0002": {
+            "height": 2497,
+            "best_hash": "475c5e81c41aa5b276a8d99cca1d8183f5a0c8f1fbd273cfb075448c5b84f4d6",
+            "mempool": {
+              "loaded": true,
+              "size": 70,
+              "bytes": 31430,
+              "usage": 151024,
+              "total_fee": 0.00031458,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 10,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001384",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0003": {
+            "height": 2497,
+            "best_hash": "475c5e81c41aa5b276a8d99cca1d8183f5a0c8f1fbd273cfb075448c5b84f4d6",
+            "mempool": {
+              "loaded": true,
+              "size": 75,
+              "bytes": 34127,
+              "usage": 161760,
+              "total_fee": 0.00034155,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 10,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001384",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0004": {
+            "height": 2497,
+            "best_hash": "475c5e81c41aa5b276a8d99cca1d8183f5a0c8f1fbd273cfb075448c5b84f4d6",
+            "mempool": {
+              "loaded": true,
+              "size": 76,
+              "bytes": 34459,
+              "usage": 165152,
+              "total_fee": 0.00034487,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 10,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001384",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0005": {
+            "height": 2497,
+            "best_hash": "475c5e81c41aa5b276a8d99cca1d8183f5a0c8f1fbd273cfb075448c5b84f4d6",
+            "mempool": {
+              "loaded": true,
+              "size": 81,
+              "bytes": 36135,
+              "usage": 174656,
+              "total_fee": 0.00036164,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 12,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001384",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0006": {
+            "height": 2497,
+            "best_hash": "475c5e81c41aa5b276a8d99cca1d8183f5a0c8f1fbd273cfb075448c5b84f4d6",
+            "mempool": {
+              "loaded": true,
+              "size": 84,
+              "bytes": 37365,
+              "usage": 179008,
+              "total_fee": 0.00037395,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 10,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001384",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0007": {
+            "height": 2497,
+            "best_hash": "475c5e81c41aa5b276a8d99cca1d8183f5a0c8f1fbd273cfb075448c5b84f4d6",
+            "mempool": {
+              "loaded": true,
+              "size": 86,
+              "bytes": 38372,
+              "usage": 184064,
+              "total_fee": 0.00038404,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 1,
+              "fullrbf": true
+            },
+            "peer_count": 11,
+            "chain_work": "0000000000000000000000000000000000000000000000000000000000001384",
+            "difficulty": 4.656542373906925e-10
+          }
+        }
+      },
+      "post_snapshot": {
+        "timestamp": "2025-09-29T19:37:31.212884",
+        "fork_detected": false,
+        "unique_tips": 1,
+        "nodes": {
+          "tank-0000": {
+            "height": 2502,
+            "best_hash": "230ad2d8642278bee5d73f7b974ae03d6629e1f3c20e86a9cfc4f6131b4f7f28",
+            "mempool": {
+              "loaded": true,
+              "size": 56,
+              "bytes": 25500,
+              "usage": 123808,
+              "total_fee": 0.00025526,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 13,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000138e",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0001": {
+            "height": 2502,
+            "best_hash": "230ad2d8642278bee5d73f7b974ae03d6629e1f3c20e86a9cfc4f6131b4f7f28",
+            "mempool": {
+              "loaded": true,
+              "size": 59,
+              "bytes": 26981,
+              "usage": 130752,
+              "total_fee": 0.00027007,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 12,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000138e",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0002": {
+            "height": 2502,
+            "best_hash": "230ad2d8642278bee5d73f7b974ae03d6629e1f3c20e86a9cfc4f6131b4f7f28",
+            "mempool": {
+              "loaded": true,
+              "size": 63,
+              "bytes": 28964,
+              "usage": 138640,
+              "total_fee": 0.0002899,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 12,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000138e",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0003": {
+            "height": 2502,
+            "best_hash": "230ad2d8642278bee5d73f7b974ae03d6629e1f3c20e86a9cfc4f6131b4f7f28",
+            "mempool": {
+              "loaded": true,
+              "size": 65,
+              "bytes": 30003,
+              "usage": 143776,
+              "total_fee": 0.00030029,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 12,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000138e",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0004": {
+            "height": 2502,
+            "best_hash": "230ad2d8642278bee5d73f7b974ae03d6629e1f3c20e86a9cfc4f6131b4f7f28",
+            "mempool": {
+              "loaded": true,
+              "size": 69,
+              "bytes": 31320,
+              "usage": 152112,
+              "total_fee": 0.00031348,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 11,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000138e",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0005": {
+            "height": 2502,
+            "best_hash": "230ad2d8642278bee5d73f7b974ae03d6629e1f3c20e86a9cfc4f6131b4f7f28",
+            "mempool": {
+              "loaded": true,
+              "size": 72,
+              "bytes": 32345,
+              "usage": 156192,
+              "total_fee": 0.00032373,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 16,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000138e",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0006": {
+            "height": 2502,
+            "best_hash": "230ad2d8642278bee5d73f7b974ae03d6629e1f3c20e86a9cfc4f6131b4f7f28",
+            "mempool": {
+              "loaded": true,
+              "size": 74,
+              "bytes": 32959,
+              "usage": 160096,
+              "total_fee": 0.00032988,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 11,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000138e",
+            "difficulty": 4.656542373906925e-10
+          },
+          "tank-0007": {
+            "height": 2502,
+            "best_hash": "230ad2d8642278bee5d73f7b974ae03d6629e1f3c20e86a9cfc4f6131b4f7f28",
+            "mempool": {
+              "loaded": true,
+              "size": 79,
+              "bytes": 35157,
+              "usage": 169360,
+              "total_fee": 0.00035187,
+              "maxmempool": 300000000,
+              "mempoolminfee": 1e-05,
+              "minrelaytxfee": 1e-05,
+              "incrementalrelayfee": 1e-05,
+              "unbroadcastcount": 0,
+              "fullrbf": true
+            },
+            "peer_count": 15,
+            "chain_work": "000000000000000000000000000000000000000000000000000000000000138e",
+            "difficulty": 4.656542373906925e-10
+          }
+        }
+      }
+    }
+  ]
+}

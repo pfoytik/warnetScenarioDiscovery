@@ -69,15 +69,44 @@ class WarnetRPC:
             try:
                 cmd = ["warnet", "bitcoin", "rpc", node, command] + list(args)
                 result = subprocess.run(cmd, capture_output=True, text=True, check=True, timeout=10)
-                return json.loads(result.stdout) if result.stdout else {}
+                
+                if not result.stdout or not result.stdout.strip():
+                    return {}
+                
+                # Try to parse as JSON
+                try:
+                    return json.loads(result.stdout.strip())
+                except json.JSONDecodeError as e:
+                    # If it's a simple value (like a number), try to handle it
+                    output = result.stdout.strip()
+                    
+                    # Check if it's a number
+                    if output.isdigit():
+                        return int(output)
+                    
+                    # Check if it's a float
+                    try:
+                        return float(output)
+                    except ValueError:
+                        pass
+                    
+                    # Check if it's a boolean string
+                    if output.lower() in ('true', 'false'):
+                        return output.lower() == 'true'
+                    
+                    # If it looks like a hash (hex string), return as is
+                    if all(c in '0123456789abcdef' for c in output.lower()) and len(output) == 64:
+                        return output
+                    
+                    # Otherwise log the error and return the raw output
+                    logger.debug(f"Non-JSON response from {node}.{command}: {output[:100]}")
+                    return output
+                    
             except subprocess.CalledProcessError as e:
                 if attempt == retries - 1:
                     logger.error(f"RPC error for {node}.{command}: {e.stderr}")
                     return {}
                 time.sleep(1)
-            except json.JSONDecodeError as e:
-                logger.error(f"JSON decode error: {e}")
-                return {}
             except subprocess.TimeoutExpired:
                 logger.warning(f"RPC timeout for {node}.{command}, retrying...")
                 continue
@@ -86,12 +115,20 @@ class WarnetRPC:
     @staticmethod
     def get_block_count(node: str) -> int:
         result = WarnetRPC.call(node, "getblockcount")
-        return int(result) if result else 0
+        if isinstance(result, int):
+            return result
+        elif isinstance(result, str) and result.isdigit():
+            return int(result)
+        elif isinstance(result, dict):
+            return 0
+        return 0
     
     @staticmethod
     def get_best_block_hash(node: str) -> str:
         result = WarnetRPC.call(node, "getbestblockhash")
-        return result if isinstance(result, str) else ""
+        if isinstance(result, str):
+            return result
+        return ""
     
     @staticmethod
     def get_block(node: str, block_hash: str) -> dict:
@@ -149,12 +186,17 @@ class NetworkState:
         """Discover node IPs and versions"""
         logger.info("Discovering node information...")
         for node in self.nodes:
-            network_info = WarnetRPC.get_network_info(node)
-            if network_info:
-                ip = self._extract_ip(network_info)
-                version = network_info.get('subversion', 'unknown')
-                self.node_info[node] = NodeInfo(node, ip, version)
-                logger.info(f"{node}: {ip} ({version})")
+            try:
+                network_info = WarnetRPC.get_network_info(node)
+                if network_info:
+                    ip = self._extract_ip(network_info)
+                    version = network_info.get('subversion', 'unknown')
+                    self.node_info[node] = NodeInfo(node, ip, version)
+                    logger.info(f"{node}: {ip} ({version})")
+                else:
+                    logger.warning(f"Could not get network info for {node}")
+            except Exception as e:
+                logger.error(f"Error discovering {node}: {e}", exc_info=True)
     
     def _extract_ip(self, network_info: dict) -> str:
         """Extract IP address from network info"""
@@ -409,20 +451,26 @@ class Monitor:
             
             # Collect heights
             if current_time - last_height_check >= height_interval:
-                self.collector.collect_heights()
-                self.collector.collect_fork_status()
-                last_height_check = current_time
-                
-                # Display current state
-                tips = self.state.get_chain_tips()
-                print(f"\n[{int(current_time)}s]")
-                for node, (height, hash) in tips.items():
-                    print(f"  {node}: {height} ({hash[:12]}...)")
+                try:
+                    self.collector.collect_heights()
+                    self.collector.collect_fork_status()
+                    last_height_check = current_time
+                    
+                    # Display current state
+                    tips = self.state.get_chain_tips()
+                    print(f"\n[{int(current_time)}s]")
+                    for node, (height, hash) in tips.items():
+                        print(f"  {node}: {height} ({hash[:12]}...)")
+                except Exception as e:
+                    logger.error(f"Error collecting heights: {e}")
             
             # Collect mempools
             if current_time - last_mempool_check >= mempool_interval:
-                self.collector.collect_mempools()
-                last_mempool_check = current_time
+                try:
+                    self.collector.collect_mempools()
+                    last_mempool_check = current_time
+                except Exception as e:
+                    logger.error(f"Error collecting mempools: {e}")
             
             time.sleep(1)
         

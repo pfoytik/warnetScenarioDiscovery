@@ -1,0 +1,1078 @@
+caddy:
+  enabled: true
+fork_observer:
+  enabled: true
+  configQueryInterval: 20
+nodes:
+- name: tank-0000
+  image:
+    tag: '29.0'
+  addnode:
+  - tank-0001
+  - tank-0002
+  - tank-0003
+  - tank-0004
+  - tank-0005
+  - tank-0006
+  - tank-0007
+  - tank-0008
+  - tank-0009
+  - tank-0010
+  - tank-0011
+  - tank-0012
+  - tank-0014
+  - tank-0016
+  - tank-0017
+  - tank-0018
+  - tank-0019
+  - tank-0020
+  - tank-0022
+  - tank-0023
+  - tank-0024
+  - tank-0025
+  - tank-0029
+  - tank-0030
+  - tank-0032
+  - tank-0035
+  - tank-0036
+  - tank-0037
+  - tank-0039
+  - tank-0042
+  - tank-0048
+  bitcoin_config:
+    maxmempool: 1000
+    mempoolexpiry: 72
+    maxconnections: 1000
+- name: tank-0001
+  image:
+    tag: '28.1'
+  addnode:
+  - tank-0000
+  - tank-0009
+  - tank-0010
+  - tank-0011
+  - tank-0012
+  - tank-0013
+  - tank-0014
+  - tank-0015
+  - tank-0016
+  - tank-0017
+  - tank-0019
+  - tank-0020
+  - tank-0021
+  - tank-0023
+  - tank-0024
+  - tank-0025
+  - tank-0026
+  - tank-0027
+  - tank-0029
+  - tank-0032
+  - tank-0033
+  - tank-0034
+  - tank-0037
+  - tank-0039
+  - tank-0040
+  - tank-0041
+  - tank-0044
+  - tank-0046
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0002
+  image:
+    tag: '28.1'
+  addnode:
+  - tank-0000
+  - tank-0009
+  - tank-0010
+  - tank-0011
+  - tank-0012
+  - tank-0013
+  - tank-0017
+  - tank-0024
+  - tank-0026
+  - tank-0028
+  - tank-0031
+  - tank-0033
+  - tank-0035
+  - tank-0041
+  - tank-0042
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 1
+    maxconnections: 1000
+- name: tank-0003
+  image:
+    tag: '28.1'
+  addnode:
+  - tank-0000
+  - tank-0009
+  - tank-0010
+  - tank-0011
+  - tank-0012
+  - tank-0014
+  - tank-0015
+  - tank-0016
+  - tank-0017
+  - tank-0021
+  - tank-0022
+  - tank-0025
+  - tank-0027
+  - tank-0033
+  - tank-0036
+  - tank-0038
+  - tank-0043
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 1
+    maxconnections: 1000
+- name: tank-0004
+  image:
+    tag: '27.2'
+  addnode:
+  - tank-0000
+  - tank-0009
+  - tank-0012
+  - tank-0013
+  - tank-0014
+  - tank-0015
+  - tank-0016
+  - tank-0018
+  - tank-0020
+  - tank-0030
+  - tank-0034
+  - tank-0035
+  - tank-0037
+  - tank-0042
+  - tank-0049
+  bitcoin_config:
+    maxmempool: 50
+    mempoolexpiry: 1
+    maxconnections: 125
+- name: tank-0005
+  image:
+    tag: '29.0'
+  addnode:
+  - tank-0000
+  - tank-0009
+  - tank-0010
+  - tank-0020
+  - tank-0024
+  - tank-0038
+  - tank-0043
+  - tank-0046
+  bitcoin_config:
+    maxmempool: 1000
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0006
+  image:
+    tag: '29.0'
+  addnode:
+  - tank-0000
+  - tank-0009
+  - tank-0010
+  - tank-0011
+  - tank-0037
+  - tank-0038
+  - tank-0041
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 72
+    maxconnections: 1000
+- name: tank-0007
+  image:
+    tag: '26.0'
+  addnode:
+  - tank-0000
+  - tank-0009
+  - tank-0010
+  - tank-0011
+  - tank-0015
+  - tank-0019
+  - tank-0023
+  - tank-0025
+  - tank-0028
+  - tank-0038
+  - tank-0045
+  - tank-0049
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0008
+  image:
+    tag: '29.0'
+  addnode:
+  - tank-0000
+  - tank-0011
+  - tank-0013
+  - tank-0015
+  - tank-0017
+  - tank-0021
+  - tank-0026
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 336
+    maxconnections: 125
+- name: tank-0009
+  image:
+    tag: '28.1'
+  addnode:
+  - tank-0000
+  - tank-0001
+  - tank-0002
+  - tank-0003
+  - tank-0004
+  - tank-0005
+  - tank-0006
+  - tank-0007
+  - tank-0010
+  - tank-0012
+  - tank-0013
+  - tank-0014
+  - tank-0016
+  - tank-0017
+  - tank-0018
+  - tank-0019
+  - tank-0023
+  - tank-0024
+  - tank-0026
+  - tank-0029
+  - tank-0030
+  - tank-0031
+  - tank-0032
+  - tank-0033
+  - tank-0034
+  - tank-0045
+  - tank-0046
+  - tank-0047
+  - tank-0049
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0010
+  image:
+    tag: '29.0'
+  addnode:
+  - tank-0000
+  - tank-0001
+  - tank-0002
+  - tank-0003
+  - tank-0005
+  - tank-0006
+  - tank-0007
+  - tank-0009
+  - tank-0011
+  - tank-0012
+  - tank-0013
+  - tank-0014
+  - tank-0015
+  - tank-0016
+  - tank-0017
+  - tank-0018
+  - tank-0021
+  - tank-0023
+  - tank-0024
+  - tank-0027
+  - tank-0029
+  - tank-0033
+  - tank-0035
+  - tank-0036
+  - tank-0038
+  - tank-0040
+  - tank-0041
+  - tank-0042
+  - tank-0043
+  - tank-0044
+  - tank-0046
+  - tank-0048
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 336
+    maxconnections: 125
+- name: tank-0011
+  image:
+    tag: '27.2'
+  addnode:
+  - tank-0000
+  - tank-0001
+  - tank-0002
+  - tank-0003
+  - tank-0006
+  - tank-0007
+  - tank-0008
+  - tank-0010
+  - tank-0012
+  - tank-0013
+  - tank-0014
+  - tank-0019
+  - tank-0022
+  - tank-0023
+  - tank-0027
+  - tank-0028
+  - tank-0034
+  - tank-0048
+  bitcoin_config:
+    maxmempool: 1000
+    mempoolexpiry: 72
+    maxconnections: 1000
+- name: tank-0012
+  image:
+    tag: '28.1'
+  addnode:
+  - tank-0000
+  - tank-0001
+  - tank-0002
+  - tank-0003
+  - tank-0004
+  - tank-0009
+  - tank-0010
+  - tank-0011
+  - tank-0013
+  - tank-0014
+  - tank-0015
+  - tank-0016
+  - tank-0017
+  - tank-0019
+  - tank-0022
+  - tank-0026
+  - tank-0031
+  - tank-0032
+  - tank-0040
+  - tank-0042
+  - tank-0043
+  - tank-0045
+  - tank-0047
+  - tank-0049
+  bitcoin_config:
+    maxmempool: 50
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0013
+  image:
+    tag: '29.0'
+  addnode:
+  - tank-0001
+  - tank-0002
+  - tank-0004
+  - tank-0008
+  - tank-0009
+  - tank-0010
+  - tank-0011
+  - tank-0012
+  - tank-0018
+  - tank-0019
+  - tank-0022
+  - tank-0023
+  - tank-0028
+  - tank-0030
+  - tank-0033
+  - tank-0041
+  - tank-0047
+  - tank-0049
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0014
+  image:
+    tag: '29.0'
+  addnode:
+  - tank-0000
+  - tank-0001
+  - tank-0003
+  - tank-0004
+  - tank-0009
+  - tank-0010
+  - tank-0011
+  - tank-0012
+  - tank-0015
+  - tank-0016
+  - tank-0018
+  - tank-0021
+  - tank-0025
+  - tank-0029
+  - tank-0030
+  - tank-0031
+  - tank-0032
+  - tank-0036
+  - tank-0038
+  - tank-0040
+  - tank-0042
+  - tank-0044
+  - tank-0045
+  - tank-0046
+  - tank-0048
+  - tank-0049
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0015
+  image:
+    tag: '28.1'
+  addnode:
+  - tank-0001
+  - tank-0003
+  - tank-0004
+  - tank-0007
+  - tank-0008
+  - tank-0010
+  - tank-0012
+  - tank-0014
+  - tank-0019
+  - tank-0020
+  - tank-0021
+  - tank-0024
+  - tank-0025
+  - tank-0027
+  - tank-0028
+  - tank-0029
+  - tank-0032
+  - tank-0034
+  - tank-0036
+  - tank-0038
+  - tank-0042
+  - tank-0045
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 1
+    maxconnections: 125
+- name: tank-0016
+  image:
+    tag: '27.2'
+  addnode:
+  - tank-0000
+  - tank-0001
+  - tank-0003
+  - tank-0004
+  - tank-0009
+  - tank-0010
+  - tank-0012
+  - tank-0014
+  - tank-0018
+  - tank-0020
+  - tank-0021
+  - tank-0022
+  - tank-0025
+  - tank-0027
+  - tank-0028
+  - tank-0035
+  - tank-0039
+  - tank-0040
+  - tank-0045
+  - tank-0047
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 1
+    maxconnections: 125
+- name: tank-0017
+  image:
+    tag: '28.1'
+  addnode:
+  - tank-0000
+  - tank-0001
+  - tank-0002
+  - tank-0003
+  - tank-0008
+  - tank-0009
+  - tank-0010
+  - tank-0012
+  - tank-0018
+  - tank-0021
+  - tank-0037
+  - tank-0039
+  - tank-0040
+  - tank-0041
+  - tank-0043
+  - tank-0044
+  - tank-0045
+  bitcoin_config:
+    maxmempool: 50
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0018
+  image:
+    tag: '29.0'
+  addnode:
+  - tank-0000
+  - tank-0004
+  - tank-0009
+  - tank-0010
+  - tank-0013
+  - tank-0014
+  - tank-0016
+  - tank-0017
+  - tank-0020
+  - tank-0022
+  - tank-0023
+  - tank-0024
+  - tank-0027
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0019
+  image:
+    tag: '26.0'
+  addnode:
+  - tank-0000
+  - tank-0001
+  - tank-0007
+  - tank-0009
+  - tank-0011
+  - tank-0012
+  - tank-0013
+  - tank-0015
+  - tank-0020
+  - tank-0022
+  - tank-0030
+  - tank-0039
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0020
+  image:
+    tag: '28.1'
+  addnode:
+  - tank-0000
+  - tank-0001
+  - tank-0004
+  - tank-0005
+  - tank-0015
+  - tank-0016
+  - tank-0018
+  - tank-0019
+  - tank-0026
+  - tank-0030
+  - tank-0034
+  - tank-0036
+  - tank-0046
+  - tank-0047
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0021
+  image:
+    tag: '28.1'
+  addnode:
+  - tank-0001
+  - tank-0003
+  - tank-0008
+  - tank-0010
+  - tank-0014
+  - tank-0015
+  - tank-0016
+  - tank-0017
+  - tank-0026
+  - tank-0027
+  - tank-0031
+  bitcoin_config:
+    maxmempool: 1000
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0022
+  image:
+    tag: '25.0'
+  addnode:
+  - tank-0000
+  - tank-0003
+  - tank-0011
+  - tank-0012
+  - tank-0013
+  - tank-0016
+  - tank-0018
+  - tank-0019
+  - tank-0026
+  - tank-0028
+  - tank-0030
+  - tank-0037
+  - tank-0047
+  - tank-0048
+  bitcoin_config:
+    maxmempool: 1000
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0023
+  image:
+    tag: '26.0'
+  addnode:
+  - tank-0000
+  - tank-0001
+  - tank-0007
+  - tank-0009
+  - tank-0010
+  - tank-0011
+  - tank-0013
+  - tank-0018
+  - tank-0025
+  - tank-0029
+  - tank-0031
+  - tank-0036
+  - tank-0044
+  - tank-0046
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 336
+    maxconnections: 125
+- name: tank-0024
+  image:
+    tag: '28.1'
+  addnode:
+  - tank-0000
+  - tank-0001
+  - tank-0002
+  - tank-0005
+  - tank-0009
+  - tank-0010
+  - tank-0015
+  - tank-0018
+  - tank-0033
+  - tank-0035
+  - tank-0040
+  - tank-0041
+  - tank-0042
+  - tank-0049
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0025
+  image:
+    tag: '25.0'
+  addnode:
+  - tank-0000
+  - tank-0001
+  - tank-0003
+  - tank-0007
+  - tank-0014
+  - tank-0015
+  - tank-0016
+  - tank-0023
+  - tank-0028
+  - tank-0031
+  - tank-0041
+  - tank-0048
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0026
+  image:
+    tag: '29.0'
+  addnode:
+  - tank-0001
+  - tank-0002
+  - tank-0008
+  - tank-0009
+  - tank-0012
+  - tank-0020
+  - tank-0021
+  - tank-0022
+  - tank-0032
+  - tank-0033
+  - tank-0034
+  - tank-0035
+  - tank-0045
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0027
+  image:
+    tag: '29.0'
+  addnode:
+  - tank-0001
+  - tank-0003
+  - tank-0010
+  - tank-0011
+  - tank-0015
+  - tank-0016
+  - tank-0018
+  - tank-0021
+  - tank-0035
+  - tank-0037
+  - tank-0039
+  - tank-0044
+  - tank-0047
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0028
+  image:
+    tag: '28.1'
+  addnode:
+  - tank-0002
+  - tank-0007
+  - tank-0011
+  - tank-0013
+  - tank-0015
+  - tank-0016
+  - tank-0022
+  - tank-0025
+  - tank-0029
+  - tank-0037
+  - tank-0047
+  bitcoin_config:
+    maxmempool: 1000
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0029
+  image:
+    tag: '27.2'
+  addnode:
+  - tank-0000
+  - tank-0001
+  - tank-0009
+  - tank-0010
+  - tank-0014
+  - tank-0015
+  - tank-0023
+  - tank-0028
+  - tank-0034
+  - tank-0040
+  bitcoin_config:
+    maxmempool: 50
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0030
+  image:
+    tag: '26.0'
+  addnode:
+  - tank-0000
+  - tank-0004
+  - tank-0009
+  - tank-0013
+  - tank-0014
+  - tank-0019
+  - tank-0020
+  - tank-0022
+  - tank-0031
+  - tank-0036
+  - tank-0039
+  - tank-0044
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0031
+  image:
+    tag: '28.1'
+  addnode:
+  - tank-0002
+  - tank-0009
+  - tank-0012
+  - tank-0014
+  - tank-0021
+  - tank-0023
+  - tank-0025
+  - tank-0030
+  - tank-0032
+  - tank-0043
+  - tank-0046
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 72
+    maxconnections: 8
+- name: tank-0032
+  image:
+    tag: '28.1'
+  addnode:
+  - tank-0000
+  - tank-0001
+  - tank-0009
+  - tank-0012
+  - tank-0014
+  - tank-0015
+  - tank-0026
+  - tank-0031
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0033
+  image:
+    tag: '27.2'
+  addnode:
+  - tank-0001
+  - tank-0002
+  - tank-0003
+  - tank-0009
+  - tank-0010
+  - tank-0013
+  - tank-0024
+  - tank-0026
+  - tank-0048
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0034
+  image:
+    tag: '28.1'
+  addnode:
+  - tank-0001
+  - tank-0004
+  - tank-0009
+  - tank-0011
+  - tank-0015
+  - tank-0020
+  - tank-0026
+  - tank-0029
+  - tank-0039
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 336
+    maxconnections: 125
+- name: tank-0035
+  image:
+    tag: '26.0'
+  addnode:
+  - tank-0000
+  - tank-0002
+  - tank-0004
+  - tank-0010
+  - tank-0016
+  - tank-0024
+  - tank-0026
+  - tank-0027
+  - tank-0043
+  - tank-0049
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0036
+  image:
+    tag: '29.0'
+  addnode:
+  - tank-0000
+  - tank-0003
+  - tank-0010
+  - tank-0014
+  - tank-0015
+  - tank-0020
+  - tank-0023
+  - tank-0030
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0037
+  image:
+    tag: '26.0'
+  addnode:
+  - tank-0000
+  - tank-0001
+  - tank-0004
+  - tank-0006
+  - tank-0017
+  - tank-0022
+  - tank-0027
+  - tank-0028
+  - tank-0038
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 336
+    maxconnections: 125
+- name: tank-0038
+  image:
+    tag: '27.2'
+  addnode:
+  - tank-0003
+  - tank-0005
+  - tank-0006
+  - tank-0007
+  - tank-0037
+  - tank-0010
+  - tank-0014
+  - tank-0015
+  bitcoin_config:
+    maxmempool: 50
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0039
+  image:
+    tag: '28.1'
+  addnode:
+  - tank-0000
+  - tank-0001
+  - tank-0034
+  - tank-0016
+  - tank-0017
+  - tank-0019
+  - tank-0027
+  - tank-0030
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0040
+  image:
+    tag: '28.1'
+  addnode:
+  - tank-0001
+  - tank-0010
+  - tank-0012
+  - tank-0014
+  - tank-0016
+  - tank-0017
+  - tank-0024
+  - tank-0029
+  - tank-0048
+  bitcoin_config:
+    maxmempool: 5000
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0041
+  image:
+    tag: '27.2'
+  addnode:
+  - tank-0001
+  - tank-0002
+  - tank-0006
+  - tank-0010
+  - tank-0013
+  - tank-0017
+  - tank-0024
+  - tank-0025
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0042
+  image:
+    tag: '26.0'
+  addnode:
+  - tank-0000
+  - tank-0002
+  - tank-0004
+  - tank-0010
+  - tank-0012
+  - tank-0014
+  - tank-0015
+  - tank-0024
+  - tank-0043
+  bitcoin_config:
+    maxmempool: 50
+    mempoolexpiry: 1
+    maxconnections: 8
+- name: tank-0043
+  image:
+    tag: '26.0'
+  addnode:
+  - tank-0035
+  - tank-0003
+  - tank-0005
+  - tank-0042
+  - tank-0010
+  - tank-0012
+  - tank-0017
+  - tank-0031
+  - tank-0044
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 336
+    maxconnections: 125
+- name: tank-0044
+  image:
+    tag: '27.2'
+  addnode:
+  - tank-0001
+  - tank-0010
+  - tank-0043
+  - tank-0014
+  - tank-0017
+  - tank-0023
+  - tank-0027
+  - tank-0030
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 72
+    maxconnections: 8
+- name: tank-0045
+  image:
+    tag: '27.2'
+  addnode:
+  - tank-0007
+  - tank-0009
+  - tank-0012
+  - tank-0014
+  - tank-0015
+  - tank-0016
+  - tank-0017
+  - tank-0026
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0046
+  image:
+    tag: '28.1'
+  addnode:
+  - tank-0001
+  - tank-0005
+  - tank-0009
+  - tank-0010
+  - tank-0014
+  - tank-0020
+  - tank-0023
+  - tank-0031
+  bitcoin_config:
+    maxmempool: 5000
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0047
+  image:
+    tag: '29.0'
+  addnode:
+  - tank-0009
+  - tank-0012
+  - tank-0013
+  - tank-0016
+  - tank-0020
+  - tank-0022
+  - tank-0027
+  - tank-0028
+  bitcoin_config:
+    maxmempool: 50
+    mempoolexpiry: 1
+    maxconnections: 125
+- name: tank-0048
+  image:
+    tag: '28.1'
+  addnode:
+  - tank-0000
+  - tank-0033
+  - tank-0040
+  - tank-0010
+  - tank-0011
+  - tank-0014
+  - tank-0022
+  - tank-0025
+  bitcoin_config:
+    maxmempool: 300
+    mempoolexpiry: 72
+    maxconnections: 125
+- name: tank-0049
+  image:
+    tag: '29.0'
+  addnode:
+  - tank-0035
+  - tank-0004
+  - tank-0007
+  - tank-0009
+  - tank-0012
+  - tank-0013
+  - tank-0014
+  - tank-0024
+  bitcoin_config:
+    maxmempool: 1000
+    mempoolexpiry: 336
+    maxconnections: 8

@@ -402,6 +402,10 @@ warnet deploy my_network
 # Monitor the network
 warnet status
 
+# run a scenarios
+- miner_std.py - round robin miner selection of all nodes
+- tx_flood.py - each node submits transactions randomly
+
 # View fork observer
 # Navigate to fork observer dashboard
 ```

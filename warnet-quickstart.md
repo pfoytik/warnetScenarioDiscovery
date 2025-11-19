@@ -3,6 +3,14 @@
 ## 📋 Prerequisites
 
 1. **Warnet installed and running** with your Bitcoin nodes
+  ```bash
+   source .venv/bin/activate
+   minikube start
+   warnet deploy networkDir
+   warnet run minder_std.py
+   warnet run tx_flood.py
+   warnet status
+   ```
 2. **Python 3.8+** installed
 3. **Required Python packages**:
    ```bash

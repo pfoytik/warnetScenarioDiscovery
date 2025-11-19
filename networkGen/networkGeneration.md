@@ -405,12 +405,14 @@ warnet status
 # run a scenarios
 - miner_std.py - round robin miner selection of all nodes
 - tx_flood.py - each node submits transactions randomly
+warnet run miner_std.py
 
 # View fork observer
 # Navigate to fork observer dashboard
 ```
 
 ### 3. Run Tests
+[Integrated Workflow](../INTEGRATED_WORKFLOW_GUIDE.md)
 ```bash
 # Generate transactions, blocks, etc.
 # Monitor for forks and network issues

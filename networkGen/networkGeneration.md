@@ -396,8 +396,8 @@ python generate_warnet_network.py \
 
 ### 2. Deploy to Warnet
 ```bash
-# Use standard Warnet commands
-warnet deploy my_network.yaml
+# Use standard Warnet commands deploy needs to point to a directory with network.yaml and node-defaults.yaml for example a directory my_network:
+warnet deploy my_network
 
 # Monitor the network
 warnet status

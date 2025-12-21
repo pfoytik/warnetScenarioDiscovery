@@ -1,0 +1,60 @@
+# Phase 1 Test 2: Custody vs Volume Conflict
+# Extreme custody (v26) vs extreme volume (v27)
+# Expected: Chain B wins - volume beats custody
+
+network_parameters:
+  num_nodes: 3
+  topology_type: scale_free
+  seed: 502
+  topology_params:
+    m: 2
+
+version_configuration:
+  distribution:
+    '26.0': 0.33  # 1 node - Chain A (custody-provider)
+    '27.0': 0.67  # 2 nodes - Chain B (payment processors)
+  clustering_factor: 1.0  # Complete separation
+
+node_configurations:
+  maxconnections:
+    distribution:
+      125: 0.33
+      500: 0.67  # Payment processors
+
+  maxmempool:
+    distribution:
+      300: 0.33
+      2000: 0.67  # Payment processors
+
+  mempoolexpiry:
+    distribution:
+      1: 0.67   # Payment processors expire quickly
+      72: 0.33  # Custody provider keeps longer
+
+  txindex:
+    distribution:
+      1: 1.0
+
+economic_metadata:
+  role:
+    distribution:
+      exchange: 0.33      # Chain A - custody-heavy exchange
+      processor: 0.67     # Chain B - volume-heavy payment processors
+
+  custody_btc:
+    exchange: [1500000, 2500000]     # High custody (1.5M-2.5M BTC)
+    processor: [50000, 150000]       # Low custody (50K-150K BTC)
+
+  daily_volume_btc:
+    exchange: [10000, 30000]         # Lower volume (10K-30K BTC/day)
+    processor: [200000, 400000]      # High volume (200K-400K BTC/day)
+
+warnet_settings:
+  caddy_enabled: true
+  fork_observer:
+    enabled: true
+    interval: 10
+
+output:
+  file: custody-volume-conflict-network.yaml
+  name_prefix: node

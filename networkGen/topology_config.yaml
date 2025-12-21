@@ -46,11 +46,12 @@ version_configuration:
   # Distribution of Bitcoin Core versions across nodes
   # Values should sum to approximately 1.0
   distribution:
-    '29.0': 0.35
-    '28.1': 0.30
-    '27.2': 0.20
-    '26.0': 0.10
-    '25.0': 0.05
+    '29.0': 0.35,
+    '28.1': 0.30,
+    '27.0': 0.20,
+    '26.0': 0.10,
+    '25.1': 0.05   
+
   
   # Version clustering factor (0.0 - 1.0)
   # 0.0 = completely random assignment
@@ -138,8 +139,8 @@ output:
 # version_configuration:
 #   distribution:
 #     '29.0': 0.4
-#     '27.2': 0.4
-#     '25.0': 0.2
+#     '27.0': 0.4
+#     '25.1': 0.2
 #   clustering_factor: 0.7  # High clustering
 # 
 # output:
@@ -226,7 +227,7 @@ output:
 #   distribution:
 #     '29.0': 0.2
 #     '26.0': 0.3
-#     '25.0': 0.3
+#     '25.1': 0.3
 #     '24.0': 0.2  # Very old version
 #   clustering_factor: 0.8  # High version clustering
 # 

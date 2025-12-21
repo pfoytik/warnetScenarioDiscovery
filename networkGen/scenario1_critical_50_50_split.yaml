@@ -1,0 +1,41 @@
+# Phase 1 Test 1: Critical 50/50 Split
+# Near-balanced custody split between v26 and v27
+# Expected: Chain B wins via volume dominance
+
+network_parameters:
+  num_nodes: 5
+  topology_type: scale_free
+  seed: 501
+  topology_params:
+    m: 2  # Fewer connections for small network
+
+version_configuration:
+  distribution:
+    '26.0': 0.4   # 2 nodes - Chain A (conservative)
+    '27.0': 0.6   # 3 nodes - Chain B (progressive)
+  clustering_factor: 0.9  # High clustering to keep versions separated
+
+node_configurations:
+  maxconnections:
+    distribution:
+      125: 0.6   # Most nodes default
+      1000: 0.4  # Some exchanges with high connections
+
+  maxmempool:
+    distribution:
+      300: 0.6
+      5000: 0.4  # Exchanges with larger mempool
+
+  txindex:
+    distribution:
+      1: 1.0  # All nodes have txindex enabled
+
+warnet_settings:
+  caddy_enabled: true
+  fork_observer:
+    enabled: true
+    interval: 10
+
+output:
+  file: critical-50-50-split-network.yaml
+  name_prefix: node

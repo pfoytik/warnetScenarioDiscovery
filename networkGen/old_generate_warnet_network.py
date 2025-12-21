@@ -278,62 +278,11 @@ class BitcoinNetworkGenerator:
             
             if node_config:
                 configs[node_id] = node_config
-
+        
         return configs
-
-    def assign_economic_metadata(self, G: nx.Graph,
-                                 metadata_distribution: Optional[Dict] = None) -> Dict[int, Dict]:
-        """
-        Assign economic metadata to nodes (custody, volume, role)
-
-        Args:
-            metadata_distribution: Distribution of economic metadata
-        """
-        if not metadata_distribution:
-            return {}
-
-        metadata = {}
-
-        # Get role distribution
-        role_config = metadata_distribution.get('role', {})
-        roles_dist = role_config.get('distribution', {})
-
-        if not roles_dist:
-            return {}
-
-        # Assign roles to nodes
-        role_choices = list(roles_dist.keys())
-        role_weights = list(roles_dist.values())
-
-        custody_ranges = metadata_distribution.get('custody_btc', {})
-        volume_ranges = metadata_distribution.get('daily_volume_btc', {})
-
-        for node_id in G.nodes():
-            # Assign role based on distribution
-            role = random.choices(role_choices, weights=role_weights)[0]
-
-            # Assign custody and volume based on role
-            custody_range = custody_ranges.get(role, [1, 100])
-            volume_range = volume_ranges.get(role, [0.1, 10])
-
-            custody_btc = random.randint(custody_range[0], custody_range[1])
-            daily_volume_btc = random.randint(volume_range[0], volume_range[1])
-
-            # Calculate consensus weight (70% custody, 30% volume)
-            consensus_weight = 0.7 * custody_btc + 0.3 * daily_volume_btc
-
-            metadata[node_id] = {
-                'role': role,
-                'custody_btc': custody_btc,
-                'daily_volume_btc': daily_volume_btc,
-                'consensus_weight': round(consensus_weight / 10000, 2)
-            }
-
-        return metadata
-
+    
     def to_warnet_config(self, G: nx.Graph, versions: Dict[int, str],
                         node_configs: Optional[Dict[int, Dict]] = None,
-                        node_metadata: Optional[Dict[int, Dict]] = None,
                         name_prefix: str = "tank",
                         caddy_enabled: bool = True,
                         fork_observer_enabled: bool = True,
@@ -352,31 +301,26 @@ class BitcoinNetworkGenerator:
         """
         nodes = []
         node_configs = node_configs or {}
-        node_metadata = node_metadata or {}
-
+        
         for node_id in G.nodes():
             neighbors = list(G.neighbors(node_id))
             addnode_list = [f"{name_prefix}-{n:04d}" for n in neighbors]
-
+            
             node_config = {
                 'name': f"{name_prefix}-{node_id:04d}",
                 'image': {
                     'tag': versions.get(node_id, '29.0')
                 }
             }
-
+            
             # Add connections
             if addnode_list:
                 node_config['addnode'] = addnode_list
-
+            
             # Add node-specific configurations
             if node_id in node_configs:
                 node_config['bitcoin_config'] = node_configs[node_id]
-
-            # Add economic metadata
-            if node_id in node_metadata:
-                node_config['metadata'] = node_metadata[node_id]
-
+            
             nodes.append(node_config)
         
         # Create full configuration
@@ -457,19 +401,16 @@ def generate_from_config(config: Dict) -> Dict:
     
     # Node configurations
     node_config_dist = config.get('node_configurations', {})
-
-    # Economic metadata configuration
-    economic_metadata_dist = config.get('economic_metadata', {})
-
+    
     # Output configuration
     output_config = config.get('output', {})
     name_prefix = output_config.get('name_prefix', 'tank')
-
+    
     # Warnet settings
     warnet = config.get('warnet_settings', {})
     caddy_enabled = warnet.get('caddy_enabled', True)
     fork_observer = warnet.get('fork_observer', {})
-
+    
     # Create generator
     generator = BitcoinNetworkGenerator(
         num_nodes=num_nodes,
@@ -477,25 +418,22 @@ def generate_from_config(config: Dict) -> Dict:
         version_distribution=version_distribution,
         seed=seed
     )
-
+    
     # Generate topology
     G = generator.generate_topology(**topology_params)
-
+    
     # Assign versions
     if version_clustering > 0:
         versions = generator.assign_versions_clustered(G, version_clustering)
     else:
         versions = generator.assign_versions(G)
-
+    
     # Assign node configurations
     node_configs = generator.assign_node_configurations(G, node_config_dist)
-
-    # Assign economic metadata
-    node_metadata = generator.assign_economic_metadata(G, economic_metadata_dist)
-
+    
     # Convert to Warnet format
     warnet_config = generator.to_warnet_config(
-        G, versions, node_configs, node_metadata, name_prefix,
+        G, versions, node_configs, name_prefix,
         caddy_enabled=caddy_enabled,
         fork_observer_enabled=fork_observer.get('enabled', True),
         fork_observer_interval=fork_observer.get('interval', 20)
@@ -612,9 +550,9 @@ Examples:
             versions = generator.assign_versions_clustered(G, args.version_clustering)
         else:
             versions = generator.assign_versions(G)
-
+        
         warnet_config = generator.to_warnet_config(
-            G, versions, None, None, args.prefix or 'tank'
+            G, versions, None, args.prefix or 'tank'
         )
         
         output_file = args.output or 'network.yaml'

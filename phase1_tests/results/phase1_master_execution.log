@@ -1,0 +1,138 @@
+========================================================================
+PHASE 1 SYSTEMATIC TESTING - MASTER EXECUTION LOG
+========================================================================
+Start Time: 2025-11-28 11:42:07
+Timezone: EST
+
+Tests to Execute:
+1. test_critical_50_50_split.sh
+2. test_custody_volume_conflict.sh
+3. test_single_major_exchange_fork.sh
+4. test_dual_metric_baseline.sh
+
+========================================================================
+[0;34m[2025-11-28 11:42:07][0m [1;33m========================================================================[0m
+[0;34m[2025-11-28 11:42:07][0m [1;33mPHASE 1: SYSTEMATIC SCENARIO EXECUTION - MASTER TEST RUNNER[0m
+[0;34m[2025-11-28 11:42:07][0m [1;33m========================================================================[0m
+[0;32m[2025-11-28 11:42:07][0m 
+[0;32m[2025-11-28 11:42:07][0m This script will execute all 4 Phase 1 tests sequentially.
+[0;32m[2025-11-28 11:42:07][0m Total estimated time: 2-3 hours
+[0;32m[2025-11-28 11:42:07][0m 
+[0;32m[2025-11-28 11:42:07][0m Tests will run in order:
+[0;32m[2025-11-28 11:42:07][0m   1. critical-50-50-split (~30 min)
+[0;32m[2025-11-28 11:42:07][0m   2. custody-volume-conflict (~30 min)
+[0;32m[2025-11-28 11:42:07][0m   3. single-major-exchange-fork (~30 min)
+[0;32m[2025-11-28 11:42:07][0m   4. dual-metric-test baseline (~45 min)
+[0;32m[2025-11-28 11:42:07][0m 
+[0;32m[2025-11-28 11:42:07][0m Each test will:
+[0;32m[2025-11-28 11:42:07][0m   - Deploy network
+[0;32m[2025-11-28 11:42:07][0m   - Create and analyze forks
+[0;32m[2025-11-28 11:42:07][0m   - Generate FINDINGS.md
+[0;32m[2025-11-28 11:42:07][0m   - Clean up
+[0;32m[2025-11-28 11:42:07][0m 
+[0;32m[2025-11-28 11:42:07][0m Results will be saved to: results/test_N_*/
+[0;32m[2025-11-28 11:42:07][0m 
+[0;34m[2025-11-28 11:42:08][0m [1;33m[0m
+[0;34m[2025-11-28 11:42:08][0m [1;33m========================================================================[0m
+[0;34m[2025-11-28 11:42:08][0m [1;33mTEST 1/4: critical-50-50-split[0m
+[0;34m[2025-11-28 11:42:08][0m [1;33m========================================================================[0m
+[0;32m[2025-11-28 11:42:08][0m ========================================================================
+[0;32m[2025-11-28 11:42:08][0m Phase 1 Test 1: critical-50-50-split
+[0;32m[2025-11-28 11:42:08][0m ========================================================================
+[0;32m[2025-11-28 11:42:08][0m Test Goal: Validate risk detection at near-parity custody split
+[0;32m[2025-11-28 11:42:08][0m Expected: Chain B (v27.0) wins via volume dominance
+[0;32m[2025-11-28 11:42:08][0m 
+[0;32m[2025-11-28 11:42:08][0m STEP 1: Deploying network...
+[0;32m[2025-11-28 11:42:08][0m ------------------------------------------------------------------------
+[0;32m[2025-11-28 11:42:08][0m Cleaning up previous deployment...
+Service account can delete pods in namespace 'default'.
+Preparing to bring down the running Warnet...
+The listed namespaces will be affected:
+  warnet-logging
+  ingress
+  default
+
+[?] [33m[22mDo you want to bring down the running Warnet?[0m (y/N): y
+
+Bringing down the warnet...
+Initiated deletion of pod: mining-pool in namespace default
+Initiated deletion of pod: custody-provider in namespace default
+Initiated uninstall for: ingress-nginx in namespace ingress
+Initiated deletion of pod: fork-observer in namespace warnet-logging
+Initiated uninstall for: custody-provider in namespace default
+Initiated uninstall for: exchange-high-custody in namespace default
+Initiated deletion of pod: caddy in namespace warnet-logging
+Initiated deletion of pod: exchange-high-volume in namespace default
+Initiated uninstall for: fork-observer in namespace warnet-logging
+Initiated uninstall for: exchange-high-volume in namespace default
+Initiated deletion of pod: exchange-high-custody in namespace default
+Initiated uninstall for: caddy in namespace warnet-logging
+Initiated uninstall for: mining-pool in namespace default
+Initiated uninstall for: payment-processor in namespace default
+Initiated deletion of pod: ingress-nginx-controller-668c4fc947-wrq4z in namespace ingress
+Initiated deletion of pod: payment-processor in namespace default
+Teardown process initiated for all components.
+Note: Some processes may continue in the background.
+Warnet teardown process completed.
+[0;32m[2025-11-28 11:42:20][0m Deploying critical-50-50-split...
+Deploying node: exchange-conservative
+Deploying node: custody-provider
+Deploying node: exchange-progressive-1
+Deploying node: exchange-progressive-2
+Deploying node: payment-processor
+Release "exchange-progressive-2" does not exist. Installing it now.
+Error: template: bitcoincore/templates/pod.yaml:48:24: executing "bitcoincore/templates/pod.yaml" at <.Values.image.repository>: can't evaluate field repository in type interface {}
+Error: Release "exchange-progressive-2" does not exist. Installing it now.
+Error: template: bitcoincore/templates/pod.yaml:48:24: executing "bitcoincore/templates/pod.yaml" at <.Values.image.repository>: can't evaluate field repository in type interface {}
+
+Release "exchange-progressive-1" does not exist. Installing it now.
+Error: template: bitcoincore/templates/pod.yaml:48:24: executing "bitcoincore/templates/pod.yaml" at <.Values.image.repository>: can't evaluate field repository in type interface {}
+Error: Release "exchange-progressive-1" does not exist. Installing it now.
+Error: template: bitcoincore/templates/pod.yaml:48:24: executing "bitcoincore/templates/pod.yaml" at <.Values.image.repository>: can't evaluate field repository in type interface {}
+
+Release "custody-provider" does not exist. Installing it now.
+Error: template: bitcoincore/templates/pod.yaml:48:24: executing "bitcoincore/templates/pod.yaml" at <.Values.image.repository>: can't evaluate field repository in type interface {}
+Error: Release "custody-provider" does not exist. Installing it now.
+Error: template: bitcoincore/templates/pod.yaml:48:24: executing "bitcoincore/templates/pod.yaml" at <.Values.image.repository>: can't evaluate field repository in type interface {}
+
+Release "exchange-conservative" does not exist. Installing it now.
+Error: template: bitcoincore/templates/pod.yaml:48:24: executing "bitcoincore/templates/pod.yaml" at <.Values.image.repository>: can't evaluate field repository in type interface {}
+Error: Release "exchange-conservative" does not exist. Installing it now.
+Error: template: bitcoincore/templates/pod.yaml:48:24: executing "bitcoincore/templates/pod.yaml" at <.Values.image.repository>: can't evaluate field repository in type interface {}
+
+Release "payment-processor" does not exist. Installing it now.
+Error: template: bitcoincore/templates/pod.yaml:48:24: executing "bitcoincore/templates/pod.yaml" at <.Values.image.repository>: can't evaluate field repository in type interface {}
+Error: Release "payment-processor" does not exist. Installing it now.
+Error: template: bitcoincore/templates/pod.yaml:48:24: executing "bitcoincore/templates/pod.yaml" at <.Values.image.repository>: can't evaluate field repository in type interface {}
+
+[0;32m[2025-11-28 11:42:21][0m Waiting for network to start...
+[0;32m[2025-11-28 11:42:31][0m 
+[0;32m[2025-11-28 11:42:31][0m STEP 2: Verifying deployment...
+[0;32m[2025-11-28 11:42:31][0m ------------------------------------------------------------------------
+[0;32m[2025-11-28 11:42:32][0m Waiting for all pods to be Running...
+./test_critical_50_50_split.sh: line 82: [: 0
+0: integer expression expected
+[0;32m[2025-11-28 11:42:37][0m Waiting... (0
+0/0 Running, 5s elapsed)
+./test_critical_50_50_split.sh: line 82: [: 0
+0: integer expression expected
+[0;32m[2025-11-28 11:42:42][0m Waiting... (0
+0/0 Running, 10s elapsed)
+./test_critical_50_50_split.sh: line 82: [: 0
+0: integer expression expected
+[0;32m[2025-11-28 11:42:47][0m Waiting... (0
+0/0 Running, 15s elapsed)
+./test_critical_50_50_split.sh: line 82: [: 0
+0: integer expression expected
+[0;32m[2025-11-28 11:42:53][0m Waiting... (0
+0/0 Running, 20s elapsed)
+./test_critical_50_50_split.sh: line 82: [: 0
+0: integer expression expected
+[0;32m[2025-11-28 11:42:58][0m Waiting... (0
+0/0 Running, 25s elapsed)
+./test_critical_50_50_split.sh: line 82: [: 0
+0: integer expression expected
+[0;32m[2025-11-28 11:43:03][0m Waiting... (0
+0/0 Running, 30s elapsed)
+./test_critical_50_50_split.sh: line 82: [: 0
+0: integer expression expected

@@ -1,0 +1,206 @@
+# Pool Mining Scenario 1: Custody vs Volume Conflict
+#
+# Three-Tier Network Architecture:
+# - Nodes 0-4:   Economic nodes (exchanges, payment processors) - HIGH influence
+# - Nodes 5-14:  Pool nodes (mining pool infrastructure) - MINE blocks
+# - Nodes 15-24: Network nodes (hobbyists, small services) - PROPAGATE blocks
+#
+# Total: 25 nodes (5 economic + 10 pools + 10 network)
+#
+# Fork Scenario:
+# Economic nodes split between v26 (custody-heavy exchanges) and v27 (volume-heavy processors)
+# Pool nodes choose which fork based on economic node connections
+# Network nodes help propagate and may amplify or dampen fork persistence
+
+network:
+  num_nodes: 25
+  topology: custom
+
+  custom_edges:
+    # === ECONOMIC LAYER (0-4) ===
+    # Fully meshed - all major economic actors know each other
+    - [0, 1]
+    - [0, 2]
+    - [0, 3]
+    - [0, 4]
+    - [1, 2]
+    - [1, 3]
+    - [1, 4]
+    - [2, 3]
+    - [2, 4]
+    - [3, 4]
+
+    # === POOL LAYER (5-14) ===
+    # Each pool connects to 2-4 economic nodes + peer pools
+
+    # Foundry USA (node 5) - 26.89% hashrate
+    - [5, 0]    # -> Economic node 0
+    - [5, 1]    # -> Economic node 1
+    - [5, 2]    # -> Economic node 2
+    - [5, 6]    # -> AntPool
+    - [5, 15]   # -> Network node 15
+
+    # AntPool (node 6) - 19.25% hashrate
+    - [6, 1]    # -> Economic node 1
+    - [6, 2]    # -> Economic node 2
+    - [6, 3]    # -> Economic node 3
+    - [6, 7]    # -> ViaBTC
+    - [6, 16]   # -> Network node 16
+
+    # ViaBTC (node 7) - 11.39% hashrate
+    - [7, 2]    # -> Economic node 2
+    - [7, 3]    # -> Economic node 3
+    - [7, 4]    # -> Economic node 4
+    - [7, 8]    # -> F2Pool
+    - [7, 17]   # -> Network node 17
+
+    # F2Pool (node 8) - 11.25% hashrate
+    - [8, 0]    # -> Economic node 0
+    - [8, 3]    # -> Economic node 3
+    - [8, 4]    # -> Economic node 4
+    - [8, 9]    # -> SpiderPool
+    - [8, 18]   # -> Network node 18
+
+    # SpiderPool (node 9) - 9.09% hashrate
+    - [9, 0]    # -> Economic node 0
+    - [9, 2]    # -> Economic node 2
+    - [9, 4]    # -> Economic node 4
+    - [9, 10]   # -> MARA Pool
+    - [9, 19]   # -> Network node 19
+
+    # MARA Pool (node 10) - 5.00% hashrate
+    - [10, 1]   # -> Economic node 1
+    - [10, 3]   # -> Economic node 3
+    - [10, 11]  # -> SECPOOL
+    - [10, 20]  # -> Network node 20
+
+    # SECPOOL (node 11) - 4.18% hashrate
+    - [11, 0]   # -> Economic node 0
+    - [11, 4]   # -> Economic node 4
+    - [11, 12]  # -> Luxor
+    - [11, 21]  # -> Network node 21
+
+    # Luxor (node 12) - 3.21% hashrate
+    - [12, 2]   # -> Economic node 2
+    - [12, 3]   # -> Economic node 3
+    - [12, 13]  # -> Binance Pool
+    - [12, 22]  # -> Network node 22
+
+    # Binance Pool (node 13) - 2.49% hashrate
+    - [13, 1]   # -> Economic node 1
+    - [13, 4]   # -> Economic node 4
+    - [13, 14]  # -> OCEAN
+    - [13, 23]  # -> Network node 23
+
+    # OCEAN (node 14) - 1.42% hashrate
+    - [14, 0]   # -> Economic node 0
+    - [14, 2]   # -> Economic node 2
+    - [14, 24]  # -> Network node 24
+
+    # === NETWORK LAYER (15-24) ===
+    # Regular nodes form small-world network
+    # Connect to pools (above) and to each other
+
+    - [15, 16]
+    - [15, 20]
+    - [16, 17]
+    - [16, 21]
+    - [17, 18]
+    - [17, 22]
+    - [18, 19]
+    - [18, 23]
+    - [19, 20]
+    - [19, 24]
+    - [20, 21]
+    - [21, 22]
+    - [22, 23]
+    - [23, 24]
+    - [24, 15]  # Complete the ring
+
+    # Some network nodes also connect to economic nodes (discovery)
+    - [15, 0]
+    - [17, 2]
+    - [19, 4]
+    - [22, 1]
+    - [24, 3]
+
+bitcoin:
+  version_distribution:
+    "26.0": 0.4  # 40% nodes on v26 (custody-heavy fork)
+    "27.0": 0.6  # 60% nodes on v27 (volume-heavy fork)
+
+  node_configs:
+    # Economic nodes (0-4) - High capacity, well-resourced
+    0-4:
+      maxconnections: 125
+      maxmempool: 500
+      rpcthreads: 16
+      txindex: 1
+
+    # Pool nodes (5-14) - Mining infrastructure
+    5-14:
+      maxconnections: 50
+      maxmempool: 200
+      rpcthreads: 8
+      txindex: 0
+
+    # Network nodes (15-24) - Regular nodes
+    15-24:
+      maxconnections: 30
+      maxmempool: 100
+      rpcthreads: 4
+      txindex: 0
+
+fork_observer:
+  enabled: true
+  interval: 10
+
+# Economic metadata ONLY for economic nodes (0-4)
+# Pool nodes (5-14) and network nodes (15-24) have NO economic metadata
+economic_metadata:
+  role:
+    distribution:
+      major_exchange: 0.4      # 2 nodes - Custody-heavy
+      payment_processor: 0.6   # 3 nodes - Volume-heavy
+
+  custody_btc:
+    major_exchange: [1800000, 2200000]      # Very high custody (1.8M-2.2M BTC)
+    payment_processor: [50000, 150000]      # Lower custody (50K-150K BTC)
+
+  daily_volume_btc:
+    major_exchange: [10000, 30000]          # Lower volume (10K-30K BTC/day)
+    payment_processor: [200000, 400000]     # Very high volume (200K-400K BTC/day)
+
+# Pool configuration for economic_miner.py scenario
+# Maps node IDs to pool metadata
+mining_pools:
+  5:
+    name: "Foundry USA"
+    hashrate: 26.89
+  6:
+    name: "AntPool"
+    hashrate: 19.25
+  7:
+    name: "ViaBTC"
+    hashrate: 11.39
+  8:
+    name: "F2Pool"
+    hashrate: 11.25
+  9:
+    name: "SpiderPool"
+    hashrate: 9.09
+  10:
+    name: "MARA Pool"
+    hashrate: 5.00
+  11:
+    name: "SECPOOL"
+    hashrate: 4.18
+  12:
+    name: "Luxor"
+    hashrate: 3.21
+  13:
+    name: "Binance Pool"
+    hashrate: 2.49
+  14:
+    name: "OCEAN"
+    hashrate: 1.42

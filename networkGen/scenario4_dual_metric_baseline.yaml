@@ -37,6 +37,26 @@ node_configurations:
     distribution:
       1: 1.0
 
+economic_metadata:
+  role:
+    distribution:
+      major_exchange: 0.2          # 1 node - Major exchange
+      regional_exchange: 0.2       # 1 node - Regional exchange
+      payment_processor: 0.4       # 2 nodes - Payment processors
+      custody_provider: 0.2        # 1 node - Custody provider
+
+  custody_btc:
+    major_exchange: [1800000, 2200000]      # Very high custody
+    regional_exchange: [400000, 600000]     # Medium-high custody
+    payment_processor: [50000, 100000]      # Low custody
+    custody_provider: [600000, 800000]      # High custody, low volume
+
+  daily_volume_btc:
+    major_exchange: [80000, 120000]         # High volume
+    regional_exchange: [25000, 35000]       # Medium volume
+    payment_processor: [150000, 200000]     # Very high volume
+    custody_provider: [2000, 5000]          # Very low volume
+
 warnet_settings:
   caddy_enabled: true
   fork_observer:

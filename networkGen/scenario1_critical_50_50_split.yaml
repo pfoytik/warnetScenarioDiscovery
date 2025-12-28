@@ -30,6 +30,20 @@ node_configurations:
     distribution:
       1: 1.0  # All nodes have txindex enabled
 
+economic_metadata:
+  role:
+    distribution:
+      major_exchange: 0.4      # Chain A - high custody, lower volume
+      payment_processor: 0.6   # Chain B - lower custody, high volume
+
+  custody_btc:
+    major_exchange: [1800000, 2200000]      # High custody (1.8M-2.2M BTC)
+    payment_processor: [80000, 120000]      # Low custody (80K-120K BTC)
+
+  daily_volume_btc:
+    major_exchange: [20000, 40000]          # Lower volume (20K-40K BTC/day)
+    payment_processor: [180000, 250000]     # High volume (180K-250K BTC/day)
+
 warnet_settings:
   caddy_enabled: true
   fork_observer:

@@ -37,6 +37,23 @@ node_configurations:
     distribution:
       1: 1.0
 
+economic_metadata:
+  role:
+    distribution:
+      major_exchange: 0.25         # 1 node - Coinbase-scale isolated
+      regional_exchange: 0.25      # 1 node - Medium exchange
+      payment_processor: 0.50      # 2 nodes - Network majority
+
+  custody_btc:
+    major_exchange: [2000000, 2500000]      # Very high custody (2M-2.5M BTC)
+    regional_exchange: [400000, 600000]     # Medium custody (400K-600K BTC)
+    payment_processor: [50000, 100000]      # Low custody (50K-100K BTC)
+
+  daily_volume_btc:
+    major_exchange: [80000, 120000]         # High volume (80K-120K BTC/day)
+    regional_exchange: [25000, 35000]       # Medium volume (25K-35K BTC/day)
+    payment_processor: [150000, 200000]     # Very high volume (150K-200K BTC/day)
+
 warnet_settings:
   caddy_enabled: true
   fork_observer:

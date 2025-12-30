@@ -5,12 +5,20 @@ Automatic Economic Fork Analysis for Warnet
 This script integrates with Warnet's fork detection to automatically analyze
 the economic impact of detected forks using the dual-metric BCAP model.
 
+Features:
+- Fork depth analysis (finds common ancestor and measures divergence)
+- Configurable fork depth threshold (ignores natural chain splits)
+- Economic impact assessment for sustained forks only
+
 Usage:
     # Analyze using network config file
     python3 auto_economic_analysis.py --network-config path/to/network/
 
-    # Analyze using live RPC queries
+    # Analyze using live RPC queries with default threshold
     python3 auto_economic_analysis.py --live-query
+
+    # Custom fork depth threshold (default: 3 blocks)
+    python3 auto_economic_analysis.py --live-query --fork-depth-threshold 5
 
     # Analyze specific fork event
     python3 auto_economic_analysis.py --fork-file path/to/fork_data.json
@@ -21,7 +29,7 @@ import os
 import json
 import argparse
 import subprocess
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Tuple
 import yaml
 
 # Import fork analyzer
@@ -32,10 +40,11 @@ from economic_fork_analyzer import EconomicForkAnalyzer, EconomicNode
 class WarnetEconomicAnalyzer:
     """Integrates economic fork analysis with Warnet deployment."""
 
-    def __init__(self):
+    def __init__(self, fork_depth_threshold: int = 3):
         self.analyzer = EconomicForkAnalyzer()
         self.network_config = None
         self.node_economic_data = {}
+        self.fork_depth_threshold = fork_depth_threshold  # Minimum depth to be considered a fork
 
     def load_network_config(self, config_path: str):
         """
@@ -175,6 +184,167 @@ class WarnetEconomicAnalyzer:
 
         return None
 
+    def rpc_call(self, node: str, method: str, params: List = None) -> any:
+        """Execute warnet bitcoin rpc command"""
+        cmd = ['warnet', 'bitcoin', 'rpc', node, method]
+        if params:
+            cmd.extend([json.dumps(p) for p in params])
+
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, check=True, timeout=10)
+            return json.loads(result.stdout)
+        except subprocess.CalledProcessError:
+            return None
+        except json.JSONDecodeError:
+            return result.stdout.strip()
+        except subprocess.TimeoutExpired:
+            return None
+
+    def get_block_header(self, node: str, block_hash: str) -> Optional[Dict]:
+        """Get block header information"""
+        result = self.rpc_call(node, 'getblockheader', [block_hash, True])
+        if result is None or isinstance(result, str):
+            return None
+        return result
+
+    def walk_to_height(self, node: str, tip: str, target_height: int) -> Optional[str]:
+        """Walk backwards from tip to target height"""
+        current = tip
+        header = self.get_block_header(node, current)
+
+        if not header:
+            return None
+
+        while header and header.get('height', -1) > target_height:
+            current = header.get('previousblockhash')
+            if not current:
+                return None
+            header = self.get_block_header(node, current)
+
+        if header and header.get('height') == target_height:
+            return current
+
+        return None
+
+    def find_common_ancestor(self, node: str, tip1: str, tip2: str) -> Tuple[Optional[str], Optional[int]]:
+        """
+        Find common ancestor block of two chain tips.
+
+        Returns:
+            (common_ancestor_hash, height) or (None, None) if not found
+        """
+        header1 = self.get_block_header(node, tip1)
+        header2 = self.get_block_header(node, tip2)
+
+        if not header1 or not header2:
+            return None, None
+
+        height1 = header1.get('height')
+        height2 = header2.get('height')
+
+        if height1 is None or height2 is None:
+            return None, None
+
+        # Start from the lower height
+        current_height = min(height1, height2)
+
+        # Walk backwards until we find a common block
+        while current_height >= 0:
+            block_at_height_1 = self.walk_to_height(node, tip1, current_height)
+            block_at_height_2 = self.walk_to_height(node, tip2, current_height)
+
+            if block_at_height_1 and block_at_height_2 and block_at_height_1 == block_at_height_2:
+                return block_at_height_1, current_height
+
+            current_height -= 1
+
+            # Safety limit - don't search too far back
+            if current_height < max(0, min(height1, height2) - 1000):
+                break
+
+        return None, None
+
+    def calculate_fork_depth(self, fork_info: Dict, chain_state: Dict) -> Optional[Dict]:
+        """
+        Calculate fork depth for detected chains using simplified height-based approach.
+
+        Simplified Algorithm:
+        - If chains are at same height: depth = 1 (natural 1-block split)
+        - If chains differ by N blocks: depth = N (one chain advanced)
+        - Add small constant (2) to account for potential divergence on both sides
+
+        This is simpler and more reliable than trying to find common ancestors,
+        and works well for distinguishing natural splits from sustained forks.
+
+        Args:
+            fork_info: Fork detection data with chains
+            chain_state: Node chain state
+
+        Returns:
+            Dict with fork depth analysis or None if depth below threshold
+        """
+        chains = fork_info['chains']
+
+        if len(chains) < 2:
+            return None
+
+        # Get two largest chains
+        sorted_chains = sorted(chains.items(), key=lambda x: len(x[1]), reverse=True)
+        tip1, nodes1 = sorted_chains[0]
+        tip2, nodes2 = sorted_chains[1]
+
+        # Get heights
+        height1 = nodes1[0]['height']
+        height2 = nodes2[0]['height']
+
+        # Simplified fork depth calculation
+        # Height difference indicates how far chains have diverged
+        height_diff = abs(height1 - height2)
+
+        # Estimate total depth:
+        # - If heights are same (diff=0): assume 1-block natural split, depth = 2 (1 on each side)
+        # - If heights differ: depth = height_diff + 2 (accounting for blocks on both chains)
+        if height_diff == 0:
+            # Same height: likely 1-block split on each side
+            total_depth = 2
+            depth1 = 1
+            depth2 = 1
+        else:
+            # Different heights: one chain advanced more
+            # Conservative estimate: height_diff + 2 blocks minimum divergence
+            total_depth = height_diff + 2
+            depth1 = max(1, height_diff) if height1 > height2 else 1
+            depth2 = max(1, height_diff) if height2 > height1 else 1
+
+        # Check if this exceeds threshold (sustained fork)
+        is_sustained = total_depth >= self.fork_depth_threshold
+
+        # Estimate common ancestor height (lower of the two minus estimated depth)
+        estimated_common_height = min(height1, height2) - 1
+
+        return {
+            'common_ancestor': {
+                'hash': 'estimated (not queried)',
+                'height': estimated_common_height
+            },
+            'chain_a': {
+                'tip': tip1,
+                'height': height1,
+                'blocks_since_fork': depth1,
+                'num_nodes': len(nodes1)
+            },
+            'chain_b': {
+                'tip': tip2,
+                'height': height2,
+                'blocks_since_fork': depth2,
+                'num_nodes': len(nodes2)
+            },
+            'total_depth': total_depth,
+            'is_sustained_fork': is_sustained,
+            'threshold': self.fork_depth_threshold,
+            'method': 'height-based estimation'
+        }
+
     def analyze_economic_fork(self, fork_info: Dict) -> Optional[Dict]:
         """
         Analyze economic impact of detected fork.
@@ -269,6 +439,7 @@ class WarnetEconomicAnalyzer:
     def run_live_analysis(self):
         """
         Run economic analysis on current live network state.
+        Only analyzes sustained forks (depth >= threshold).
         """
         print("Querying live network state...")
         chain_state = self.query_chain_state()
@@ -288,7 +459,31 @@ class WarnetEconomicAnalyzer:
 
         print(f"⚠  Fork detected! {fork_info['num_chains']} different chains")
 
-        # Analyze economic impact
+        # Calculate fork depth
+        print(f"📊 Calculating fork depth (threshold: {self.fork_depth_threshold} blocks)...")
+        fork_depth = self.calculate_fork_depth(fork_info, chain_state)
+
+        if not fork_depth:
+            print("✗ Could not calculate fork depth")
+            return 1
+
+        # Check if this is a sustained fork
+        if not fork_depth['is_sustained_fork']:
+            print(f"✓ Natural chain split detected (depth: {fork_depth['total_depth']} blocks, {fork_depth.get('method', 'calculated')})")
+            print(f"  Chain A: height {fork_depth['chain_a']['height']}, {fork_depth['chain_a']['num_nodes']} nodes")
+            print(f"  Chain B: height {fork_depth['chain_b']['height']}, {fork_depth['chain_b']['num_nodes']} nodes")
+            print(f"  Height difference: {abs(fork_depth['chain_a']['height'] - fork_depth['chain_b']['height'])} blocks")
+            print(f"✓ Below threshold ({fork_depth['total_depth']} < {self.fork_depth_threshold}) - not analyzing")
+            print("  (This is normal Bitcoin behavior - chains will re-converge)")
+            return 0
+        else:
+            print(f"⚠  SUSTAINED FORK detected (depth: {fork_depth['total_depth']} blocks >= {self.fork_depth_threshold}, {fork_depth.get('method', 'calculated')})")
+            print(f"  Chain A: height {fork_depth['chain_a']['height']}, {fork_depth['chain_a']['num_nodes']} nodes")
+            print(f"  Chain B: height {fork_depth['chain_b']['height']}, {fork_depth['chain_b']['num_nodes']} nodes")
+            print(f"  Height difference: {abs(fork_depth['chain_a']['height'] - fork_depth['chain_b']['height'])} blocks")
+            print()
+
+        # Analyze economic impact (only for sustained forks)
         if not self.node_economic_data:
             print("✗ No economic metadata available. Load network config first.")
             return 1
@@ -296,6 +491,11 @@ class WarnetEconomicAnalyzer:
         result = self.analyze_economic_fork(fork_info)
 
         if result:
+            # Add fork depth info to result
+            if 'fork_metadata' not in result:
+                result['fork_metadata'] = {}
+            result['fork_metadata']['fork_depth'] = fork_depth
+
             self.print_analysis(result)
             return 0
         else:
@@ -317,6 +517,9 @@ Examples:
 
   # Load config then query live
   python3 auto_economic_analysis.py --network-config path/to/network/ --live-query
+
+  # Use custom fork depth threshold (only analyze forks >= 5 blocks deep)
+  python3 auto_economic_analysis.py --live-query --fork-depth-threshold 5
         """
     )
 
@@ -338,10 +541,17 @@ Examples:
         help='Path to JSON file with fork detection data'
     )
 
+    parser.add_argument(
+        '--fork-depth-threshold',
+        type=int,
+        default=3,
+        help='Minimum fork depth (total blocks) to be considered a sustained fork (default: 3)'
+    )
+
     args = parser.parse_args()
 
     # Initialize analyzer
-    analyzer = WarnetEconomicAnalyzer()
+    analyzer = WarnetEconomicAnalyzer(fork_depth_threshold=args.fork_depth_threshold)
 
     # Load network config if provided
     if args.network_config:

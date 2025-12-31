@@ -40,8 +40,11 @@ from economic_fork_analyzer import EconomicForkAnalyzer, EconomicNode
 class WarnetEconomicAnalyzer:
     """Integrates economic fork analysis with Warnet deployment."""
 
-    def __init__(self, fork_depth_threshold: int = 3):
-        self.analyzer = EconomicForkAnalyzer()
+    def __init__(self, fork_depth_threshold: int = 3, custody_weight: float = None, volume_weight: float = None):
+        self.analyzer = EconomicForkAnalyzer(
+            custody_weight=custody_weight,
+            volume_weight=volume_weight
+        )
         self.network_config = None
         self.node_economic_data = {}
         self.fork_depth_threshold = fork_depth_threshold  # Minimum depth to be considered a fork
@@ -548,10 +551,34 @@ Examples:
         help='Minimum fork depth (total blocks) to be considered a sustained fork (default: 3)'
     )
 
+    parser.add_argument(
+        '--custody-weight',
+        type=float,
+        default=0.7,
+        help='Weight for custody metric in consensus weight calculation (default: 0.7 for 70%%)'
+    )
+
+    parser.add_argument(
+        '--volume-weight',
+        type=float,
+        default=0.3,
+        help='Weight for volume metric in consensus weight calculation (default: 0.3 for 30%%)'
+    )
+
     args = parser.parse_args()
 
+    # Validate weights sum to 1.0
+    if abs(args.custody_weight + args.volume_weight - 1.0) > 0.001:
+        print(f"Error: --custody-weight and --volume-weight must sum to 1.0", file=sys.stderr)
+        print(f"Got: custody={args.custody_weight}, volume={args.volume_weight}, sum={args.custody_weight + args.volume_weight}", file=sys.stderr)
+        return 1
+
     # Initialize analyzer
-    analyzer = WarnetEconomicAnalyzer(fork_depth_threshold=args.fork_depth_threshold)
+    analyzer = WarnetEconomicAnalyzer(
+        fork_depth_threshold=args.fork_depth_threshold,
+        custody_weight=args.custody_weight,
+        volume_weight=args.volume_weight
+    )
 
     # Load network config if provided
     if args.network_config:

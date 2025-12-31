@@ -1,0 +1,189 @@
+# Custody vs Volume Fork Scenario
+#
+# This scenario tests what happens when:
+# - Custody-heavy exchanges (high BTC holdings, low volume) run v26.0
+# - Volume-heavy processors (low BTC holdings, high volume) run v27.0
+# - Mining pools are split between the two economic groups
+#
+# Research Question: Do pools follow custody or volume signals during a fork?
+
+name: "custody-vs-volume-fork"
+description: "Version fork with custody-heavy nodes on v26.0 vs volume-heavy nodes on v27.0"
+
+# Economic Nodes: Major exchanges and payment processors
+economic_nodes:
+  # Custody-heavy exchanges (v26.0) - Old version
+  - role: "custody_exchange"
+    version: "26.0"
+    custody_btc: 1900000      # 1.9M BTC custody
+    daily_volume_btc: 15000   # Low volume
+    max_connections: 125
+    max_mempool_mb: 500
+    description: "Major custody exchange (conservative, stays on v26.0)"
+
+  - role: "custody_exchange"
+    version: "26.0"
+    custody_btc: 850000       # 850K BTC custody
+    daily_volume_btc: 20000   # Low volume
+    max_connections: 125
+    max_mempool_mb: 500
+    description: "Secondary custody exchange (v26.0)"
+
+  # Volume-heavy payment processors (v27.0) - New version
+  - role: "payment_processor"
+    version: "27.0"
+    custody_btc: 50000        # Low custody
+    daily_volume_btc: 400000  # High volume
+    max_connections: 125
+    max_mempool_mb: 500
+    description: "High-volume payment processor (upgraded to v27.0)"
+
+  - role: "payment_processor"
+    version: "27.0"
+    custody_btc: 60000        # Low custody
+    daily_volume_btc: 350000  # High volume
+    max_connections: 125
+    max_mempool_mb: 500
+    description: "Second payment processor (v27.0)"
+
+  - role: "mixed_exchange"
+    version: "27.0"
+    custody_btc: 140000       # Medium custody
+    daily_volume_btc: 390000  # High volume
+    max_connections: 125
+    max_mempool_mb: 500
+    description: "Mixed exchange with high volume (v27.0)"
+
+# Pool Nodes: Mining pools connected to specific economic actors
+pool_nodes:
+  # Pools connected to custody-heavy exchanges (v26.0)
+  - pool_name: "Foundry USA"
+    hashrate_percent: 26.89
+    version: "27.0"           # Pools stay neutral version
+    connected_to: [0, 1, 2]   # Connected to both custody and volume nodes
+    max_connections: 50
+    max_mempool_mb: 200
+    description: "Largest pool, connects to custody nodes"
+
+  - pool_name: "AntPool"
+    hashrate_percent: 19.25
+    version: "27.0"
+    connected_to: [1, 2, 3]   # Mixed connections
+    max_connections: 50
+    max_mempool_mb: 200
+
+  - pool_name: "ViaBTC"
+    hashrate_percent: 11.39
+    version: "27.0"
+    connected_to: [2, 3, 4]   # Leans toward volume nodes
+    max_connections: 50
+    max_mempool_mb: 200
+
+  # Pools connected to volume-heavy processors (v27.0)
+  - pool_name: "F2Pool"
+    hashrate_percent: 11.25
+    version: "27.0"
+    connected_to: [0, 3, 4]   # Mixed connections
+    max_connections: 50
+    max_mempool_mb: 200
+
+  - pool_name: "SpiderPool"
+    hashrate_percent: 9.09
+    version: "27.0"
+    connected_to: [0, 2, 4]   # Mixed connections
+    max_connections: 50
+    max_mempool_mb: 200
+
+  - pool_name: "MARA Pool"
+    hashrate_percent: 5.00
+    version: "27.0"
+    connected_to: [1, 3]      # Smaller pool, fewer connections
+    max_connections: 50
+    max_mempool_mb: 200
+
+  - pool_name: "SECPOOL"
+    hashrate_percent: 4.18
+    version: "27.0"
+    connected_to: [0, 4]
+    max_connections: 50
+    max_mempool_mb: 200
+
+  - pool_name: "Luxor"
+    hashrate_percent: 3.21
+    version: "27.0"
+    connected_to: [2, 3]
+    max_connections: 50
+    max_mempool_mb: 200
+
+  - pool_name: "Binance Pool"
+    hashrate_percent: 2.49
+    version: "27.0"
+    connected_to: [1, 4]
+    max_connections: 50
+    max_mempool_mb: 200
+
+  - pool_name: "OCEAN"
+    hashrate_percent: 1.42
+    version: "27.0"
+    connected_to: [0, 2]
+    max_connections: 50
+    max_mempool_mb: 200
+
+# Network Nodes: Regular propagation nodes
+network_nodes:
+  - version: "27.0"
+    max_connections: 30
+    max_mempool_mb: 100
+    description: "Network propagation node"
+
+  - version: "27.0"
+    max_connections: 30
+    max_mempool_mb: 100
+
+  - version: "26.0"
+    max_connections: 30
+    max_mempool_mb: 100
+    description: "Conservative node on v26.0"
+
+  - version: "27.0"
+    max_connections: 30
+    max_mempool_mb: 100
+
+  - version: "27.0"
+    max_connections: 30
+    max_mempool_mb: 100
+
+  - version: "26.0"
+    max_connections: 30
+    max_mempool_mb: 100
+    description: "Conservative node on v26.0"
+
+  - version: "27.0"
+    max_connections: 30
+    max_mempool_mb: 100
+
+  - version: "27.0"
+    max_connections: 30
+    max_mempool_mb: 100
+
+  - version: "27.0"
+    max_connections: 30
+    max_mempool_mb: 100
+
+  - version: "27.0"
+    max_connections: 30
+    max_mempool_mb: 100
+
+# Network Topology
+topology:
+  type: "full_economic_mesh"   # Economic nodes fully connected
+  pool_peering: "neighbors"     # Pools connect to neighbors
+  network_topology: "ring_plus_economic"  # Network nodes in ring + some economic connections
+
+# Test Parameters (for documentation)
+test_parameters:
+  fork_trigger: "Version incompatibility between v26.0 and v27.0"
+  expected_chains: 2
+  custody_chain: "v26.0 (nodes 0-1)"
+  volume_chain: "v27.0 (nodes 2-4)"
+  research_question: "Will pools follow custody weight or volume weight?"

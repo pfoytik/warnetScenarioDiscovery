@@ -1,0 +1,183 @@
+# Baseline Pool Mining Scenario
+#
+# This is a baseline network with no fork conditions.
+# All nodes run the same version - used to test normal pool mining behavior.
+#
+# Purpose: Validate pool mining distribution, establish baseline fork frequency
+
+name: "baseline-pool-mining"
+description: "Baseline network for testing pool mining without fork conditions"
+
+# Economic Nodes: Diverse economic actors
+economic_nodes:
+  - role: "major_exchange"
+    version: "27.0"
+    custody_btc: 1917026
+    daily_volume_btc: 14572
+    max_connections: 125
+    max_mempool_mb: 500
+    description: "Major exchange with high custody"
+
+  - role: "payment_processor"
+    version: "27.0"
+    custody_btc: 53278
+    daily_volume_btc: 394393
+    max_connections: 125
+    max_mempool_mb: 500
+    description: "High-volume payment processor"
+
+  - role: "trading_exchange"
+    version: "27.0"
+    custody_btc: 138696
+    daily_volume_btc: 394161
+    max_connections: 125
+    max_mempool_mb: 500
+    description: "High-volume trading exchange"
+
+  - role: "regional_exchange"
+    version: "27.0"
+    custody_btc: 61395
+    daily_volume_btc: 354794
+    max_connections: 125
+    max_mempool_mb: 500
+    description: "Regional exchange"
+
+  - role: "custody_provider"
+    version: "27.0"
+    custody_btc: 53905
+    daily_volume_btc: 224561
+    max_connections: 125
+    max_mempool_mb: 500
+    description: "Institutional custody provider"
+
+# Pool Nodes: Top 10 pools with real hashrate distribution
+pool_nodes:
+  - pool_name: "Foundry USA"
+    hashrate_percent: 26.89
+    version: "27.0"
+    connected_to: [0, 1, 2]
+    max_connections: 50
+    max_mempool_mb: 200
+
+  - pool_name: "AntPool"
+    hashrate_percent: 19.25
+    version: "27.0"
+    connected_to: [1, 2, 3]
+    max_connections: 50
+    max_mempool_mb: 200
+
+  - pool_name: "ViaBTC"
+    hashrate_percent: 11.39
+    version: "27.0"
+    connected_to: [2, 3, 4]
+    max_connections: 50
+    max_mempool_mb: 200
+
+  - pool_name: "F2Pool"
+    hashrate_percent: 11.25
+    version: "27.0"
+    connected_to: [0, 3, 4]
+    max_connections: 50
+    max_mempool_mb: 200
+
+  - pool_name: "SpiderPool"
+    hashrate_percent: 9.09
+    version: "27.0"
+    connected_to: [0, 2, 4]
+    max_connections: 50
+    max_mempool_mb: 200
+
+  - pool_name: "MARA Pool"
+    hashrate_percent: 5.00
+    version: "27.0"
+    connected_to: [1, 3]
+    max_connections: 50
+    max_mempool_mb: 200
+
+  - pool_name: "SECPOOL"
+    hashrate_percent: 4.18
+    version: "27.0"
+    connected_to: [0, 4]
+    max_connections: 50
+    max_mempool_mb: 200
+
+  - pool_name: "Luxor"
+    hashrate_percent: 3.21
+    version: "27.0"
+    connected_to: [2, 3]
+    max_connections: 50
+    max_mempool_mb: 200
+
+  - pool_name: "Binance Pool"
+    hashrate_percent: 2.49
+    version: "27.0"
+    connected_to: [1, 4]
+    max_connections: 50
+    max_mempool_mb: 200
+
+  - pool_name: "OCEAN"
+    hashrate_percent: 1.42
+    version: "27.0"
+    connected_to: [0, 2]
+    max_connections: 50
+    max_mempool_mb: 200
+
+# Network Nodes: Regular propagation nodes with small economic weight
+network_nodes:
+  - version: "27.0"
+    custody_btc: 100
+    daily_volume_btc: 500
+    max_connections: 30
+    max_mempool_mb: 100
+    description: "Small service provider"
+
+  - version: "27.0"
+    max_connections: 30
+    max_mempool_mb: 100
+    description: "Hobbyist node"
+
+  - version: "27.0"
+    custody_btc: 50
+    daily_volume_btc: 300
+    max_connections: 30
+    max_mempool_mb: 100
+
+  - version: "27.0"
+    max_connections: 30
+    max_mempool_mb: 100
+
+  - version: "27.0"
+    max_connections: 30
+    max_mempool_mb: 100
+
+  - version: "27.0"
+    max_connections: 30
+    max_mempool_mb: 100
+
+  - version: "27.0"
+    max_connections: 30
+    max_mempool_mb: 100
+
+  - version: "27.0"
+    max_connections: 30
+    max_mempool_mb: 100
+
+  - version: "27.0"
+    max_connections: 30
+    max_mempool_mb: 100
+
+  - version: "27.0"
+    max_connections: 30
+    max_mempool_mb: 100
+
+# Network Topology
+topology:
+  type: "full_economic_mesh"
+  pool_peering: "neighbors"
+  network_topology: "ring_plus_economic"
+
+# Test Parameters
+test_parameters:
+  expected_forks: "Natural 1-2 block splits only"
+  expected_risk: "MINIMAL (all nodes aligned)"
+  purpose: "Baseline for pool hashrate validation"

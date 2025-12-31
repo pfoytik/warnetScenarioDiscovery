@@ -92,20 +92,31 @@ class EconomicForkAnalyzer:
     CIRCULATING_SUPPLY = 19_500_000  # BTC in circulation
     DAILY_ONCHAIN_VOLUME = 300_000   # BTC daily on-chain volume estimate
 
-    # Weighting parameters
+    # Weighting parameters (defaults - can be overridden in __init__)
     CUSTODY_WEIGHT = 0.7   # 70% - Primary metric (supply validation)
     VOLUME_WEIGHT = 0.3    # 30% - Secondary metric (operational importance)
 
-    def __init__(self, circulating_supply: int = None, daily_onchain_volume: int = None):
+    def __init__(self, circulating_supply: int = None, daily_onchain_volume: int = None,
+                 custody_weight: float = None, volume_weight: float = None):
         """
         Initialize fork analyzer.
 
         Args:
             circulating_supply: Override for BTC circulating supply (default: 19.5M)
             daily_onchain_volume: Override for daily on-chain volume (default: 300k)
+            custody_weight: Override for custody weight (default: 0.7)
+            volume_weight: Override for volume weight (default: 0.3)
         """
         self.circulating_supply = circulating_supply or self.CIRCULATING_SUPPLY
         self.daily_onchain_volume = daily_onchain_volume or self.DAILY_ONCHAIN_VOLUME
+
+        # Allow custom weighting ratios
+        self.custody_weight = custody_weight if custody_weight is not None else self.CUSTODY_WEIGHT
+        self.volume_weight = volume_weight if volume_weight is not None else self.VOLUME_WEIGHT
+
+        # Validate weights sum to 1.0
+        if abs(self.custody_weight + self.volume_weight - 1.0) > 0.001:
+            raise ValueError(f"Weights must sum to 1.0, got custody={self.custody_weight}, volume={self.volume_weight}")
 
     def calculate_consensus_weight(self, node: EconomicNode) -> Dict[str, float]:
         """
@@ -133,8 +144,8 @@ class EconomicForkAnalyzer:
         # Secondary: Volume-based weight (% of daily on-chain volume)
         volume_weight = (node.daily_volume_btc / self.daily_onchain_volume) * 100
 
-        # Combined: Custody weighted 70%, Volume weighted 30%
-        consensus_weight = (custody_weight * self.CUSTODY_WEIGHT) + (volume_weight * self.VOLUME_WEIGHT)
+        # Combined: Custody weighted (default 70%), Volume weighted (default 30%)
+        consensus_weight = (custody_weight * self.custody_weight) + (volume_weight * self.volume_weight)
 
         return {
             'custody_weight': round(custody_weight, 2),

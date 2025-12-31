@@ -1,0 +1,88 @@
+# Example Timeline for Dynamic Partition Scenarios
+# This demonstrates timed network topology changes during testing
+#
+# Usage:
+#   warnet run partition_miner.py --timeline scenarios/example_timeline.yaml
+
+scenario:
+  name: "Dynamic Partition with Reconnect"
+  description: "Test economic weight vs hashrate with mid-test reconnection"
+  duration: 600  # Total scenario duration in seconds (10 minutes)
+
+  # Network configuration
+  network:
+    v27_hashrate: 30  # Percentage
+    v26_hashrate: 70
+    v27_version: "27.0"
+    v26_version: "26.0"
+    block_interval: 10  # Seconds between blocks
+
+  # Common history parameters
+  common_history:
+    enabled: true
+    blocks: 101
+    verify_propagation: true
+
+timeline:
+  # Time 0: Network already deployed by warnet
+
+  - time: 0
+    action: generate_common_history
+    description: "Mine 101 blocks that propagate to all nodes"
+    params:
+      blocks: 101
+      miner_version: "27.0"  # Use v27 node as initial miner
+      wait_for_propagation: 60
+      verify_all_nodes: true
+
+  - time: 120
+    action: partition_network
+    description: "Create partition between v27 and v26 nodes"
+    params:
+      method: version
+      ban_duration: 86400  # 24 hours
+      verify_isolation: true
+
+  - time: 150
+    action: start_partition_mining
+    description: "Begin independent mining on both partitions"
+    params:
+      duration: 300  # 5 minutes
+      v27_hashrate: 30
+      v26_hashrate: 70
+      monitor_interval: 30
+
+  - time: 450
+    action: reconnect_network
+    description: "Remove partition and reconnect all nodes"
+    params:
+      clear_bans: true
+      force_connections: true
+      verify_reconnection: true
+
+  - time: 480
+    action: monitor_reorg
+    description: "Observe which chain wins (longest chain rule)"
+    params:
+      duration: 120  # 2 minutes
+      interval: 10
+      track_changes: true
+
+  - time: 600
+    action: economic_analysis
+    description: "Analyze final outcome vs economic weight"
+    params:
+      fork_depth_threshold: 3
+      save_results: true
+
+# Future: Event-driven triggers (not yet implemented)
+# events:
+#   - trigger: fork_depth_threshold
+#     condition: "fork_depth >= 20"
+#     action: reconnect_network
+#     description: "Reconnect when fork gets too deep"
+#
+#   - trigger: mempool_fee_spike
+#     condition: "median_fee > 100"
+#     action: increase_mining_rate
+#     description: "Mine faster when fees spike"

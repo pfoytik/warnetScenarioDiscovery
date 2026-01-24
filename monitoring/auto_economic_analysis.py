@@ -40,7 +40,7 @@ from economic_fork_analyzer import EconomicForkAnalyzer, EconomicNode
 class WarnetEconomicAnalyzer:
     """Integrates economic fork analysis with Warnet deployment."""
 
-    def __init__(self, fork_depth_threshold: int = 3, custody_weight: float = None, volume_weight: float = None):
+    def __init__(self, fork_depth_threshold: int = 3, start_height: int = None, custody_weight: float = None, volume_weight: float = None):
         self.analyzer = EconomicForkAnalyzer(
             custody_weight=custody_weight,
             volume_weight=volume_weight
@@ -48,6 +48,7 @@ class WarnetEconomicAnalyzer:
         self.network_config = None
         self.node_economic_data = {}
         self.fork_depth_threshold = fork_depth_threshold  # Minimum depth to be considered a fork
+        self.start_height = start_height  # Common ancestor height for controlled tests
 
     def load_network_config(self, config_path: str):
         """
@@ -269,15 +270,12 @@ class WarnetEconomicAnalyzer:
 
     def calculate_fork_depth(self, fork_info: Dict, chain_state: Dict) -> Optional[Dict]:
         """
-        Calculate fork depth for detected chains using simplified height-based approach.
+        Calculate fork depth for detected chains.
 
-        Simplified Algorithm:
-        - If chains are at same height: depth = 1 (natural 1-block split)
-        - If chains differ by N blocks: depth = N (one chain advanced)
-        - Add small constant (2) to account for potential divergence on both sides
+        If start_height is provided (controlled test), uses exact calculation:
+            fork_depth = (height1 - start_height) + (height2 - start_height)
 
-        This is simpler and more reliable than trying to find common ancestors,
-        and works well for distinguishing natural splits from sustained forks.
+        Otherwise uses height-based estimation for live fork detection.
 
         Args:
             fork_info: Fork detection data with chains
@@ -300,35 +298,44 @@ class WarnetEconomicAnalyzer:
         height1 = nodes1[0]['height']
         height2 = nodes2[0]['height']
 
-        # Simplified fork depth calculation
-        # Height difference indicates how far chains have diverged
-        height_diff = abs(height1 - height2)
-
-        # Estimate total depth:
-        # - If heights are same (diff=0): assume 1-block natural split, depth = 2 (1 on each side)
-        # - If heights differ: depth = height_diff + 2 (accounting for blocks on both chains)
-        if height_diff == 0:
-            # Same height: likely 1-block split on each side
-            total_depth = 2
-            depth1 = 1
-            depth2 = 1
+        # If start_height is known (controlled test), use exact calculation
+        if self.start_height is not None:
+            depth1 = height1 - self.start_height
+            depth2 = height2 - self.start_height
+            total_depth = depth1 + depth2
+            common_height = self.start_height
+            method = 'exact (from known start_height)'
         else:
-            # Different heights: one chain advanced more
-            # Conservative estimate: height_diff + 2 blocks minimum divergence
-            total_depth = height_diff + 2
-            depth1 = max(1, height_diff) if height1 > height2 else 1
-            depth2 = max(1, height_diff) if height2 > height1 else 1
+            # Simplified fork depth calculation for live detection
+            # Height difference indicates how far chains have diverged
+            height_diff = abs(height1 - height2)
+
+            # Estimate total depth:
+            # - If heights are same (diff=0): assume 1-block natural split, depth = 2 (1 on each side)
+            # - If heights differ: depth = height_diff + 2 (accounting for blocks on both chains)
+            if height_diff == 0:
+                # Same height: likely 1-block split on each side
+                total_depth = 2
+                depth1 = 1
+                depth2 = 1
+            else:
+                # Different heights: one chain advanced more
+                # Conservative estimate: height_diff + 2 blocks minimum divergence
+                total_depth = height_diff + 2
+                depth1 = max(1, height_diff) if height1 > height2 else 1
+                depth2 = max(1, height_diff) if height2 > height1 else 1
+
+            # Estimate common ancestor height (lower of the two minus estimated depth)
+            common_height = min(height1, height2) - 1
+            method = 'height-based estimation'
 
         # Check if this exceeds threshold (sustained fork)
         is_sustained = total_depth >= self.fork_depth_threshold
 
-        # Estimate common ancestor height (lower of the two minus estimated depth)
-        estimated_common_height = min(height1, height2) - 1
-
         return {
             'common_ancestor': {
-                'hash': 'estimated (not queried)',
-                'height': estimated_common_height
+                'hash': 'estimated (not queried)' if self.start_height is None else f'height {self.start_height}',
+                'height': common_height
             },
             'chain_a': {
                 'tip': tip1,
@@ -345,7 +352,7 @@ class WarnetEconomicAnalyzer:
             'total_depth': total_depth,
             'is_sustained_fork': is_sustained,
             'threshold': self.fork_depth_threshold,
-            'method': 'height-based estimation'
+            'method': method
         }
 
     def analyze_economic_fork(self, fork_info: Dict) -> Optional[Dict]:
@@ -439,6 +446,11 @@ class WarnetEconomicAnalyzer:
             print(f"  Chain B tip: {meta['chain_b_tip'][:16]}... (height {meta['chain_b_height']})")
             print()
 
+        # Output JSON for programmatic consumption (single line for parsing)
+        print("\n### JSON OUTPUT ###")
+        print(json.dumps(result))
+        print()
+
     def run_live_analysis(self):
         """
         Run economic analysis on current live network state.
@@ -458,6 +470,14 @@ class WarnetEconomicAnalyzer:
 
         if not fork_info:
             print("✓ No fork detected - all nodes on same chain")
+            # Output JSON for programmatic consumption (single line for parsing)
+            no_fork_result = {
+                "fork_detected": False,
+                "message": "No fork detected - all nodes on same chain"
+            }
+            print("\n### JSON OUTPUT ###")
+            print(json.dumps(no_fork_result))
+            print()
             return 0
 
         print(f"⚠  Fork detected! {fork_info['num_chains']} different chains")
@@ -478,6 +498,17 @@ class WarnetEconomicAnalyzer:
             print(f"  Height difference: {abs(fork_depth['chain_a']['height'] - fork_depth['chain_b']['height'])} blocks")
             print(f"✓ Below threshold ({fork_depth['total_depth']} < {self.fork_depth_threshold}) - not analyzing")
             print("  (This is normal Bitcoin behavior - chains will re-converge)")
+            # Output JSON for programmatic consumption (single line for parsing)
+            below_threshold_result = {
+                "fork_detected": True,
+                "is_sustained_fork": False,
+                "fork_depth": fork_depth,
+                "threshold": self.fork_depth_threshold,
+                "message": "Natural chain split - below threshold"
+            }
+            print("\n### JSON OUTPUT ###")
+            print(json.dumps(below_threshold_result))
+            print()
             return 0
         else:
             print(f"⚠  SUSTAINED FORK detected (depth: {fork_depth['total_depth']} blocks >= {self.fork_depth_threshold}, {fork_depth.get('method', 'calculated')})")
@@ -552,6 +583,13 @@ Examples:
     )
 
     parser.add_argument(
+        '--start-height',
+        type=int,
+        default=None,
+        help='Common ancestor height (for controlled tests). If provided, fork depth will be calculated from this height.'
+    )
+
+    parser.add_argument(
         '--custody-weight',
         type=float,
         default=0.7,
@@ -576,6 +614,7 @@ Examples:
     # Initialize analyzer
     analyzer = WarnetEconomicAnalyzer(
         fork_depth_threshold=args.fork_depth_threshold,
+        start_height=args.start_height,
         custody_weight=args.custody_weight,
         volume_weight=args.volume_weight
     )

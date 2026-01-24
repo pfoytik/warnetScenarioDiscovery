@@ -1,0 +1,72 @@
+✓ Loaded network config: unknown
+  Economic nodes: 20
+Querying live network state...
+✓ Queried 20 nodes
+⚠  Fork detected! 2 different chains
+📊 Calculating fork depth (threshold: 3 blocks)...
+⚠  SUSTAINED FORK detected (depth: 14 blocks >= 3, height-based estimation)
+  Chain A: height 196, 10 nodes
+  Chain B: height 184, 10 nodes
+  Height difference: 12 blocks
+
+================================================================================
+BITCOIN NETWORK FORK ANALYSIS (BCAP Framework)
+================================================================================
+
+### RISK ASSESSMENT ###
+  Risk Score:        23.7/100
+  Risk Level:        LOW
+  Consensus Chain:   Chain A (margin: 6.09)
+  Economic Majority: Chain A
+
+### METRICS BREAKDOWN ###
+  Supply Split:      11.9% vs 9.7%
+  Volume Split:      80.8% vs 65.7%
+  Weight Split:      32.6 vs 26.5
+
+### CHAIN A ###
+  Economic Nodes:    10
+  Total Custody:     2,315,068.6 BTC (11.87% of supply)
+  Daily Volume:      242,507.98 BTC (80.84% of on-chain)
+  Consensus Weight:  32.56
+
+  Nodes on Chain A:
+    • node-0000            (unknown             ):  1,200,000 BTC custody,  126,000 BTC/day, weight  16.91
+    • node-0001            (unknown             ):    600,000 BTC custody,   63,000 BTC/day, weight   8.45
+    • node-0002            (unknown             ):    400,000 BTC custody,   42,000 BTC/day, weight   5.64
+    • node-0003            (mining_pool         ):     53,780 BTC custody,    5,378 BTC/day, weight   0.73
+    • node-0004            (mining_pool         ):     38,500 BTC custody,    3,850 BTC/day, weight   0.52
+    • node-0005            (mining_pool         ):     22,780 BTC custody,    2,278 BTC/day, weight   0.31
+    • node-0006            (user_node           ):        3.4 BTC custody,     0.67 BTC/day, weight   0.00
+    • node-0007            (user_node           ):        1.7 BTC custody,     0.19 BTC/day, weight   0.00
+    • node-0008            (user_node           ):        1.3 BTC custody,     0.77 BTC/day, weight   0.00
+    • node-0009            (user_node           ):        2.2 BTC custody,     0.35 BTC/day, weight   0.00
+
+### CHAIN B ###
+  Economic Nodes:    10
+  Total Custody:     1,881,683.2 BTC (9.65% of supply)
+  Daily Volume:      197,167.21 BTC (65.72% of on-chain)
+  Consensus Weight:  26.47
+
+  Nodes on Chain B:
+    • node-0010            (unknown             ):  1,799,999 BTC custody,  188,999 BTC/day, weight  25.36
+    • node-0011            (mining_pool         ):     22,500 BTC custody,    2,250 BTC/day, weight   0.31
+    • node-0012            (mining_pool         ):     20,080 BTC custody,    2,007 BTC/day, weight   0.27
+    • node-0013            (mining_pool         ):     16,500 BTC custody,    1,650 BTC/day, weight   0.22
+    • node-0014            (mining_pool         ):      9,140 BTC custody,      914 BTC/day, weight   0.12
+    • node-0015            (mining_pool         ):      7,880 BTC custody,      788 BTC/day, weight   0.11
+    • node-0016            (mining_pool         ):      2,840 BTC custody,      284 BTC/day, weight   0.04
+    • node-0017            (mining_pool         ):      2,740 BTC custody,      274 BTC/day, weight   0.04
+    • node-0018            (user_node           ):        1.2 BTC custody,     0.56 BTC/day, weight   0.00
+    • node-0019            (user_node           ):        3.0 BTC custody,     0.65 BTC/day, weight   0.00
+
+### INTERPRETATION ###
+  ✓  LOW RISK: Strong majority on one chain. Minority likely to capitulate.
+
+================================================================================
+
+### FORK TECHNICAL DETAILS ###
+  Total chains: 2
+  Chain A tip: 47dc106ab5c235d9... (height 196)
+  Chain B tip: 76332b8591fc75a6... (height 184)
+

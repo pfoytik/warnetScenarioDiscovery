@@ -12,6 +12,7 @@ Usage:
 import yaml
 import argparse
 import sys
+import os
 from typing import Dict, List, Tuple
 
 
@@ -37,7 +38,7 @@ TOTAL_VOLUME_BTC_DAY = 420_000  # 420K BTC/day total volume
 class PartitionNetworkGenerator:
     """Generate version-segregated networks for systematic testing"""
 
-    def __init__(self, test_id: str, v27_economic_pct: float, v27_hashrate_pct: float):
+    def __init__(self, test_id: str, v27_economic_pct: float, v27_hashrate_pct: float, partition_mode: str = 'static'):
         """
         Initialize generator for specific test configuration.
 
@@ -45,10 +46,12 @@ class PartitionNetworkGenerator:
             test_id: Test identifier (e.g., "5.3")
             v27_economic_pct: Percentage of economic weight on v27 (0-100)
             v27_hashrate_pct: Percentage of hashrate on v27 (0-100)
+            partition_mode: Partitioning mode - 'static' (no cross-partition edges) or 'dynamic' (with cross-partition edges)
         """
         self.test_id = test_id
         self.v27_economic_pct = v27_economic_pct / 100.0
         self.v27_hashrate_pct = v27_hashrate_pct / 100.0
+        self.partition_mode = partition_mode
 
         # Calculate v22 percentages
         self.v22_economic_pct = 1.0 - self.v27_economic_pct
@@ -198,9 +201,10 @@ class PartitionNetworkGenerator:
 
     def generate_edges(self, v27_partition: Dict, v22_partition: Dict) -> List[List[int]]:
         """
-        Generate network topology with version segregation.
+        Generate network topology with optional version segregation.
 
-        NO edges between v27 and v22 partitions!
+        In static mode: NO edges between v27 and v22 partitions
+        In dynamic mode: Create 4-6 cross-partition bridge connections
 
         Args:
             v27_partition: v27 partition configuration
@@ -245,6 +249,33 @@ class PartitionNetworkGenerator:
                     econ_idx = economic_nodes[i % len(economic_nodes)]
                     if [net_idx, econ_idx] not in edges and [econ_idx, net_idx] not in edges:
                         edges.append([net_idx, econ_idx])
+
+        # Dynamic mode: Add cross-partition bridge connections
+        if self.partition_mode == 'dynamic':
+            v27_economic = [n['index'] for n in v27_partition['nodes'] if n['type'] == 'economic']
+            v27_pools = [n['index'] for n in v27_partition['nodes'] if n['type'] == 'pool']
+            v22_economic = [n['index'] for n in v22_partition['nodes'] if n['type'] == 'economic']
+            v22_pools = [n['index'] for n in v22_partition['nodes'] if n['type'] == 'pool']
+
+            # Bridge 1: Connect primary economic nodes (highest weight)
+            if v27_economic and v22_economic:
+                edges.append([v27_economic[0], v22_economic[0]])
+
+            # Bridge 2: Connect secondary economic nodes
+            if len(v27_economic) > 1 and len(v22_economic) > 1:
+                edges.append([v27_economic[1], v22_economic[1]])
+
+            # Bridge 3-4: Connect largest pools from each partition
+            if v27_pools and v22_pools:
+                edges.append([v27_pools[0], v22_pools[0]])
+            if len(v27_pools) > 1 and len(v22_pools) > 1:
+                edges.append([v27_pools[1], v22_pools[1]])
+
+            # Bridge 5-6: Cross-connect economic to pool for redundancy
+            if v27_economic and v22_pools:
+                edges.append([v27_economic[0], v22_pools[0]])
+            if v22_economic and v27_pools:
+                edges.append([v22_economic[0], v27_pools[0]])
 
         return edges
 
@@ -323,6 +354,11 @@ class PartitionNetworkGenerator:
                 }
 
             elif node['type'] == 'pool':
+                # Calculate pool economic values based on hashrate
+                # Pools hold ~2000 BTC per 1% hashrate, generate ~100 BTC/day per 1% hashrate
+                pool_custody = int(2000 * node['hashrate_percent'])
+                pool_volume = int(200 * node['hashrate_percent'])
+
                 warnet_node['bitcoin_config'] = {
                     'maxconnections': 50,
                     'maxmempool': 200,
@@ -330,14 +366,34 @@ class PartitionNetworkGenerator:
                 }
                 warnet_node['metadata'] = {
                     'pool_name': node['pool_name'],
-                    'hashrate_percent': node['hashrate_percent']
+                    'hashrate_percent': node['hashrate_percent'],
+                    'node_type': 'mining_pool',
+                    'custody_btc': pool_custody,
+                    'daily_volume_btc': pool_volume,
+                    'consensus_weight': round((0.7 * pool_custody + 0.3 * pool_volume) / 10000, 2),
+                    'supply_percentage': round(pool_custody / 20500000, 2),
+                    'economic_influence': round(pool_custody / 1000, 0)
                 }
 
-            else:  # network node
+            else:  # network node (user node)
+                # Small user nodes: 0.5-4.2 BTC custody, 0.08-0.8 BTC/day volume
+                import random
+                random.seed(node_idx)
+                user_custody = round(random.uniform(0.5, 4.2), 1)
+                user_volume = round(random.uniform(0.08, 0.8), 2)
+
                 warnet_node['bitcoin_config'] = {
                     'maxconnections': 30,
                     'maxmempool': 100,
                     'txindex': 1
+                }
+                warnet_node['metadata'] = {
+                    'node_type': 'user_node',
+                    'custody_btc': user_custody,
+                    'daily_volume_btc': user_volume,
+                    'consensus_weight': round((0.7 * user_custody + 0.3 * user_volume) / 10000, 4),
+                    'supply_percentage': round(user_custody / 20500000, 6),
+                    'economic_influence': round(user_custody / 10, 2)
                 }
 
             warnet_nodes.append(warnet_node)
@@ -353,13 +409,18 @@ class PartitionNetworkGenerator:
             'nodes': warnet_nodes
         }
 
+        # Count cross-partition edges
+        v27_nodes = set(n['index'] for n in v27_partition['nodes'])
+        v22_nodes = set(n['index'] for n in v22_partition['nodes'])
+        cross_partition_edges = sum(1 for edge in edges if (edge[0] in v27_nodes and edge[1] in v22_nodes) or (edge[0] in v22_nodes and edge[1] in v27_nodes))
+
         # Print summary
         print(f"\n  Generated network:")
         print(f"    Total nodes: {len(all_nodes)}")
         print(f"    v27 partition: nodes {v27_partition['start_index']}-{v27_partition['end_index']}")
         print(f"    v22 partition: nodes {v22_partition['start_index']}-{v22_partition['end_index']}")
         print(f"    Total edges: {len(edges)}")
-        print(f"    Cross-partition edges: 0 (version-segregated)")
+        print(f"    Cross-partition edges: {cross_partition_edges} ({self.partition_mode} mode)")
 
         return network
 
@@ -373,7 +434,6 @@ class PartitionNetworkGenerator:
         print(f"\n  ✓ Saved to: {output_path}")
 
         # Also create node-defaults.yaml in the same directory
-        import os
         output_dir = os.path.dirname(output_path)
         node_defaults_path = os.path.join(output_dir, 'node-defaults.yaml')
 
@@ -429,6 +489,8 @@ Examples:
                         help='Percentage of economic weight on v27 (0-100)')
     parser.add_argument('--v27-hashrate', type=float, required=True,
                         help='Percentage of hashrate on v27 (0-100)')
+    parser.add_argument('--partition-mode', choices=['static', 'dynamic'], default='static',
+                        help='Partitioning mode: static (no cross-partition edges) or dynamic (with bridge connections for runtime partitioning)')
     parser.add_argument('--output', '-o', help='Output file path (default: auto-generated)')
 
     args = parser.parse_args()
@@ -445,12 +507,11 @@ Examples:
     # Generate output path if not specified
     if not args.output:
         test_dir = f"../../test-networks/test-{args.test_id}-economic-{int(args.v27_economic)}-hashrate-{int(args.v27_hashrate)}"
-        import os
         os.makedirs(test_dir, exist_ok=True)
         args.output = f"{test_dir}/network.yaml"
 
     # Generate network
-    generator = PartitionNetworkGenerator(args.test_id, args.v27_economic, args.v27_hashrate)
+    generator = PartitionNetworkGenerator(args.test_id, args.v27_economic, args.v27_hashrate, args.partition_mode)
     generator.write_network_yaml(args.output)
 
     print(f"\n✓ Test {args.test_id} network configuration complete!")

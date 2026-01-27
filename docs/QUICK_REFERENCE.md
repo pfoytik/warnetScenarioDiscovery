@@ -1,7 +1,7 @@
 # Fork Testing - Quick Reference Card
 
-**Last Updated**: 2026-01-25
-**Status**: All metrics implemented ✅
+**Last Updated**: 2026-01-26
+**Status**: All metrics implemented ✅ (Updated for new repository structure)
 
 ---
 
@@ -22,8 +22,8 @@ sleep 90  # Wait for nodes to sync
 
 ### 3️⃣ Run Mining Scenario
 ```bash
-cd warnet/resources/scenarios/research
-warnet run partition_miner_with_pools.py \
+cd /home/pfoytik/bitcoinTools/warnet/warnetScenarioDiscovery
+./run_scenario.sh partition_miner_with_pools.py \
     --network-yaml /home/pfoytik/bitcoinTools/warnet/test-networks/test-TEST-NAME-economic-70-hashrate-30/network.yaml \
     --pool-scenario realistic_current \
     --v27-economic 70.0 \

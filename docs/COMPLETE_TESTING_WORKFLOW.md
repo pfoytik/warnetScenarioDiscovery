@@ -1,7 +1,7 @@
 # Complete Fork Testing Workflow
 
-**Date**: 2026-01-25
-**Status**: ✅ Fully Functional
+**Date**: 2026-01-26
+**Status**: ✅ Fully Functional (Updated for new repository structure)
 **Purpose**: Step-by-step guide to run complete fork tests with all metrics
 
 ---
@@ -104,13 +104,13 @@ sleep 90
 
 ### STEP 3: Run Mining Scenario
 
-**Location**: `warnet/resources/scenarios/research/`
+**Location**: `warnetScenarioDiscovery/` (use helper script)
 
 **Command**:
 ```bash
-cd warnet/resources/scenarios/research
+cd /home/pfoytik/bitcoinTools/warnet/warnetScenarioDiscovery
 
-warnet run partition_miner_with_pools.py \
+./run_scenario.sh partition_miner_with_pools.py \
     --network-yaml /home/pfoytik/bitcoinTools/warnet/test-networks/test-fork-test-001-economic-70-hashrate-30/network.yaml \
     --pool-scenario realistic_current \
     --v27-economic 70.0 \
@@ -132,7 +132,7 @@ warnet run partition_miner_with_pools.py \
 
 **Shorter Test (30 minutes)**:
 ```bash
-warnet run partition_miner_with_pools.py \
+./run_scenario.sh partition_miner_with_pools.py \
     --network-yaml /home/pfoytik/bitcoinTools/warnet/test-networks/test-fork-test-001-economic-70-hashrate-30/network.yaml \
     --pool-scenario realistic_current \
     --v27-economic 70.0 \
@@ -320,9 +320,9 @@ warnet deploy test-networks/test-fork-test-001-economic-70-hashrate-30/
 sleep 90
 
 # === STEP 3: Run Mining Scenario ===
-cd warnet/resources/scenarios/research
+cd /home/pfoytik/bitcoinTools/warnet/warnetScenarioDiscovery
 
-warnet run partition_miner_with_pools.py \
+./run_scenario.sh partition_miner_with_pools.py \
     --network-yaml /home/pfoytik/bitcoinTools/warnet/test-networks/test-fork-test-001-economic-70-hashrate-30/network.yaml \
     --pool-scenario realistic_current \
     --v27-economic 70.0 \
@@ -358,8 +358,8 @@ python3 enhanced_fork_analysis.py \
 
 ### Terminal 1: Run Scenario
 ```bash
-cd warnet/resources/scenarios/research
-warnet run partition_miner_with_pools.py ...
+cd /home/pfoytik/bitcoinTools/warnet/warnetScenarioDiscovery
+./run_scenario.sh partition_miner_with_pools.py ...
 # Watch mining output
 ```
 
@@ -610,8 +610,8 @@ warnet deploy test-networks/test-quick-test-economic-70-hashrate-30/
 sleep 90
 
 # 3. Run 5-minute scenario
-cd warnet/resources/scenarios/research
-warnet run partition_miner_with_pools.py \
+cd /home/pfoytik/bitcoinTools/warnet/warnetScenarioDiscovery
+./run_scenario.sh partition_miner_with_pools.py \
     --network-yaml /home/pfoytik/bitcoinTools/warnet/test-networks/test-quick-test-economic-70-hashrate-30/network.yaml \
     --pool-scenario realistic_current \
     --v27-economic 70.0 \

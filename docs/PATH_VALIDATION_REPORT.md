@@ -165,23 +165,23 @@ def load_pools_from_config(config_path, scenario_name):
 ## Directory Structure Verified
 
 ```
-research/
-├── scenarios/          ✅ 4 Python files
-│   ├── partition_miner_with_pools.py
-│   ├── partition_miner_with_price.py
-│   ├── partition_miner_price_test.py
-│   └── partition_miner_full_economics.py
-│
-├── lib/               ✅ 3 modules + __init__.py
+warnetScenarioDiscovery/
+├── lib/               ✅ 3 modules + __init__.py (at root level)
 │   ├── __init__.py
 │   ├── price_oracle.py
 │   ├── fee_oracle.py
 │   └── mining_pool_strategy.py
 │
-├── config/            ✅ 3 YAML files
+├── config/            ✅ 3 YAML files (at root level)
 │   ├── mining_pools_config.yaml
 │   ├── price_model_config.yaml
 │   └── fee_model_config.yaml
+│
+├── scenarios/         ✅ 4 Python files
+│   ├── partition_miner_with_pools.py
+│   ├── partition_miner_with_price.py
+│   ├── partition_miner_price_test.py
+│   └── partition_miner_full_economics.py
 │
 └── tests/             ✅ 8 test files
     ├── test_import_paths.py (NEW)
@@ -226,8 +226,8 @@ python3 test_import_paths.py
 
 ### Run Production Scenario
 ```bash
-cd ..
-warnet run scenarios/partition_miner_with_pools.py \
+cd /home/pfoytik/bitcoinTools/warnet/warnetScenarioDiscovery
+./run_scenario.sh partition_miner_with_pools.py \
     --network-yaml /path/to/network.yaml \
     --pool-scenario realistic_current \
     --v27-economic 70.0

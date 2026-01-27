@@ -468,8 +468,8 @@ warnet deploy ../../test-networks/test-5.3-economic-70-hashrate-30/
 sleep 60
 
 # 4. Run mining scenario
-cd ../../warnet/resources/scenarios/research
-warnet run partition_miner_with_pools.py \
+cd /home/pfoytik/bitcoinTools/warnet/warnetScenarioDiscovery
+./run_scenario.sh partition_miner_with_pools.py \
     --network-yaml /path/to/test-5.3/network.yaml \
     --pool-scenario realistic_current \
     --v27-economic 70.0 \

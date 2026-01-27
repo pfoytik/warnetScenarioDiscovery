@@ -5,6 +5,13 @@ Partition-Based Network Generator for Systematic Fork Testing
 Generates version-segregated networks for testing economic weight vs hashrate conflicts.
 Each network has two isolated partitions (v27 and v22) with configurable economic/hashrate distribution.
 
+PAIRED-NODE ARCHITECTURE (Updated 2026-01-25):
+- Each pool has ONE node per partition (total: 2 nodes per pool)
+- Both nodes share same entity_id (e.g., "pool-foundry")
+- Pool's mining strategy determines which node mines
+- Hashrate percentages represent pool's TOTAL capacity
+- Enables dynamic pool switching based on profitability/ideology
+
 Usage:
     python3 partition_network_generator.py --test-id 5.3 --v27-economic 70 --v27-hashrate 30
 """
@@ -67,31 +74,35 @@ class PartitionNetworkGenerator:
 
     def distribute_pools(self) -> Tuple[List[Tuple[str, float]], List[Tuple[str, float]]]:
         """
-        Distribute pools between partitions to match target hashrate percentages.
+        Create paired pool nodes - each pool gets one node per partition.
+
+        PAIRED-NODE ARCHITECTURE:
+        - Each pool has TWO nodes (one v27, one v22) with same entity_id
+        - Represents single pool entity with infrastructure on both forks
+        - Pool's mining strategy determines which node mines (not topology)
+        - Hashrate percentages represent pool's TOTAL capacity
+
+        Example:
+            Foundry USA (28% hashrate):
+            - v27 node: node-foundry-v27 (entity_id: pool-foundry)
+            - v22 node: node-foundry-v22 (entity_id: pool-foundry)
+            - Pool decides which fork to mine → uses corresponding node
 
         Returns:
-            (v27_pools, v22_pools) where each is list of (name, hashrate) tuples
+            (v27_pools, v22_pools) where both contain ALL pools (paired)
         """
-        target_v27 = self.v27_hashrate_pct * 100
-        target_v22 = self.v22_hashrate_pct * 100
+        # ALL pools get nodes in BOTH partitions (paired nodes)
+        v27_pools = list(POOL_DISTRIBUTION)  # All pools on v27
+        v22_pools = list(POOL_DISTRIBUTION)  # All pools on v22 (same pools!)
 
-        v27_pools = []
-        v22_pools = []
-        v27_total = 0.0
-        v22_total = 0.0
+        v27_total = sum(h for _, h in v27_pools)
+        v22_total = sum(h for _, h in v22_pools)
 
-        # Greedy assignment: assign pools to v27 until we reach target
-        for pool_name, hashrate in POOL_DISTRIBUTION:
-            if v27_total < target_v27 and abs(v27_total + hashrate - target_v27) < abs(v27_total - target_v27):
-                v27_pools.append((pool_name, hashrate))
-                v27_total += hashrate
-            else:
-                v22_pools.append((pool_name, hashrate))
-                v22_total += hashrate
-
-        print(f"  Pool distribution:")
-        print(f"    v27: {v27_total:.2f}% (target: {target_v27:.0f}%)")
-        print(f"    v22: {v22_total:.2f}% (target: {target_v22:.0f}%)")
+        print(f"  Paired pool distribution:")
+        print(f"    v27 partition: {len(v27_pools)} pools, {v27_total:.2f}% total capacity")
+        print(f"    v22 partition: {len(v22_pools)} pools, {v22_total:.2f}% total capacity")
+        print(f"    Note: Same pools in both partitions (paired nodes)")
+        print(f"    Pool decisions determine mining allocation, not topology")
 
         return v27_pools, v22_pools
 
@@ -359,15 +370,23 @@ class PartitionNetworkGenerator:
                 pool_custody = int(2000 * node['hashrate_percent'])
                 pool_volume = int(200 * node['hashrate_percent'])
 
+                # Generate entity_id for paired-node matching
+                # Convert "Foundry USA" → "pool-foundryusa"
+                pool_id = node['pool_name'].lower().replace(' ', '').replace('.', '')
+                entity_id = f"pool-{pool_id}"
+
                 warnet_node['bitcoin_config'] = {
                     'maxconnections': 50,
                     'maxmempool': 200,
                     'txindex': 1
                 }
                 warnet_node['metadata'] = {
+                    'role': 'mining_pool',
                     'pool_name': node['pool_name'],
-                    'hashrate_percent': node['hashrate_percent'],
-                    'node_type': 'mining_pool',
+                    'hashrate_pct': node['hashrate_percent'],  # Renamed for consistency
+                    'entity_id': entity_id,  # ← NEW: Enables paired-node matching
+                    'entity_name': node['pool_name'],  # ← NEW: Human-readable name
+                    'node_type': 'mining_pool',  # Legacy field
                     'custody_btc': pool_custody,
                     'daily_volume_btc': pool_volume,
                     'consensus_weight': round((0.7 * pool_custody + 0.3 * pool_volume) / 10000, 2),
@@ -414,13 +433,19 @@ class PartitionNetworkGenerator:
         v22_nodes = set(n['index'] for n in v22_partition['nodes'])
         cross_partition_edges = sum(1 for edge in edges if (edge[0] in v27_nodes and edge[1] in v22_nodes) or (edge[0] in v22_nodes and edge[1] in v27_nodes))
 
+        # Count pool nodes (paired nodes)
+        pool_count = sum(1 for n in v27_partition['nodes'] if n['type'] == 'pool')
+
         # Print summary
         print(f"\n  Generated network:")
         print(f"    Total nodes: {len(all_nodes)}")
+        print(f"    Pool nodes: {pool_count} pools × 2 partitions = {pool_count * 2} nodes (paired)")
         print(f"    v27 partition: nodes {v27_partition['start_index']}-{v27_partition['end_index']}")
         print(f"    v22 partition: nodes {v22_partition['start_index']}-{v22_partition['end_index']}")
         print(f"    Total edges: {len(edges)}")
         print(f"    Cross-partition edges: {cross_partition_edges} ({self.partition_mode} mode)")
+        print(f"\n  Note: Each pool has nodes in both partitions (same entity_id)")
+        print(f"        Pool strategy determines which node mines, not topology")
 
         return network
 

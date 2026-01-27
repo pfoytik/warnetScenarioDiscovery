@@ -1,0 +1,261 @@
+# Mining Pool Configuration
+# Defines mining pool profiles with hashrate and ideological preferences
+#
+# Each pool has:
+#   - hashrate_pct: Percentage of total network hashrate (0-100)
+#   - fork_preference: 'v27', 'v26', or 'neutral'
+#   - ideology_strength: How much they'll sacrifice for ideology (0.0-1.0)
+#       0.0 = purely rational (never mine at loss)
+#       1.0 = ideology at any cost
+#   - profitability_threshold: Min profit advantage to switch (e.g., 0.05 = 5%)
+#   - max_loss_usd: Maximum USD loss before forced switch
+#   - max_loss_pct: Maximum % of potential revenue they'll sacrifice
+
+# ============================================================================
+# SCENARIO 1: Realistic Current Bitcoin Pool Distribution
+# ============================================================================
+realistic_current:
+  description: "Based on actual Bitcoin mining pool landscape (2024-2025)"
+
+  pools:
+    - pool_id: "foundry"
+      hashrate_pct: 28.0
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.03  # Switches for 3% advantage
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "antpool"
+      hashrate_pct: 18.0
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.05
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "f2pool"
+      hashrate_pct: 15.0
+      fork_preference: "v27"  # Slightly favors innovation
+      ideology_strength: 0.3
+      profitability_threshold: 0.05
+      max_loss_usd: 300000
+      max_loss_pct: 0.10
+
+    - pool_id: "viabtc"
+      hashrate_pct: 12.0
+      fork_preference: "v26"  # Conservative preference
+      ideology_strength: 0.5
+      profitability_threshold: 0.08
+      max_loss_usd: 2000000
+      max_loss_pct: 0.20
+
+    - pool_id: "braiins"
+      hashrate_pct: 10.0
+      fork_preference: "v27"  # Technical preference
+      ideology_strength: 0.4
+      profitability_threshold: 0.10
+      max_loss_usd: 500000
+      max_loss_pct: 0.10
+
+    - pool_id: "binance"
+      hashrate_pct: 8.0
+      fork_preference: "neutral"  # Exchange - purely rational
+      ideology_strength: 0.0
+      profitability_threshold: 0.02  # Very quick to switch
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "community_pool"
+      hashrate_pct: 5.0
+      fork_preference: "v27"
+      ideology_strength: 0.8  # Strong community values
+      profitability_threshold: 0.20
+      max_loss_usd: 200000
+      max_loss_pct: 0.30
+
+    - pool_id: "other"
+      hashrate_pct: 4.0
+      fork_preference: "neutral"
+      ideology_strength: 0.1
+      profitability_threshold: 0.05
+      max_loss_usd: 100000
+      max_loss_pct: 0.05
+
+# ============================================================================
+# SCENARIO 2: Ideological Fork War
+# ============================================================================
+ideological_fork_war:
+  description: "Strong ideological split (like Bitcoin Cash fork)"
+
+  pools:
+    # Pro-v27 faction (progressive/innovation)
+    - pool_id: "progressive_pool_1"
+      hashrate_pct: 20.0
+      fork_preference: "v27"
+      ideology_strength: 0.9  # Very strong
+      profitability_threshold: 0.25
+      max_loss_usd: 5000000
+      max_loss_pct: 0.40
+
+    - pool_id: "progressive_pool_2"
+      hashrate_pct: 15.0
+      fork_preference: "v27"
+      ideology_strength: 0.7
+      profitability_threshold: 0.15
+      max_loss_usd: 2000000
+      max_loss_pct: 0.25
+
+    - pool_id: "neutral_rational_1"
+      hashrate_pct: 15.0
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.03
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    # Pro-v26 faction (conservative/traditional)
+    - pool_id: "conservative_pool_1"
+      hashrate_pct: 20.0
+      fork_preference: "v26"
+      ideology_strength: 0.9  # Very strong
+      profitability_threshold: 0.25
+      max_loss_usd: 5000000
+      max_loss_pct: 0.40
+
+    - pool_id: "conservative_pool_2"
+      hashrate_pct: 15.0
+      fork_preference: "v26"
+      ideology_strength: 0.7
+      profitability_threshold: 0.15
+      max_loss_usd: 2000000
+      max_loss_pct: 0.25
+
+    - pool_id: "neutral_rational_2"
+      hashrate_pct: 10.0
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.03
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "opportunistic"
+      hashrate_pct: 5.0
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.01  # Very quick to switch
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+# ============================================================================
+# SCENARIO 3: Purely Rational Pools (baseline for comparison)
+# ============================================================================
+purely_rational:
+  description: "All pools purely profit-driven (no ideology)"
+
+  pools:
+    - pool_id: "pool_1"
+      hashrate_pct: 30.0
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.02
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "pool_2"
+      hashrate_pct: 25.0
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.03
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "pool_3"
+      hashrate_pct: 20.0
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.05
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "pool_4"
+      hashrate_pct: 15.0
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.05
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "pool_5"
+      hashrate_pct: 10.0
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.08
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+# ============================================================================
+# SCENARIO 4: Weak Minority Ideological Resistance
+# ============================================================================
+weak_resistance:
+  description: "Most pools rational, small ideological minority resists"
+
+  pools:
+    # Large rational majority (80%)
+    - pool_id: "rational_major_1"
+      hashrate_pct: 35.0
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.02
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "rational_major_2"
+      hashrate_pct: 25.0
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.03
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "rational_major_3"
+      hashrate_pct: 20.0
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.05
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    # Small ideological minority (20%) trying to sustain v26
+    - pool_id: "ideological_resistance_1"
+      hashrate_pct: 12.0
+      fork_preference: "v26"
+      ideology_strength: 0.8  # Strong but small
+      profitability_threshold: 0.20
+      max_loss_usd: 3000000
+      max_loss_pct: 0.30
+
+    - pool_id: "ideological_resistance_2"
+      hashrate_pct: 8.0
+      fork_preference: "v26"
+      ideology_strength: 0.6
+      profitability_threshold: 0.15
+      max_loss_usd: 1000000
+      max_loss_pct: 0.20
+
+# ============================================================================
+# Model Parameters (apply to all scenarios)
+# ============================================================================
+model_parameters:
+  # Decision making
+  decision_interval: 600  # Re-evaluate every 10 minutes
+  switching_cooldown: 600  # Prevent rapid oscillation
+
+  # Mining economics
+  block_subsidy_btc: 3.125  # Post-2024 halving
+  blocks_per_hour: 6.0  # Bitcoin target
+  mining_cost_per_block_usd: 100000  # Cost to mine one block
+
+  # Tracking
+  export_enabled: true
+  export_interval: 600  # Export state every 10 minutes

@@ -1,0 +1,85 @@
+# Close Battle Scenario
+# Evenly matched factions with swing voters deciding the outcome
+
+name: "close-battle"
+description: "40% v27 faction vs 40% v26 faction with 20% swing voters"
+
+# Economic/hashrate split (50/50 for neutral starting conditions)
+v27_economic_pct: 50
+v27_hashrate_pct: 50
+
+# Node counts
+economic_nodes_per_partition: 1
+user_nodes_per_partition: 3
+
+# Economic node preferences (slight home-team bias)
+v27_economic:
+  fork_preference: "v27"
+  ideology_strength: 0.4
+  switching_threshold: 0.08
+  inertia: 0.10
+
+v26_economic:
+  fork_preference: "v26"
+  ideology_strength: 0.4
+  switching_threshold: 0.08
+  inertia: 0.10
+
+# Pool ideology overrides
+pool_overrides:
+  # Pro-v27 faction (~40% hashrate)
+  - pool_name: "Foundry USA"
+    fork_preference: "v27"
+    ideology_strength: 0.85
+    profitability_threshold: 0.20
+    max_loss_pct: 0.35
+
+  - pool_name: "F2Pool"
+    fork_preference: "v27"
+    ideology_strength: 0.6
+    profitability_threshold: 0.12
+    max_loss_pct: 0.20
+
+  # Pro-v26 faction (~40% hashrate)
+  - pool_name: "AntPool"
+    fork_preference: "v26"
+    ideology_strength: 0.85
+    profitability_threshold: 0.20
+    max_loss_pct: 0.35
+
+  - pool_name: "ViaBTC"
+    fork_preference: "v26"
+    ideology_strength: 0.7
+    profitability_threshold: 0.15
+    max_loss_pct: 0.25
+
+  - pool_name: "MARA Pool"
+    fork_preference: "v26"
+    ideology_strength: 0.5
+    profitability_threshold: 0.10
+    max_loss_pct: 0.15
+
+  # Swing voters (~20% hashrate) - purely rational
+  - pool_name: "Binance Pool"
+    fork_preference: "neutral"
+    ideology_strength: 0.0
+    profitability_threshold: 0.02
+    max_loss_pct: 0.0
+
+  - pool_name: "SBI Crypto"
+    fork_preference: "neutral"
+    ideology_strength: 0.0
+    profitability_threshold: 0.03
+    max_loss_pct: 0.0
+
+  - pool_name: "Luxor"
+    fork_preference: "neutral"
+    ideology_strength: 0.1
+    profitability_threshold: 0.05
+    max_loss_pct: 0.02
+
+# Topology
+partition_mode: "static"
+
+# Output settings
+fork_observer_enabled: false

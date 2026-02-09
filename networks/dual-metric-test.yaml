@@ -1,0 +1,271 @@
+# Dual-Metric Test Network - BCAP Framework Demonstration
+#
+# Purpose: Demonstrate how custody (PRIMARY) and volume (SECONDARY) combine
+#          to determine consensus weight in fork scenarios
+#
+# Test Scenario: Version split (v27.0 vs v26.0)
+# - Nodes 1-2: v27.0 (high volume dominance)
+# - Node 3: v26.0 (high custody)
+# - Nodes 4-5: v27.0 (minor players)
+#
+# Expected Fork Analysis:
+# - Chain v27.0: High volume (50%+) but moderate custody (~15%)
+# - Chain v26.0: High custody (~5%) but low volume
+# - Winner: v27.0 (due to combined weight from volume)
+
+network:
+  name: dual-metric-test-5-node
+  description: "Minimal network demonstrating custody vs volume trade-offs"
+
+nodes:
+  # ============================================================================
+  # ECONOMIC NODES (5 nodes demonstrating different weight profiles)
+  # ============================================================================
+
+  # NODE 1: Exchange-High-Custody
+  # Strategy: High custody, moderate volume
+  # Profile: Large custodian with moderate trading activity
+  - name: exchange-high-custody
+    image: "bitcoindevproject/bitcoin:27.0"
+    tags:
+      - economic_node
+      - major_exchange
+      - high_custody
+      - version_27
+    metadata:
+      node_type: major_exchange
+      entity_name: "High-Custody Exchange"
+      adoption_speed: fast
+      test_role: "Demonstrates custody-dominant weight"
+
+      # PRIMARY METRIC: Supply Validation (Custody)
+      custody_btc: 2000000  # 2M BTC
+      supply_percentage: 10.26  # (2M / 19.5M circulating)
+      custody_notes: "Major exchange with large reserves"
+
+      # SECONDARY METRIC: Payment Flow (Daily)
+      daily_deposits_btc: 100000  # 100k BTC/day
+      daily_withdrawals_btc: 95000
+      daily_volume_btc: 100000  # 33.3% of daily on-chain volume
+      payment_notes: "Moderate trading volume"
+
+      # DERIVED: Consensus Weight
+      # Weight = (10.26 * 0.7) + (33.33 * 0.3) = 7.18 + 10 = 17.18
+      consensus_weight: 17.18
+      weight_calculation: "custody_primary_volume_secondary"
+      economic_influence: "critical"
+    bitcoin_config:
+      maxconnections: 2000
+      maxmempool: 10000  # 10GB
+      rpcthreads: 32
+      txindex: 1
+    resources:
+      requests:
+        cpu: "4000m"
+        memory: "16Gi"
+      limits:
+        cpu: "8000m"
+        memory: "32Gi"
+    connections:
+      - exchange-high-volume
+      - custody-provider
+      - payment-processor
+      - mining-pool
+
+  # NODE 2: Exchange-High-Volume
+  # Strategy: Moderate custody, very high volume
+  # Profile: High-frequency trading exchange
+  - name: exchange-high-volume
+    image: "bitcoindevproject/bitcoin:27.0"
+    tags:
+      - economic_node
+      - regional_exchange
+      - high_volume
+      - version_27
+    metadata:
+      node_type: regional_exchange
+      entity_name: "High-Volume Exchange"
+      adoption_speed: fast
+      test_role: "Demonstrates volume-boosted weight"
+
+      # PRIMARY METRIC: Supply Validation (Custody)
+      custody_btc: 500000  # 500k BTC
+      supply_percentage: 2.56  # (500k / 19.5M circulating)
+      custody_notes: "Moderate reserves, high turnover"
+
+      # SECONDARY METRIC: Payment Flow (Daily)
+      daily_deposits_btc: 150000  # 150k BTC/day
+      daily_withdrawals_btc: 145000
+      daily_volume_btc: 150000  # 50% of daily on-chain volume
+      payment_notes: "Extremely high trading activity"
+
+      # DERIVED: Consensus Weight
+      # Weight = (2.56 * 0.7) + (50 * 0.3) = 1.79 + 15 = 16.79
+      consensus_weight: 16.79
+      weight_calculation: "custody_primary_volume_secondary"
+      economic_influence: "critical"
+    bitcoin_config:
+      maxconnections: 1500
+      maxmempool: 8000  # 8GB
+      rpcthreads: 24
+      txindex: 1
+    resources:
+      requests:
+        cpu: "3000m"
+        memory: "12Gi"
+      limits:
+        cpu: "6000m"
+        memory: "24Gi"
+    connections:
+      - exchange-high-custody
+      - custody-provider
+      - payment-processor
+      - mining-pool
+
+  # NODE 3: Custody-Provider
+  # Strategy: Very high custody, very low volume
+  # Profile: Institutional custodian (v26.0 - conservative)
+  - name: custody-provider
+    image: "bitcoindevproject/bitcoin:26.0"  # ← v26.0 (different version)
+    tags:
+      - economic_node
+      - custody_provider
+      - high_custody
+      - low_volume
+      - version_26
+    metadata:
+      node_type: custody_provider
+      entity_name: "Institutional Custodian"
+      adoption_speed: slow  # Conservative, slow to upgrade
+      test_role: "Represents conservative custody provider on old version"
+
+      # PRIMARY METRIC: Supply Validation (Custody)
+      custody_btc: 1000000  # 1M BTC
+      supply_percentage: 5.13  # (1M / 19.5M circulating)
+      custody_notes: "Large institutional custody, mostly cold storage"
+
+      # SECONDARY METRIC: Payment Flow (Daily)
+      daily_deposits_btc: 5000  # 5k BTC/day
+      daily_withdrawals_btc: 4800
+      daily_volume_btc: 5000  # 1.67% of daily on-chain volume
+      payment_notes: "Very low-frequency institutional movements"
+
+      # DERIVED: Consensus Weight
+      # Weight = (5.13 * 0.7) + (1.67 * 0.3) = 3.59 + 0.50 = 4.09
+      consensus_weight: 4.09
+      weight_calculation: "custody_primary_volume_secondary"
+      economic_influence: "significant"
+    bitcoin_config:
+      maxconnections: 300
+      maxmempool: 3000  # 3GB
+      rpcthreads: 8
+      discover: 0  # Manual peering only
+    resources:
+      requests:
+        cpu: "1000m"
+        memory: "6Gi"
+      limits:
+        cpu: "2000m"
+        memory: "12Gi"
+    connections:
+      - exchange-high-custody
+      - exchange-high-volume
+      - payment-processor
+
+  # NODE 4: Payment-Processor
+  # Strategy: Very low custody, moderate volume
+  # Profile: Operational chokepoint (merchant payments)
+  - name: payment-processor
+    image: "bitcoindevproject/bitcoin:27.0"
+    tags:
+      - economic_node
+      - payment_processor
+      - operational_chokepoint
+      - version_27
+    metadata:
+      node_type: payment_processor
+      entity_name: "Payment Processor"
+      adoption_speed: medium
+      test_role: "Demonstrates operational importance despite low custody"
+
+      # PRIMARY METRIC: Supply Validation (Custody)
+      custody_btc: 20000  # 20k BTC
+      supply_percentage: 0.10  # (20k / 19.5M circulating)
+      custody_notes: "Minimal hot wallets for payment processing"
+
+      # SECONDARY METRIC: Payment Flow (Daily)
+      daily_deposits_btc: 30000  # 30k BTC/day
+      daily_withdrawals_btc: 29000
+      daily_volume_btc: 30000  # 10% of daily on-chain volume
+      payment_notes: "High-frequency merchant payments"
+
+      # DERIVED: Consensus Weight
+      # Weight = (0.10 * 0.7) + (10 * 0.3) = 0.07 + 3 = 3.07
+      consensus_weight: 3.07
+      weight_calculation: "custody_primary_volume_secondary"
+      economic_influence: "moderate"
+    bitcoin_config:
+      maxconnections: 500
+      maxmempool: 2000  # 2GB
+      rpcthreads: 16
+      mempoolexpiry: 1  # 1 hour (fast turnover)
+    resources:
+      requests:
+        cpu: "2000m"
+        memory: "4Gi"
+      limits:
+        cpu: "4000m"
+        memory: "8Gi"
+    connections:
+      - exchange-high-custody
+      - exchange-high-volume
+      - custody-provider
+      - mining-pool
+
+  # NODE 5: Mining-Pool
+  # Strategy: Minimal custody, minimal volume
+  # Profile: Mining pool (reference - shows minimal economic weight)
+  - name: mining-pool
+    image: "bitcoindevproject/bitcoin:27.0"
+    tags:
+      - mining_pool
+      - minimal_custody
+      - minimal_volume
+      - version_27
+    metadata:
+      node_type: mining_pool
+      entity_name: "Mining Pool"
+      adoption_speed: fast
+      test_role: "Reference node - shows minimal economic weight despite hash power"
+
+      # PRIMARY METRIC: Supply Validation (Custody)
+      custody_btc: 1000  # 1k BTC
+      supply_percentage: 0.005  # (1k / 19.5M circulating)
+      custody_notes: "Only mining rewards, no custody business"
+
+      # SECONDARY METRIC: Payment Flow (Daily)
+      daily_deposits_btc: 200  # 200 BTC/day (block rewards)
+      daily_withdrawals_btc: 190
+      daily_volume_btc: 200  # 0.067% of daily on-chain volume
+      payment_notes: "Block rewards and miner payouts only"
+
+      # DERIVED: Consensus Weight
+      # Weight = (0.005 * 0.7) + (0.067 * 0.3) = 0.0035 + 0.02 = 0.024
+      consensus_weight: 0.024
+      weight_calculation: "custody_primary_volume_secondary"
+      economic_influence: "minor"
+      notes: "Has hash power but minimal economic weight in BCAP model"
+    bitcoin_config:
+      maxconnections: 125
+      maxmempool: 300
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "2Gi"
+      limits:
+        cpu: "1000m"
+        memory: "4Gi"
+    connections:
+      - exchange-high-custody
+      - exchange-high-volume
+      - payment-processor

@@ -64,9 +64,12 @@ class PartitionNetworkGenerator:
         self.v22_economic_pct = 1.0 - self.v27_economic_pct
         self.v22_hashrate_pct = 1.0 - self.v27_hashrate_pct
 
-        # Node allocation (total 20 nodes)
-        self.v27_node_count = 10
-        self.v22_node_count = 10
+        # Node allocation
+        # With 10 pools × 2 partitions = 20 pool nodes
+        # Plus 2 user/economic nodes per partition = 4 additional nodes
+        # Total: 24 nodes (12 per partition)
+        self.v27_node_count = 12
+        self.v22_node_count = 12
 
         # Partition configuration
         self.v27_partition = None
@@ -161,8 +164,10 @@ class PartitionNetworkGenerator:
         """
         # Allocate nodes
         num_pools = len(pools)
-        num_economic = min(3, partition_size - num_pools - 2)  # At least 3 economic or max available
-        num_network = partition_size - num_economic - num_pools
+        # Ensure at least 1 user node per partition for economic weight tracking
+        remaining_slots = partition_size - num_pools
+        num_economic = min(1, remaining_slots)  # 1 economic node per partition
+        num_network = max(1, remaining_slots - num_economic)  # At least 1 user node per partition
 
         # Distribute economic weight
         economic_nodes = self.distribute_economic_weight(num_economic, economic_pct)
@@ -248,16 +253,16 @@ class PartitionNetworkGenerator:
             for i in range(len(pool_nodes) - 1):
                 edges.append([pool_nodes[i], pool_nodes[i + 1]])
 
-            # 4. Network nodes form ring
-            for i in range(len(network_nodes)):
-                next_idx = (i + 1) % len(network_nodes)
-                if [network_nodes[i], network_nodes[next_idx]] not in edges:
-                    edges.append([network_nodes[i], network_nodes[next_idx]])
+            # 4. Network nodes form ring (only if 2+ nodes to avoid self-edge)
+            if len(network_nodes) >= 2:
+                for i in range(len(network_nodes)):
+                    next_idx = (i + 1) % len(network_nodes)
+                    if [network_nodes[i], network_nodes[next_idx]] not in edges:
+                        edges.append([network_nodes[i], network_nodes[next_idx]])
 
-            # 5. Connect some network nodes to economic nodes
-            for i, net_idx in enumerate(network_nodes):
-                if i % 2 == 0 and economic_nodes:  # Every other network node
-                    econ_idx = economic_nodes[i % len(economic_nodes)]
+            # 5. Connect all network nodes to economic nodes (ensures connectivity)
+            for net_idx in network_nodes:
+                for econ_idx in economic_nodes:
                     if [net_idx, econ_idx] not in edges and [econ_idx, net_idx] not in edges:
                         edges.append([net_idx, econ_idx])
 
@@ -359,9 +364,16 @@ class PartitionNetworkGenerator:
                 }
                 warnet_node['metadata'] = {
                     'role': node['role'],
+                    'node_type': 'economic',
+                    'entity_id': f"econ-{node['role']}-{node_idx}",
                     'custody_btc': node['custody_btc'],
                     'daily_volume_btc': node['daily_volume_btc'],
-                    'consensus_weight': round((0.7 * node['custody_btc'] + 0.3 * node['daily_volume_btc']) / 10000, 2)
+                    'consensus_weight': round((0.7 * node['custody_btc'] + 0.3 * node['daily_volume_btc']) / 10000, 2),
+                    # Ideology defaults (overridden by economic_nodes_config.yaml)
+                    'fork_preference': 'neutral',
+                    'ideology_strength': 0.1,
+                    'switching_threshold': 0.03,
+                    'inertia': 0.15,
                 }
 
             elif node['type'] == 'pool':
@@ -384,14 +396,17 @@ class PartitionNetworkGenerator:
                     'role': 'mining_pool',
                     'pool_name': node['pool_name'],
                     'hashrate_pct': node['hashrate_percent'],  # Renamed for consistency
-                    'entity_id': entity_id,  # ← NEW: Enables paired-node matching
-                    'entity_name': node['pool_name'],  # ← NEW: Human-readable name
-                    'node_type': 'mining_pool',  # Legacy field
+                    'entity_id': entity_id,  # Enables paired-node matching
+                    'entity_name': node['pool_name'],  # Human-readable name
+                    'node_type': 'mining_pool',
                     'custody_btc': pool_custody,
                     'daily_volume_btc': pool_volume,
                     'consensus_weight': round((0.7 * pool_custody + 0.3 * pool_volume) / 10000, 2),
                     'supply_percentage': round(pool_custody / 20500000, 2),
-                    'economic_influence': round(pool_custody / 1000, 0)
+                    'economic_influence': round(pool_custody / 1000, 0),
+                    # Ideology defaults (overridden by mining_pools_config.yaml)
+                    'fork_preference': 'neutral',
+                    'ideology_strength': 0.3,
                 }
 
             else:  # network node (user node)
@@ -401,6 +416,11 @@ class PartitionNetworkGenerator:
                 user_custody = round(random.uniform(0.5, 4.2), 1)
                 user_volume = round(random.uniform(0.08, 0.8), 2)
 
+                # User ideology varies (seeded by node index for reproducibility)
+                user_ideology = round(random.uniform(0.1, 0.7), 2)
+                user_switch_thresh = round(random.uniform(0.05, 0.15), 2)
+                user_inertia = round(random.uniform(0.02, 0.08), 2)
+
                 warnet_node['bitcoin_config'] = {
                     'maxconnections': 30,
                     'maxmempool': 100,
@@ -408,11 +428,17 @@ class PartitionNetworkGenerator:
                 }
                 warnet_node['metadata'] = {
                     'node_type': 'user_node',
+                    'entity_id': f"user-{node_idx}",
                     'custody_btc': user_custody,
                     'daily_volume_btc': user_volume,
                     'consensus_weight': round((0.7 * user_custody + 0.3 * user_volume) / 10000, 4),
                     'supply_percentage': round(user_custody / 20500000, 6),
-                    'economic_influence': round(user_custody / 10, 2)
+                    'economic_influence': round(user_custody / 10, 2),
+                    # Ideology defaults (overridden by economic_nodes_config.yaml)
+                    'fork_preference': 'neutral',
+                    'ideology_strength': user_ideology,
+                    'switching_threshold': user_switch_thresh,
+                    'inertia': user_inertia,
                 }
 
             warnet_nodes.append(warnet_node)
@@ -422,7 +448,7 @@ class PartitionNetworkGenerator:
                 'enabled': True
             },
             'fork_observer': {
-                'enabled': True,
+                'enabled': False,  # Disabled by default to avoid RPC auth issues
                 'configQueryInterval': 10
             },
             'nodes': warnet_nodes

@@ -1,0 +1,172 @@
+# Economic Node Configuration
+# Defines ideology profiles for economic (exchange) and user nodes
+#
+# Economic nodes "vote with their feet" by choosing which fork's economy
+# to participate in. Their aggregate choices determine v27_economic_pct
+# dynamically, feeding back into the price oracle.
+#
+# Fields:
+#   fork_preference: 'v27', 'v26', or 'neutral'
+#   ideology_strength: How much price disadvantage they'll accept (0.0-1.0)
+#       0.0 = purely rational (always follow price)
+#       1.0 = ideology at any cost
+#   switching_threshold: Min price advantage % to switch forks (0.0-1.0)
+#   inertia: Additional resistance to switching (0.0-1.0)
+#       Effective threshold = switching_threshold + inertia
+#   switching_cooldown: Seconds between allowed re-evaluations
+#   max_loss_pct: Max price disadvantage % to maintain ideology (0.0-1.0)
+
+# ============================================================================
+# SCENARIO 1: Realistic Current Distribution
+# ============================================================================
+realistic_current:
+  description: "Exchanges mostly rational, users more ideological"
+
+  # Defaults applied to economic nodes (exchanges, payment processors)
+  economic_defaults:
+    fork_preference: "neutral"
+    ideology_strength: 0.1
+    switching_threshold: 0.03      # Need 3% price advantage to consider switching
+    inertia: 0.15                   # High inertia (infrastructure costs)
+    switching_cooldown: 1800        # 30 minutes between decisions
+    max_loss_pct: 0.05              # Max 5% price disadvantage for ideology
+
+  # Defaults applied to user/network nodes
+  user_defaults:
+    fork_preference: "neutral"
+    ideology_strength: 0.3          # Users are more ideological than exchanges
+    switching_threshold: 0.08       # Users are slower to switch
+    inertia: 0.05                   # But lower inertia (just wallet/app choice)
+    switching_cooldown: 3600        # 1 hour between decisions
+    max_loss_pct: 0.15              # Users tolerate more loss for beliefs
+
+  # Per-role overrides (applied on top of economic_defaults)
+  overrides:
+    # Major exchanges: purely rational, high inertia
+    major_exchange:
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      switching_threshold: 0.02     # Very responsive to price signals
+      inertia: 0.20                 # But high switching costs
+
+    # Regular exchanges
+    exchange:
+      fork_preference: "neutral"
+      ideology_strength: 0.05
+      switching_threshold: 0.03
+      inertia: 0.15
+
+    # Payment processors: slightly favor stability (v26)
+    payment_processor:
+      fork_preference: "v26"
+      ideology_strength: 0.2
+      switching_threshold: 0.05
+      inertia: 0.10
+
+# ============================================================================
+# SCENARIO 2: Ideological Split
+# ============================================================================
+ideological_split:
+  description: "Strong ideological division among all participants"
+
+  economic_defaults:
+    switching_threshold: 0.05
+    inertia: 0.10
+    switching_cooldown: 1200        # 20 minutes (faster decisions during conflict)
+    max_loss_pct: 0.20
+
+  user_defaults:
+    switching_threshold: 0.10
+    inertia: 0.03
+    switching_cooldown: 1800
+    max_loss_pct: 0.30
+
+  overrides:
+    major_exchange:
+      fork_preference: "neutral"
+      ideology_strength: 0.1        # Even big exchanges take a side slightly
+      inertia: 0.15
+
+  # Distribution pattern: assign ideology based on proportion of nodes
+  # Nodes are assigned to buckets by index position
+  distribution_pattern:
+    economic:
+      - pct: 40
+        fork_preference: "v27"
+        ideology_strength: 0.7
+      - pct: 40
+        fork_preference: "v26"
+        ideology_strength: 0.7
+      - pct: 20
+        fork_preference: "neutral"
+        ideology_strength: 0.0
+    user:
+      - pct: 50
+        fork_preference: "v27"
+        ideology_strength: 0.8
+      - pct: 30
+        fork_preference: "v26"
+        ideology_strength: 0.6
+      - pct: 20
+        fork_preference: "neutral"
+        ideology_strength: 0.1
+
+# ============================================================================
+# SCENARIO 3: Purely Rational (baseline)
+# ============================================================================
+purely_rational:
+  description: "All economic actors purely rational (no ideology)"
+
+  economic_defaults:
+    fork_preference: "neutral"
+    ideology_strength: 0.0
+    switching_threshold: 0.02
+    inertia: 0.05
+    switching_cooldown: 600         # 10 minutes
+    max_loss_pct: 0.0
+
+  user_defaults:
+    fork_preference: "neutral"
+    ideology_strength: 0.0
+    switching_threshold: 0.05
+    inertia: 0.02
+    switching_cooldown: 600
+    max_loss_pct: 0.0
+
+# ============================================================================
+# SCENARIO 4: Strong v26 Resistance
+# ============================================================================
+strong_v26_resistance:
+  description: "Significant economic resistance to v27 upgrade"
+
+  economic_defaults:
+    fork_preference: "v26"
+    ideology_strength: 0.5
+    switching_threshold: 0.08
+    inertia: 0.15
+    switching_cooldown: 1800
+    max_loss_pct: 0.25
+
+  user_defaults:
+    fork_preference: "v26"
+    ideology_strength: 0.6
+    switching_threshold: 0.12
+    inertia: 0.05
+    switching_cooldown: 3600
+    max_loss_pct: 0.30
+
+  overrides:
+    major_exchange:
+      fork_preference: "neutral"    # Major exchanges stay neutral even in resistance
+      ideology_strength: 0.1
+      switching_threshold: 0.03
+      inertia: 0.20
+
+# ============================================================================
+# Model Parameters (apply to all scenarios)
+# ============================================================================
+model_parameters:
+  decision_interval: 300            # Re-evaluate every 5 minutes
+  economic_switching_cooldown: 1800 # Economic nodes: 30 min between switches
+  user_switching_cooldown: 3600     # User nodes: 1 hour between switches
+  initial_fork_assignment: "by_partition"  # Nodes start on their partition's fork

@@ -1,0 +1,51 @@
+# Custom Pool Distribution Scenario
+# Define your own pool distribution instead of using real-world data
+
+name: "custom-pools"
+description: "Custom pool distribution for specific testing scenarios"
+
+v27_economic_pct: 50
+v27_hashrate_pct: 50
+
+economic_nodes_per_partition: 1
+user_nodes_per_partition: 2
+
+# Custom pool distribution (replaces default real-world pools)
+pools:
+  - pool_name: "BigMiner Corp"
+    hashrate_pct: 35.0
+    fork_preference: "v27"
+    ideology_strength: 0.8
+    profitability_threshold: 0.15
+    max_loss_pct: 0.25
+
+  - pool_name: "Traditional Mining Co"
+    hashrate_pct: 30.0
+    fork_preference: "v26"
+    ideology_strength: 0.8
+    profitability_threshold: 0.15
+    max_loss_pct: 0.25
+
+  - pool_name: "Neutral Pool A"
+    hashrate_pct: 15.0
+    fork_preference: "neutral"
+    ideology_strength: 0.0
+    profitability_threshold: 0.02
+    max_loss_pct: 0.0
+
+  - pool_name: "Neutral Pool B"
+    hashrate_pct: 10.0
+    fork_preference: "neutral"
+    ideology_strength: 0.0
+    profitability_threshold: 0.03
+    max_loss_pct: 0.0
+
+  - pool_name: "Community Pool"
+    hashrate_pct: 10.0
+    fork_preference: "v27"
+    ideology_strength: 0.9
+    profitability_threshold: 0.30
+    max_loss_pct: 0.50
+
+partition_mode: "static"
+fork_observer_enabled: false

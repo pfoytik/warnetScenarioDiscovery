@@ -1,0 +1,88 @@
+caddy:
+  enabled: true
+fork_observer:
+  enabled: true
+  configQueryInterval: 10
+nodes:
+- name: node-0000
+  image:
+    tag: '26.0'
+  addnode:
+  - node-0001
+  - node-0002
+  - node-0003
+  - node-0004
+  bitcoin_config:
+    maxconnections: 125
+    maxmempool: 300
+    rpcthreads: 32
+    txindex: 1
+  metadata:
+    role: payment_processor
+    custody_btc: 78902
+    daily_volume_btc: 158049
+    consensus_weight: 10.26
+- name: node-0001
+  image:
+    tag: '26.0'
+  addnode:
+  - node-0000
+  - node-0004
+  bitcoin_config:
+    maxconnections: 125
+    maxmempool: 2000
+    rpcthreads: 16
+    txindex: 1
+  metadata:
+    role: payment_processor
+    custody_btc: 68299
+    daily_volume_btc: 196711
+    consensus_weight: 10.68
+- name: node-0002
+  image:
+    tag: '27.0'
+  addnode:
+  - node-0000
+  - node-0004
+  bitcoin_config:
+    maxconnections: 500
+    maxmempool: 300
+    rpcthreads: 16
+    txindex: 1
+  metadata:
+    role: regional_exchange
+    custody_btc: 572546
+    daily_volume_btc: 29637
+    consensus_weight: 40.97
+- name: node-0003
+  image:
+    tag: '26.0'
+  addnode:
+  - node-0000
+  bitcoin_config:
+    maxconnections: 1000
+    maxmempool: 300
+    rpcthreads: 16
+    txindex: 1
+  metadata:
+    role: payment_processor
+    custody_btc: 81599
+    daily_volume_btc: 192169
+    consensus_weight: 11.48
+- name: node-0004
+  image:
+    tag: '26.0'
+  addnode:
+  - node-0000
+  - node-0001
+  - node-0002
+  bitcoin_config:
+    maxconnections: 125
+    maxmempool: 2000
+    rpcthreads: 16
+    txindex: 1
+  metadata:
+    role: custody_provider
+    custody_btc: 685740
+    daily_volume_btc: 4836
+    consensus_weight: 48.15

@@ -1,0 +1,517 @@
+# Mining Pool Configuration
+# Defines mining pool profiles with hashrate and ideological preferences
+#
+# Each pool has:
+#   - hashrate_pct: Percentage of total network hashrate (0-100)
+#   - fork_preference: 'v27', 'v26', or 'neutral'
+#   - ideology_strength: How much they'll sacrifice for ideology (0.0-1.0)
+#       0.0 = purely rational (never mine at loss)
+#       1.0 = ideology at any cost
+#   - profitability_threshold: Min profit advantage to switch (e.g., 0.05 = 5%)
+#   - max_loss_usd: Maximum USD loss before forced switch
+#   - max_loss_pct: Maximum % of potential revenue they'll sacrifice
+
+# ============================================================================
+# SCENARIO 1: Realistic Current Bitcoin Pool Distribution
+# ============================================================================
+realistic_current:
+  description: "Based on actual Bitcoin mining pool landscape (2024-2025)"
+
+  pools:
+    # Pool IDs must match entity_ids in network.yaml (e.g., pool-foundryusa -> foundryusa)
+    - pool_id: "foundryusa"
+      hashrate_pct: 26.89
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.03  # Switches for 3% advantage
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "antpool"
+      hashrate_pct: 19.25
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.05
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "viabtc"
+      hashrate_pct: 11.39
+      fork_preference: "v26"  # Conservative preference
+      ideology_strength: 0.5
+      profitability_threshold: 0.08
+      max_loss_usd: 2000000
+      max_loss_pct: 0.20
+
+    - pool_id: "f2pool"
+      hashrate_pct: 11.25
+      fork_preference: "v27"  # Slightly favors innovation
+      ideology_strength: 0.3
+      profitability_threshold: 0.05
+      max_loss_usd: 300000
+      max_loss_pct: 0.10
+
+    - pool_id: "binancepool"
+      hashrate_pct: 10.04
+      fork_preference: "neutral"  # Exchange - purely rational
+      ideology_strength: 0.0
+      profitability_threshold: 0.02  # Very quick to switch
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "marapool"
+      hashrate_pct: 8.25
+      fork_preference: "neutral"
+      ideology_strength: 0.1
+      profitability_threshold: 0.05
+      max_loss_usd: null
+      max_loss_pct: 0.05
+
+    - pool_id: "sbicrypto"
+      hashrate_pct: 4.57
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.05
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "luxor"
+      hashrate_pct: 3.94
+      fork_preference: "v27"  # Technical preference
+      ideology_strength: 0.4
+      profitability_threshold: 0.10
+      max_loss_usd: 500000
+      max_loss_pct: 0.10
+
+    - pool_id: "ocean"
+      hashrate_pct: 1.42
+      fork_preference: "v27"
+      ideology_strength: 0.8  # Strong community values
+      profitability_threshold: 0.20
+      max_loss_usd: 200000
+      max_loss_pct: 0.30
+
+    - pool_id: "braiinspool"
+      hashrate_pct: 1.37
+      fork_preference: "v27"
+      ideology_strength: 0.4
+      profitability_threshold: 0.10
+      max_loss_usd: 100000
+      max_loss_pct: 0.10
+
+# ============================================================================
+# SCENARIO 2: Ideological War (uses real pool names matching network.yaml)
+# ============================================================================
+ideological_war:
+  description: "Strong ideological split with real pool names"
+
+  pools:
+    # Pro-v27 faction (~32% hashrate)
+    - pool_id: "foundryusa"
+      hashrate_pct: 26.89
+      fork_preference: "v27"
+      ideology_strength: 0.85
+      profitability_threshold: 0.20
+      max_loss_usd: 5000000
+      max_loss_pct: 0.40
+
+    - pool_id: "luxor"
+      hashrate_pct: 3.94
+      fork_preference: "v27"
+      ideology_strength: 0.8
+      profitability_threshold: 0.20
+      max_loss_usd: 500000
+      max_loss_pct: 0.35
+
+    - pool_id: "ocean"
+      hashrate_pct: 1.42
+      fork_preference: "v27"
+      ideology_strength: 0.85
+      profitability_threshold: 0.22
+      max_loss_usd: 200000
+      max_loss_pct: 0.35
+
+    # Pro-v26 faction (~50% hashrate)
+    - pool_id: "antpool"
+      hashrate_pct: 19.25
+      fork_preference: "v26"
+      ideology_strength: 0.9
+      profitability_threshold: 0.25
+      max_loss_usd: 5000000
+      max_loss_pct: 0.40
+
+    - pool_id: "viabtc"
+      hashrate_pct: 11.39
+      fork_preference: "v26"
+      ideology_strength: 0.85
+      profitability_threshold: 0.22
+      max_loss_usd: 2000000
+      max_loss_pct: 0.35
+
+    - pool_id: "f2pool"
+      hashrate_pct: 11.25
+      fork_preference: "v26"
+      ideology_strength: 0.7
+      profitability_threshold: 0.15
+      max_loss_usd: 1000000
+      max_loss_pct: 0.25
+
+    - pool_id: "marapool"
+      hashrate_pct: 8.25
+      fork_preference: "v26"
+      ideology_strength: 0.6
+      profitability_threshold: 0.12
+      max_loss_usd: 500000
+      max_loss_pct: 0.20
+
+    # Neutral/Opportunistic (~18% hashrate) - follows profitability
+    - pool_id: "binancepool"
+      hashrate_pct: 10.04
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.01
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "sbicrypto"
+      hashrate_pct: 4.57
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.02
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "braiinspool"
+      hashrate_pct: 1.37
+      fork_preference: "neutral"
+      ideology_strength: 0.1
+      profitability_threshold: 0.05
+      max_loss_usd: 100000
+      max_loss_pct: 0.02
+
+# ============================================================================
+# SCENARIO 2b: Ideological Fork War (generic pool names - legacy)
+# ============================================================================
+ideological_fork_war:
+  description: "Strong ideological split (like Bitcoin Cash fork)"
+
+  pools:
+    # Pro-v27 faction (progressive/innovation)
+    - pool_id: "progressive_pool_1"
+      hashrate_pct: 20.0
+      fork_preference: "v27"
+      ideology_strength: 0.9  # Very strong
+      profitability_threshold: 0.25
+      max_loss_usd: 5000000
+      max_loss_pct: 0.40
+
+    - pool_id: "progressive_pool_2"
+      hashrate_pct: 15.0
+      fork_preference: "v27"
+      ideology_strength: 0.7
+      profitability_threshold: 0.15
+      max_loss_usd: 2000000
+      max_loss_pct: 0.25
+
+    - pool_id: "neutral_rational_1"
+      hashrate_pct: 15.0
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.03
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    # Pro-v26 faction (conservative/traditional)
+    - pool_id: "conservative_pool_1"
+      hashrate_pct: 20.0
+      fork_preference: "v26"
+      ideology_strength: 0.9  # Very strong
+      profitability_threshold: 0.25
+      max_loss_usd: 5000000
+      max_loss_pct: 0.40
+
+    - pool_id: "conservative_pool_2"
+      hashrate_pct: 15.0
+      fork_preference: "v26"
+      ideology_strength: 0.7
+      profitability_threshold: 0.15
+      max_loss_usd: 2000000
+      max_loss_pct: 0.25
+
+    - pool_id: "neutral_rational_2"
+      hashrate_pct: 10.0
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.03
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "opportunistic"
+      hashrate_pct: 5.0
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.01  # Very quick to switch
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+# ============================================================================
+# SCENARIO 3: Purely Rational Pools (baseline for comparison)
+# ============================================================================
+purely_rational:
+  description: "All pools purely profit-driven (no ideology)"
+
+  pools:
+    - pool_id: "pool_1"
+      hashrate_pct: 30.0
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.02
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "pool_2"
+      hashrate_pct: 25.0
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.03
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "pool_3"
+      hashrate_pct: 20.0
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.05
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "pool_4"
+      hashrate_pct: 15.0
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.05
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "pool_5"
+      hashrate_pct: 10.0
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.08
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+# ============================================================================
+# SCENARIO 4: Weak Minority Ideological Resistance
+# ============================================================================
+weak_resistance:
+  description: "Most pools rational, small ideological minority resists"
+
+  pools:
+    # Large rational majority (80%)
+    - pool_id: "rational_major_1"
+      hashrate_pct: 35.0
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.02
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "rational_major_2"
+      hashrate_pct: 25.0
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.03
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "rational_major_3"
+      hashrate_pct: 20.0
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.05
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    # Small ideological minority (20%) trying to sustain v26
+    - pool_id: "ideological_resistance_1"
+      hashrate_pct: 12.0
+      fork_preference: "v26"
+      ideology_strength: 0.8  # Strong but small
+      profitability_threshold: 0.20
+      max_loss_usd: 3000000
+      max_loss_pct: 0.30
+
+    - pool_id: "ideological_resistance_2"
+      hashrate_pct: 8.0
+      fork_preference: "v26"
+      ideology_strength: 0.6
+      profitability_threshold: 0.15
+      max_loss_usd: 1000000
+      max_loss_pct: 0.20
+
+# ============================================================================
+# SCENARIO 5: Close Battle (uses real pool names matching network.yaml)
+# ============================================================================
+close_battle:
+  description: "Evenly matched factions with real pool names - outcome uncertain"
+
+  pools:
+    # Pro-v27 faction (~38% hashrate)
+    - pool_id: "foundryusa"
+      hashrate_pct: 26.89
+      fork_preference: "v27"
+      ideology_strength: 0.85
+      profitability_threshold: 0.20
+      max_loss_usd: 10000000
+      max_loss_pct: 0.35
+
+    - pool_id: "f2pool"
+      hashrate_pct: 11.25
+      fork_preference: "v27"
+      ideology_strength: 0.6
+      profitability_threshold: 0.12
+      max_loss_usd: 3000000
+      max_loss_pct: 0.20
+
+    # Pro-v26 faction (~39% hashrate)
+    - pool_id: "antpool"
+      hashrate_pct: 19.25
+      fork_preference: "v26"
+      ideology_strength: 0.85
+      profitability_threshold: 0.20
+      max_loss_usd: 10000000
+      max_loss_pct: 0.35
+
+    - pool_id: "viabtc"
+      hashrate_pct: 11.39
+      fork_preference: "v26"
+      ideology_strength: 0.7
+      profitability_threshold: 0.15
+      max_loss_usd: 2000000
+      max_loss_pct: 0.25
+
+    - pool_id: "marapool"
+      hashrate_pct: 8.25
+      fork_preference: "v26"
+      ideology_strength: 0.5
+      profitability_threshold: 0.10
+      max_loss_usd: 1000000
+      max_loss_pct: 0.15
+
+    # Swing voters (~23% hashrate) - follows profitability
+    - pool_id: "binancepool"
+      hashrate_pct: 10.04
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.02
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "sbicrypto"
+      hashrate_pct: 4.57
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.03
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "luxor"
+      hashrate_pct: 3.94
+      fork_preference: "neutral"
+      ideology_strength: 0.1
+      profitability_threshold: 0.05
+      max_loss_usd: 500000
+      max_loss_pct: 0.02
+
+    - pool_id: "ocean"
+      hashrate_pct: 1.42
+      fork_preference: "neutral"
+      ideology_strength: 0.2
+      profitability_threshold: 0.08
+      max_loss_usd: 200000
+      max_loss_pct: 0.05
+
+    - pool_id: "braiinspool"
+      hashrate_pct: 1.37
+      fork_preference: "neutral"
+      ideology_strength: 0.1
+      profitability_threshold: 0.05
+      max_loss_usd: 100000
+      max_loss_pct: 0.02
+
+# ============================================================================
+# SCENARIO 5b: Close Battle (generic pool names - legacy)
+# ============================================================================
+close_battle_legacy:
+  description: "Evenly matched factions - outcome uncertain (legacy generic names)"
+
+  pools:
+    # Pro-v27 faction (40% total)
+    - pool_id: "v27_champion"
+      hashrate_pct: 25.0
+      fork_preference: "v27"
+      ideology_strength: 0.85
+      profitability_threshold: 0.20
+      max_loss_usd: 10000000
+      max_loss_pct: 0.35
+
+    - pool_id: "v27_supporter"
+      hashrate_pct: 15.0
+      fork_preference: "v27"
+      ideology_strength: 0.6
+      profitability_threshold: 0.12
+      max_loss_usd: 3000000
+      max_loss_pct: 0.20
+
+    # Pro-v26 faction (40% total)
+    - pool_id: "v26_champion"
+      hashrate_pct: 25.0
+      fork_preference: "v26"
+      ideology_strength: 0.85
+      profitability_threshold: 0.20
+      max_loss_usd: 10000000
+      max_loss_pct: 0.35
+
+    - pool_id: "v26_supporter"
+      hashrate_pct: 15.0
+      fork_preference: "v26"
+      ideology_strength: 0.6
+      profitability_threshold: 0.12
+      max_loss_usd: 3000000
+      max_loss_pct: 0.20
+
+    # Swing voters (20% total) - will follow profitability
+    # Equal split to ensure no initial advantage
+    - pool_id: "swing_pool_1"
+      hashrate_pct: 10.0
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.03
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "swing_pool_2"
+      hashrate_pct: 10.0
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.05
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+# ============================================================================
+# Model Parameters (apply to all scenarios)
+# ============================================================================
+model_parameters:
+  # Decision making
+  decision_interval: 600  # Re-evaluate every 10 minutes
+  switching_cooldown: 600  # Prevent rapid oscillation
+
+  # Mining economics
+  block_subsidy_btc: 3.125  # Post-2024 halving
+  blocks_per_hour: 6.0  # Bitcoin target
+  mining_cost_per_block_usd: 100000  # Cost to mine one block
+
+  # Tracking
+  export_enabled: true
+  export_interval: 600  # Export state every 10 minutes

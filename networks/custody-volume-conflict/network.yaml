@@ -1,0 +1,52 @@
+caddy:
+  enabled: true
+fork_observer:
+  enabled: true
+  configQueryInterval: 10
+nodes:
+- name: node-0000
+  image:
+    tag: '27.0'
+  addnode:
+  - node-0001
+  - node-0002
+  bitcoin_config:
+    maxconnections: 500
+    maxmempool: 2000
+    mempoolexpiry: 72
+    txindex: 1
+  metadata:
+    role: processor
+    custody_btc: 120542
+    daily_volume_btc: 261290
+    consensus_weight: 16.28
+- name: node-0001
+  image:
+    tag: '27.0'
+  addnode:
+  - node-0000
+  bitcoin_config:
+    maxconnections: 500
+    maxmempool: 2000
+    mempoolexpiry: 72
+    txindex: 1
+  metadata:
+    role: processor
+    custody_btc: 82262
+    daily_volume_btc: 350152
+    consensus_weight: 16.26
+- name: node-0002
+  image:
+    tag: '26.0'
+  addnode:
+  - node-0000
+  bitcoin_config:
+    maxconnections: 125
+    maxmempool: 300
+    mempoolexpiry: 72
+    txindex: 1
+  metadata:
+    role: exchange
+    custody_btc: 1539594
+    daily_volume_btc: 12272
+    consensus_weight: 108.14

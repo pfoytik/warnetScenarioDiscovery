@@ -1,0 +1,444 @@
+caddy:
+  enabled: true
+fork_observer:
+  enabled: true
+  configQueryInterval: 10
+nodes:
+- name: node-0000
+  image:
+    tag: '26.0'
+  addnode:
+  - node-0001
+  - node-0002
+  - node-0003
+  - node-0004
+  - node-0005
+  - node-0008
+  - node-0009
+  - node-0011
+  - node-0014
+  - node-0015
+  bitcoin_config:
+    maxconnections: 125
+    maxmempool: 500
+    rpcthreads: 16
+    txindex: 1
+  metadata:
+    role: payment_processor
+    custody_btc: 53278
+    daily_volume_btc: 394393
+    consensus_weight: 15.56
+- name: node-0001
+  image:
+    tag: '26.0'
+  addnode:
+  - node-0000
+  - node-0002
+  - node-0003
+  - node-0004
+  - node-0005
+  - node-0006
+  - node-0010
+  - node-0013
+  - node-0022
+  bitcoin_config:
+    maxconnections: 125
+    maxmempool: 500
+    rpcthreads: 16
+    txindex: 1
+  metadata:
+    role: major_exchange
+    custody_btc: 1917026
+    daily_volume_btc: 14572
+    consensus_weight: 134.63
+- name: node-0002
+  image:
+    tag: '27.0'
+  addnode:
+  - node-0000
+  - node-0001
+  - node-0003
+  - node-0004
+  - node-0005
+  - node-0006
+  - node-0007
+  - node-0009
+  - node-0012
+  - node-0014
+  - node-0017
+  bitcoin_config:
+    maxconnections: 125
+    maxmempool: 500
+    rpcthreads: 16
+    txindex: 1
+  metadata:
+    role: payment_processor
+    custody_btc: 138696
+    daily_volume_btc: 394161
+    consensus_weight: 21.53
+- name: node-0003
+  image:
+    tag: '27.0'
+  addnode:
+  - node-0000
+  - node-0001
+  - node-0002
+  - node-0004
+  - node-0006
+  - node-0007
+  - node-0008
+  - node-0010
+  - node-0012
+  - node-0024
+  bitcoin_config:
+    maxconnections: 125
+    maxmempool: 500
+    rpcthreads: 16
+    txindex: 1
+  metadata:
+    role: payment_processor
+    custody_btc: 61395
+    daily_volume_btc: 354794
+    consensus_weight: 14.94
+- name: node-0004
+  image:
+    tag: '27.0'
+  addnode:
+  - node-0000
+  - node-0001
+  - node-0002
+  - node-0003
+  - node-0007
+  - node-0008
+  - node-0009
+  - node-0011
+  - node-0013
+  - node-0019
+  bitcoin_config:
+    maxconnections: 125
+    maxmempool: 500
+    rpcthreads: 16
+    txindex: 1
+  metadata:
+    role: payment_processor
+    custody_btc: 53905
+    daily_volume_btc: 224561
+    consensus_weight: 10.51
+- name: node-0005
+  image:
+    tag: '26.0'
+  addnode:
+  - node-0000
+  - node-0001
+  - node-0002
+  - node-0006
+  - node-0015
+  bitcoin_config:
+    maxconnections: 50
+    maxmempool: 200
+    rpcthreads: 8
+    txindex: 0
+  metadata:
+    role: mining_pool
+    pool_name: Foundry USA
+    hashrate: 26.89
+- name: node-0006
+  image:
+    tag: '26.0'
+  addnode:
+  - node-0001
+  - node-0002
+  - node-0003
+  - node-0005
+  - node-0007
+  - node-0016
+  bitcoin_config:
+    maxconnections: 50
+    maxmempool: 200
+    rpcthreads: 8
+    txindex: 0
+  metadata:
+    role: mining_pool
+    pool_name: AntPool
+    hashrate: 19.25
+- name: node-0007
+  image:
+    tag: '26.0'
+  addnode:
+  - node-0002
+  - node-0003
+  - node-0004
+  - node-0006
+  - node-0008
+  - node-0017
+  bitcoin_config:
+    maxconnections: 50
+    maxmempool: 200
+    rpcthreads: 8
+    txindex: 0
+  metadata:
+    role: mining_pool
+    pool_name: ViaBTC
+    hashrate: 11.39
+- name: node-0008
+  image:
+    tag: '26.0'
+  addnode:
+  - node-0000
+  - node-0003
+  - node-0004
+  - node-0007
+  - node-0009
+  - node-0018
+  bitcoin_config:
+    maxconnections: 50
+    maxmempool: 200
+    rpcthreads: 8
+    txindex: 0
+  metadata:
+    role: mining_pool
+    pool_name: F2Pool
+    hashrate: 11.25
+- name: node-0009
+  image:
+    tag: '26.0'
+  addnode:
+  - node-0000
+  - node-0002
+  - node-0004
+  - node-0008
+  - node-0010
+  - node-0019
+  bitcoin_config:
+    maxconnections: 50
+    maxmempool: 200
+    rpcthreads: 8
+    txindex: 0
+  metadata:
+    role: mining_pool
+    pool_name: SpiderPool
+    hashrate: 9.09
+- name: node-0010
+  image:
+    tag: '27.0'
+  addnode:
+  - node-0001
+  - node-0003
+  - node-0009
+  - node-0011
+  - node-0020
+  bitcoin_config:
+    maxconnections: 50
+    maxmempool: 200
+    rpcthreads: 8
+    txindex: 0
+  metadata:
+    role: mining_pool
+    pool_name: MARA Pool
+    hashrate: 5.0
+- name: node-0011
+  image:
+    tag: '27.0'
+  addnode:
+  - node-0000
+  - node-0004
+  - node-0010
+  - node-0012
+  - node-0021
+  bitcoin_config:
+    maxconnections: 50
+    maxmempool: 200
+    rpcthreads: 8
+    txindex: 0
+  metadata:
+    role: mining_pool
+    pool_name: SECPOOL
+    hashrate: 4.18
+- name: node-0012
+  image:
+    tag: '27.0'
+  addnode:
+  - node-0002
+  - node-0003
+  - node-0011
+  - node-0013
+  - node-0022
+  bitcoin_config:
+    maxconnections: 50
+    maxmempool: 200
+    rpcthreads: 8
+    txindex: 0
+  metadata:
+    role: mining_pool
+    pool_name: Luxor
+    hashrate: 3.21
+- name: node-0013
+  image:
+    tag: '27.0'
+  addnode:
+  - node-0001
+  - node-0004
+  - node-0012
+  - node-0014
+  - node-0023
+  bitcoin_config:
+    maxconnections: 50
+    maxmempool: 200
+    rpcthreads: 8
+    txindex: 0
+  metadata:
+    role: mining_pool
+    pool_name: Binance Pool
+    hashrate: 2.49
+- name: node-0014
+  image:
+    tag: '27.0'
+  addnode:
+  - node-0000
+  - node-0002
+  - node-0013
+  - node-0024
+  bitcoin_config:
+    maxconnections: 50
+    maxmempool: 200
+    rpcthreads: 8
+    txindex: 0
+  metadata:
+    role: mining_pool
+    pool_name: OCEAN
+    hashrate: 1.42
+- name: node-0015
+  image:
+    tag: '26.0'
+  addnode:
+  - node-0000
+  - node-0005
+  - node-0016
+  - node-0020
+  - node-0024
+  bitcoin_config:
+    maxconnections: 30
+    maxmempool: 100
+    rpcthreads: 4
+    txindex: 0
+- name: node-0016
+  image:
+    tag: '26.0'
+  addnode:
+  - node-0006
+  - node-0015
+  - node-0017
+  - node-0021
+  bitcoin_config:
+    maxconnections: 30
+    maxmempool: 100
+    rpcthreads: 4
+    txindex: 0
+- name: node-0017
+  image:
+    tag: '26.0'
+  addnode:
+  - node-0002
+  - node-0007
+  - node-0016
+  - node-0018
+  - node-0022
+  bitcoin_config:
+    maxconnections: 30
+    maxmempool: 100
+    rpcthreads: 4
+    txindex: 0
+- name: node-0018
+  image:
+    tag: '26.0'
+  addnode:
+  - node-0008
+  - node-0017
+  - node-0019
+  - node-0023
+  bitcoin_config:
+    maxconnections: 30
+    maxmempool: 100
+    rpcthreads: 4
+    txindex: 0
+- name: node-0019
+  image:
+    tag: '26.0'
+  addnode:
+  - node-0004
+  - node-0009
+  - node-0018
+  - node-0020
+  - node-0024
+  bitcoin_config:
+    maxconnections: 30
+    maxmempool: 100
+    rpcthreads: 4
+    txindex: 0
+- name: node-0020
+  image:
+    tag: '27.0'
+  addnode:
+  - node-0010
+  - node-0015
+  - node-0019
+  - node-0021
+  bitcoin_config:
+    maxconnections: 30
+    maxmempool: 100
+    rpcthreads: 4
+    txindex: 0
+- name: node-0021
+  image:
+    tag: '27.0'
+  addnode:
+  - node-0011
+  - node-0016
+  - node-0020
+  - node-0022
+  bitcoin_config:
+    maxconnections: 30
+    maxmempool: 100
+    rpcthreads: 4
+    txindex: 0
+- name: node-0022
+  image:
+    tag: '27.0'
+  addnode:
+  - node-0001
+  - node-0012
+  - node-0017
+  - node-0021
+  - node-0023
+  bitcoin_config:
+    maxconnections: 30
+    maxmempool: 100
+    rpcthreads: 4
+    txindex: 0
+- name: node-0023
+  image:
+    tag: '27.0'
+  addnode:
+  - node-0013
+  - node-0018
+  - node-0022
+  - node-0024
+  bitcoin_config:
+    maxconnections: 30
+    maxmempool: 100
+    rpcthreads: 4
+    txindex: 0
+- name: node-0024
+  image:
+    tag: '27.0'
+  addnode:
+  - node-0003
+  - node-0014
+  - node-0015
+  - node-0019
+  - node-0023
+  bitcoin_config:
+    maxconnections: 30
+    maxmempool: 100
+    rpcthreads: 4
+    txindex: 0

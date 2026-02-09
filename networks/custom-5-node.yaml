@@ -1,0 +1,232 @@
+# Custom 5-Node Economic Test Network
+# BCAP-Aligned Implementation - Minimal Test Configuration
+#
+# Economic Node Definition (BCAP Framework):
+# "Economic Nodes are full nodes that not only validate and relay transactions,
+#  but also receive and send substantial amounts of bitcoin payments. Economic
+#  Nodes have power and influence which is proportional to the frequency and
+#  volume of payments received."
+#
+# Test Focus: Version mixing, mempool policy differences, custody-based weights
+# Circulating Supply Assumption: 19,500,000 BTC
+
+network:
+  name: custom-5-node-test
+  description: "BCAP-aligned minimal test network: version mixing + custody metrics"
+
+nodes:
+  # ============================================================================
+  # ECONOMIC NODES (3 nodes)
+  # ============================================================================
+
+  # Exchange 1 - MAJOR EXCHANGE on v26.0 with CONSTRAINED mempool
+  - name: exchange-1-custom
+    image: "bitcoindevproject/bitcoin:26.0"
+    tags:
+      - economic_node
+      - exchange
+      - major_exchange
+      - custom_mempool
+      - version_previous
+    metadata:
+      node_type: major_exchange
+      entity_name: "Major Exchange - Constrained Mempool Test"
+      adoption_speed: fast
+      test_scenario: "v26.0 with 50MB mempool - mempool pressure testing"
+
+      # PRIMARY METRIC: Supply Validation (Custody)
+      custody_btc: 2000000  # 2 million BTC
+      supply_percentage: 10.3  # (2M / 19.5M circulating)
+      custody_notes: "Major exchange custody, constrained mempool config"
+
+      # SECONDARY METRIC: Payment Flow (Daily)
+      daily_deposits_btc: 100000
+      daily_withdrawals_btc: 95000
+      daily_volume_btc: 100000
+      payment_notes: "High-volume exchange with mempool constraint"
+
+      # DERIVED: Consensus Weight
+      consensus_weight: 10.3  # Custody-based
+      weight_calculation: "custody_primary_flow_secondary"
+      economic_influence: "critical"
+    bitcoin_config:
+      maxconnections: 2000
+      maxmempool: 50  # CUSTOM: Only 50MB (vs default 10000)
+      rpcthreads: 32
+      txindex: 1
+      listen: 1
+      discover: 1
+    resources:
+      requests:
+        cpu: "4000m"
+        memory: "16Gi"
+      limits:
+        cpu: "8000m"
+        memory: "32Gi"
+    connections:
+      # Connected to all other nodes (hub position)
+      - exchange-2-default
+      - payment-processor-1
+      - relay-node-1
+      - relay-node-2
+
+  # Exchange 2 - MAJOR EXCHANGE on v27.0 with STANDARD settings
+  - name: exchange-2-default
+    image: "bitcoindevproject/bitcoin:27.0"
+    tags:
+      - economic_node
+      - exchange
+      - major_exchange
+      - default_config
+      - version_latest
+    metadata:
+      node_type: major_exchange
+      entity_name: "Major Exchange - Standard Configuration"
+      adoption_speed: fast
+      test_scenario: "v27.0 with 10GB mempool - baseline comparison"
+
+      # PRIMARY METRIC: Supply Validation (Custody)
+      custody_btc: 2200000  # 2.2 million BTC
+      supply_percentage: 11.3  # (2.2M / 19.5M circulating)
+      custody_notes: "Major exchange custody, standard mempool config"
+
+      # SECONDARY METRIC: Payment Flow (Daily)
+      daily_deposits_btc: 110000
+      daily_withdrawals_btc: 105000
+      daily_volume_btc: 110000
+      payment_notes: "High-volume exchange with standard settings"
+
+      # DERIVED: Consensus Weight
+      consensus_weight: 11.3  # Custody-based
+      weight_calculation: "custody_primary_flow_secondary"
+      economic_influence: "critical"
+    bitcoin_config:
+      maxconnections: 2000
+      maxmempool: 10000  # DEFAULT: Standard 10GB mempool
+      rpcthreads: 32
+      txindex: 1
+      listen: 1
+      discover: 1
+    resources:
+      requests:
+        cpu: "4000m"
+        memory: "16Gi"
+      limits:
+        cpu: "8000m"
+        memory: "32Gi"
+    connections:
+      # Connected to both economic nodes and relay nodes
+      - exchange-1-custom
+      - payment-processor-1
+      - relay-node-1
+      - relay-node-2
+
+  # Payment Processor - OPERATIONAL CHOKEPOINT on v27.0
+  - name: payment-processor-1
+    image: "bitcoindevproject/bitcoin:27.0"
+    tags:
+      - economic_node
+      - payment_processor
+      - medium_volume
+      - operational_chokepoint
+    metadata:
+      node_type: payment_processor
+      entity_name: "BitPay/Strike-scale Payment Processor"
+      adoption_speed: medium
+      test_scenario: "Payment processor with 1hr mempool expiry"
+
+      # PRIMARY METRIC: Supply Validation (Custody)
+      custody_btc: 30000  # 30k BTC
+      supply_percentage: 0.15  # (30k / 19.5M circulating)
+      custody_notes: "Operational wallets, minimal custody"
+
+      # SECONDARY METRIC: Payment Flow (Daily)
+      daily_deposits_btc: 10000
+      daily_withdrawals_btc: 9500
+      daily_volume_btc: 10000
+      payment_notes: "High-frequency merchant payments"
+
+      # DERIVED: Consensus Weight
+      consensus_weight: 1.0  # Custody-based + operational importance
+      weight_calculation: "custody_primary_flow_secondary"
+      economic_influence: "moderate"
+    bitcoin_config:
+      maxconnections: 500
+      maxmempool: 2000  # 2GB
+      rpcthreads: 16
+      mempoolexpiry: 1  # 1 hour (fast turnover for payment processing)
+      listen: 1
+      discover: 1
+    resources:
+      requests:
+        cpu: "2000m"
+        memory: "4Gi"
+      limits:
+        cpu: "4000m"
+        memory: "8Gi"
+    connections:
+      # Connected to both exchanges and relay nodes
+      - exchange-1-custom
+      - exchange-2-default
+      - relay-node-1
+      - relay-node-2
+
+  # ============================================================================
+  # RELAY NODES (2 nodes)
+  # ============================================================================
+
+  # Relay Node 1 - v27.0
+  - name: relay-node-1
+    image: "bitcoindevproject/bitcoin:27.0"
+    tags:
+      - relay_node
+      - standard
+      - version_latest
+    metadata:
+      weight: 1
+      node_type: relay
+      notes: "Standard relay node on latest version"
+    bitcoin_config:
+      maxconnections: 125
+      maxmempool: 300
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "2Gi"
+      limits:
+        cpu: "1000m"
+        memory: "4Gi"
+    connections:
+      # Connected to all economic nodes and other relay
+      - exchange-1-custom
+      - exchange-2-default
+      - payment-processor-1
+      - relay-node-2
+
+  # Relay Node 2 - v26.0 (mixed version for testing)
+  - name: relay-node-2
+    image: "bitcoindevproject/bitcoin:26.0"
+    tags:
+      - relay_node
+      - standard
+      - version_previous
+    metadata:
+      weight: 1
+      node_type: relay
+      notes: "Relay node on previous version for compatibility testing"
+    bitcoin_config:
+      maxconnections: 125
+      maxmempool: 300
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "2Gi"
+      limits:
+        cpu: "1000m"
+        memory: "4Gi"
+    connections:
+      # Connected to all economic nodes and other relay
+      - exchange-1-custom
+      - exchange-2-default
+      - payment-processor-1
+      - relay-node-1

@@ -1,25 +1,32 @@
 #!/usr/bin/env python3
 
 """
-Partition Mining Scenario with Dynamic Pool Strategy
+Partition Mining Scenario with Dynamic Pool + Economic Strategy
 
 Integration of:
 - Phase 1: Price Oracle (price tracking)
 - Phase 2: Fee Oracle (fee market dynamics)
 - Phase 3: Mining Pool Strategy (ideology + profitability)
+- Phase 4: Economic Node Strategy (all nodes have ideology, dynamic economic weight)
 
-Key changes from static partition_miner:
-- Hashrate allocation is DYNAMIC (updates every 10 minutes)
-- Pools make individual decisions based on profitability + ideology
+Key changes:
+- Hashrate allocation is DYNAMIC (pools switch based on profitability + ideology)
+- Economic weight is DYNAMIC (economic/user nodes switch based on price + ideology)
 - Network topology stays STATIC (v27 nodes isolated from v26 nodes)
-- Only the MINING PROBABILITY changes
+- Both MINING PROBABILITY and ECONOMIC WEIGHT change over time
+
+Feedback loop:
+  Price Oracle → Pool decisions (hashrate changes)
+       ↑          Economic/User decisions (economic weight changes)
+       └──────────────────────┘
 
 Network stays partitioned:
   v27 nodes ✗✗✗ v26 nodes (can't communicate)
 
-But pools can switch which network they mine on:
-  Pool chooses v27 → generatetoaddress() on v27 nodes
-  Pool chooses v26 → generatetoaddress() on v26 nodes
+But actors can switch which fork they support:
+  Pools: choose which partition to mine on
+  Economic nodes: choose which fork's economy to participate in
+  User nodes: choose which fork to use
 """
 
 from time import sleep, time
@@ -31,22 +38,38 @@ from typing import Dict, List, Optional, Tuple
 
 from commander import Commander
 
-# Import inline implementations (warnet bundler limitation)
+# Import from lib modules (bundled with scenario)
 import os
-_lib_dir = os.path.join(os.path.dirname(__file__), '../lib')
-exec(open(os.path.join(_lib_dir, 'price_oracle.py')).read().split('if __name__')[0])
-exec(open(os.path.join(_lib_dir, 'fee_oracle.py')).read().split('if __name__')[0])
-exec(open(os.path.join(_lib_dir, 'mining_pool_strategy.py')).read().split('if __name__')[0])
+from lib.price_oracle import PriceOracle
+from lib.fee_oracle import FeeOracle
+from lib.mining_pool_strategy import (
+    ForkPreference,
+    PoolProfile,
+    MiningPoolStrategy,
+    load_pools_from_config,
+)
+from lib.economic_node_strategy import (
+    EconomicNodeStrategy,
+    EconomicNodeProfile,
+    load_economic_nodes_from_network,
+)
+from lib.difficulty_oracle import DifficultyOracle
+from lib.reorg_oracle import ReorgOracle
 
 
 class PartitionMinerWithPools(Commander):
     """
-    Partition mining with dynamic pool strategy.
+    Partition mining with dynamic pool + economic strategy.
 
-    Pools individually decide which fork to mine based on:
-    1. Profitability (price × fees)
+    All actors make independent fork decisions:
+    - Mining pools: choose which fork to mine (hashrate allocation)
+    - Economic nodes: choose which fork's economy to support (economic weight)
+    - User nodes: choose which fork to use (economic weight, small contribution)
+
+    Decisions are based on:
+    1. Profitability / Price advantage (rational economics)
     2. Ideology (fork preference)
-    3. Loss tolerance (economic sustainability)
+    3. Loss tolerance / Inertia (switching costs)
     """
 
     def set_test_params(self):
@@ -60,10 +83,29 @@ class PartitionMinerWithPools(Commander):
         self.price_oracle = None
         self.fee_oracle = None
         self.pool_strategy = None
+        self.economic_strategy = None
+        self.difficulty_oracle = None
+        self.reorg_oracle = None
 
-        # Current hashrate allocation (dynamic)
+        # Difficulty mode tick interval
+        self.tick_interval = 1.0
+
+        # Current hashrate allocation (dynamic - from pool decisions)
         self.current_v27_hashrate = 0.0
         self.current_v26_hashrate = 0.0
+
+        # Current economic allocation (dynamic - from economic/user node decisions)
+        self.current_v27_economic = 0.0
+        self.current_v26_economic = 0.0
+
+        # Transactional economic allocation (fee-generating activity only)
+        # Distinguishes exchanges/merchants (high velocity) from HODLers (low velocity)
+        self.current_v27_transactional = 0.0
+        self.current_v26_transactional = 0.0
+
+        # Solo miner hashrate (user/economic nodes that mine)
+        self.current_v27_solo_hashrate = 0.0
+        self.current_v26_solo_hashrate = 0.0
 
         # Pool-to-node mappings (per partition)
         self.pool_nodes_v27 = {}  # pool_id -> list of v27 nodes
@@ -71,6 +113,38 @@ class PartitionMinerWithPools(Commander):
 
         # Node metadata from network.yaml
         self.node_metadata = {}  # node_name -> metadata dict
+
+        # Time series data for charting
+        self.time_series = {
+            'timestamps': [],           # elapsed seconds
+            'v27_price': [],
+            'v26_price': [],
+            'v27_hashrate': [],
+            'v26_hashrate': [],
+            'v27_economic': [],
+            'v26_economic': [],
+            'v27_blocks': [],
+            'v26_blocks': [],
+            'v27_difficulty': [],
+            'v26_difficulty': [],
+            'v27_chainwork': [],
+            'v26_chainwork': [],
+            # Fee market metrics
+            'v27_fee_rate': [],         # sats/vbyte
+            'v26_fee_rate': [],
+            'v27_fee_revenue_btc': [],  # fee revenue per block
+            'v26_fee_revenue_btc': [],
+            'v27_congestion': [],       # tx_volume / throughput ratio
+            'v26_congestion': [],
+            'v27_mempool_mb': [],       # estimated mempool size
+            'v26_mempool_mb': [],
+            # Transactional vs custodial activity
+            'v27_transactional': [],    # fee-generating economic activity %
+            'v26_transactional': [],
+            # Solo miner hashrate (user nodes that mine)
+            'v27_solo_hashrate': [],
+            'v26_solo_hashrate': [],
+        }
 
     def add_options(self, parser: argparse.ArgumentParser):
         """Add command-line arguments"""
@@ -93,30 +167,75 @@ class PartitionMinerWithPools(Commander):
         parser.add_argument('--network-yaml', type=str, default=None,
                           help='Path to network.yaml file with node metadata')
 
+        # Economic node configuration
+        parser.add_argument('--economic-scenario', type=str, default='realistic_current',
+                          help='Economic node scenario from economic_nodes_config.yaml')
+        parser.add_argument('--economic-update-interval', type=int, default=300,
+                          help='Economic node decision interval (seconds), default 5min')
+
         # Update intervals
         parser.add_argument('--hashrate-update-interval', type=int, default=600,
                           help='Pool decision interval (seconds), default 10min')
         parser.add_argument('--price-update-interval', type=int, default=60,
                           help='Price update interval (seconds)')
 
+        # Difficulty oracle configuration
+        parser.add_argument('--enable-difficulty', action='store_true', default=False,
+                          help='Enable difficulty simulation (probability-per-tick mining)')
+        parser.add_argument('--retarget-interval', type=int, default=144,
+                          help='Blocks between difficulty adjustments (default 144)')
+        parser.add_argument('--tick-interval', type=float, default=1.0,
+                          help='Tick interval in seconds for difficulty mode (default 1.0)')
+        parser.add_argument('--enable-eda', action='store_true', default=False,
+                          help='Enable Emergency Difficulty Adjustment (BCH-style)')
+        parser.add_argument('--min-difficulty', type=float, default=0.0625,
+                          help='Minimum difficulty floor (default 0.0625 = 1/16)')
+
+        # Reorg metrics
+        parser.add_argument('--enable-reorg-metrics', action='store_true', default=False,
+                          help='Enable reorg tracking oracle for fork impact metrics')
+
+        # Results management
+        parser.add_argument('--results-id', type=str, default=None,
+                          help='Unique identifier for this run (default: auto-generated timestamp)')
+        parser.add_argument('--snapshot-interval', type=int, default=60,
+                          help='Interval in seconds for time series snapshots (default: 60)')
+
+        # Debug options
+        parser.add_argument('--debug-prices', action='store_true', default=False,
+                          help='Enable verbose price calculation debugging')
+
     def load_network_metadata(self):
-        """Load node metadata from network.yaml file"""
-        if not self.options.network_yaml:
-            self.log.warning("No network YAML specified, pool mapping will be limited")
+        """Load node metadata from network.yaml file or bundled config"""
+        network_config = None
+
+        # Try loading from specified path first
+        if self.options.network_yaml:
+            network_yaml_path = Path(self.options.network_yaml)
+            if network_yaml_path.exists():
+                self.log.info(f"Loading network metadata from {network_yaml_path}")
+                try:
+                    with open(network_yaml_path, 'r') as f:
+                        network_config = yaml.safe_load(f)
+                except Exception as e:
+                    self.log.warning(f"Error loading network YAML from path: {e}")
+
+        # Fallback: try loading from bundled config
+        if network_config is None:
+            try:
+                import pkgutil
+                bundled_data = pkgutil.get_data('config', 'network_metadata.yaml')
+                if bundled_data:
+                    network_config = yaml.safe_load(bundled_data.decode('utf-8'))
+                    self.log.info("Loading network metadata from bundled config")
+            except Exception as e:
+                self.log.debug(f"No bundled network metadata: {e}")
+
+        if network_config is None:
+            self.log.warning("No network metadata available, pool/economic mapping will be limited")
             return
-
-        network_yaml_path = Path(self.options.network_yaml)
-
-        if not network_yaml_path.exists():
-            self.log.error(f"Network YAML not found: {network_yaml_path}")
-            return
-
-        self.log.info(f"Loading network metadata from {network_yaml_path}")
 
         try:
-            with open(network_yaml_path, 'r') as f:
-                network_config = yaml.safe_load(f)
-
             # Build node name -> metadata mapping
             for node_config in network_config.get('nodes', []):
                 node_name = node_config.get('name')
@@ -289,9 +408,18 @@ class PartitionMinerWithPools(Commander):
                     self.log.debug(f"Pool {pool_id} chose v26 but has no v26 node")
 
         if not pool_choices:
-            # No pools available, fallback
-            self.log.warning("No pool nodes available for current allocation")
-            return None, None
+            # No pool nodes mapped, fallback to random selection based on hashrate
+            rand_val = random() * 100.0
+            if rand_val < self.current_v27_hashrate:
+                partition = 'v27'
+                nodes = self.v27_nodes
+            else:
+                partition = 'v26'
+                nodes = self.v26_nodes
+
+            if not nodes:
+                return None, None
+            return choices(nodes, k=1)[0], partition
 
         # Weighted random selection by hashrate
         selected_pool_id, partition = choices(pool_choices, weights=pool_weights, k=1)[0]
@@ -310,6 +438,168 @@ class PartitionMinerWithPools(Commander):
         selected_node = nodes[0]
         return selected_node, partition
 
+    def _select_miner_for_fork(self, fork_id: str) -> Optional[object]:
+        """
+        Select a mining node for a specific fork (used in difficulty mode).
+
+        In difficulty mode, we already know WHICH fork gets a block. This method
+        selects which pool/node mines it, weighted by hashrate of pools AND solo
+        miners allocated to that fork.
+
+        Args:
+            fork_id: 'v27' or 'v26'
+
+        Returns:
+            A node object to mine on, or None if no node available
+        """
+        nodes = self.v27_nodes if fork_id == 'v27' else self.v26_nodes
+        if not nodes:
+            return None
+
+        if not self.pool_strategy:
+            # No pool strategy: random node from partition
+            return choices(nodes, k=1)[0]
+
+        # Build weighted list of pools allocated to this fork
+        miner_choices = []
+        miner_weights = []
+
+        # Add pools
+        for pool_id, allocation in self.pool_strategy.current_allocation.items():
+            if allocation != fork_id:
+                continue
+
+            pool = self.pool_strategy.pools[pool_id]
+            pool_node_map = self.pool_nodes_v27 if fork_id == 'v27' else self.pool_nodes_v26
+
+            if pool_id in pool_node_map and pool_node_map[pool_id]:
+                miner_choices.append(pool_node_map[pool_id][0])
+                miner_weights.append(pool.hashrate_pct)
+
+        # Add solo miners (user/economic nodes with hashrate)
+        if self.economic_strategy:
+            solo_miners = self.economic_strategy.get_solo_miners()
+            for node_id, miner_fork, hashrate in solo_miners:
+                if miner_fork != fork_id or hashrate <= 0:
+                    continue
+
+                # Find the actual node object by node_id
+                node_obj = self._get_node_by_id(node_id, fork_id)
+                if node_obj:
+                    miner_choices.append(node_obj)
+                    miner_weights.append(hashrate)
+
+        if not miner_choices:
+            # Fallback: random node from partition
+            return choices(nodes, k=1)[0]
+
+        return choices(miner_choices, weights=miner_weights, k=1)[0]
+
+    def _get_node_by_id(self, node_id: str, fork_id: str) -> Optional[object]:
+        """
+        Get a node object by its node_id string.
+
+        Args:
+            node_id: Node identifier (e.g., "node-0008")
+            fork_id: Which fork partition to look in ('v27' or 'v26')
+
+        Returns:
+            Node object or None if not found
+        """
+        nodes = self.v27_nodes if fork_id == 'v27' else self.v26_nodes
+
+        for node in nodes:
+            # Node names are typically "node-XXXX" format
+            node_name = f"node-{node.index:04d}"
+            if node_name == node_id:
+                return node
+
+        return None
+
+    def capture_time_series_snapshot(self, elapsed: int):
+        """
+        Capture a snapshot of current state for time series charting.
+
+        Args:
+            elapsed: Seconds since simulation start
+        """
+        self.time_series['timestamps'].append(elapsed)
+        self.time_series['v27_price'].append(self.price_oracle.get_price('v27'))
+        self.time_series['v26_price'].append(self.price_oracle.get_price('v26'))
+        self.time_series['v27_hashrate'].append(self.current_v27_hashrate)
+        self.time_series['v26_hashrate'].append(self.current_v26_hashrate)
+        self.time_series['v27_economic'].append(self.current_v27_economic)
+        self.time_series['v26_economic'].append(self.current_v26_economic)
+        self.time_series['v27_blocks'].append(self.blocks_mined['v27'])
+        self.time_series['v26_blocks'].append(self.blocks_mined['v26'])
+
+        if self.difficulty_oracle:
+            v27_state = self.difficulty_oracle.forks.get('v27')
+            v26_state = self.difficulty_oracle.forks.get('v26')
+            self.time_series['v27_difficulty'].append(
+                v27_state.current_difficulty if v27_state else 1.0)
+            self.time_series['v26_difficulty'].append(
+                v26_state.current_difficulty if v26_state else 1.0)
+            self.time_series['v27_chainwork'].append(
+                v27_state.cumulative_chainwork if v27_state else 0.0)
+            self.time_series['v26_chainwork'].append(
+                v26_state.cumulative_chainwork if v26_state else 0.0)
+        else:
+            self.time_series['v27_difficulty'].append(1.0)
+            self.time_series['v26_difficulty'].append(1.0)
+            self.time_series['v27_chainwork'].append(float(self.blocks_mined['v27']))
+            self.time_series['v26_chainwork'].append(float(self.blocks_mined['v26']))
+
+        # Fee market metrics
+        if self.fee_oracle:
+            # Fee rates
+            self.time_series['v27_fee_rate'].append(self.fee_oracle.get_fee('v27'))
+            self.time_series['v26_fee_rate'].append(self.fee_oracle.get_fee('v26'))
+
+            # Fee revenue per block (miner incentive from fees)
+            self.time_series['v27_fee_revenue_btc'].append(
+                self.fee_oracle.get_fee_revenue_per_block('v27'))
+            self.time_series['v26_fee_revenue_btc'].append(
+                self.fee_oracle.get_fee_revenue_per_block('v26'))
+
+            # Mempool/congestion estimates
+            # Get blocks per hour for congestion calculation
+            if self.difficulty_oracle:
+                v27_bph = self.difficulty_oracle.get_blocks_per_hour('v27', self.current_v27_hashrate)
+                v26_bph = self.difficulty_oracle.get_blocks_per_hour('v26', self.current_v26_hashrate)
+            else:
+                # Estimate from hashrate (normal rate = 6 blocks/hour)
+                v27_bph = 6.0 * (self.current_v27_hashrate / 100.0) if self.current_v27_hashrate > 0 else 0.1
+                v26_bph = 6.0 * (self.current_v26_hashrate / 100.0) if self.current_v26_hashrate > 0 else 0.1
+
+            v27_mempool = self.fee_oracle.estimate_mempool_size(
+                'v27', v27_bph, self.current_v27_economic)
+            v26_mempool = self.fee_oracle.estimate_mempool_size(
+                'v26', v26_bph, self.current_v26_economic)
+
+            self.time_series['v27_congestion'].append(v27_mempool['congestion_ratio'])
+            self.time_series['v26_congestion'].append(v26_mempool['congestion_ratio'])
+            self.time_series['v27_mempool_mb'].append(v27_mempool['estimated_mempool_mb'])
+            self.time_series['v26_mempool_mb'].append(v26_mempool['estimated_mempool_mb'])
+        else:
+            # Default values if no fee oracle
+            self.time_series['v27_fee_rate'].append(1.0)
+            self.time_series['v26_fee_rate'].append(1.0)
+            self.time_series['v27_fee_revenue_btc'].append(0.01)
+            self.time_series['v26_fee_revenue_btc'].append(0.01)
+            self.time_series['v27_congestion'].append(1.0)
+            self.time_series['v26_congestion'].append(1.0)
+            self.time_series['v27_mempool_mb'].append(0.0)
+            self.time_series['v26_mempool_mb'].append(0.0)
+
+        # Transactional weight (fee-generating economic activity)
+        self.time_series['v27_transactional'].append(self.current_v27_transactional)
+        self.time_series['v26_transactional'].append(self.current_v26_transactional)
+
+        # Solo miner hashrate
+        self.time_series['v27_solo_hashrate'].append(self.current_v27_solo_hashrate)
+        self.time_series['v26_solo_hashrate'].append(self.current_v26_solo_hashrate)
+
     def run_test(self):
         """Main mining loop with dynamic pool strategy"""
 
@@ -320,25 +610,47 @@ class PartitionMinerWithPools(Commander):
         self.log.info(f"\n{'='*70}")
         self.log.info(f"Partition Mining with Dynamic Pool Strategy")
         self.log.info(f"{'='*70}")
-        self.log.info(f"Economic weights: v27={self.options.v27_economic}%, v26={self.options.v26_economic}%")
+        self.log.info(f"Initial economic weights: v27={self.options.v27_economic}%, v26={self.options.v26_economic}%")
         self.log.info(f"Duration: {self.options.duration}s ({self.options.duration/60:.0f} minutes)")
         self.log.info(f"Pool scenario: {self.options.pool_scenario}")
+        self.log.info(f"Economic scenario: {self.options.economic_scenario}")
         self.log.info(f"{'='*70}\n")
 
         # Initialize oracles
-        self.price_oracle = PriceOracle(base_price=60000, min_fork_depth=6)
-        self.log.info("✓ Price oracle initialized")
+        self.price_oracle = PriceOracle(
+            base_price=60000,
+            min_fork_depth=6,
+            debug=self.options.debug_prices
+        )
+        self.log.info(f"✓ Price oracle initialized (debug={self.options.debug_prices})")
 
         self.fee_oracle = FeeOracle()
         self.log.info("✓ Fee oracle initialized")
 
         # Initialize pool strategy
         try:
-            _config_path = os.path.join(os.path.dirname(__file__), '../config/mining_pools_config.yaml')
-            pools = load_pools_from_config(
-                _config_path,
-                self.options.pool_scenario
-            )
+            # Load config from bundled package (works inside .pyz archive)
+            import pkgutil
+            import yaml
+            config_data = pkgutil.get_data('config', 'mining_pools_config.yaml')
+            config = yaml.safe_load(config_data.decode('utf-8'))
+
+            scenario_name = self.options.pool_scenario
+            if scenario_name not in config:
+                raise ValueError(f"Scenario '{scenario_name}' not found in config")
+
+            scenario = config[scenario_name]
+            pools = []
+            for pool_data in scenario.get('pools', []):
+                pools.append(PoolProfile(
+                    pool_id=pool_data['pool_id'],
+                    hashrate_pct=pool_data['hashrate_pct'],
+                    fork_preference=ForkPreference(pool_data.get('fork_preference', 'neutral')),
+                    ideology_strength=pool_data.get('ideology_strength', pool_data.get('ideology_score', 0.5)),
+                    profitability_threshold=pool_data.get('profitability_threshold', pool_data.get('switch_threshold_pct', 5.0) / 100.0),
+                    max_loss_usd=pool_data.get('max_loss_usd'),
+                    max_loss_pct=pool_data.get('max_loss_pct', 0.10),
+                ))
             self.pool_strategy = MiningPoolStrategy(pools)
             self.log.info(f"✓ Pool strategy initialized ({len(pools)} pools)")
 
@@ -359,6 +671,19 @@ class PartitionMinerWithPools(Commander):
             self.current_v27_hashrate = initial_v27
             self.current_v26_hashrate = initial_v26
 
+            # Set initial allocation in pool strategy based on preferences
+            # Neutral pools alternate to approximate 50/50 split
+            neutral_toggle = True
+            for pool in pools:
+                if pool.fork_preference == ForkPreference.V27:
+                    self.pool_strategy.current_allocation[pool.pool_id] = 'v27'
+                elif pool.fork_preference == ForkPreference.V26:
+                    self.pool_strategy.current_allocation[pool.pool_id] = 'v26'
+                else:
+                    # Neutral pools alternate between forks
+                    self.pool_strategy.current_allocation[pool.pool_id] = 'v27' if neutral_toggle else 'v26'
+                    neutral_toggle = not neutral_toggle
+
         except Exception as e:
             self.log.warning(f"Could not load pool config: {e}")
             self.log.info("Using static hashrate allocation")
@@ -377,6 +702,88 @@ class PartitionMinerWithPools(Commander):
         # Load node metadata from network.yaml
         self.load_network_metadata()
 
+        # Initialize economic node strategy (dynamic economic weight)
+        try:
+            import pkgutil
+            econ_config_data = pkgutil.get_data('config', 'economic_nodes_config.yaml')
+            econ_config = yaml.safe_load(econ_config_data.decode('utf-8'))
+
+            economic_profiles = load_economic_nodes_from_network(
+                self.node_metadata,
+                econ_config,
+                self.options.economic_scenario
+            )
+
+            if economic_profiles:
+                self.economic_strategy = EconomicNodeStrategy(economic_profiles)
+
+                # Calculate initial economic allocation (nodes start on their partition's fork)
+                self.current_v27_economic, self.current_v26_economic = \
+                    self.economic_strategy.calculate_economic_allocation(
+                        time(), self.price_oracle
+                    )
+
+                # Calculate transactional weights (fee-generating activity)
+                self.current_v27_transactional, self.current_v26_transactional = \
+                    self.economic_strategy.get_fee_generation_weight()
+
+                # Calculate solo miner hashrate
+                self.current_v27_solo_hashrate, self.current_v26_solo_hashrate, solo_miners = \
+                    self.economic_strategy.get_mining_allocation()
+
+                econ_count = len(economic_profiles)
+                econ_types = {}
+                solo_miner_count = 0
+                for p in economic_profiles:
+                    t = p.node_type.value
+                    econ_types[t] = econ_types.get(t, 0) + 1
+                    if p.hashrate_pct > 0:
+                        solo_miner_count += 1
+
+                self.log.info(f"✓ Economic strategy initialized ({econ_count} nodes: {econ_types})")
+                self.log.info(f"  Initial economic weight: v27={self.current_v27_economic:.1f}%, v26={self.current_v26_economic:.1f}%")
+                self.log.info(f"  Initial transactional weight: v27={self.current_v27_transactional:.1f}%, v26={self.current_v26_transactional:.1f}%")
+                if solo_miner_count > 0:
+                    total_solo = self.current_v27_solo_hashrate + self.current_v26_solo_hashrate
+                    self.log.info(f"  Solo miners: {solo_miner_count} nodes with {total_solo:.2f}% hashrate")
+                    self.log.info(f"    v27: {self.current_v27_solo_hashrate:.2f}%, v26: {self.current_v26_solo_hashrate:.2f}%")
+                self.log.info(f"  Update interval: {self.options.economic_update_interval}s")
+            else:
+                self.log.info("No economic/user nodes found in metadata, using static economic weight")
+                self.current_v27_economic = self.options.v27_economic
+                self.current_v26_economic = self.options.v26_economic
+                # Without economic strategy, assume 50/50 transactional split
+                self.current_v27_transactional = self.options.v27_economic
+                self.current_v26_transactional = self.options.v26_economic
+                self.economic_strategy = None
+
+        except Exception as e:
+            self.log.warning(f"Could not load economic config: {e}")
+            self.log.info("Using static economic allocation from --v27-economic")
+            self.current_v27_economic = self.options.v27_economic
+            self.current_v26_economic = self.options.v26_economic
+            self.current_v27_transactional = self.options.v27_economic
+            self.current_v26_transactional = self.options.v26_economic
+            self.economic_strategy = None
+
+        # Initialize difficulty oracle (if enabled)
+        if self.options.enable_difficulty:
+            self.tick_interval = self.options.tick_interval
+            self.difficulty_oracle = DifficultyOracle(
+                target_block_interval=float(self.options.interval),
+                retarget_interval=self.options.retarget_interval,
+                pre_fork_difficulty=1.0,
+                max_adjustment_factor=4.0,
+                min_difficulty=self.options.min_difficulty,
+                enable_eda=self.options.enable_eda,
+            )
+            self.difficulty_oracle.initialize_fork('v27', initial_height=self.options.start_height)
+            self.difficulty_oracle.initialize_fork('v26', initial_height=self.options.start_height)
+            self.log.info(f"Difficulty oracle initialized:")
+            self.log.info(f"  Target interval: {self.options.interval}s, Retarget every {self.options.retarget_interval} blocks")
+            self.log.info(f"  Tick interval: {self.tick_interval}s, Min difficulty: {self.options.min_difficulty}")
+            self.log.info(f"  EDA: {'enabled' if self.options.enable_eda else 'disabled'}")
+
         # Partition nodes
         self.partition_nodes_by_version()
 
@@ -384,44 +791,187 @@ class PartitionMinerWithPools(Commander):
         if self.pool_strategy:
             self.build_pool_node_mapping()
 
+        # Auto-detect starting height BEFORE reorg oracle initialization
+        # This ensures lca_height matches the actual fork point
+        if self.options.start_height == 101:  # Default value, auto-detect instead
+            detected_heights = []
+            for node in (self.v27_nodes + self.v26_nodes)[:3]:  # Sample first few nodes
+                try:
+                    h = node.getblockcount()
+                    detected_heights.append(h)
+                except:
+                    pass
+            if detected_heights:
+                # Use minimum as common ancestor (conservative)
+                self.options.start_height = min(detected_heights)
+                self.log.info(f"Auto-detected start_height={self.options.start_height} from nodes")
+
+        # Initialize reorg oracle (if enabled) - AFTER auto-detection so lca_height is correct
+        if self.options.enable_reorg_metrics:
+            # Get initial fork height (LCA = starting height before fork diverges)
+            lca_height = self.options.start_height
+
+            # Determine total nodes from pool strategy if available
+            total_pool_nodes = len(self.pool_strategy.pools) if self.pool_strategy else 8
+
+            self.reorg_oracle = ReorgOracle(
+                lca_height=lca_height,
+                lca_hash="fork-point",
+                propagation_window=30.0,
+                total_nodes=total_pool_nodes
+            )
+            # Initialize both forks from the LCA
+            self.reorg_oracle.initialize_fork('v27', lca_height)
+            self.reorg_oracle.initialize_fork('v26', lca_height)
+
+            self.log.info(f"✓ Reorg oracle initialized (LCA height={lca_height})")
+
+            # Register pool nodes with reorg oracle
+            if self.pool_strategy:
+                for pool_id, pool in self.pool_strategy.pools.items():
+                    initial_fork = self.pool_strategy.current_allocation.get(pool_id, 'v27')
+                    self.reorg_oracle.register_node(pool_id, initial_fork)
+                    # Also set current_fork on pool profile for tracking
+                    pool.current_fork = initial_fork
+                self.log.info(f"  Registered {len(self.pool_strategy.pools)} pools with reorg oracle")
+
         # Main mining loop
         start_time = time()
         last_hashrate_update = start_time
         last_price_update = start_time
+        last_economic_update = start_time
+        last_snapshot = start_time
+
+        # Capture initial snapshot
+        self.capture_time_series_snapshot(0)
 
         self.log.info(f"\n{'='*70}")
-        self.log.info(f"Starting partition mining...")
+        if self.difficulty_oracle:
+            self.log.info(f"Starting partition mining (DIFFICULTY MODE)...")
+        else:
+            self.log.info(f"Starting partition mining (LEGACY MODE)...")
         self.log.info(f"{'='*70}\n")
 
         while time() - start_time < self.options.duration:
             current_time = time()
             elapsed = int(current_time - start_time)
 
+            # Update economic node allocation (every 5 minutes by default)
+            if self.economic_strategy and (current_time - last_economic_update >= self.options.economic_update_interval):
+                old_v27_econ = self.current_v27_economic
+                old_v26_econ = self.current_v26_economic
+
+                self.current_v27_economic, self.current_v26_economic = \
+                    self.economic_strategy.calculate_economic_allocation(
+                        current_time, self.price_oracle
+                    )
+
+                # Update transactional weights (for fee calculations)
+                self.current_v27_transactional, self.current_v26_transactional = \
+                    self.economic_strategy.get_fee_generation_weight()
+
+                # Update solo miner hashrate allocation
+                old_v27_solo = self.current_v27_solo_hashrate
+                old_v26_solo = self.current_v26_solo_hashrate
+                self.current_v27_solo_hashrate, self.current_v26_solo_hashrate, _ = \
+                    self.economic_strategy.get_mining_allocation()
+
+                econ_change = abs(self.current_v27_economic - old_v27_econ)
+                solo_change = abs(self.current_v27_solo_hashrate - old_v27_solo)
+
+                if econ_change > 0.5:  # More than 0.5% change
+                    self.log.info(f"\n ECONOMIC REALLOCATION at {elapsed}s:")
+                    self.log.info(f"   v27: {old_v27_econ:.1f}% -> {self.current_v27_economic:.1f}%")
+                    self.log.info(f"   v26: {old_v26_econ:.1f}% -> {self.current_v26_economic:.1f}%")
+                    self.log.info(f"   Transactional: v27={self.current_v27_transactional:.1f}%, v26={self.current_v26_transactional:.1f}%")
+
+                    # Log solo miner changes if any
+                    if solo_change > 0.01:
+                        self.log.info(f"   Solo miners: v27={old_v27_solo:.2f}%->{self.current_v27_solo_hashrate:.2f}%, "
+                                      f"v26={old_v26_solo:.2f}%->{self.current_v26_solo_hashrate:.2f}%")
+
+                    # Log notable node decisions
+                    recent = [d for d in self.economic_strategy.decision_history[-30:]
+                              if d.timestamp >= last_economic_update]
+                    for decision in recent:
+                        if decision.ideology_override:
+                            self.log.info(f"   {decision.node_id}: staying on {decision.chosen_fork} (ideology)")
+                        elif decision.inertia_held:
+                            self.log.info(f"   {decision.node_id}: staying on {decision.chosen_fork} (inertia)")
+
+                last_economic_update = current_time
+
+            # Capture time series snapshot at regular intervals
+            if current_time - last_snapshot >= self.options.snapshot_interval:
+                self.capture_time_series_snapshot(elapsed)
+                last_snapshot = current_time
+
             # Update prices (every minute by default)
             if current_time - last_price_update >= self.options.price_update_interval:
-                v27_height = self.v27_nodes[0].getblockcount() if self.v27_nodes else self.options.start_height
-                v26_height = self.v26_nodes[0].getblockcount() if self.v26_nodes else self.options.start_height
-                fork_depth = v27_height + v26_height - (2 * self.options.start_height)
+                # Use blocks_mined counters for reliable fork depth calculation
+                # (node getblockcount() can be unreliable in partitioned networks)
+                fork_depth = self.blocks_mined['v27'] + self.blocks_mined['v26']
+
+                # Still get heights for price oracle (but fork_depth is what matters for sustained check)
+                v27_height = self.options.start_height + self.blocks_mined['v27']
+                v26_height = self.options.start_height + self.blocks_mined['v26']
+
+                # Chainwork-based chain weights if difficulty oracle available
+                v27_cw_override = None
+                v26_cw_override = None
+                if self.difficulty_oracle:
+                    v27_cw_override = self.difficulty_oracle.get_chain_weight('v27')
+                    v26_cw_override = self.difficulty_oracle.get_chain_weight('v26')
+
+                # Debug: log price update inputs
+                if self.options.debug_prices:
+                    self.log.info(f"  [PRICE UPDATE] fork_depth={fork_depth}, sustained={self.price_oracle.fork_sustained}")
+                    self.log.info(f"  [PRICE UPDATE] chain_weights: v27={v27_cw_override}, v26={v26_cw_override}")
+                    self.log.info(f"  [PRICE UPDATE] econ: v27={self.current_v27_economic}%, v26={self.current_v26_economic}%")
+                    self.log.info(f"  [PRICE UPDATE] hash: v27={self.current_v27_hashrate}%, v26={self.current_v26_hashrate}%")
+
+                old_v27_price = self.price_oracle.get_price('v27')
+                old_v26_price = self.price_oracle.get_price('v26')
 
                 self.price_oracle.update_prices_from_state(
                     v27_height=v27_height,
                     v26_height=v26_height,
-                    v27_economic_pct=self.options.v27_economic,
-                    v26_economic_pct=self.options.v26_economic,
+                    v27_economic_pct=self.current_v27_economic,
+                    v26_economic_pct=self.current_v26_economic,
                     v27_hashrate_pct=self.current_v27_hashrate,
                     v26_hashrate_pct=self.current_v26_hashrate,
-                    common_ancestor_height=self.options.start_height
+                    common_ancestor_height=self.options.start_height,
+                    v27_chain_weight_override=v27_cw_override,
+                    v26_chain_weight_override=v26_cw_override,
                 )
 
+                new_v27_price = self.price_oracle.get_price('v27')
+                new_v26_price = self.price_oracle.get_price('v26')
+
+                if self.options.debug_prices:
+                    self.log.info(f"  [PRICE UPDATE] prices: v27=${old_v27_price:,.0f}->${new_v27_price:,.0f}, v26=${old_v26_price:,.0f}->${new_v26_price:,.0f}")
+
                 # Update fees based on network state
-                v27_blocks_per_hour = (self.blocks_mined['v27'] / max(1, elapsed/3600))
-                v26_blocks_per_hour = (self.blocks_mined['v26'] / max(1, elapsed/3600))
+                if self.difficulty_oracle:
+                    v27_blocks_per_hour = self.difficulty_oracle.get_blocks_per_hour('v27', self.current_v27_hashrate)
+                    v26_blocks_per_hour = self.difficulty_oracle.get_blocks_per_hour('v26', self.current_v26_hashrate)
+                else:
+                    v27_blocks_per_hour = (self.blocks_mined['v27'] / max(1, elapsed/3600))
+                    v26_blocks_per_hour = (self.blocks_mined['v26'] / max(1, elapsed/3600))
 
                 self.fee_oracle.update_fees_from_state(
                     v27_blocks_per_hour=v27_blocks_per_hour,
                     v26_blocks_per_hour=v26_blocks_per_hour,
-                    v27_economic_pct=self.options.v27_economic,
-                    v26_economic_pct=self.options.v26_economic
+                    v27_economic_pct=self.current_v27_economic,
+                    v26_economic_pct=self.current_v26_economic,
+                    price_oracle=self.price_oracle,
+                    difficulty_oracle=self.difficulty_oracle,
+                    v27_hashrate_pct=self.current_v27_hashrate,
+                    v26_hashrate_pct=self.current_v26_hashrate,
+                    # Pass transactional weights for fee calculation
+                    # Fees are driven by transaction activity, not custody holdings
+                    v27_transactional_pct=self.current_v27_transactional,
+                    v26_transactional_pct=self.current_v26_transactional,
                 )
 
                 last_price_update = current_time
@@ -435,15 +985,43 @@ class PartitionMinerWithPools(Commander):
 
                 self.current_v27_hashrate, self.current_v26_hashrate = \
                     self.pool_strategy.calculate_hashrate_allocation(
-                        current_time, self.price_oracle, self.fee_oracle
+                        current_time, self.price_oracle, self.fee_oracle,
+                        difficulty_oracle=self.difficulty_oracle,
                     )
+
+                # Ensure fork heights are current before detecting reorgs
+                if self.reorg_oracle:
+                    self.reorg_oracle.update_fork_heights(
+                        v27_height=self.options.start_height + self.blocks_mined['v27'],
+                        v26_height=self.options.start_height + self.blocks_mined['v26']
+                    )
+
+                # Detect fork switches and record reorgs
+                if self.reorg_oracle:
+                    for pool_id, pool in self.pool_strategy.pools.items():
+                        old_fork = pool.current_fork
+                        new_fork = self.pool_strategy.current_allocation.get(pool_id, old_fork)
+
+                        if old_fork != new_fork:
+                            # Pool is switching forks - this causes a reorg!
+                            reorg_event = self.reorg_oracle.record_fork_switch(
+                                node_id=pool_id,
+                                old_fork=old_fork,
+                                new_fork=new_fork,
+                                sim_time=elapsed
+                            )
+                            self.log.info(f"  REORG: {pool_id} switched {old_fork}->{new_fork}, "
+                                          f"depth={reorg_event.depth}, orphaned={len(reorg_event.blocks_invalidated)} blocks")
+
+                        # Update pool's current_fork tracking
+                        pool.current_fork = new_fork
 
                 # Log significant changes
                 hash_change = abs(self.current_v27_hashrate - old_v27_hash)
                 if hash_change > 1.0:  # More than 1% change
-                    self.log.info(f"\n⚡ HASHRATE REALLOCATION at {elapsed}s:")
-                    self.log.info(f"   v27: {old_v27_hash:.1f}% → {self.current_v27_hashrate:.1f}%")
-                    self.log.info(f"   v26: {old_v26_hash:.1f}% → {self.current_v26_hashrate:.1f}%")
+                    self.log.info(f"\n HASHRATE REALLOCATION at {elapsed}s:")
+                    self.log.info(f"   v27: {old_v27_hash:.1f}% -> {self.current_v27_hashrate:.1f}%")
+                    self.log.info(f"   v26: {old_v26_hash:.1f}% -> {self.current_v26_hashrate:.1f}%")
 
                     # Log pool switches
                     recent_decisions = [d for d in self.pool_strategy.decision_history[-20:]
@@ -451,55 +1029,130 @@ class PartitionMinerWithPools(Commander):
 
                     for decision in recent_decisions:
                         if decision.ideology_override:
-                            self.log.info(f"   💰 {decision.pool_id}: mining {decision.chosen_fork} "
+                            self.log.info(f"   {decision.pool_id}: mining {decision.chosen_fork} "
                                         f"despite ${decision.opportunity_cost_usd:,.0f} loss (ideology)")
                         elif decision.chosen_fork != decision.rational_choice:
-                            self.log.info(f"   ⚠️  {decision.pool_id}: forced to switch to {decision.chosen_fork}")
+                            self.log.info(f"   {decision.pool_id}: forced to switch to {decision.chosen_fork}")
 
                 last_hashrate_update = current_time
 
-            # Mine block with CURRENT hashrate allocation
-            # Select which pool mines this block (based on individual pool decisions)
-            miner, partition = self.select_mining_node()
+            # === BLOCK PRODUCTION ===
+            if self.difficulty_oracle:
+                # DIFFICULTY MODE: per-tick probability for each fork independently
+                sim_elapsed = elapsed  # Use wall-clock elapsed as sim_time
 
-            if not miner:
-                self.log.warning("No miner available, skipping block")
+                for fork_id in ['v27', 'v26']:
+                    hashrate_pct = self.current_v27_hashrate if fork_id == 'v27' else self.current_v26_hashrate
+
+                    if self.difficulty_oracle.should_mine_block(fork_id, hashrate_pct, self.tick_interval):
+                        miner = self._select_miner_for_fork(fork_id)
+                        if not miner:
+                            continue
+
+                        try:
+                            miner_wallet = Commander.ensure_miner(miner)
+                            address = miner_wallet.getnewaddress()
+                            self.generatetoaddress(miner, 1, address, sync_fun=self.no_op)
+
+                            self.blocks_mined[fork_id] += 1
+                            new_height = (self.v27_nodes[0].getblockcount() if fork_id == 'v27' and self.v27_nodes
+                                          else self.v26_nodes[0].getblockcount() if fork_id == 'v26' and self.v26_nodes
+                                          else self.options.start_height + self.blocks_mined[fork_id])
+
+                            # Record block with reorg oracle
+                            if self.reorg_oracle:
+                                pool_id = self.get_node_pool_id(miner)
+                                if pool_id:
+                                    self.reorg_oracle.record_block_mined(pool_id, fork_id, new_height)
+                                # Update fork heights
+                                self.reorg_oracle.update_fork_heights(
+                                    v27_height=self.options.start_height + self.blocks_mined['v27'],
+                                    v26_height=self.options.start_height + self.blocks_mined['v26']
+                                )
+
+                            retarget_event = self.difficulty_oracle.record_block(fork_id, sim_elapsed, new_height)
+
+                            if retarget_event:
+                                eda_str = " (EDA)" if retarget_event.is_eda else ""
+                                self.log.info(
+                                    f"  >> {fork_id} RETARGET{eda_str} at {elapsed}s: "
+                                    f"difficulty {retarget_event.old_difficulty:.6f} -> {retarget_event.new_difficulty:.6f} "
+                                    f"(factor={retarget_event.adjustment_factor:.3f})"
+                                )
+
+                            # Log the block
+                            v27_price = self.price_oracle.get_price('v27')
+                            v26_price = self.price_oracle.get_price('v26')
+                            fork_status = "SUSTAINED" if self.price_oracle.fork_sustained else "natural split"
+                            diff_state = self.difficulty_oracle.forks[fork_id]
+                            pool_id = self.get_node_pool_id(miner)
+                            pool_str = f"({pool_id})" if pool_id else ""
+
+                            self.log.info(
+                                f"[{elapsed:4d}s] {fork_id} block {pool_str:15s} | "
+                                f"Blks: v27={self.blocks_mined['v27']:3d} v26={self.blocks_mined['v26']:3d} | "
+                                f"Diff: {diff_state.current_difficulty:.4f} | "
+                                f"Hash: {self.current_v27_hashrate:4.1f}%/{self.current_v26_hashrate:4.1f}% | "
+                                f"Price: ${v27_price:,.0f}/${v26_price:,.0f} [{fork_status}]"
+                            )
+
+                        except Exception as e:
+                            self.log.error(f"Error mining {fork_id} block: {e}")
+
+                sleep(self.tick_interval)
+
+            else:
+                # LEGACY MODE: one block per interval, probabilistic fork selection
+                miner, partition = self.select_mining_node()
+
+                if not miner:
+                    self.log.warning("No miner available, skipping block")
+                    sleep(self.options.interval)
+                    continue
+
+                try:
+                    miner_wallet = Commander.ensure_miner(miner)
+                    address = miner_wallet.getnewaddress()
+                    self.generatetoaddress(miner, 1, address, sync_fun=self.no_op)
+
+                    self.blocks_mined[partition] += 1
+
+                    v27_height = self.v27_nodes[0].getblockcount() if self.v27_nodes else 0
+                    v26_height = self.v26_nodes[0].getblockcount() if self.v26_nodes else 0
+                    fork_depth = v27_height + v26_height - (2 * self.options.start_height)
+
+                    # Record block with reorg oracle
+                    if self.reorg_oracle:
+                        pool_id = self.get_node_pool_id(miner)
+                        if pool_id:
+                            block_height = v27_height if partition == 'v27' else v26_height
+                            self.reorg_oracle.record_block_mined(pool_id, partition, block_height)
+                        # Update fork heights
+                        self.reorg_oracle.update_fork_heights(v27_height, v26_height)
+
+                    # Get current state
+                    v27_price = self.price_oracle.get_price('v27')
+                    v26_price = self.price_oracle.get_price('v26')
+                    price_ratio = v27_price / v26_price if v26_price > 0 else 1.0
+
+                    fork_status = "SUSTAINED" if self.price_oracle.fork_sustained else "natural split"
+
+                    # Get pool name for logging
+                    pool_id = self.get_node_pool_id(miner)
+                    pool_str = f"({pool_id})" if pool_id else ""
+
+                    self.log.info(
+                        f"[{elapsed:4d}s] {partition} block {pool_str:15s} | "
+                        f"Heights: v27={v27_height:3d} v26={v26_height:3d} | "
+                        f"Hash: {self.current_v27_hashrate:4.1f}%/{self.current_v26_hashrate:4.1f}% | "
+                        f"Econ: {self.current_v27_economic:4.1f}%/{self.current_v26_economic:4.1f}% | "
+                        f"Price: ${v27_price:,.0f}/${v26_price:,.0f} [{fork_status}]"
+                    )
+
+                except Exception as e:
+                    self.log.error(f"Error mining block: {e}")
+
                 sleep(self.options.interval)
-                continue
-
-            try:
-                miner_wallet = Commander.ensure_miner(miner)
-                address = miner_wallet.getnewaddress()
-                self.generatetoaddress(miner, 1, address, sync_fun=self.no_op)
-
-                self.blocks_mined[partition] += 1
-
-                v27_height = self.v27_nodes[0].getblockcount() if self.v27_nodes else 0
-                v26_height = self.v26_nodes[0].getblockcount() if self.v26_nodes else 0
-                fork_depth = v27_height + v26_height - (2 * self.options.start_height)
-
-                # Get current state
-                v27_price = self.price_oracle.get_price('v27')
-                v26_price = self.price_oracle.get_price('v26')
-                price_ratio = v27_price / v26_price if v26_price > 0 else 1.0
-
-                fork_status = "SUSTAINED" if self.price_oracle.fork_sustained else "natural split"
-
-                # Get pool name for logging
-                pool_id = self.get_node_pool_id(miner)
-                pool_str = f"({pool_id})" if pool_id else ""
-
-                self.log.info(
-                    f"[{elapsed:4d}s] {partition} block {pool_str:15s} | "
-                    f"Heights: v27={v27_height:3d} v26={v26_height:3d} | "
-                    f"Hash: {self.current_v27_hashrate:4.1f}%/{self.current_v26_hashrate:4.1f}% | "
-                    f"Price: ${v27_price:,.0f}/${v26_price:,.0f} [{fork_status}]"
-                )
-
-            except Exception as e:
-                self.log.error(f"Error mining block: {e}")
-
-            sleep(self.options.interval)
 
         # Final summary
         elapsed_min = (time() - start_time) / 60.0
@@ -518,27 +1171,171 @@ class PartitionMinerWithPools(Commander):
         self.log.info(f"\nFinal State:")
         self.log.info(f"  Prices: v27=${v27_price:,.0f}, v26=${v26_price:,.0f}")
         self.log.info(f"  Hashrate: v27={self.current_v27_hashrate:.1f}%, v26={self.current_v26_hashrate:.1f}%")
+        self.log.info(f"  Economic: v27={self.current_v27_economic:.1f}%, v26={self.current_v26_economic:.1f}%")
+
+        # Difficulty oracle summary
+        if self.difficulty_oracle:
+            self.log.info("")
+            winner_id, winner_cw, loser_cw = self.difficulty_oracle.get_winning_fork()
+            self.log.info(f"  Difficulty Model:")
+            self.log.info(f"    Winning fork: {winner_id} (chainwork: {winner_cw:.4f} vs {loser_cw:.4f})")
+            for fid, state in self.difficulty_oracle.forks.items():
+                self.log.info(f"    {fid}: difficulty={state.current_difficulty:.6f}, "
+                            f"chainwork={state.cumulative_chainwork:.4f}, "
+                            f"chain_weight={self.difficulty_oracle.get_chain_weight(fid):.4f}")
+            adj_count = len(self.difficulty_oracle.adjustment_history)
+            eda_count = sum(1 for e in self.difficulty_oracle.adjustment_history if e.is_eda)
+            self.log.info(f"    Retargets: {adj_count} (EDA: {eda_count})")
 
         # Pool strategy summary
         if self.pool_strategy:
             self.log.info("")
             self.pool_strategy.print_allocation_summary()
 
-            # Export results
-            try:
+        # Economic strategy summary
+        if self.economic_strategy:
+            self.log.info("")
+            self.economic_strategy.print_allocation_summary()
+
+        # Reorg oracle summary
+        if self.reorg_oracle:
+            # Calculate reunion analysis
+            if self.difficulty_oracle:
+                v27_chainwork = self.difficulty_oracle.get_cumulative_chainwork('v27')
+                v26_chainwork = self.difficulty_oracle.get_cumulative_chainwork('v26')
+            else:
+                v27_chainwork = float(self.blocks_mined['v27'])
+                v26_chainwork = float(self.blocks_mined['v26'])
+
+            reunion = self.reorg_oracle.calculate_reunion_reorg(v27_chainwork, v26_chainwork)
+
+            self.log.info("")
+            self.reorg_oracle.print_summary()
+
+            self.log.info(f"\nReunion Analysis (hypothetical partition merge):")
+            self.log.info(f"  Winning fork: {reunion['winning_fork']}")
+            self.log.info(f"  Losing fork depth: {reunion['losing_fork_depth']} blocks")
+            self.log.info(f"  Nodes on losing fork: {reunion['num_nodes_on_losing_fork']}")
+            self.log.info(f"  Reunion reorg mass: {reunion['reunion_reorg_mass']}")
+            self.log.info(f"  Additional orphans on reunion: {reunion['additional_orphans']}")
+
+        # Export results
+        try:
+            import json
+            import base64
+            from datetime import datetime
+
+            # Generate results ID if not provided
+            results_id = self.options.results_id
+            if not results_id:
+                results_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+            # Build consolidated results object
+            consolidated_results = {
+                'metadata': {
+                    'results_id': results_id,
+                    'timestamp': datetime.now().isoformat(),
+                    'duration_seconds': self.options.duration,
+                    'pool_scenario': self.options.pool_scenario,
+                    'economic_scenario': self.options.economic_scenario,
+                    'difficulty_enabled': self.options.enable_difficulty,
+                    'reorg_metrics_enabled': self.options.enable_reorg_metrics,
+                    'interval': self.options.interval,
+                    'start_height': self.options.start_height,
+                },
+                'summary': {
+                    'blocks_mined': dict(self.blocks_mined),
+                    'total_blocks': self.blocks_mined['v27'] + self.blocks_mined['v26'],
+                    'final_hashrate': {
+                        'v27': self.current_v27_hashrate,
+                        'v26': self.current_v26_hashrate,
+                    },
+                    'final_economic': {
+                        'v27': self.current_v27_economic,
+                        'v26': self.current_v26_economic,
+                    },
+                    'final_prices': {
+                        'v27': self.price_oracle.get_price('v27'),
+                        'v26': self.price_oracle.get_price('v26'),
+                    },
+                },
+                'time_series': self.time_series,  # For charting
+            }
+
+            # Capture final snapshot
+            self.capture_time_series_snapshot(int(time() - start_time))
+
+            # Add oracle exports
+            if self.pool_strategy:
                 self.pool_strategy.export_to_json('/tmp/partition_pools.json')
-                self.price_oracle.export_to_json('/tmp/partition_prices.json')
-                self.fee_oracle.export_to_json('/tmp/partition_fees.json')
-                self.log.info(f"\n✓ Results exported to /tmp/partition_*.json")
-            except Exception as e:
-                self.log.error(f"Error exporting results: {e}")
+                # Read back for consolidated export
+                with open('/tmp/partition_pools.json', 'r') as f:
+                    consolidated_results['pools'] = json.load(f)
+
+            if self.economic_strategy:
+                self.economic_strategy.export_to_json('/tmp/partition_economic.json')
+                with open('/tmp/partition_economic.json', 'r') as f:
+                    consolidated_results['economic'] = json.load(f)
+
+            self.price_oracle.export_to_json('/tmp/partition_prices.json')
+            with open('/tmp/partition_prices.json', 'r') as f:
+                consolidated_results['prices'] = json.load(f)
+
+            self.fee_oracle.export_to_json('/tmp/partition_fees.json')
+            with open('/tmp/partition_fees.json', 'r') as f:
+                consolidated_results['fees'] = json.load(f)
+
+            if self.difficulty_oracle:
+                self.difficulty_oracle.export_to_json('/tmp/partition_difficulty.json')
+                with open('/tmp/partition_difficulty.json', 'r') as f:
+                    consolidated_results['difficulty'] = json.load(f)
+
+            if self.reorg_oracle:
+                reorg_export = self.reorg_oracle.export_to_json()
+                if self.difficulty_oracle:
+                    v27_cw = self.difficulty_oracle.get_cumulative_chainwork('v27')
+                    v26_cw = self.difficulty_oracle.get_cumulative_chainwork('v26')
+                else:
+                    v27_cw = float(self.blocks_mined['v27'])
+                    v26_cw = float(self.blocks_mined['v26'])
+                reorg_export['reunion_analysis'] = self.reorg_oracle.calculate_reunion_reorg(v27_cw, v26_cw)
+                consolidated_results['reorg'] = reorg_export
+                with open('/tmp/partition_reorg.json', 'w') as f:
+                    json.dump(reorg_export, f, indent=2)
+
+            # Save consolidated results to file
+            with open('/tmp/partition_results.json', 'w') as f:
+                json.dump(consolidated_results, f, indent=2)
+
+            self.log.info(f"\n Results exported to /tmp/partition_*.json")
+            self.log.info(f" Results ID: {results_id}")
+
+            # Output base64-encoded results to logs for extraction
+            # This survives pod termination since it's in the logs
+            results_json = json.dumps(consolidated_results)
+            results_b64 = base64.b64encode(results_json.encode()).decode()
+
+            self.log.info(f"\n{'='*70}")
+            self.log.info("RESULTS_EXPORT_START")
+            self.log.info(f"RESULTS_ID:{results_id}")
+            # Split into chunks for readability (some log systems have line limits)
+            chunk_size = 1000
+            for i in range(0, len(results_b64), chunk_size):
+                self.log.info(f"RESULTS_DATA:{results_b64[i:i+chunk_size]}")
+            self.log.info("RESULTS_EXPORT_END")
+            self.log.info(f"{'='*70}")
+
+        except Exception as e:
+            self.log.error(f"Error exporting results: {e}")
+            import traceback
+            self.log.error(traceback.format_exc())
 
         self.log.info(f"{'='*70}\n")
 
 
 def main():
     """Entry point for partition mining with pools"""
-    PartitionMinerWithPools().main()
+    PartitionMinerWithPools("").main()
 
 
 if __name__ == "__main__":

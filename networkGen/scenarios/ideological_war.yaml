@@ -1,0 +1,107 @@
+# Ideological Fork War Scenario
+# Strong ideological split similar to Bitcoin Cash fork
+
+name: "ideological-war"
+description: "Deep ideological divide with strong factions on both sides"
+
+# Economic split favors v27 slightly
+v27_economic_pct: 55
+v27_hashrate_pct: 45
+
+# More user nodes to observe network effects
+economic_nodes_per_partition: 2
+user_nodes_per_partition: 5
+
+# Economic nodes have strong preferences
+v27_economic:
+  fork_preference: "v27"
+  ideology_strength: 0.7
+  switching_threshold: 0.15
+  inertia: 0.20
+
+v26_economic:
+  fork_preference: "v26"
+  ideology_strength: 0.7
+  switching_threshold: 0.15
+  inertia: 0.20
+
+# User node configuration (ideologically diverse)
+user_config:
+  fork_preference: "neutral"
+  ideology_strength: 0.5
+  switching_threshold: 0.10
+  inertia: 0.08
+  # Activity/fee generation settings
+  activity_type: "mixed"
+  transaction_velocity: 0.3
+  # Solo mining (small individual miners)
+  is_solo_miner: true
+  hashrate_pct: 0.05
+
+# Pool ideology overrides - strong factions
+pool_overrides:
+  # Pro-v27 faction (progressive/innovation) - ~35%
+  - pool_name: "Foundry USA"
+    fork_preference: "v27"
+    ideology_strength: 0.9
+    profitability_threshold: 0.25
+    max_loss_pct: 0.40
+
+  - pool_name: "Luxor"
+    fork_preference: "v27"
+    ideology_strength: 0.8
+    profitability_threshold: 0.20
+    max_loss_pct: 0.30
+
+  - pool_name: "OCEAN"
+    fork_preference: "v27"
+    ideology_strength: 0.85
+    profitability_threshold: 0.22
+    max_loss_pct: 0.35
+
+  # Pro-v26 faction (conservative/traditional) - ~40%
+  - pool_name: "AntPool"
+    fork_preference: "v26"
+    ideology_strength: 0.9
+    profitability_threshold: 0.25
+    max_loss_pct: 0.40
+
+  - pool_name: "ViaBTC"
+    fork_preference: "v26"
+    ideology_strength: 0.85
+    profitability_threshold: 0.22
+    max_loss_pct: 0.35
+
+  - pool_name: "F2Pool"
+    fork_preference: "v26"
+    ideology_strength: 0.7
+    profitability_threshold: 0.15
+    max_loss_pct: 0.25
+
+  - pool_name: "MARA Pool"
+    fork_preference: "v26"
+    ideology_strength: 0.6
+    profitability_threshold: 0.12
+    max_loss_pct: 0.20
+
+  # Opportunistic/neutral (~25%) - will follow money
+  - pool_name: "Binance Pool"
+    fork_preference: "neutral"
+    ideology_strength: 0.0
+    profitability_threshold: 0.01
+    max_loss_pct: 0.0
+
+  - pool_name: "SBI Crypto"
+    fork_preference: "neutral"
+    ideology_strength: 0.0
+    profitability_threshold: 0.02
+    max_loss_pct: 0.0
+
+  - pool_name: "Braiins Pool"
+    fork_preference: "neutral"
+    ideology_strength: 0.1
+    profitability_threshold: 0.05
+    max_loss_pct: 0.02
+
+partition_mode: "static"
+fork_observer_enabled: false

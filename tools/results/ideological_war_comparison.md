@@ -1,333 +1,280 @@
-# Ideological War Scenario: Comparative Analysis
+# Fork Threshold Analysis: Hashrate vs Economic Ideology
 
-## 1. Scenario Description
+## Overview
 
-This analysis compares 5 simulation runs of the **ideological_war** scenario, which models
-a contentious fork between Bitcoin v27 and v26 on a 34-node virtual network (10 mining
-pools, 4 economic/exchange nodes, and 20 user nodes split across both fork versions).
+This analysis explores the thresholds at which Bitcoin network forks persist or collapse,
+focusing on two key variables:
 
-All runs share the same configuration:
-- **Duration**: 240 simulated minutes (14,400 seconds)
-- **Pool Scenario**: `ideological_war`
-- **Economic Scenario**: `ideological_split`
-- **Difficulty Adjustment**: Enabled (retarget every 144 blocks)
-- **Reorg Metrics**: Enabled
+1. **Hashrate alignment** (pool scenario) — how mining pools distribute across forks
+2. **Economic ideology** (economic scenario) — how exchanges and users choose which fork to support
 
-The difference between runs is the source of randomness in block production timing:
-
-| Run ID | Type | Date |
-|--------|------|------|
-| `det_idWar_021226` | **Deterministic** (no random seed) | Feb 12, 2026 |
-| `idWar_seed_021326` | Random seed | Feb 13, 2026 |
-| `idWar_seed_0213261` | Random seed | Feb 13, 2026 |
-| `idWar_seed0213262` | Random seed | Feb 13, 2026 |
-| `idWar_seed0213263` | Random seed | Feb 13, 2026 |
+The original two scenario runs changed both variables simultaneously, making it impossible
+to isolate which factor drove the different outcomes. Two cross-tests swap the economic
+scenarios to isolate each variable independently.
 
 ---
 
-## 2. Network Configuration
+## Test Matrix
 
-### 2.1 Mining Pool Alignment
+| | **realistic_current** (neutral economics) | **ideological_split** (ideological economics) |
+|---|---|---|
+| **close_battle** (near-even hashrate) | close_battle_021326 | **NEW**: close_idSplit_021326 |
+| **ideological_war** (v26 dominant hashrate) | **NEW**: idWar_close_021426 | idWar_seed_021326 |
 
-The scenario creates a hashrate imbalance where v27 supporters hold the minority:
-
-| Pool | Hashrate | Fork Preference | Ideology Strength | Profitability Threshold | Max Loss (USD) |
-|------|----------|-----------------|-------------------|------------------------|----------------|
-| **Foundry USA** | 26.89% | v27 | 0.90 | 25% | $5,000,000 |
-| **AntPool** | 19.25% | v26 | 0.90 | 25% | $5,000,000 |
-| **ViaBTC** | 11.39% | v26 | 0.85 | 22% | $2,000,000 |
-| **F2Pool** | 11.25% | v26 | 0.70 | 15% | $1,000,000 |
-| **Binance Pool** | 10.04% | neutral | 0.00 | 1% | $0 |
-| **MARA Pool** | 8.25% | v26 | 0.60 | 12% | $500,000 |
-| **SBI Crypto** | 4.57% | neutral | 0.00 | 2% | $0 |
-| **Luxor** | 3.94% | v27 | 0.80 | 20% | $500,000 |
-| **OCEAN** | 1.42% | v27 | 0.85 | 22% | $200,000 |
-| **Braiins Pool** | 1.37% | neutral | 0.10 | 5% | $0 |
-
-**Faction Summary:**
-
-| Faction | Combined Hashrate | Pool Count |
-|---------|-------------------|------------|
-| v27 supporters | **32.25%** | 3 (Foundry, Luxor, OCEAN) |
-| v26 supporters | **50.14%** | 4 (AntPool, ViaBTC, F2Pool, MARA) |
-| Neutral | **15.98%** | 3 (Binance, SBI Crypto, Braiins) |
-
-### 2.2 Economic Configuration
-
-Despite the hashrate disadvantage, v27 holds the **economic majority**:
-- **v27 economic weight**: 55.0% (major exchanges with higher custody BTC)
-- **v26 economic weight**: 45.0%
-
-This creates the core tension: v27 is economically dominant but hash-power-deficient.
+All runs use seed 021326 for reproducibility (except idWar_close_021426 which uses 021426).
 
 ---
 
-## 3. Results Comparison
+## Scenario Configurations
 
-### 3.1 Block Production
+### Pool Scenarios
 
-| Metric | det_021226 | seed_021326 | seed_0213261 | seed_0213262 | seed_0213263 | **Mean** | **Std Dev** |
-|--------|-----------|-------------|--------------|--------------|--------------|----------|-------------|
-| v27 blocks | 89 | 110 | 117 | 99 | 99 | **102.8** | 10.8 |
-| v26 blocks | 1,409 | 1,414 | 1,405 | 1,435 | 1,397 | **1,412.0** | 14.3 |
-| Total blocks | 1,498 | 1,524 | 1,522 | 1,534 | 1,496 | **1,514.8** | 16.6 |
-| v27 share | 5.9% | 7.2% | 7.7% | 6.5% | 6.6% | **6.8%** | 0.7% |
+#### close_battle — Near-Even Hashrate Split
 
-v26 produces roughly **14x more blocks** than v27 across all runs. The v27 chain only
-accumulates blocks during the brief early period before pools capitulate.
+| Pool | Hashrate | Fork Pref | Ideology | Max Loss % | Max Loss USD |
+|------|----------|-----------|----------|------------|--------------|
+| foundryusa | 26.89% | v27 | 0.85 | 35% | $10,000,000 |
+| f2pool | 11.25% | v27 | 0.60 | 20% | $3,000,000 |
+| antpool | 19.25% | v26 | 0.85 | 35% | $10,000,000 |
+| viabtc | 11.39% | v26 | 0.70 | 25% | $2,000,000 |
+| marapool | 8.25% | v26 | 0.50 | 15% | $1,000,000 |
+| binancepool | 10.04% | neutral | 0.0 | 0% | — |
+| sbicrypto | 4.57% | neutral | 0.0 | 0% | — |
+| luxor | 3.94% | neutral | 0.1 | 2% | $500,000 |
+| ocean | 1.42% | neutral | 0.2 | 5% | $200,000 |
+| braiinspool | 1.37% | neutral | 0.1 | 2% | $100,000 |
 
-### 3.2 Final State
+**Starting hashrate**: v27=38.14%, v26=38.89%, neutral=21.34%
 
-All runs converge to the same terminal state:
+#### ideological_war — v26 Dominant Hashrate
 
-| Metric | All Runs |
-|--------|----------|
-| **Winning fork** | v26 |
-| **Final v27 hashrate** | 0.0% |
-| **Final v26 hashrate** | 98.37% |
-| **Final v27 economic share** | 55.0% |
-| **Final v26 economic share** | 45.0% |
-| **v27 price** | ~$55,060-$55,202 |
-| **v26 price** | ~$64,720-$64,862 |
+| Pool | Hashrate | Fork Pref | Ideology | Max Loss % | Max Loss USD |
+|------|----------|-----------|----------|------------|--------------|
+| foundryusa | 26.89% | v27 | 0.85 | 40% | $5,000,000 |
+| luxor | 3.94% | v27 | 0.80 | 35% | $500,000 |
+| ocean | 1.42% | v27 | 0.85 | 35% | $200,000 |
+| antpool | 19.25% | v26 | 0.90 | 40% | $5,000,000 |
+| viabtc | 11.39% | v26 | 0.85 | 35% | $2,000,000 |
+| f2pool | 11.25% | v26 | 0.70 | 25% | $1,000,000 |
+| marapool | 8.25% | v26 | 0.60 | 20% | $500,000 |
+| binancepool | 10.04% | neutral | 0.0 | 0% | — |
+| sbicrypto | 4.57% | neutral | 0.0 | 0% | — |
+| braiinspool | 1.37% | neutral | 0.1 | 2% | $100,000 |
 
-Despite v27 having higher economic support, the v26 price ends ~18% higher than v27.
-This is driven by the chainwork/hashrate dominance of v26, which provides stronger
-security guarantees.
+**Starting hashrate**: v27=32.25%, v26=50.14%, neutral=15.98%
 
-### 3.3 Chainwork & Difficulty
+### Economic Scenarios
 
-| Metric | det_021226 | seed_021326 | seed_0213261 | seed_0213262 | seed_0213263 |
-|--------|-----------|-------------|--------------|--------------|--------------|
-| v27 chainwork | 89.0 | 110.0 | 117.0 | 99.0 | 99.0 |
-| v26 chainwork | 1,307.3 | 1,291.4 | 1,283.3 | 1,374.8 | 1,298.8 |
-| **Chainwork ratio** | **14.7:1** | **11.7:1** | **11.0:1** | **13.9:1** | **13.1:1** |
-| v26 final difficulty | 1.030 | 0.941 | 1.056 | 1.054 | 0.913 |
+#### realistic_current — Neutral/Rational Exchanges
 
-The chainwork ratio ranges from 11:1 to nearly 15:1, meaning v26's chain is
-overwhelmingly more work. v27 never becomes competitive.
+- Major exchanges: ideology_strength=0.0, fork_preference=neutral, inertia=0.20
+- Regular exchanges: ideology_strength=0.05, fork_preference=neutral
+- Users: ideology_strength=0.3, fork_preference=neutral
+- max_loss_pct: 0.05 (economic), 0.15 (users)
 
----
+Exchanges are purely rational profit-followers with high inertia (switching costs).
 
-## 4. Reorg & Fork Dynamics
+#### ideological_split — Ideological Exchanges
 
-### 4.1 Network-Level Reorg Metrics
+Distribution pattern applied to economic nodes:
+- 40% of economic nodes: fork_preference=v27, ideology_strength=0.7, max_loss_pct=0.20
+- 40% of economic nodes: fork_preference=v26, ideology_strength=0.7, max_loss_pct=0.20
+- 20% of economic nodes: neutral, ideology_strength=0.0
 
-| Metric | det_021226 | seed_021326 | seed_0213261 | seed_0213262 | seed_0213263 | **Mean** |
-|--------|-----------|-------------|--------------|--------------|--------------|----------|
-| Reorg events | 9 | 11 | 7 | 11 | 9 | **9.4** |
-| Fork incidents | 6 | 6 | 4 | 6 | 6 | **5.6** |
-| Blocks orphaned | 156 | 180 | 229 | 190 | 175 | **186.0** |
-| Orphan rate | 10.45% | 11.89% | 15.12% | 12.40% | 11.74% | **12.32%** |
-| Reorg mass | 1,950 | 1,892 | 1,054 | 2,950 | 1,665 | **1,902.2** |
-| Norm. reorg mass | 195.0 | 189.2 | 105.4 | 295.0 | 166.5 | **190.2** |
-| **Consensus stress** | **24.22** | **33.10** | **16.50** | **56.98** | **21.59** | **30.48** |
+Users: 50% v27 (ideology 0.8), 30% v26 (ideology 0.6), 20% neutral
 
-The consensus stress score varies by **3.5x** across runs (16.5 to 57.0), showing that
-stochastic block timing dramatically affects how turbulent the fork transition is, even
-when the outcome is the same.
+**Important implementation note**: The `distribution_pattern` in the config overrides the
+`major_exchange` role override (which sets ideology=0.1). The distribution gets the last
+word, so major exchanges end up with ideology_strength=0.7.
 
-### 4.2 Reorg Event Timeline Pattern
-
-All runs follow a consistent 3-phase pattern:
-
-**Phase 1 - Early Neutral Defection (t ~600s)**
-Binance Pool and Braiins Pool (neutrals) quickly switch from v27 to v26 as the v26 chain
-pulls ahead. Reorg depth is small (16-29 blocks). Only 0-6 blocks orphaned per pool.
-
-**Phase 2 - Core Capitulation (t ~2400-3000s)**
-Foundry USA, Luxor, and OCEAN are forced to switch from v27 to v26 after their cumulative
-opportunity costs exceed their max loss thresholds. This is the most impactful wave,
-orphaning 55-90 blocks from Foundry alone.
-
-**Phase 3 - Oscillation & Stabilization (t ~3600-10800s)**
-Some pools briefly flip back to v27 before being overwhelmed again. This "rebellion"
-phase varies most across seeds:
-
-| Run | Latest reorg timestamp | Deepest single reorg | Most affected pool |
-|-----|----------------------|---------------------|--------------------|
-| det_021226 | t=12,608 | 1,186 blocks (Ocean) | Ocean |
-| seed_021326 | t=7,204 | 621 blocks (Luxor) | Luxor |
-| seed_0213261 | t=7,204 | 626 blocks (Foundry) | Foundry |
-| seed_0213262 | t=10,807 | 1,018 blocks (Luxor/Ocean) | Luxor |
-| seed_0213263 | t=8,406 | 756 blocks (Ocean) | Ocean |
+**Also note**: The `ideology_strength` values in `network.yaml` metadata are NOT used at
+runtime. Pool ideology comes from `mining_pools_config.yaml`, economic node ideology comes
+from `economic_nodes_config.yaml`. The network.yaml values are documentation-only.
 
 ---
 
-## 5. Miner Cost Analysis
+## Completed Results
 
-### 5.1 Opportunity Cost Summary
+### Run 1: close_battle_021326
 
-Only v27-aligned pools incur costs. v26-aligned and neutral pools pay **zero** opportunity
-cost across all runs because they are always on the winning/profitable chain.
+**Config**: close_battle pools + realistic_current economics | Duration: 120 min | Network: close-battle
 
-#### Foundry USA (26.89% hashrate, v27 preference)
+| Metric | Value |
+|--------|-------|
+| **Winner** | **v27** |
+| Blocks mined | v27=658, v26=123 |
+| Final hashrate | v27=79.1%, v26=19.2% |
+| Final prices | v27=$64,269, v26=$55,653 |
+| Chainwork | v27=543.5, v26=123.0 (ratio 4.4:1) |
+| v27 difficulty | 0.940 (4 retargets) |
+| v26 difficulty | 1.000 (no retargets) |
+| Reorg events | 6 |
+| Orphan rate | **25.38%** |
+| Consensus stress | 12.42 |
+| Final economic split | v27=55.0%, v26=45.0% |
 
-| Metric | det_021226 | seed_021326 | seed_0213261 | seed_0213262 | seed_0213263 | **Mean** |
-|--------|-----------|-------------|--------------|--------------|--------------|----------|
-| Cumulative opportunity cost | $4,553,228 | $3,689,721 | $4,780,635 | $4,861,780 | $4,160,540 | **$4,409,181** |
-| Ideology overrides | 4 | 4 | 5 | 4 | 4 | 4.2 |
-| Forced switches | 19 | 19 | 18 | 19 | 19 | 18.8 |
-| Max loss threshold | $5,000,000 | $5,000,000 | $5,000,000 | $5,000,000 | $5,000,000 | - |
-| **Cost as % of max loss** | **91.1%** | **73.8%** | **95.6%** | **97.2%** | **83.2%** | **88.2%** |
-| Blocks orphaned | 122 | 138 | 206 | 111 | 141 | 143.6 |
-| Orphan rate | 30.4% | 33.2% | 50.0% | 28.5% | 37.3% | 35.9% |
+#### Pool Defection Timeline
+1. **t=600s** — sbicrypto, ocean switch v26→v27 (neutral, followed profit)
+2. **t=1200s** — marapool forced switch v26→v27 (ideology 0.5, loss 8.4% > 7.5% tolerance)
+3. **t=3001s** — antpool, viabtc switch v26→v27 (antpool: loss 51.2% > 29.8% tolerance; viabtc: exceeded $2M max)
+4. **t=6604s** — antpool switches back v27→v26 (loss narrowed to 28.1% < 29.8% tolerance)
 
-Foundry USA, as the largest v27 supporter, bears the greatest absolute cost. Their
-ideology strength (0.9) keeps them mining on v27 for 3-5 decision intervals before the
-cumulative losses trigger a forced switch. Across runs, they lose **$3.7M-$4.9M**, which
-is 74-97% of their $5M max loss tolerance. In the worst case (seed_0213262), they came
-within 2.8% of their absolute maximum.
-
-The 18-19 forced switches indicate that after the initial capitulation, the system keeps
-re-evaluating and Foundry stays forced onto v26 for the remainder of the simulation.
-
-#### Luxor (3.94% hashrate, v27 preference)
-
-| Metric | det_021226 | seed_021326 | seed_0213261 | seed_0213262 | seed_0213263 | **Mean** |
-|--------|-----------|-------------|--------------|--------------|--------------|----------|
-| Cumulative opportunity cost | $387,414 | $479,396 | $466,884 | $480,627 | $353,870 | **$433,438** |
-| Ideology overrides | 3 | 4 | 4 | 4 | 3 | 3.6 |
-| Forced switches | 20 | 19 | 19 | 19 | 20 | 19.4 |
-| Max loss threshold | $500,000 | $500,000 | $500,000 | $500,000 | $500,000 | - |
-| **Cost as % of max loss** | **77.5%** | **95.9%** | **93.4%** | **96.1%** | **70.8%** | **86.7%** |
-| Blocks orphaned | 8 | 30 | 11 | 62 | 11 | 24.4 |
-| Orphan rate | 16.0% | 52.6% | 21.6% | 77.5% | 20.8% | 37.7% |
-
-Luxor's costs range from $354K to $481K against a $500K max loss threshold.
-Notably, seed_0213262 pushes Luxor to a 77.5% orphan rate -- the highest of any
-pool in any run -- due to a massive late-game reorg at t=10,206 with depth 1,018 that
-orphaned 44 of Luxor's blocks.
-
-#### OCEAN (1.42% hashrate, v27 preference)
-
-| Metric | det_021226 | seed_021326 | seed_0213261 | seed_0213262 | seed_0213263 | **Mean** |
-|--------|-----------|-------------|--------------|--------------|--------------|----------|
-| Cumulative opportunity cost | $183,088 | $194,846 | $168,268 | $173,221 | $199,999 | **$183,884** |
-| Ideology overrides | 4 | 4 | 4 | 4 | 4 | 4.0 |
-| Forced switches | 19 | 19 | 19 | 19 | 19 | 19.0 |
-| Max loss threshold | $200,000 | $200,000 | $200,000 | $200,000 | $200,000 | - |
-| **Cost as % of max loss** | **91.5%** | **97.4%** | **84.1%** | **86.6%** | **100.0%** | **91.9%** |
-| Blocks orphaned | 20 | 9 | 7 | 11 | 20 | 13.4 |
-| Orphan rate | 80.0% | 36.0% | 21.2% | 64.7% | 69.0% | 54.2% |
-
-OCEAN is the smallest v27 supporter and proportionally the hardest hit. In seed_0213263,
-OCEAN reaches **$199,999.82** -- essentially hitting its $200,000 max loss cap exactly.
-OCEAN also has the most consistently high orphan rate (avg 54.2%) because its small
-hashrate means nearly every block it mines on v27 gets orphaned when it capitulates.
-
-### 5.2 Total v27 Coalition Costs
-
-| Run | Foundry Cost | Luxor Cost | OCEAN Cost | **Total v27 Cost** |
-|-----|-------------|------------|------------|-------------------|
-| det_021226 | $4,553,228 | $387,414 | $183,088 | **$5,123,731** |
-| seed_021326 | $3,689,721 | $479,396 | $194,846 | **$4,363,963** |
-| seed_0213261 | $4,780,635 | $466,884 | $168,268 | **$5,415,786** |
-| seed_0213262 | $4,861,780 | $480,627 | $173,221 | **$5,515,628** |
-| seed_0213263 | $4,160,540 | $353,870 | $200,000 | **$4,714,410** |
-| **Mean** | **$4,409,181** | **$433,438** | **$183,884** | **$5,026,504** |
-
-The entire v27 coalition loses approximately **$5.0M on average** per simulation run.
-Foundry absorbs 88% of that total cost, proportional to its hashrate share within the
-v27 coalition.
-
-### 5.3 v26-Aligned and Neutral Pool Costs
-
-| Pool | Preference | Hashrate | Opportunity Cost (all runs) | Forced Switches | Orphan Rate |
-|------|-----------|----------|----------------------------|-----------------|-------------|
-| AntPool | v26 | 19.25% | **$0** | 0 | 0.0% |
-| ViaBTC | v26 | 11.39% | **$0** | 0 | 0.0% |
-| F2Pool | v26 | 11.25% | **$0** | 0 | 0.0% |
-| MARA Pool | v26 | 8.25% | **$0** | 0 | 0.0% |
-| Binance Pool | neutral | 10.04% | **$0** | 0 | 0.0% |
-| SBI Crypto | neutral | 4.57% | **$0** | 0 | 0.0% |
-| Braiins Pool | neutral | 1.37% | **$0** | 0 | 0.0% |
-
-v26-aligned pools experience zero cost because their ideology aligns with the
-profitable chain. Neutral pools also pay nothing because they follow profit immediately.
-None of these 7 pools experience any reorgs, forced switches, or orphaned blocks.
-They mine continuously on v26 from start to finish with perfect efficiency.
-
-### 5.4 Cost Per Orphaned Block
-
-| Pool | Avg Opportunity Cost | Avg Blocks Orphaned | **Avg Cost Per Orphan** |
-|------|---------------------|---------------------|------------------------|
-| Foundry USA | $4,409,181 | 143.6 | **$30,703** |
-| Luxor | $433,438 | 24.4 | **$17,764** |
-| OCEAN | $183,884 | 13.4 | **$13,723** |
-
-Foundry's per-orphan cost is the highest because its larger hashrate means each orphaned
-block represents more foregone revenue. At ~$30,700 per orphaned block, this represents
-a significant fraction of a typical block reward.
+#### Economic Dynamics
+- Exchanges were purely rational, no ideology overrides
+- 2 major exchanges stayed on v26 due to inertia (22% switching threshold)
+- v27 price advantage reached 18% but didn't exceed their inertia threshold
+- Economics were slowly converging toward v27 (the hashrate winner)
 
 ---
 
-## 6. The Ideology Override Mechanism
+### Run 2: idWar_seed_021326
 
-The simulation models a decision process where pools evaluate profitability every interval:
+**Config**: ideological_war pools + ideological_split economics | Duration: 240 min | Network: ideological-war
 
-1. **Calculate profitability** on both forks (v27 vs v26 USD revenue)
-2. **Rational choice**: pick the more profitable fork
-3. **Ideology override**: if the pool prefers the less profitable fork and the loss is
-   within their tolerance, they override the rational choice
-4. **Forced switch**: if cumulative opportunity cost exceeds `max_loss_usd`, the pool is
-   forced to follow profit regardless of ideology
+| Metric | Value |
+|--------|-------|
+| **Winner** | **v26** |
+| Blocks mined | v27=110, v26=1,414 |
+| Final hashrate | v27=0.0%, v26=98.4% |
+| Final prices | v27=$55,167, v26=$64,754 |
+| Chainwork | v27=110.0, v26=1,291.4 (ratio 11.7:1) |
+| v27 difficulty | 1.000 (no retargets — never reached 144 blocks) |
+| v26 difficulty | 0.941 (9 retargets) |
+| Reorg events | 11 |
+| Orphan rate | **11.89%** |
+| Consensus stress | 33.1 |
+| Final economic split | v27=55.0%, v26=45.0% |
 
-In practice, the v27 pools follow this lifecycle:
-- **Intervals 1-4**: Ideology overrides rational choice. Pools mine on v27 despite it
-  being less profitable. The loss starts at ~7.4% and climbs to ~10.9%, staying within
-  the 28-34% tolerance range.
-- **Interval 4-5**: Cumulative costs cross the max loss threshold. Foundry hits $5M,
-  Luxor hits $500K, OCEAN hits $200K. All three are forced onto v26.
-- **Intervals 5-24**: Pools remain force-switched to v26 for the rest of the simulation.
-  They never return to v27.
+#### Pool Dynamics
+- v26's 50.14% starting majority attracted neutral pools, snowballing to ~66%
+- foundryusa, luxor, ocean (v27 ideologues) were each forced to switch **19 times**
+  with only **4 ideology overrides** each
+- By end of run, **all 10 pools were on v26** — v27 hashrate dropped to 0%
+- v27 never reached a difficulty retarget (stuck at difficulty 1.0, expected block interval 10,000s)
 
-The early ideology overrides cost approximately:
-- Foundry: ~$650K-$1M per interval (3-5 intervals = $2.0M-$4.8M before forced switch)
-- Luxor: ~$95K-$150K per interval
-- OCEAN: ~$34K-$54K per interval
+#### Economic Dynamics — The Zombie Fork
+- Despite v26's total hashrate victory, **economic split stayed at 55/45 favoring v27**
+- The two largest v27 exchanges (consensus_weight 80.47 each) held firm through
+  **4 ideology overrides** and **7 inertia holds** each
+- v27 price advantage at one point reached 18% over v26, but the v26 exchanges' ideology
+  (0.7) with inertia (0.15) kept them locked on v26
+- v27 is effectively a zombie chain: 0% hashrate, no blocks, but 55% economic activity
+
+#### v27 Coalition Costs
+| Pool | Opportunity Cost | Forced Switches | Ideology Overrides | Orphan Rate |
+|------|-----------------|-----------------|-------------------|-------------|
+| foundryusa | $3,689,721 | 19 | 4 | 33.2% |
+| luxor | $479,396 | 19 | 4 | 52.6% |
+| ocean | $194,846 | 19 | 4 | 36.0% |
+| **Total** | **$4,363,963** | — | — | — |
+
+v26-aligned and neutral pools paid $0 in opportunity costs across the entire run.
 
 ---
 
-## 7. Key Findings
+## Key Observations from Original Runs
 
-### 7.1 The Fork is Never Competitive
+### 1. Near-even hashrate produces more orphan churn
+close_battle had **25.4% orphan rate** vs ideological_war's 11.9%. When pools are near
+the tipping point, they switch sides repeatedly, orphaning blocks each time.
 
-With 32.25% hashrate, v27 cannot sustain a fork against v26's 50.14% (plus 16% neutrals
-that immediately defect). The chainwork ratio of 11-15:1 in favor of v26 means there is
-no point at which the fork is in question. The outcome is determined by hashrate
-distribution, not economic weight.
+### 2. A >50% committed hashrate majority is decisive
+In ideological_war, v26's 50.14% starting majority attracted neutral pools and snowballed.
+In close_battle, the near-even split meant neutral pools tipped the balance.
 
-### 7.2 Economic Majority Does Not Override Hashrate Majority
+### 3. Economic ideology can decouple from hashrate outcomes
+In ideological_war, v27 held 55% economic weight despite 0% hashrate — a persistent
+zombie fork sustained purely by exchange ideology (0.7 strength).
 
-v27 holds 55% economic weight and its exchanges hold more custody BTC ($1.1M vs $900K),
-yet v26 wins decisively. The price reflects this: v26 finishes at ~$64,800 vs v27's
-~$55,100, a gap of ~18%. Hashrate security is priced in over economic ideology.
+### 4. Price divergence equilibrium
+Both scenarios ended with roughly $64k/$55k price splits (~15% spread), suggesting this
+is the natural equilibrium for a 55/45 economic split regardless of which fork wins hashrate.
 
-### 7.3 Cost Asymmetry is Total
+### 5. Pool defection thresholds
+- ideology_strength < 0.6 with loss tolerance < 10% guarantees early defection (marapool)
+- The ~30% tolerance is the "true believer" threshold (antpool briefly returned to v26 in close_battle)
+- Even 0.85 ideology with 40% tolerance is insufficient against a 50%+ hashrate majority (foundryusa in ideological_war)
 
-The losing side (v27 coalition) pays ~$5M in aggregate opportunity costs while the
-winning side pays exactly $0. There is no cost to being on the winning side of a fork
-war. This creates a strong disincentive for miners to support the minority chain.
+### 6. The unanswered question
+Both the hashrate alignment AND economic ideology changed between runs. We cannot determine
+from these two runs alone whether:
+- The zombie fork is caused by exchange ideology or would occur with neutral exchanges too
+- Economic ideology can change the winner of a close hashrate race
+- Hashrate or economics is the dominant factor
 
-### 7.4 Stochastic Variation Affects Pain, Not Outcome
+---
 
-Random seeds produce a 3.5x range in consensus stress (16.5 to 57.0) and a 2.8x range
-in reorg mass (1,054 to 2,950). However, the final outcome is identical across all runs.
-The randomness determines *how turbulent the transition is*, not *which side wins*.
+## Upcoming Cross-Tests
 
-### 7.5 Foundry USA is the Critical Player
+### New Run 1: idWar_close_021426
+**Question: Does the zombie fork collapse without economic ideology?**
 
-As the largest v27 supporter (26.89% hashrate, ~83% of the v27 coalition's mining power),
-Foundry's decision to capitulate effectively ends the fork war. When Foundry switches at
-t~2400-3000s, v27 is left with only Luxor (3.94%) and OCEAN (1.42%), which cannot sustain
-any meaningful chain on their own.
+| Parameter | Value |
+|-----------|-------|
+| Pool Scenario | `ideological_war` (v26 dominant — same as idWar_seed_021326) |
+| Economic Scenario | `realistic_current` (neutral exchanges — same as close_battle_021326) |
+| Duration | 240 min (14,400s) |
+| Network | ideological-war (default namespace) |
+| Seed | 021326 |
+| Command | `warnet run scenarios/partition_miner_with_pools.py --duration 14400 --pool-scenario ideological_war --economic-scenario realistic_current --enable-reorg-metrics --enable-difficulty --results-id idWar_close_021426 --randomseed 021326` |
 
-### 7.6 Threshold Implications
+**What this tests**: The original ideological_war produced a zombie chain — v27 had 0%
+hashrate but 55% economic support from ideological exchanges. With neutral exchanges
+instead, will the economic layer converge to v26 along with hashrate?
 
-To sustain a fork, the v27 coalition would likely need:
-- Hashrate above ~50% to match v26's chainwork growth rate
-- OR significantly higher max loss tolerances (>>$5M for Foundry) to delay capitulation
-- OR enough hashrate that neutral pools (16%) are incentivized to join v27 instead of v26
+**Expected outcomes**:
+- Hashrate outcome should be similar to original idWar (v26 wins decisively) since pool configs are unchanged
+- Economic split should shift toward v26 since neutral exchanges follow price, and v26 has the higher price ($64k vs $55k)
+- The 2 major exchanges with inertia=0.20 may still lag on v27 briefly, but with ideology=0.0 and max_loss_pct=0.05, they should eventually switch
+- If economics fully converge to v26, it confirms that ideology_strength=0.7 on exchanges was the sole reason for the persistent zombie fork
 
-The current 32.25% hashrate produces a fork that collapses within ~40-50 minutes of
-simulated time and generates ~$5M in wasted costs for the losing coalition.
+**Comparison**: vs idWar_seed_021326 — isolates the effect of economic ideology removal on a decisive hashrate war.
+
+---
+
+### New Run 2: close_idSplit_021326
+**Question: Can economic ideology change the winner of a close hashrate race?**
+
+| Parameter | Value |
+|-----------|-------|
+| Pool Scenario | `close_battle` (near-even hashrate — same as close_battle_021326) |
+| Economic Scenario | `ideological_split` (ideological exchanges — same as idWar_seed_021326) |
+| Duration | 240 min (14,400s) |
+| Network | close-battle (wargames-run2 namespace) |
+| Seed | 021326 |
+| Command | `warnet run scenarios/partition_miner_with_pools.py --duration 14400 --pool-scenario close_battle --economic-scenario ideological_split --enable-reorg-metrics --enable-difficulty --results-id close_idSplit_021326 --namespace wargames-run2 --randomseed 021326` |
+
+**What this tests**: The original close_battle with neutral economics saw v27 win and
+economics slowly follow. With ideological exchanges, do v26-supporting exchanges prop
+up v26's price enough to keep miners from defecting?
+
+**Expected outcomes**:
+- The close hashrate split (38.14% vs 38.89%) means small economic signals could tip the balance
+- Ideological v26 exchanges maintaining economic activity on v26 could keep v26 prices
+  higher, reducing the profitability gap that caused marapool and viabtc to defect originally
+- This could result in: (a) a more sustained fork with higher consensus stress,
+  (b) a different winner, or (c) v27 still winning but with a persistent economic split (zombie fork on both sides)
+- Duration is doubled (240 min vs original 120 min), allowing more time for economic feedback effects
+
+**Comparison**: vs close_battle_021326 — isolates the effect of economic ideology on a close hashrate race.
+
+---
+
+## What the Cross-Tests Will Reveal
+
+### 1. Is the zombie fork driven by exchange ideology or hashrate dynamics?
+- If New Run 1 (idWar + neutral economics) still shows a persistent v27 economic split → hashrate dynamics alone create zombie forks
+- If New Run 1 converges economics to v26 → **exchange ideology is the critical factor**
+
+### 2. Can economic ideology change the outcome of a close hashrate race?
+- If New Run 2 (close_battle + ideological economics) produces a different winner → **economics are a deciding factor in close races**
+- If New Run 2 still has v27 winning → hashrate alignment dominates regardless of economic ideology
+
+### 3. What is the economic ideology threshold for fork persistence?
+- The four runs bracket the space: ideology=0.0 (rational) vs ideology=0.7 (ideological)
+- Comparing economic splits across all four runs will identify where the tipping point lies
+- Future runs with intermediate ideology values (0.3, 0.5) can narrow the threshold
+
+### 4. Does the economic-hashrate feedback loop exist?
+- If ideological v26 exchanges in New Run 2 change the hashrate outcome, it proves economics feed back into mining decisions
+- If they don't, it suggests the price oracle's influence on pool profitability is too weak to overcome hashrate fundamentals

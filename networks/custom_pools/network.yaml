@@ -1,0 +1,424 @@
+caddy:
+  enabled: true
+fork_observer:
+  enabled: false
+  configQueryInterval: 10
+nodes:
+- name: node-0000
+  image:
+    tag: '27.0'
+  bitcoin_config:
+    maxconnections: 125
+    maxmempool: 300
+    txindex: 1
+  metadata:
+    role: major_exchange
+    node_type: economic
+    entity_id: econ-v27-0
+    custody_btc: 2000000
+    daily_volume_btc: 210000
+    consensus_weight: 146.3
+    fork_preference: neutral
+    ideology_strength: 0.1
+    switching_threshold: 0.03
+    inertia: 0.15
+    activity_type: transactional
+    transaction_velocity: 0.8
+  addnode:
+  - node-0001
+  - node-0002
+  - node-0003
+  - node-0004
+  - node-0005
+  - node-0006
+  - node-0007
+- name: node-0001
+  image:
+    tag: '27.0'
+  bitcoin_config:
+    maxconnections: 50
+    maxmempool: 200
+    txindex: 1
+  metadata:
+    role: mining_pool
+    pool_name: BigMiner Corp
+    hashrate_pct: 35.0
+    entity_id: pool-bigminercorp
+    entity_name: BigMiner Corp
+    node_type: mining_pool
+    custody_btc: 70000
+    daily_volume_btc: 7000
+    consensus_weight: 5.11
+    supply_percentage: 0.0
+    economic_influence: 70.0
+    fork_preference: v27
+    ideology_strength: 0.8
+    profitability_threshold: 0.15
+    max_loss_pct: 0.25
+  addnode:
+  - node-0000
+  - node-0002
+- name: node-0002
+  image:
+    tag: '27.0'
+  bitcoin_config:
+    maxconnections: 50
+    maxmempool: 200
+    txindex: 1
+  metadata:
+    role: mining_pool
+    pool_name: Traditional Mining Co
+    hashrate_pct: 30.0
+    entity_id: pool-traditionalminingco
+    entity_name: Traditional Mining Co
+    node_type: mining_pool
+    custody_btc: 60000
+    daily_volume_btc: 6000
+    consensus_weight: 4.38
+    supply_percentage: 0.0
+    economic_influence: 60.0
+    fork_preference: v26
+    ideology_strength: 0.8
+    profitability_threshold: 0.15
+    max_loss_pct: 0.25
+  addnode:
+  - node-0000
+  - node-0001
+  - node-0003
+- name: node-0003
+  image:
+    tag: '27.0'
+  bitcoin_config:
+    maxconnections: 50
+    maxmempool: 200
+    txindex: 1
+  metadata:
+    role: mining_pool
+    pool_name: Neutral Pool A
+    hashrate_pct: 15.0
+    entity_id: pool-neutralpoola
+    entity_name: Neutral Pool A
+    node_type: mining_pool
+    custody_btc: 30000
+    daily_volume_btc: 3000
+    consensus_weight: 2.19
+    supply_percentage: 0.0
+    economic_influence: 30.0
+    fork_preference: neutral
+    ideology_strength: 0.0
+    profitability_threshold: 0.02
+    max_loss_pct: 0.0
+  addnode:
+  - node-0000
+  - node-0002
+  - node-0004
+- name: node-0004
+  image:
+    tag: '27.0'
+  bitcoin_config:
+    maxconnections: 50
+    maxmempool: 200
+    txindex: 1
+  metadata:
+    role: mining_pool
+    pool_name: Neutral Pool B
+    hashrate_pct: 10.0
+    entity_id: pool-neutralpoolb
+    entity_name: Neutral Pool B
+    node_type: mining_pool
+    custody_btc: 20000
+    daily_volume_btc: 2000
+    consensus_weight: 1.46
+    supply_percentage: 0.0
+    economic_influence: 20.0
+    fork_preference: neutral
+    ideology_strength: 0.0
+    profitability_threshold: 0.03
+    max_loss_pct: 0.0
+  addnode:
+  - node-0000
+  - node-0003
+  - node-0005
+- name: node-0005
+  image:
+    tag: '27.0'
+  bitcoin_config:
+    maxconnections: 50
+    maxmempool: 200
+    txindex: 1
+  metadata:
+    role: mining_pool
+    pool_name: Community Pool
+    hashrate_pct: 10.0
+    entity_id: pool-communitypool
+    entity_name: Community Pool
+    node_type: mining_pool
+    custody_btc: 20000
+    daily_volume_btc: 2000
+    consensus_weight: 1.46
+    supply_percentage: 0.0
+    economic_influence: 20.0
+    fork_preference: v27
+    ideology_strength: 0.9
+    profitability_threshold: 0.3
+    max_loss_pct: 0.5
+  addnode:
+  - node-0000
+  - node-0004
+- name: node-0006
+  image:
+    tag: '27.0'
+  bitcoin_config:
+    maxconnections: 30
+    maxmempool: 100
+    txindex: 1
+  metadata:
+    node_type: user_node
+    entity_id: user-v27-6
+    custody_btc: 8.0
+    daily_volume_btc: 0.83
+    consensus_weight: 0.0006
+    supply_percentage: 0.0
+    economic_influence: 0.8
+    fork_preference: neutral
+    ideology_strength: 0.39
+    switching_threshold: 0.08
+    inertia: 0.02
+    activity_type: mixed
+    transaction_velocity: 0.37
+  addnode:
+  - node-0000
+  - node-0007
+- name: node-0007
+  image:
+    tag: '27.0'
+  bitcoin_config:
+    maxconnections: 30
+    maxmempool: 100
+    txindex: 1
+  metadata:
+    node_type: user_node
+    entity_id: user-v27-7
+    custody_btc: 3.6
+    daily_volume_btc: 0.19
+    consensus_weight: 0.0003
+    supply_percentage: 0.0
+    economic_influence: 0.36
+    fork_preference: neutral
+    ideology_strength: 0.49
+    switching_threshold: 0.06
+    inertia: 0.06
+    activity_type: mixed
+    transaction_velocity: 0.25
+  addnode:
+  - node-0000
+  - node-0006
+- name: node-0008
+  image:
+    tag: '26.0'
+  bitcoin_config:
+    maxconnections: 125
+    maxmempool: 300
+    txindex: 1
+  metadata:
+    role: major_exchange
+    node_type: economic
+    entity_id: econ-v26-8
+    custody_btc: 2000000
+    daily_volume_btc: 210000
+    consensus_weight: 146.3
+    fork_preference: neutral
+    ideology_strength: 0.1
+    switching_threshold: 0.03
+    inertia: 0.15
+    activity_type: transactional
+    transaction_velocity: 0.8
+  addnode:
+  - node-0009
+  - node-0010
+  - node-0011
+  - node-0012
+  - node-0013
+  - node-0014
+  - node-0015
+- name: node-0009
+  image:
+    tag: '26.0'
+  bitcoin_config:
+    maxconnections: 50
+    maxmempool: 200
+    txindex: 1
+  metadata:
+    role: mining_pool
+    pool_name: BigMiner Corp
+    hashrate_pct: 35.0
+    entity_id: pool-bigminercorp
+    entity_name: BigMiner Corp
+    node_type: mining_pool
+    custody_btc: 70000
+    daily_volume_btc: 7000
+    consensus_weight: 5.11
+    supply_percentage: 0.0
+    economic_influence: 70.0
+    fork_preference: v27
+    ideology_strength: 0.8
+    profitability_threshold: 0.15
+    max_loss_pct: 0.25
+  addnode:
+  - node-0008
+  - node-0010
+- name: node-0010
+  image:
+    tag: '26.0'
+  bitcoin_config:
+    maxconnections: 50
+    maxmempool: 200
+    txindex: 1
+  metadata:
+    role: mining_pool
+    pool_name: Traditional Mining Co
+    hashrate_pct: 30.0
+    entity_id: pool-traditionalminingco
+    entity_name: Traditional Mining Co
+    node_type: mining_pool
+    custody_btc: 60000
+    daily_volume_btc: 6000
+    consensus_weight: 4.38
+    supply_percentage: 0.0
+    economic_influence: 60.0
+    fork_preference: v26
+    ideology_strength: 0.8
+    profitability_threshold: 0.15
+    max_loss_pct: 0.25
+  addnode:
+  - node-0008
+  - node-0009
+  - node-0011
+- name: node-0011
+  image:
+    tag: '26.0'
+  bitcoin_config:
+    maxconnections: 50
+    maxmempool: 200
+    txindex: 1
+  metadata:
+    role: mining_pool
+    pool_name: Neutral Pool A
+    hashrate_pct: 15.0
+    entity_id: pool-neutralpoola
+    entity_name: Neutral Pool A
+    node_type: mining_pool
+    custody_btc: 30000
+    daily_volume_btc: 3000
+    consensus_weight: 2.19
+    supply_percentage: 0.0
+    economic_influence: 30.0
+    fork_preference: neutral
+    ideology_strength: 0.0
+    profitability_threshold: 0.02
+    max_loss_pct: 0.0
+  addnode:
+  - node-0008
+  - node-0010
+  - node-0012
+- name: node-0012
+  image:
+    tag: '26.0'
+  bitcoin_config:
+    maxconnections: 50
+    maxmempool: 200
+    txindex: 1
+  metadata:
+    role: mining_pool
+    pool_name: Neutral Pool B
+    hashrate_pct: 10.0
+    entity_id: pool-neutralpoolb
+    entity_name: Neutral Pool B
+    node_type: mining_pool
+    custody_btc: 20000
+    daily_volume_btc: 2000
+    consensus_weight: 1.46
+    supply_percentage: 0.0
+    economic_influence: 20.0
+    fork_preference: neutral
+    ideology_strength: 0.0
+    profitability_threshold: 0.03
+    max_loss_pct: 0.0
+  addnode:
+  - node-0008
+  - node-0011
+  - node-0013
+- name: node-0013
+  image:
+    tag: '26.0'
+  bitcoin_config:
+    maxconnections: 50
+    maxmempool: 200
+    txindex: 1
+  metadata:
+    role: mining_pool
+    pool_name: Community Pool
+    hashrate_pct: 10.0
+    entity_id: pool-communitypool
+    entity_name: Community Pool
+    node_type: mining_pool
+    custody_btc: 20000
+    daily_volume_btc: 2000
+    consensus_weight: 1.46
+    supply_percentage: 0.0
+    economic_influence: 20.0
+    fork_preference: v27
+    ideology_strength: 0.9
+    profitability_threshold: 0.3
+    max_loss_pct: 0.5
+  addnode:
+  - node-0008
+  - node-0012
+- name: node-0014
+  image:
+    tag: '26.0'
+  bitcoin_config:
+    maxconnections: 30
+    maxmempool: 100
+    txindex: 1
+  metadata:
+    node_type: user_node
+    entity_id: user-v26-14
+    custody_btc: 1.5
+    daily_volume_btc: 0.72
+    consensus_weight: 0.0001
+    supply_percentage: 0.0
+    economic_influence: 0.15
+    fork_preference: neutral
+    ideology_strength: 0.49
+    switching_threshold: 0.14
+    inertia: 0.04
+    activity_type: mixed
+    transaction_velocity: 0.2
+  addnode:
+  - node-0008
+  - node-0015
+- name: node-0015
+  image:
+    tag: '26.0'
+  bitcoin_config:
+    maxconnections: 30
+    maxmempool: 100
+    txindex: 1
+  metadata:
+    node_type: user_node
+    entity_id: user-v26-15
+    custody_btc: 9.7
+    daily_volume_btc: 0.06
+    consensus_weight: 0.0007
+    supply_percentage: 0.0
+    economic_influence: 0.97
+    fork_preference: neutral
+    ideology_strength: 0.54
+    switching_threshold: 0.07
+    inertia: 0.1
+    activity_type: mixed
+    transaction_velocity: 0.11
+  addnode:
+  - node-0008
+  - node-0014

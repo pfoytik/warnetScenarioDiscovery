@@ -1,0 +1,149 @@
+{
+  "config": {
+    "target_block_interval": 10.0,
+    "retarget_interval": 144,
+    "pre_fork_difficulty": 1.0,
+    "max_adjustment_factor": 4.0,
+    "min_difficulty": 0.0625,
+    "enable_eda": false,
+    "eda_threshold": 6.0,
+    "eda_reduction": 0.2
+  },
+  "forks": {
+    "v27": {
+      "fork_id": "v27",
+      "current_difficulty": 1.069399804931555,
+      "blocks_since_retarget": 0,
+      "cumulative_chainwork": 1401.2683741341825,
+      "last_block_sim_time": 14395,
+      "last_retarget_sim_time": 14395,
+      "expected_block_interval": 10.69399804931555,
+      "initial_height": 101,
+      "blocks_mined": 1440
+    },
+    "v26": {
+      "fork_id": "v26",
+      "current_difficulty": 1.0,
+      "blocks_since_retarget": 31,
+      "cumulative_chainwork": 31.0,
+      "last_block_sim_time": 10995,
+      "last_retarget_sim_time": 0.0,
+      "expected_block_interval": 10000.0,
+      "initial_height": 101,
+      "blocks_mined": 31
+    }
+  },
+  "winning_fork": "v27",
+  "adjustment_history": [
+    {
+      "fork_id": "v27",
+      "sim_time": 1831,
+      "height": 143,
+      "old_difficulty": 1.0,
+      "new_difficulty": 0.7864554888039322,
+      "actual_time": 1831.0,
+      "target_time": 1440.0,
+      "adjustment_factor": 0.7864554888039322,
+      "is_eda": false
+    },
+    {
+      "fork_id": "v27",
+      "sim_time": 3051,
+      "height": 288,
+      "old_difficulty": 0.7864554888039322,
+      "new_difficulty": 0.9282753310472642,
+      "actual_time": 1220,
+      "target_time": 1440.0,
+      "adjustment_factor": 1.180327868852459,
+      "is_eda": false
+    },
+    {
+      "fork_id": "v27",
+      "sim_time": 4391,
+      "height": 431,
+      "old_difficulty": 0.9282753310472642,
+      "new_difficulty": 0.9975496094836273,
+      "actual_time": 1340,
+      "target_time": 1440.0,
+      "adjustment_factor": 1.0746268656716418,
+      "is_eda": false
+    },
+    {
+      "fork_id": "v27",
+      "sim_time": 5842,
+      "height": 576,
+      "old_difficulty": 0.9975496094836273,
+      "new_difficulty": 0.9899872072063565,
+      "actual_time": 1451,
+      "target_time": 1440.0,
+      "adjustment_factor": 0.9924190213645762,
+      "is_eda": false
+    },
+    {
+      "fork_id": "v27",
+      "sim_time": 7180,
+      "height": 719,
+      "old_difficulty": 0.9899872072063565,
+      "new_difficulty": 1.065457083988904,
+      "actual_time": 1338,
+      "target_time": 1440.0,
+      "adjustment_factor": 1.0762331838565022,
+      "is_eda": false
+    },
+    {
+      "fork_id": "v27",
+      "sim_time": 8703,
+      "height": 863,
+      "old_difficulty": 1.065457083988904,
+      "new_difficulty": 1.007392121434026,
+      "actual_time": 1523,
+      "target_time": 1440.0,
+      "adjustment_factor": 0.9455022980958634,
+      "is_eda": false
+    },
+    {
+      "fork_id": "v27",
+      "sim_time": 10225,
+      "height": 1007,
+      "old_difficulty": 1.007392121434026,
+      "new_difficulty": 0.9531173816458591,
+      "actual_time": 1522,
+      "target_time": 1440.0,
+      "adjustment_factor": 0.9461235216819974,
+      "is_eda": false
+    },
+    {
+      "fork_id": "v27",
+      "sim_time": 11549,
+      "height": 1151,
+      "old_difficulty": 0.9531173816458591,
+      "new_difficulty": 1.0366231341163423,
+      "actual_time": 1324,
+      "target_time": 1440.0,
+      "adjustment_factor": 1.0876132930513596,
+      "is_eda": false
+    },
+    {
+      "fork_id": "v27",
+      "sim_time": 13094,
+      "height": 1295,
+      "old_difficulty": 1.0366231341163423,
+      "new_difficulty": 0.9661730182055229,
+      "actual_time": 1545,
+      "target_time": 1440.0,
+      "adjustment_factor": 0.9320388349514563,
+      "is_eda": false
+    },
+    {
+      "fork_id": "v27",
+      "sim_time": 14395,
+      "height": 1440,
+      "old_difficulty": 0.9661730182055229,
+      "new_difficulty": 1.069399804931555,
+      "actual_time": 1301,
+      "target_time": 1440.0,
+      "adjustment_factor": 1.1068408916218293,
+      "is_eda": false
+    }
+  ]
+}

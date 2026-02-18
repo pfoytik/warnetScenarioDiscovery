@@ -261,6 +261,8 @@ class ScenarioNetworkGenerator:
             'inertia': inertia,
             'activity_type': activity_type,
             'transaction_velocity': transaction_velocity,
+            # Asymmetric fork: v26 nodes accept v27 blocks; v27 nodes reject v26 blocks
+            'accepts_foreign_blocks': partition == 'v26',
         }
 
         # Add hashrate if this node mines
@@ -312,6 +314,8 @@ class ScenarioNetworkGenerator:
                 'ideology_strength': pool.ideology_strength,
                 'profitability_threshold': pool.profitability_threshold,
                 'max_loss_pct': pool.max_loss_pct,
+                # Asymmetric fork: v26 nodes accept v27 blocks; v27 nodes reject v26 blocks
+                'accepts_foreign_blocks': version.startswith('26'),
             }
         }
 
@@ -363,6 +367,8 @@ class ScenarioNetworkGenerator:
             'inertia': inertia,
             'activity_type': activity_type,
             'transaction_velocity': transaction_velocity,
+            # Asymmetric fork: v26 nodes accept v27 blocks; v27 nodes reject v26 blocks
+            'accepts_foreign_blocks': partition == 'v26',
         }
 
         # Add hashrate if this node mines (solo miner)

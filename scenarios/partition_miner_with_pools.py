@@ -114,6 +114,10 @@ class PartitionMinerWithPools(Commander):
         # Node metadata from network.yaml
         self.node_metadata = {}  # node_name -> metadata dict
 
+        # Asymmetric fork: nodes that accept blocks from the foreign fork
+        # v26 nodes have accepts_foreign_blocks=True and receive v27 blocks via submitblock
+        self.foreign_accepting_nodes = []
+
         # Time series data for charting
         self.time_series = {
             'timestamps': [],           # elapsed seconds
@@ -272,6 +276,61 @@ class PartitionMinerWithPools(Commander):
         self.log.info(f"\nPartition summary:")
         self.log.info(f"  v27 nodes: {len(self.v27_nodes)}")
         self.log.info(f"  v26 nodes: {len(self.v26_nodes)}")
+
+    def build_foreign_accepting_nodes(self):
+        """
+        Identify nodes that accept blocks from the foreign fork (accepts_foreign_blocks=True).
+
+        In the asymmetric fork model:
+          - v27 (strict): rejects v26 blocks — accepts_foreign_blocks=False
+          - v26 (permissive): accepts v27 blocks — accepts_foreign_blocks=True
+
+        When a v27 block is mined, it is submitted to the first foreign-accepting node
+        via submitblock. P2P propagation within the v26 island handles the rest.
+        """
+        self.foreign_accepting_nodes = []
+
+        for node in self.v26_nodes:
+            node_name = f"node-{node.index:04d}"
+            metadata = self.node_metadata.get(node_name, {})
+            if metadata.get('accepts_foreign_blocks', False):
+                self.foreign_accepting_nodes.append(node)
+
+        if self.foreign_accepting_nodes:
+            self.log.info(
+                f"\nAsymmetric fork mode: {len(self.foreign_accepting_nodes)} foreign-accepting node(s). "
+                f"v27 blocks will be submitted to node-{self.foreign_accepting_nodes[0].index:04d} "
+                f"for v26-island propagation."
+            )
+        else:
+            self.log.info(
+                "\nAsymmetric fork mode: no foreign-accepting nodes found "
+                "(accepts_foreign_blocks not set in metadata). "
+                "Running as standard symmetric partition."
+            )
+
+    def propagate_to_foreign_accepting(self, miner, fork_id: str):
+        """
+        After mining a v27 block, push it to the v26 island via submitblock.
+
+        Only acts when fork_id=='v27' and foreign-accepting nodes exist.
+        Submits to one bridge node only — P2P handles intra-island propagation.
+        """
+        if fork_id != 'v27' or not self.foreign_accepting_nodes:
+            return
+
+        try:
+            block_hash = miner.getbestblockhash()
+            raw_block = miner.getblock(block_hash, 0)
+            bridge_node = self.foreign_accepting_nodes[0]
+            result = bridge_node.submitblock(raw_block)
+            if result is not None:
+                # submitblock returns None on success; any other value is a rejection reason
+                self.log.warning(
+                    f"  [asymmetric] submitblock to node-{bridge_node.index:04d} returned: {result}"
+                )
+        except Exception as e:
+            self.log.error(f"  [asymmetric] Failed to propagate v27 block to v26 island: {e}")
 
     def build_pool_node_mapping(self):
         """
@@ -787,6 +846,9 @@ class PartitionMinerWithPools(Commander):
         # Partition nodes
         self.partition_nodes_by_version()
 
+        # Identify foreign-accepting nodes for asymmetric fork propagation
+        self.build_foreign_accepting_nodes()
+
         # Build pool-to-node mapping
         if self.pool_strategy:
             self.build_pool_node_mapping()
@@ -1054,6 +1116,9 @@ class PartitionMinerWithPools(Commander):
                             address = miner_wallet.getnewaddress()
                             self.generatetoaddress(miner, 1, address, sync_fun=self.no_op)
 
+                            # Asymmetric fork: push v27 blocks into the v26 island
+                            self.propagate_to_foreign_accepting(miner, fork_id)
+
                             self.blocks_mined[fork_id] += 1
                             new_height = (self.v27_nodes[0].getblockcount() if fork_id == 'v27' and self.v27_nodes
                                           else self.v26_nodes[0].getblockcount() if fork_id == 'v26' and self.v26_nodes
@@ -1114,6 +1179,9 @@ class PartitionMinerWithPools(Commander):
                     miner_wallet = Commander.ensure_miner(miner)
                     address = miner_wallet.getnewaddress()
                     self.generatetoaddress(miner, 1, address, sync_fun=self.no_op)
+
+                    # Asymmetric fork: push v27 blocks into the v26 island
+                    self.propagate_to_foreign_accepting(miner, partition)
 
                     self.blocks_mined[partition] += 1
 

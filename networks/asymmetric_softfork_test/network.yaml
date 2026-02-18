@@ -15,15 +15,16 @@ nodes:
     role: major_exchange
     node_type: economic
     entity_id: econ-v27-0
-    custody_btc: 1100000
-    daily_volume_btc: 115500
-    consensus_weight: 80.47
+    custody_btc: 1600000
+    daily_volume_btc: 168000
+    consensus_weight: 117.04
     fork_preference: v27
-    ideology_strength: 0.7
-    switching_threshold: 0.15
-    inertia: 0.2
+    ideology_strength: 0.6
+    switching_threshold: 0.12
+    inertia: 0.15
     activity_type: transactional
     transaction_velocity: 0.8
+    accepts_foreign_blocks: false
   addnode:
   - node-0001
   - node-0002
@@ -37,48 +38,7 @@ nodes:
   - node-0010
   - node-0011
   - node-0012
-  - node-0013
-  - node-0014
-  - node-0015
-  - node-0016
 - name: node-0001
-  image:
-    tag: '27.0'
-  bitcoin_config:
-    maxconnections: 125
-    maxmempool: 300
-    txindex: 1
-  metadata:
-    role: major_exchange
-    node_type: economic
-    entity_id: econ-v27-1
-    custody_btc: 1100000
-    daily_volume_btc: 115500
-    consensus_weight: 80.47
-    fork_preference: v27
-    ideology_strength: 0.7
-    switching_threshold: 0.15
-    inertia: 0.2
-    activity_type: transactional
-    transaction_velocity: 0.8
-  addnode:
-  - node-0000
-  - node-0002
-  - node-0003
-  - node-0004
-  - node-0005
-  - node-0006
-  - node-0007
-  - node-0008
-  - node-0009
-  - node-0010
-  - node-0011
-  - node-0012
-  - node-0013
-  - node-0014
-  - node-0015
-  - node-0016
-- name: node-0002
   image:
     tag: '27.0'
   bitcoin_config:
@@ -101,11 +61,11 @@ nodes:
     ideology_strength: 0.9
     profitability_threshold: 0.25
     max_loss_pct: 0.4
+    accepts_foreign_blocks: false
   addnode:
   - node-0000
-  - node-0001
-  - node-0003
-- name: node-0003
+  - node-0002
+- name: node-0002
   image:
     tag: '27.0'
   bitcoin_config:
@@ -128,12 +88,12 @@ nodes:
     ideology_strength: 0.9
     profitability_threshold: 0.25
     max_loss_pct: 0.4
+    accepts_foreign_blocks: false
   addnode:
   - node-0000
   - node-0001
-  - node-0002
-  - node-0004
-- name: node-0004
+  - node-0003
+- name: node-0003
   image:
     tag: '27.0'
   bitcoin_config:
@@ -156,12 +116,12 @@ nodes:
     ideology_strength: 0.85
     profitability_threshold: 0.22
     max_loss_pct: 0.35
+    accepts_foreign_blocks: false
   addnode:
   - node-0000
-  - node-0001
-  - node-0003
-  - node-0005
-- name: node-0005
+  - node-0002
+  - node-0004
+- name: node-0004
   image:
     tag: '27.0'
   bitcoin_config:
@@ -181,15 +141,15 @@ nodes:
     supply_percentage: 0.0
     economic_influence: 22.0
     fork_preference: v26
-    ideology_strength: 0.7
-    profitability_threshold: 0.15
-    max_loss_pct: 0.25
+    ideology_strength: 0.8
+    profitability_threshold: 0.2
+    max_loss_pct: 0.3
+    accepts_foreign_blocks: false
   addnode:
   - node-0000
-  - node-0001
-  - node-0004
-  - node-0006
-- name: node-0006
+  - node-0003
+  - node-0005
+- name: node-0005
   image:
     tag: '27.0'
   bitcoin_config:
@@ -212,12 +172,12 @@ nodes:
     ideology_strength: 0.0
     profitability_threshold: 0.01
     max_loss_pct: 0.0
+    accepts_foreign_blocks: false
   addnode:
   - node-0000
-  - node-0001
-  - node-0005
-  - node-0007
-- name: node-0007
+  - node-0004
+  - node-0006
+- name: node-0006
   image:
     tag: '27.0'
   bitcoin_config:
@@ -237,15 +197,15 @@ nodes:
     supply_percentage: 0.0
     economic_influence: 16.0
     fork_preference: v26
-    ideology_strength: 0.6
-    profitability_threshold: 0.12
-    max_loss_pct: 0.2
+    ideology_strength: 0.7
+    profitability_threshold: 0.15
+    max_loss_pct: 0.25
+    accepts_foreign_blocks: false
   addnode:
   - node-0000
-  - node-0001
-  - node-0006
-  - node-0008
-- name: node-0008
+  - node-0005
+  - node-0007
+- name: node-0007
   image:
     tag: '27.0'
   bitcoin_config:
@@ -268,12 +228,12 @@ nodes:
     ideology_strength: 0.0
     profitability_threshold: 0.02
     max_loss_pct: 0.0
+    accepts_foreign_blocks: false
   addnode:
   - node-0000
-  - node-0001
-  - node-0007
-  - node-0009
-- name: node-0009
+  - node-0006
+  - node-0008
+- name: node-0008
   image:
     tag: '27.0'
   bitcoin_config:
@@ -296,12 +256,12 @@ nodes:
     ideology_strength: 0.8
     profitability_threshold: 0.2
     max_loss_pct: 0.3
+    accepts_foreign_blocks: false
   addnode:
   - node-0000
-  - node-0001
-  - node-0008
-  - node-0010
-- name: node-0010
+  - node-0007
+  - node-0009
+- name: node-0009
   image:
     tag: '27.0'
   bitcoin_config:
@@ -324,12 +284,12 @@ nodes:
     ideology_strength: 0.85
     profitability_threshold: 0.22
     max_loss_pct: 0.35
+    accepts_foreign_blocks: false
   addnode:
   - node-0000
-  - node-0001
-  - node-0009
-  - node-0011
-- name: node-0011
+  - node-0008
+  - node-0010
+- name: node-0010
   image:
     tag: '27.0'
   bitcoin_config:
@@ -352,10 +312,35 @@ nodes:
     ideology_strength: 0.1
     profitability_threshold: 0.05
     max_loss_pct: 0.02
+    accepts_foreign_blocks: false
   addnode:
   - node-0000
-  - node-0001
-  - node-0010
+  - node-0009
+- name: node-0011
+  image:
+    tag: '27.0'
+  bitcoin_config:
+    maxconnections: 30
+    maxmempool: 100
+    txindex: 1
+  metadata:
+    node_type: user_node
+    entity_id: user-v27-11
+    custody_btc: 1.0
+    daily_volume_btc: 0.1
+    consensus_weight: 0.0001
+    supply_percentage: 0.0
+    economic_influence: 0.1
+    fork_preference: neutral
+    ideology_strength: 0.2
+    switching_threshold: 0.1
+    inertia: 0.05
+    activity_type: mixed
+    transaction_velocity: 0.3
+    accepts_foreign_blocks: false
+  addnode:
+  - node-0000
+  - node-0012
 - name: node-0012
   image:
     tag: '27.0'
@@ -372,126 +357,16 @@ nodes:
     supply_percentage: 0.0
     economic_influence: 0.1
     fork_preference: neutral
-    ideology_strength: 0.5
+    ideology_strength: 0.2
     switching_threshold: 0.1
-    inertia: 0.08
+    inertia: 0.05
     activity_type: mixed
     transaction_velocity: 0.3
-    hashrate_pct: 0.05
+    accepts_foreign_blocks: false
   addnode:
   - node-0000
-  - node-0001
-  - node-0013
-  - node-0016
+  - node-0011
 - name: node-0013
-  image:
-    tag: '27.0'
-  bitcoin_config:
-    maxconnections: 30
-    maxmempool: 100
-    txindex: 1
-  metadata:
-    node_type: user_node
-    entity_id: user-v27-13
-    custody_btc: 1.0
-    daily_volume_btc: 0.1
-    consensus_weight: 0.0001
-    supply_percentage: 0.0
-    economic_influence: 0.1
-    fork_preference: neutral
-    ideology_strength: 0.5
-    switching_threshold: 0.1
-    inertia: 0.08
-    activity_type: mixed
-    transaction_velocity: 0.3
-    hashrate_pct: 0.05
-  addnode:
-  - node-0000
-  - node-0001
-  - node-0012
-  - node-0014
-- name: node-0014
-  image:
-    tag: '27.0'
-  bitcoin_config:
-    maxconnections: 30
-    maxmempool: 100
-    txindex: 1
-  metadata:
-    node_type: user_node
-    entity_id: user-v27-14
-    custody_btc: 1.0
-    daily_volume_btc: 0.1
-    consensus_weight: 0.0001
-    supply_percentage: 0.0
-    economic_influence: 0.1
-    fork_preference: neutral
-    ideology_strength: 0.5
-    switching_threshold: 0.1
-    inertia: 0.08
-    activity_type: mixed
-    transaction_velocity: 0.3
-    hashrate_pct: 0.05
-  addnode:
-  - node-0000
-  - node-0001
-  - node-0013
-  - node-0015
-- name: node-0015
-  image:
-    tag: '27.0'
-  bitcoin_config:
-    maxconnections: 30
-    maxmempool: 100
-    txindex: 1
-  metadata:
-    node_type: user_node
-    entity_id: user-v27-15
-    custody_btc: 1.0
-    daily_volume_btc: 0.1
-    consensus_weight: 0.0001
-    supply_percentage: 0.0
-    economic_influence: 0.1
-    fork_preference: neutral
-    ideology_strength: 0.5
-    switching_threshold: 0.1
-    inertia: 0.08
-    activity_type: mixed
-    transaction_velocity: 0.3
-    hashrate_pct: 0.05
-  addnode:
-  - node-0000
-  - node-0001
-  - node-0014
-  - node-0016
-- name: node-0016
-  image:
-    tag: '27.0'
-  bitcoin_config:
-    maxconnections: 30
-    maxmempool: 100
-    txindex: 1
-  metadata:
-    node_type: user_node
-    entity_id: user-v27-16
-    custody_btc: 1.0
-    daily_volume_btc: 0.1
-    consensus_weight: 0.0001
-    supply_percentage: 0.0
-    economic_influence: 0.1
-    fork_preference: neutral
-    ideology_strength: 0.5
-    switching_threshold: 0.1
-    inertia: 0.08
-    activity_type: mixed
-    transaction_velocity: 0.3
-    hashrate_pct: 0.05
-  addnode:
-  - node-0000
-  - node-0001
-  - node-0012
-  - node-0015
-- name: node-0017
   image:
     tag: '26.0'
   bitcoin_config:
@@ -501,17 +376,22 @@ nodes:
   metadata:
     role: major_exchange
     node_type: economic
-    entity_id: econ-v26-17
-    custody_btc: 899999
-    daily_volume_btc: 94499
-    consensus_weight: 65.83
+    entity_id: econ-v26-13
+    custody_btc: 2400000
+    daily_volume_btc: 252000
+    consensus_weight: 175.56
     fork_preference: v26
-    ideology_strength: 0.7
-    switching_threshold: 0.15
-    inertia: 0.2
+    ideology_strength: 0.6
+    switching_threshold: 0.12
+    inertia: 0.15
     activity_type: transactional
     transaction_velocity: 0.8
+    accepts_foreign_blocks: true
   addnode:
+  - node-0014
+  - node-0015
+  - node-0016
+  - node-0017
   - node-0018
   - node-0019
   - node-0020
@@ -520,52 +400,7 @@ nodes:
   - node-0023
   - node-0024
   - node-0025
-  - node-0026
-  - node-0027
-  - node-0028
-  - node-0029
-  - node-0030
-  - node-0031
-  - node-0032
-  - node-0033
-- name: node-0018
-  image:
-    tag: '26.0'
-  bitcoin_config:
-    maxconnections: 125
-    maxmempool: 300
-    txindex: 1
-  metadata:
-    role: major_exchange
-    node_type: economic
-    entity_id: econ-v26-18
-    custody_btc: 899999
-    daily_volume_btc: 94499
-    consensus_weight: 65.83
-    fork_preference: v26
-    ideology_strength: 0.7
-    switching_threshold: 0.15
-    inertia: 0.2
-    activity_type: transactional
-    transaction_velocity: 0.8
-  addnode:
-  - node-0017
-  - node-0019
-  - node-0020
-  - node-0021
-  - node-0022
-  - node-0023
-  - node-0024
-  - node-0025
-  - node-0026
-  - node-0027
-  - node-0028
-  - node-0029
-  - node-0030
-  - node-0031
-  - node-0032
-  - node-0033
-- name: node-0019
+- name: node-0014
   image:
     tag: '26.0'
   bitcoin_config:
@@ -588,11 +423,11 @@ nodes:
     ideology_strength: 0.9
     profitability_threshold: 0.25
     max_loss_pct: 0.4
+    accepts_foreign_blocks: true
   addnode:
-  - node-0017
-  - node-0018
-  - node-0020
-- name: node-0020
+  - node-0013
+  - node-0015
+- name: node-0015
   image:
     tag: '26.0'
   bitcoin_config:
@@ -615,12 +450,12 @@ nodes:
     ideology_strength: 0.9
     profitability_threshold: 0.25
     max_loss_pct: 0.4
+    accepts_foreign_blocks: true
   addnode:
-  - node-0017
-  - node-0018
-  - node-0019
-  - node-0021
-- name: node-0021
+  - node-0013
+  - node-0014
+  - node-0016
+- name: node-0016
   image:
     tag: '26.0'
   bitcoin_config:
@@ -643,12 +478,12 @@ nodes:
     ideology_strength: 0.85
     profitability_threshold: 0.22
     max_loss_pct: 0.35
+    accepts_foreign_blocks: true
   addnode:
+  - node-0013
+  - node-0015
   - node-0017
-  - node-0018
-  - node-0020
-  - node-0022
-- name: node-0022
+- name: node-0017
   image:
     tag: '26.0'
   bitcoin_config:
@@ -668,15 +503,15 @@ nodes:
     supply_percentage: 0.0
     economic_influence: 22.0
     fork_preference: v26
-    ideology_strength: 0.7
-    profitability_threshold: 0.15
-    max_loss_pct: 0.25
+    ideology_strength: 0.8
+    profitability_threshold: 0.2
+    max_loss_pct: 0.3
+    accepts_foreign_blocks: true
   addnode:
-  - node-0017
+  - node-0013
+  - node-0016
   - node-0018
-  - node-0021
-  - node-0023
-- name: node-0023
+- name: node-0018
   image:
     tag: '26.0'
   bitcoin_config:
@@ -699,12 +534,12 @@ nodes:
     ideology_strength: 0.0
     profitability_threshold: 0.01
     max_loss_pct: 0.0
+    accepts_foreign_blocks: true
   addnode:
+  - node-0013
   - node-0017
-  - node-0018
-  - node-0022
-  - node-0024
-- name: node-0024
+  - node-0019
+- name: node-0019
   image:
     tag: '26.0'
   bitcoin_config:
@@ -724,15 +559,15 @@ nodes:
     supply_percentage: 0.0
     economic_influence: 16.0
     fork_preference: v26
-    ideology_strength: 0.6
-    profitability_threshold: 0.12
-    max_loss_pct: 0.2
+    ideology_strength: 0.7
+    profitability_threshold: 0.15
+    max_loss_pct: 0.25
+    accepts_foreign_blocks: true
   addnode:
-  - node-0017
+  - node-0013
   - node-0018
-  - node-0023
-  - node-0025
-- name: node-0025
+  - node-0020
+- name: node-0020
   image:
     tag: '26.0'
   bitcoin_config:
@@ -755,12 +590,12 @@ nodes:
     ideology_strength: 0.0
     profitability_threshold: 0.02
     max_loss_pct: 0.0
+    accepts_foreign_blocks: true
   addnode:
-  - node-0017
-  - node-0018
-  - node-0024
-  - node-0026
-- name: node-0026
+  - node-0013
+  - node-0019
+  - node-0021
+- name: node-0021
   image:
     tag: '26.0'
   bitcoin_config:
@@ -783,12 +618,12 @@ nodes:
     ideology_strength: 0.8
     profitability_threshold: 0.2
     max_loss_pct: 0.3
+    accepts_foreign_blocks: true
   addnode:
-  - node-0017
-  - node-0018
-  - node-0025
-  - node-0027
-- name: node-0027
+  - node-0013
+  - node-0020
+  - node-0022
+- name: node-0022
   image:
     tag: '26.0'
   bitcoin_config:
@@ -811,12 +646,12 @@ nodes:
     ideology_strength: 0.85
     profitability_threshold: 0.22
     max_loss_pct: 0.35
+    accepts_foreign_blocks: true
   addnode:
-  - node-0017
-  - node-0018
-  - node-0026
-  - node-0028
-- name: node-0028
+  - node-0013
+  - node-0021
+  - node-0023
+- name: node-0023
   image:
     tag: '26.0'
   bitcoin_config:
@@ -839,11 +674,11 @@ nodes:
     ideology_strength: 0.1
     profitability_threshold: 0.05
     max_loss_pct: 0.02
+    accepts_foreign_blocks: true
   addnode:
-  - node-0017
-  - node-0018
-  - node-0027
-- name: node-0029
+  - node-0013
+  - node-0022
+- name: node-0024
   image:
     tag: '26.0'
   bitcoin_config:
@@ -852,25 +687,23 @@ nodes:
     txindex: 1
   metadata:
     node_type: user_node
-    entity_id: user-v26-29
+    entity_id: user-v26-24
     custody_btc: 1.0
     daily_volume_btc: 0.1
     consensus_weight: 0.0001
     supply_percentage: 0.0
     economic_influence: 0.1
     fork_preference: neutral
-    ideology_strength: 0.5
+    ideology_strength: 0.2
     switching_threshold: 0.1
-    inertia: 0.08
+    inertia: 0.05
     activity_type: mixed
     transaction_velocity: 0.3
-    hashrate_pct: 0.05
+    accepts_foreign_blocks: true
   addnode:
-  - node-0017
-  - node-0018
-  - node-0030
-  - node-0033
-- name: node-0030
+  - node-0013
+  - node-0025
+- name: node-0025
   image:
     tag: '26.0'
   bitcoin_config:
@@ -879,102 +712,19 @@ nodes:
     txindex: 1
   metadata:
     node_type: user_node
-    entity_id: user-v26-30
+    entity_id: user-v26-25
     custody_btc: 1.0
     daily_volume_btc: 0.1
     consensus_weight: 0.0001
     supply_percentage: 0.0
     economic_influence: 0.1
     fork_preference: neutral
-    ideology_strength: 0.5
+    ideology_strength: 0.2
     switching_threshold: 0.1
-    inertia: 0.08
+    inertia: 0.05
     activity_type: mixed
     transaction_velocity: 0.3
-    hashrate_pct: 0.05
+    accepts_foreign_blocks: true
   addnode:
-  - node-0017
-  - node-0018
-  - node-0029
-  - node-0031
-- name: node-0031
-  image:
-    tag: '26.0'
-  bitcoin_config:
-    maxconnections: 30
-    maxmempool: 100
-    txindex: 1
-  metadata:
-    node_type: user_node
-    entity_id: user-v26-31
-    custody_btc: 1.0
-    daily_volume_btc: 0.1
-    consensus_weight: 0.0001
-    supply_percentage: 0.0
-    economic_influence: 0.1
-    fork_preference: neutral
-    ideology_strength: 0.5
-    switching_threshold: 0.1
-    inertia: 0.08
-    activity_type: mixed
-    transaction_velocity: 0.3
-    hashrate_pct: 0.05
-  addnode:
-  - node-0017
-  - node-0018
-  - node-0030
-  - node-0032
-- name: node-0032
-  image:
-    tag: '26.0'
-  bitcoin_config:
-    maxconnections: 30
-    maxmempool: 100
-    txindex: 1
-  metadata:
-    node_type: user_node
-    entity_id: user-v26-32
-    custody_btc: 1.0
-    daily_volume_btc: 0.1
-    consensus_weight: 0.0001
-    supply_percentage: 0.0
-    economic_influence: 0.1
-    fork_preference: neutral
-    ideology_strength: 0.5
-    switching_threshold: 0.1
-    inertia: 0.08
-    activity_type: mixed
-    transaction_velocity: 0.3
-    hashrate_pct: 0.05
-  addnode:
-  - node-0017
-  - node-0018
-  - node-0031
-  - node-0033
-- name: node-0033
-  image:
-    tag: '26.0'
-  bitcoin_config:
-    maxconnections: 30
-    maxmempool: 100
-    txindex: 1
-  metadata:
-    node_type: user_node
-    entity_id: user-v26-33
-    custody_btc: 1.0
-    daily_volume_btc: 0.1
-    consensus_weight: 0.0001
-    supply_percentage: 0.0
-    economic_influence: 0.1
-    fork_preference: neutral
-    ideology_strength: 0.5
-    switching_threshold: 0.1
-    inertia: 0.08
-    activity_type: mixed
-    transaction_velocity: 0.3
-    hashrate_pct: 0.05
-  addnode:
-  - node-0017
-  - node-0018
-  - node-0029
-  - node-0032
+  - node-0013
+  - node-0024

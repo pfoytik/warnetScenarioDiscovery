@@ -374,6 +374,8 @@ class PartitionNetworkGenerator:
                     'ideology_strength': 0.1,
                     'switching_threshold': 0.03,
                     'inertia': 0.15,
+                    # Asymmetric fork: v26 nodes accept v27 blocks; v27 nodes reject v26 blocks
+                    'accepts_foreign_blocks': node['version'].startswith('26'),
                 }
 
             elif node['type'] == 'pool':
@@ -407,6 +409,8 @@ class PartitionNetworkGenerator:
                     # Ideology defaults (overridden by mining_pools_config.yaml)
                     'fork_preference': 'neutral',
                     'ideology_strength': 0.3,
+                    # Asymmetric fork: v26 nodes accept v27 blocks; v27 nodes reject v26 blocks
+                    'accepts_foreign_blocks': node['version'].startswith('26'),
                 }
 
             else:  # network node (user node)
@@ -439,6 +443,8 @@ class PartitionNetworkGenerator:
                     'ideology_strength': user_ideology,
                     'switching_threshold': user_switch_thresh,
                     'inertia': user_inertia,
+                    # Asymmetric fork: v26 nodes accept v27 blocks; v27 nodes reject v26 blocks
+                    'accepts_foreign_blocks': node['version'].startswith('26'),
                 }
 
             warnet_nodes.append(warnet_node)

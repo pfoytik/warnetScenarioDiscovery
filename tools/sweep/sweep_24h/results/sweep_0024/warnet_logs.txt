@@ -1,0 +1,485 @@
+Waiting for /shared/archive.pyz to exist...
+[0mPartitionMinerWithPools - Adding TestNode #0 from pod node-0000 with IP 10.244.33.61[0m
+[0mPartitionMinerWithPools - Adding TestNode #1 from pod node-0001 with IP 10.244.33.46[0m
+[0mPartitionMinerWithPools - Adding TestNode #2 from pod node-0002 with IP 10.244.33.47[0m
+[0mPartitionMinerWithPools - Adding TestNode #3 from pod node-0003 with IP 10.244.33.49[0m
+[0mPartitionMinerWithPools - Adding TestNode #4 from pod node-0004 with IP 10.244.33.43[0m
+[0mPartitionMinerWithPools - Adding TestNode #5 from pod node-0005 with IP 10.244.33.66[0m
+[0mPartitionMinerWithPools - Adding TestNode #6 from pod node-0006 with IP 10.244.33.41[0m
+[0mPartitionMinerWithPools - Adding TestNode #7 from pod node-0007 with IP 10.244.33.51[0m
+[0mPartitionMinerWithPools - Adding TestNode #8 from pod node-0008 with IP 10.244.33.56[0m
+[0mPartitionMinerWithPools - Adding TestNode #9 from pod node-0009 with IP 10.244.33.55[0m
+[0mPartitionMinerWithPools - Adding TestNode #10 from pod node-0010 with IP 10.244.33.54[0m
+[0mPartitionMinerWithPools - Adding TestNode #11 from pod node-0011 with IP 10.244.33.60[0m
+[0mPartitionMinerWithPools - Adding TestNode #12 from pod node-0012 with IP 10.244.33.48[0m
+[0mPartitionMinerWithPools - Adding TestNode #13 from pod node-0013 with IP 10.244.33.44[0m
+[0mPartitionMinerWithPools - Adding TestNode #14 from pod node-0014 with IP 10.244.33.59[0m
+[0mPartitionMinerWithPools - Adding TestNode #15 from pod node-0015 with IP 10.244.33.50[0m
+[0mPartitionMinerWithPools - Adding TestNode #16 from pod node-0016 with IP 10.244.33.52[0m
+[0mPartitionMinerWithPools - Adding TestNode #17 from pod node-0017 with IP 10.244.33.53[0m
+[0mPartitionMinerWithPools - Adding TestNode #18 from pod node-0018 with IP 10.244.33.58[0m
+[0mPartitionMinerWithPools - Adding TestNode #19 from pod node-0019 with IP 10.244.33.63[0m
+[0mPartitionMinerWithPools - Adding TestNode #20 from pod node-0020 with IP 10.244.33.62[0m
+[0mPartitionMinerWithPools - Adding TestNode #21 from pod node-0021 with IP 10.244.33.70[0m
+[0mPartitionMinerWithPools - Adding TestNode #22 from pod node-0022 with IP 10.244.33.68[0m
+[0mPartitionMinerWithPools - Adding TestNode #23 from pod node-0023 with IP 10.244.33.57[0m
+[0mPartitionMinerWithPools - Adding TestNode #24 from pod node-0024 with IP 10.244.33.64[0m
+[0mPartitionMinerWithPools - Adding TestNode #25 from pod node-0025 with IP 10.244.33.69[0m
+[0mPartitionMinerWithPools - Adding TestNode #26 from pod node-0026 with IP 10.244.33.67[0m
+[0mPartitionMinerWithPools - Adding TestNode #27 from pod node-0027 with IP 10.244.33.42[0m
+[0mPartitionMinerWithPools - Adding TestNode #28 from pod node-0028 with IP 10.244.33.65[0m
+[0mPartitionMinerWithPools - Adding TestNode #29 from pod node-0029 with IP 10.244.33.45[0m
+[0mPartitionMinerWithPools - User supplied random seed 131260415370612[0m
+[0mPartitionMinerWithPools - PRNG seed is: 131260415370612[0m
+[0mPartitionMinerWithPools - 
+======================================================================[0m
+[0mPartitionMinerWithPools - Partition Mining with Dynamic Pool Strategy[0m
+[0mPartitionMinerWithPools - ======================================================================[0m
+[0mPartitionMinerWithPools - Initial economic weights: v27=70.0%, v26=30.0%[0m
+[0mPartitionMinerWithPools - Duration: 900s (15 minutes)[0m
+[0mPartitionMinerWithPools - Pool scenario: sweep_0024[0m
+[0mPartitionMinerWithPools - Economic scenario: sweep_0024[0m
+[0mPartitionMinerWithPools - ======================================================================
+[0m
+[0mPartitionMinerWithPools - ✓ Price oracle initialized (debug=False)[0m
+[0mPartitionMinerWithPools - ✓ Fee oracle initialized[0m
+[0mPartitionMinerWithPools - ✓ Pool strategy initialized (10 pools)[0m
+[0mPartitionMinerWithPools - 
+Initial hashrate: v27=41.7%, v26=56.7%
+[0m
+[0mPartitionMinerWithPools - Loading network metadata from bundled config[0m
+[0mPartitionMinerWithPools - ✓ Loaded metadata for 24 nodes[0m
+[0mPartitionMinerWithPools - ✓ Economic strategy initialized (4 nodes: {'economic': 2, 'user': 2})[0m
+[0mPartitionMinerWithPools -   Initial economic weight: v27=70.0%, v26=30.0%[0m
+[0mPartitionMinerWithPools -   Initial transactional weight: v27=70.0%, v26=30.0%[0m
+[0mPartitionMinerWithPools -   Update interval: 300s[0m
+[0mPartitionMinerWithPools - Difficulty oracle initialized:[0m
+[0mPartitionMinerWithPools -   Target interval: 10s, Retarget every 144 blocks[0m
+[0mPartitionMinerWithPools -   Tick interval: 1.0s, Min difficulty: 0.0625[0m
+[0mPartitionMinerWithPools -   EDA: disabled[0m
+[0mPartitionMinerWithPools - Partitioning nodes by version...[0m
+[0mPartitionMinerWithPools - 
+Partition summary:[0m
+[0mPartitionMinerWithPools -   v27 nodes: 15[0m
+[0mPartitionMinerWithPools -   v26 nodes: 15[0m
+[0mPartitionMinerWithPools - 
+Building pool-to-node mappings...[0m
+[0mPartitionMinerWithPools - 
+Pool node distribution (1 node per partition per pool):[0m
+[93mPartitionMinerWithPools -   antpool        : MULTIPLE v27 nodes (2) - expected 1[0m
+[0mPartitionMinerWithPools -   antpool        : v27=node-0002    v26=none        [0m
+[0mPartitionMinerWithPools -   binancepool    : v27=node-0005    v26=node-0017   [0m
+[0mPartitionMinerWithPools -   braiinspool    : v27=node-0010    v26=node-0022   [0m
+[0mPartitionMinerWithPools -   f2pool         : v27=node-0004    v26=node-0016   [0m
+[93mPartitionMinerWithPools -   foundryusa     : MULTIPLE v27 nodes (2) - expected 1[0m
+[0mPartitionMinerWithPools -   foundryusa     : v27=node-0001    v26=none        [0m
+[0mPartitionMinerWithPools -   luxor          : v27=node-0008    v26=node-0020   [0m
+[0mPartitionMinerWithPools -   marapool       : v27=node-0006    v26=node-0018   [0m
+[0mPartitionMinerWithPools -   ocean          : v27=node-0009    v26=node-0021   [0m
+[0mPartitionMinerWithPools -   sbicrypto      : v27=node-0007    v26=node-0019   [0m
+[0mPartitionMinerWithPools -   viabtc         : v27=node-0003    v26=node-0015   [0m
+[0mPartitionMinerWithPools - 
+  3 v27 nodes without pool assignment (economic/user nodes)[0m
+[0mPartitionMinerWithPools -   7 v26 nodes without pool assignment (economic/user nodes)[0m
+[0mPartitionMinerWithPools - Auto-detected start_height=0 from nodes[0m
+[0mPartitionMinerWithPools - ✓ Reorg oracle initialized (LCA height=0)[0m
+[0mPartitionMinerWithPools -   Registered 10 pools with reorg oracle[0m
+[0mPartitionMinerWithPools - 
+======================================================================[0m
+[0mPartitionMinerWithPools - Starting partition mining (DIFFICULTY MODE)...[0m
+[0mPartitionMinerWithPools - ======================================================================
+[0m
+[0mPartitionMinerWithPools - [   4s] v27 block (foundryusa)    | Blks: v27=  1 v26=  0 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $60,000/$60,000 [natural split][0m
+[0mPartitionMinerWithPools - [  18s] v27 block (foundryusa)    | Blks: v27=  2 v26=  0 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $60,000/$60,000 [natural split][0m
+[0mPartitionMinerWithPools - [  30s] v26 block (f2pool)        | Blks: v27=  2 v26=  1 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $60,000/$60,000 [natural split][0m
+[0mPartitionMinerWithPools - [  35s] v26 block (f2pool)        | Blks: v27=  2 v26=  2 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $60,000/$60,000 [natural split][0m
+[0mPartitionMinerWithPools - [  39s] v27 block (sbicrypto)     | Blks: v27=  3 v26=  2 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $60,000/$60,000 [natural split][0m
+[0mPartitionMinerWithPools - [  57s] v26 block (luxor)         | Blks: v27=  3 v26=  3 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $60,000/$60,000 [natural split][0m
+[0mPartitionMinerWithPools - [  70s] v27 block (binancepool)   | Blks: v27=  4 v26=  3 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $62,001/$57,921 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [  79s] v26 block (marapool)      | Blks: v27=  4 v26=  4 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $62,001/$57,921 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [  91s] v26 block (viabtc)        | Blks: v27=  4 v26=  5 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $62,001/$57,921 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 101s] v27 block (binancepool)   | Blks: v27=  5 v26=  5 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $62,001/$57,921 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 115s] v26 block (viabtc)        | Blks: v27=  5 v26=  6 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $62,001/$57,921 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 128s] v26 block (viabtc)        | Blks: v27=  5 v26=  7 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,674/$58,248 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 130s] v27 block (sbicrypto)     | Blks: v27=  6 v26=  7 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,674/$58,248 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 133s] v27 block (foundryusa)    | Blks: v27=  7 v26=  7 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,674/$58,248 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 144s] v26 block (viabtc)        | Blks: v27=  7 v26=  8 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,674/$58,248 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 161s] v26 block (marapool)      | Blks: v27=  7 v26=  9 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,674/$58,248 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 247s] v27 block (foundryusa)    | Blks: v27=  8 v26=  9 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,551/$58,371 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 253s] v27 block (binancepool)   | Blks: v27=  9 v26=  9 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,551/$58,371 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 267s] v26 block (marapool)      | Blks: v27=  9 v26= 10 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,551/$58,371 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 281s] v26 block (viabtc)        | Blks: v27=  9 v26= 11 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,551/$58,371 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 286s] v26 block (viabtc)        | Blks: v27=  9 v26= 12 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,551/$58,371 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 309s] v27 block (binancepool)   | Blks: v27= 10 v26= 12 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,487/$58,435 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 311s] v26 block (f2pool)        | Blks: v27= 10 v26= 13 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,487/$58,435 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 326s] v26 block (viabtc)        | Blks: v27= 10 v26= 14 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,487/$58,435 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 327s] v26 block (f2pool)        | Blks: v27= 10 v26= 15 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,487/$58,435 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 354s] v26 block (viabtc)        | Blks: v27= 10 v26= 16 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,487/$58,435 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 360s] v26 block (braiinspool)   | Blks: v27= 10 v26= 17 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,487/$58,435 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 373s] v27 block (foundryusa)    | Blks: v27= 11 v26= 17 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,068/$58,854 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 386s] v27 block (foundryusa)    | Blks: v27= 12 v26= 17 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,068/$58,854 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 408s] v27 block (foundryusa)    | Blks: v27= 13 v26= 17 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,068/$58,854 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 419s] v27 block (sbicrypto)     | Blks: v27= 14 v26= 17 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,068/$58,854 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 438s] v27 block (binancepool)   | Blks: v27= 15 v26= 17 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,652/$58,269 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 440s] v26 block (marapool)      | Blks: v27= 15 v26= 18 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,652/$58,269 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 468s] v26 block (marapool)      | Blks: v27= 15 v26= 19 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,652/$58,269 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 471s] v27 block (foundryusa)    | Blks: v27= 16 v26= 19 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,652/$58,269 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 473s] v26 block (marapool)      | Blks: v27= 16 v26= 20 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,652/$58,269 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 496s] v27 block (foundryusa)    | Blks: v27= 17 v26= 20 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,601/$58,321 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 526s] v27 block (binancepool)   | Blks: v27= 18 v26= 20 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,601/$58,321 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 531s] v26 block (viabtc)        | Blks: v27= 18 v26= 21 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,601/$58,321 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 542s] v27 block (foundryusa)    | Blks: v27= 19 v26= 21 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,601/$58,321 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 549s] v26 block (viabtc)        | Blks: v27= 19 v26= 22 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,821/$58,101 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 558s] v27 block (sbicrypto)     | Blks: v27= 20 v26= 22 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,821/$58,101 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 559s] v26 block (f2pool)        | Blks: v27= 20 v26= 23 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,821/$58,101 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 563s] v26 block (marapool)      | Blks: v27= 20 v26= 24 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,821/$58,101 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 564s] v26 block (viabtc)        | Blks: v27= 20 v26= 25 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,821/$58,101 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 588s] v26 block (f2pool)        | Blks: v27= 20 v26= 26 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,821/$58,101 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 596s] v26 block (viabtc)        | Blks: v27= 20 v26= 27 | Diff: 1.0000 | Hash: 41.7%/56.7% | Price: $61,821/$58,101 [SUSTAINED][0m
+[0mPartitionMinerWithPools -   REORG: antpool switched v26->v27, depth=27, orphaned=0 blocks[0m
+[0mPartitionMinerWithPools -   REORG: viabtc switched v26->v27, depth=27, orphaned=12 blocks[0m
+[0mPartitionMinerWithPools -   REORG: f2pool switched v26->v27, depth=27, orphaned=6 blocks[0m
+[0mPartitionMinerWithPools -   REORG: marapool switched v26->v27, depth=27, orphaned=7 blocks[0m
+[0mPartitionMinerWithPools -   REORG: luxor switched v26->v27, depth=27, orphaned=1 blocks[0m
+[0mPartitionMinerWithPools -   REORG: braiinspool switched v26->v27, depth=27, orphaned=1 blocks[0m
+[0mPartitionMinerWithPools - 
+ HASHRATE REALLOCATION at 600s:[0m
+[0mPartitionMinerWithPools -    v27: 41.7% -> 98.4%[0m
+[0mPartitionMinerWithPools -    v26: 56.7% -> 0.0%[0m
+[0mPartitionMinerWithPools - [ 605s] v27 block (binancepool)   | Blks: v27= 21 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $64,186/$55,736 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 607s] v27 block (viabtc)        | Blks: v27= 22 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $64,186/$55,736 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 611s] v27 block (antpool)       | Blks: v27= 23 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $64,186/$55,736 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 632s] v27 block (luxor)         | Blks: v27= 24 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $64,186/$55,736 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 642s] v27 block (viabtc)        | Blks: v27= 25 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $64,186/$55,736 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 646s] v27 block (viabtc)        | Blks: v27= 26 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $64,186/$55,736 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 654s] v27 block (f2pool)        | Blks: v27= 27 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $64,186/$55,736 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 659s] v27 block (antpool)       | Blks: v27= 28 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $64,186/$55,736 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 666s] v27 block (marapool)      | Blks: v27= 29 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $64,787/$55,135 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 677s] v27 block (antpool)       | Blks: v27= 30 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $64,787/$55,135 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 699s] v27 block (marapool)      | Blks: v27= 31 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $64,787/$55,135 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 718s] v27 block (f2pool)        | Blks: v27= 32 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $64,787/$55,135 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 738s] v27 block (viabtc)        | Blks: v27= 33 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $65,027/$54,895 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 740s] v27 block (sbicrypto)     | Blks: v27= 34 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $65,027/$54,895 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 771s] v27 block (binancepool)   | Blks: v27= 35 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $65,027/$54,895 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 773s] v27 block (marapool)      | Blks: v27= 36 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $65,027/$54,895 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 777s] v27 block (antpool)       | Blks: v27= 37 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $65,027/$54,895 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 784s] v27 block (antpool)       | Blks: v27= 38 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $65,027/$54,895 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 791s] v27 block (binancepool)   | Blks: v27= 39 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $65,331/$54,591 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 808s] v27 block (antpool)       | Blks: v27= 40 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $65,331/$54,591 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 814s] v27 block (f2pool)        | Blks: v27= 41 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $65,331/$54,591 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 829s] v27 block (viabtc)        | Blks: v27= 42 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $65,331/$54,591 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 835s] v27 block (binancepool)   | Blks: v27= 43 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $65,331/$54,591 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 850s] v27 block (foundryusa)    | Blks: v27= 44 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $65,545/$54,377 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 862s] v27 block (antpool)       | Blks: v27= 45 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $65,545/$54,377 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 866s] v27 block (f2pool)        | Blks: v27= 46 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $65,545/$54,377 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 878s] v27 block (foundryusa)    | Blks: v27= 47 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $65,545/$54,377 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 883s] v27 block (luxor)         | Blks: v27= 48 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $65,545/$54,377 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 885s] v27 block (foundryusa)    | Blks: v27= 49 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $65,545/$54,377 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 897s] v27 block (foundryusa)    | Blks: v27= 50 v26= 27 | Diff: 1.0000 | Hash: 98.4%/ 0.0% | Price: $65,545/$54,377 [SUSTAINED][0m
+[0mPartitionMinerWithPools - 
+======================================================================[0m
+[0mPartitionMinerWithPools - Partition Mining Complete[0m
+[0mPartitionMinerWithPools - ======================================================================[0m
+[0mPartitionMinerWithPools - Duration: 15.02 minutes[0m
+[0mPartitionMinerWithPools - Blocks mined: v27=50, v26=27, total=77[0m
+[0mPartitionMinerWithPools - 
+Final State:[0m
+[0mPartitionMinerWithPools -   Prices: v27=$65,545, v26=$54,377[0m
+[0mPartitionMinerWithPools -   Hashrate: v27=98.4%, v26=0.0%[0m
+[0mPartitionMinerWithPools -   Economic: v27=70.0%, v26=30.0%[0m
+[0mPartitionMinerWithPools - [0m
+[0mPartitionMinerWithPools -   Difficulty Model:[0m
+[0mPartitionMinerWithPools -     Winning fork: v27 (chainwork: 50.0000 vs 27.0000)[0m
+[0mPartitionMinerWithPools -     v27: difficulty=1.000000, chainwork=50.0000, chain_weight=0.6494[0m
+[0mPartitionMinerWithPools -     v26: difficulty=1.000000, chainwork=27.0000, chain_weight=0.3506[0m
+[0mPartitionMinerWithPools -     Retargets: 0 (EDA: 0)[0m
+[0mPartitionMinerWithPools - [0m
+
+======================================================================
+MINING POOL ALLOCATION
+======================================================================
+
+Total Hashrate Allocation:
+  v27: 98.4%
+  v26: 0.0%
+
+Individual Pool Decisions:
+
+  foundryusa (26.9% hashrate) (prefers v27):
+    Mining: v27
+    Opportunity cost: $0
+    Ideology overrides: 0
+    Forced switches: 0
+
+  antpool (19.2% hashrate) (prefers v26):
+    Mining: v27
+    Opportunity cost: $0
+    Ideology overrides: 0
+    Forced switches: 1
+
+  viabtc (11.4% hashrate) (prefers v26):
+    Mining: v27
+    Opportunity cost: $0
+    Ideology overrides: 0
+    Forced switches: 1
+
+  f2pool (11.2% hashrate) (prefers v26):
+    Mining: v27
+    Opportunity cost: $0
+    Ideology overrides: 0
+    Forced switches: 1
+
+  binancepool (10.0% hashrate):
+    Mining: v27
+    Opportunity cost: $0
+    Ideology overrides: 0
+    Forced switches: 0
+
+  marapool (8.2% hashrate):
+    Mining: v27
+    Opportunity cost: $0
+    Ideology overrides: 0
+    Forced switches: 0
+
+  sbicrypto (4.6% hashrate):
+    Mining: v27
+    Opportunity cost: $0
+    Ideology overrides: 0
+    Forced switches: 0
+
+  luxor (3.9% hashrate):
+    Mining: v27
+    Opportunity cost: $0
+    Ideology overrides: 0
+    Forced switches: 0
+
+  ocean (1.4% hashrate):
+    Mining: v27
+    Opportunity cost: $0
+    Ideology overrides: 0
+    Forced switches: 0
+
+  braiinspool (1.4% hashrate):
+    Mining: v27
+    Opportunity cost: $0
+    Ideology overrides: 0
+    Forced switches: 0
+
+======================================================================
+[0mPartitionMinerWithPools - [0m
+
+======================================================================
+ECONOMIC NODE ALLOCATION
+======================================================================
+
+Aggregate Economic Weight (price support):
+  v27: 70.0% (weight: 204.82)
+  v26: 30.0% (weight: 87.78)
+
+Transactional Weight (fee generation):
+  v27: 70.0%
+  v26: 30.0%
+
+Custodial Weight (price support only):
+  v27: 70.0%
+  v26: 30.0%
+
+  ECONOMIC nodes:
+    v27: 1 nodes, weight 204.82
+    v26: 1 nodes, weight 87.78
+
+  USER nodes:
+    v27: 0 nodes, weight 0.00
+    v26: 2 nodes, weight 0.00
+
+Individual Node Decisions:
+
+  node-0000 [economic]:
+    On: v27 | Weight: 204.8200
+    Switches: 0 | Ideology holds: 0 | Inertia holds: 0
+
+  node-0012 [economic]:
+    On: v26 | Weight: 87.7800
+    Switches: 0 | Ideology holds: 0 | Inertia holds: 1
+
+  node-0011 [user]:
+    On: v26 | Weight: 0.0002
+    Switches: 0 | Ideology holds: 0 | Inertia holds: 1
+
+  node-0023 [user]:
+    On: v26 | Weight: 0.0003
+    Switches: 0 | Ideology holds: 0 | Inertia holds: 1
+
+======================================================================
+[0mPartitionMinerWithPools - [0m
+
+======================================================================
+REORG METRICS SUMMARY
+======================================================================
+
+Fork State:
+  LCA Height: 0
+  v27 Final Height: 50
+  v26 Final Height: 27
+
+Reorg Statistics:
+  Total Reorg Events: 6
+  Total Fork Incidents: 1
+  Total Reorg Mass: 162 blocks
+  Normalized Reorg Mass: 16.20 blocks/node
+
+Block Statistics:
+  Total Blocks Mined: 77
+  Total Blocks Orphaned: 27
+  Network Orphan Rate: 35.06%
+
+Consensus Health:
+  Consensus Stress Score: 9.7200
+
+Reorg Events:
+  [600s] antpool: v26 -> v27, depth=27, orphaned=0 blocks
+  [600s] viabtc: v26 -> v27, depth=27, orphaned=12 blocks
+  [600s] f2pool: v26 -> v27, depth=27, orphaned=6 blocks
+  [600s] marapool: v26 -> v27, depth=27, orphaned=7 blocks
+  [600s] luxor: v26 -> v27, depth=27, orphaned=1 blocks
+  [600s] braiinspool: v26 -> v27, depth=27, orphaned=1 blocks
+
+Per-Node Summary:
+  antpool:
+    Current Fork: v27
+    Blocks Mined: 7
+    Blocks Orphaned: 0
+    Orphan Rate: 0.0%
+    Reorg Count: 1
+    Total Exposure: 27
+  binancepool:
+    Current Fork: v27
+    Blocks Mined: 10
+    Blocks Orphaned: 0
+    Orphan Rate: 0.0%
+    Reorg Count: 0
+    Total Exposure: 0
+  braiinspool:
+    Current Fork: v27
+    Blocks Mined: 1
+    Blocks Orphaned: 1
+    Orphan Rate: 100.0%
+    Reorg Count: 1
+    Total Exposure: 27
+  f2pool:
+    Current Fork: v27
+    Blocks Mined: 10
+    Blocks Orphaned: 6
+    Orphan Rate: 60.0%
+    Reorg Count: 1
+    Total Exposure: 27
+  foundryusa:
+    Current Fork: v27
+    Blocks Mined: 14
+    Blocks Orphaned: 0
+    Orphan Rate: 0.0%
+    Reorg Count: 0
+    Total Exposure: 0
+  luxor:
+    Current Fork: v27
+    Blocks Mined: 3
+    Blocks Orphaned: 1
+    Orphan Rate: 33.3%
+    Reorg Count: 1
+    Total Exposure: 27
+  marapool:
+    Current Fork: v27
+    Blocks Mined: 10
+    Blocks Orphaned: 7
+    Orphan Rate: 70.0%
+    Reorg Count: 1
+    Total Exposure: 27
+  ocean:
+    Current Fork: v27
+    Blocks Mined: 0
+    Blocks Orphaned: 0
+    Orphan Rate: 0.0%
+    Reorg Count: 0
+    Total Exposure: 0
+  sbicrypto:
+    Current Fork: v27
+    Blocks Mined: 5
+    Blocks Orphaned: 0
+    Orphan Rate: 0.0%
+    Reorg Count: 0
+    Total Exposure: 0
+  viabtc:
+    Current Fork: v27
+    Blocks Mined: 17
+    Blocks Orphaned: 12
+    Orphan Rate: 70.6%
+    Reorg Count: 1
+    Total Exposure: 27
+
+======================================================================
+[0mPartitionMinerWithPools - 
+Reunion Analysis (hypothetical partition merge):[0m
+[0mPartitionMinerWithPools -   Winning fork: v27[0m
+[0mPartitionMinerWithPools -   Losing fork depth: 27 blocks[0m
+[0mPartitionMinerWithPools -   Nodes on losing fork: 0[0m
+[0mPartitionMinerWithPools -   Reunion reorg mass: 0[0m
+[0mPartitionMinerWithPools -   Additional orphans on reunion: 0[0m
+[0mPartitionMinerWithPools - 
+ Results exported to /tmp/partition_*.json[0m
+[0mPartitionMinerWithPools -  Results ID: sweep_0024[0m
+[0mPartitionMinerWithPools - 
+======================================================================[0m
+[0mPartitionMinerWithPools - RESULTS_EXPORT_START[0m
+[0mPartitionMinerWithPools - RESULTS_ID:sweep_0024[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:eyJtZXRhZGF0YSI6IHsicmVzdWx0c19pZCI6ICJzd2VlcF8wMDI0IiwgInRpbWVzdGFtcCI6ICIyMDI2LTAyLTE3VDAzOjA2OjEyLjY0MzY2NSIsICJkdXJhdGlvbl9zZWNvbmRzIjogOTAwLCAicG9vbF9zY2VuYXJpbyI6ICJzd2VlcF8wMDI0IiwgImVjb25vbWljX3NjZW5hcmlvIjogInN3ZWVwXzAwMjQiLCAiZGlmZmljdWx0eV9lbmFibGVkIjogdHJ1ZSwgInJlb3JnX21ldHJpY3NfZW5hYmxlZCI6IHRydWUsICJpbnRlcnZhbCI6IDEwLCAic3RhcnRfaGVpZ2h0IjogMH0sICJzdW1tYXJ5IjogeyJibG9ja3NfbWluZWQiOiB7InYyNyI6IDUwLCAidjI2IjogMjd9LCAidG90YWxfYmxvY2tzIjogNzcsICJmaW5hbF9oYXNocmF0ZSI6IHsidjI3IjogOTguMzY5OTk5OTk5OTk5OTksICJ2MjYiOiAwLjB9LCAiZmluYWxfZWNvbm9taWMiOiB7InYyNyI6IDY5Ljk5OTg4MDM4Mjk3OTUxLCAidjI2IjogMzAuMDAwMTE5NjE3MDIwNDc3fSwgImZpbmFsX3ByaWNlcyI6IHsidjI3IjogNjU1NDQuNjAyNzg4ODE0NjgsICJ2MjYiOiA1NDM3Ny4xNTcyMTExODUzMn19LCAidGltZV9zZXJpZXMiOiB7InRpbWVzdGFtcHMiOiBbMCwgNjAsIDEyMCwgMTgxLCAyNDEsIDMwMSwgMzYzLCA0MjMsIDQ4MywgNTQ0LCA2MDQsIDY2NCwgNzI1LCA3ODYsIDg0NiwgOTAwXSwgInYyN19wcmljZSI6IFs2MDAwMCwgNjAwMDAsIDYyMDAwLjg2NTY0NTk1NzU1LCA2MTY3My41OTI5MTg2ODQ4MTUsIDYxNTUwLjg2NTY0NTk1NzU0LCA2MTU1MC44NjU2[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:NDU5NTc1NCwgNjE0ODYuNTc5OTMxNjcxODI2LCA2MTA2Ny41MzIzMTI2MjQyMTUsIDYxNjUyLjQ3ODU0OTE4MzM1LCA2MTYwMC44NjU2NDU5NTc1MzYsIDYxODIwLjg2NTY0NTk1NzU0LCA2NDE4NS41NzU0MzMxOTE1OSwgNjQ3ODcuMjAwMTkxNDEyMDg1LCA2NTAyNi44MzAzOTE3MjAyNiwgNjUzMzAuOTc2NDE1MTg4MzE0LCA2NTU0NC42MDI3ODg4MTQ2OF0sICJ2MjZfcHJpY2UiOiBbNjAwMDAsIDYwMDAwLCA1NzkyMC44OTQzNTQwNDI0NiwgNTgyNDguMTY3MDgxMzE1MTgsIDU4MzcwLjg5NDM1NDA0MjQ2NiwgNTgzNzAuODk0MzU0MDQyNDY2LCA1ODQzNS4xODAwNjgzMjgxNzYsIDU4ODU0LjIyNzY4NzM3NTc5NSwgNTgyNjkuMjgxNDUwODE2NjU2LCA1ODMyMC44OTQzNTQwNDI0NiwgNTgxMDAuODk0MzU0MDQyNDUsIDU1NzM2LjE4NDU2NjgwODQyLCA1NTEzNC41NTk4MDg1ODc5MiwgNTQ4OTQuOTI5NjA4Mjc5NzUsIDU0NTkwLjc4MzU4NDgxMTY5NiwgNTQzNzcuMTU3MjExMTg1MzJdLCAidjI3X2hhc2hyYXRlIjogWzQxLjY4NDk5OTk5OTk5OTk5NSwgNDEuNjg0OTk5OTk5OTk5OTk1LCA0MS42ODQ5OTk5OTk5OTk5OTUsIDQxLjY4NDk5OTk5OTk5OTk5NSwgNDEuNjg0OTk5OTk5OTk5OTk1LCA0MS42ODQ5OTk5OTk5OTk5OTUsIDQxLjY4NDk5OTk5OTk5OTk5NSwgNDEuNjg0OTk5OTk5OTk5OTk1LCA0MS42ODQ5OTk5OTk5OTk5OTUsIDQxLjY4NDk5OTk5OTk5OTk5NSwgOTguMzY5OTk5OTk5OTk5OTksIDk4LjM2OTk5[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:OTk5OTk5OTk5LCA5OC4zNjk5OTk5OTk5OTk5OSwgOTguMzY5OTk5OTk5OTk5OTksIDk4LjM2OTk5OTk5OTk5OTk5LCA5OC4zNjk5OTk5OTk5OTk5OV0sICJ2MjZfaGFzaHJhdGUiOiBbNTYuNjg0OTk5OTk5OTk5OTk1LCA1Ni42ODQ5OTk5OTk5OTk5OTUsIDU2LjY4NDk5OTk5OTk5OTk5NSwgNTYuNjg0OTk5OTk5OTk5OTk1LCA1Ni42ODQ5OTk5OTk5OTk5OTUsIDU2LjY4NDk5OTk5OTk5OTk5NSwgNTYuNjg0OTk5OTk5OTk5OTk1LCA1Ni42ODQ5OTk5OTk5OTk5OTUsIDU2LjY4NDk5OTk5OTk5OTk5NSwgNTYuNjg0OTk5OTk5OTk5OTk1LCAwLjAsIDAuMCwgMC4wLCAwLjAsIDAuMCwgMC4wXSwgInYyN19lY29ub21pYyI6IFs2OS45OTk4ODAzODI5Nzk1MSwgNjkuOTk5ODgwMzgyOTc5NTEsIDY5Ljk5OTg4MDM4Mjk3OTUxLCA2OS45OTk4ODAzODI5Nzk1MSwgNjkuOTk5ODgwMzgyOTc5NTEsIDY5Ljk5OTg4MDM4Mjk3OTUxLCA2OS45OTk4ODAzODI5Nzk1MSwgNjkuOTk5ODgwMzgyOTc5NTEsIDY5Ljk5OTg4MDM4Mjk3OTUxLCA2OS45OTk4ODAzODI5Nzk1MSwgNjkuOTk5ODgwMzgyOTc5NTEsIDY5Ljk5OTg4MDM4Mjk3OTUxLCA2OS45OTk4ODAzODI5Nzk1MSwgNjkuOTk5ODgwMzgyOTc5NTEsIDY5Ljk5OTg4MDM4Mjk3OTUxLCA2OS45OTk4ODAzODI5Nzk1MV0sICJ2MjZfZWNvbm9taWMiOiBbMzAuMDAwMTE5NjE3MDIwNDc3LCAzMC4wMDAxMTk2MTcwMjA0NzcsIDMwLjAwMDExOTYxNzAyMDQ3NywgMzAuMDAwMTE5NjE3MDIw[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:NDc3LCAzMC4wMDAxMTk2MTcwMjA0NzcsIDMwLjAwMDExOTYxNzAyMDQ3NywgMzAuMDAwMTE5NjE3MDIwNDc3LCAzMC4wMDAxMTk2MTcwMjA0NzcsIDMwLjAwMDExOTYxNzAyMDQ3NywgMzAuMDAwMTE5NjE3MDIwNDc3LCAzMC4wMDAxMTk2MTcwMjA0NzcsIDMwLjAwMDExOTYxNzAyMDQ3NywgMzAuMDAwMTE5NjE3MDIwNDc3LCAzMC4wMDAxMTk2MTcwMjA0NzcsIDMwLjAwMDExOTYxNzAyMDQ3NywgMzAuMDAwMTE5NjE3MDIwNDc3XSwgInYyN19ibG9ja3MiOiBbMCwgMywgNSwgNywgNywgOSwgMTAsIDE0LCAxNiwgMTksIDIwLCAyOCwgMzIsIDM4LCA0MywgNTBdLCAidjI2X2Jsb2NrcyI6IFswLCAzLCA2LCA5LCA5LCAxMiwgMTcsIDE3LCAyMCwgMjEsIDI3LCAyNywgMjcsIDI3LCAyNywgMjddLCAidjI3X2RpZmZpY3VsdHkiOiBbMS4wLCAxLjAsIDEuMCwgMS4wLCAxLjAsIDEuMCwgMS4wLCAxLjAsIDEuMCwgMS4wLCAxLjAsIDEuMCwgMS4wLCAxLjAsIDEuMCwgMS4wXSwgInYyNl9kaWZmaWN1bHR5IjogWzEuMCwgMS4wLCAxLjAsIDEuMCwgMS4wLCAxLjAsIDEuMCwgMS4wLCAxLjAsIDEuMCwgMS4wLCAxLjAsIDEuMCwgMS4wLCAxLjAsIDEuMF0sICJ2MjdfY2hhaW53b3JrIjogWzAuMCwgMy4wLCA1LjAsIDcuMCwgNy4wLCA5LjAsIDEwLjAsIDE0LjAsIDE2LjAsIDE5LjAsIDIwLjAsIDI4LjAsIDMyLjAsIDM4LjAsIDQzLjAsIDUwLjBdLCAidjI2X2NoYWlud29yayI6IFswLjAsIDMuMCwgNi4wLCA5LjAsIDkuMCwgMTIu[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:MCwgMTcuMCwgMTcuMCwgMjAuMCwgMjEuMCwgMjcuMCwgMjcuMCwgMjcuMCwgMjcuMCwgMjcuMCwgMjcuMF0sICJ2MjdfZmVlX3JhdGUiOiBbMS4wLCAxLjAsIDAuMDU1OTc1MzM5NDc1NjM4NTEsIDAuMDU1OTc1MzM5NDc1NjM4NTEsIDAuMDU1OTc1MzM5NDc1NjM4NTEsIDAuMDU1OTc1MzM5NDc1NjM4NTEsIDAuMDU1OTc1MzM5NDc1NjM4NTEsIDAuMDU1OTc1MzM5NDc1NjM4NTEsIDAuMDU1OTc1MzM5NDc1NjM4NTEsIDAuMDU1OTc1MzM5NDc1NjM4NTEsIDAuMDU1OTc1MzM5NDc1NjM4NTEsIDAuMDIzNzE5OTU1NTM1NjUxMDE3LCAwLjAyMzcxOTk1NTUzNTY1MTAxNywgMC4wMjM3MTk5NTU1MzU2NTEwMTcsIDAuMDIzNzE5OTU1NTM1NjUxMDE3LCAwLjAyMzcxOTk1NTUzNTY1MTAxN10sICJ2MjZfZmVlX3JhdGUiOiBbMS4wLCAxLjAsIDAuMDE3NjQxMzc0Mzg5ODk3NTU3LCAwLjAxNzY0MTM3NDM4OTg5NzU1NywgMC4wMTc2NDEzNzQzODk4OTc1NTcsIDAuMDE3NjQxMzc0Mzg5ODk3NTU3LCAwLjAxNzY0MTM3NDM4OTg5NzU1NywgMC4wMTc2NDEzNzQzODk4OTc1NTcsIDAuMDE3NjQxMzc0Mzg5ODk3NTU3LCAwLjAxNzY0MTM3NDM4OTg5NzU1NywgMC4wMTc2NDEzNzQzODk4OTc1NTcsIDEwLjAwMDAxMzA3MjkxMzQzLCAxMC4wMDAwMTMwNzI5MTM0MywgMTAuMDAwMDEzMDcyOTEzNDMsIDEwLjAwMDAxMzA3MjkxMzQzLCAxMC4wMDAwMTMwNzI5MTM0M10sICJ2MjdfZmVlX3JldmVudWVfYnRjIjogWzAuMDEsIDAuMDEsIDAu[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:MDAwNTU5NzUzMzk0NzU2Mzg1MSwgMC4wMDA1NTk3NTMzOTQ3NTYzODUxLCAwLjAwMDU1OTc1MzM5NDc1NjM4NTEsIDAuMDAwNTU5NzUzMzk0NzU2Mzg1MSwgMC4wMDA1NTk3NTMzOTQ3NTYzODUxLCAwLjAwMDU1OTc1MzM5NDc1NjM4NTEsIDAuMDAwNTU5NzUzMzk0NzU2Mzg1MSwgMC4wMDA1NTk3NTMzOTQ3NTYzODUxLCAwLjAwMDU1OTc1MzM5NDc1NjM4NTEsIDAuMDAwMjM3MTk5NTU1MzU2NTEwMTksIDAuMDAwMjM3MTk5NTU1MzU2NTEwMTksIDAuMDAwMjM3MTk5NTU1MzU2NTEwMTksIDAuMDAwMjM3MTk5NTU1MzU2NTEwMTksIDAuMDAwMjM3MTk5NTU1MzU2NTEwMTldLCAidjI2X2ZlZV9yZXZlbnVlX2J0YyI6IFswLjAxLCAwLjAxLCAwLjAwMDE3NjQxMzc0Mzg5ODk3NTU2LCAwLjAwMDE3NjQxMzc0Mzg5ODk3NTU2LCAwLjAwMDE3NjQxMzc0Mzg5ODk3NTU2LCAwLjAwMDE3NjQxMzc0Mzg5ODk3NTU2LCAwLjAwMDE3NjQxMzc0Mzg5ODk3NTU2LCAwLjAwMDE3NjQxMzc0Mzg5ODk3NTU2LCAwLjAwMDE3NjQxMzc0Mzg5ODk3NTU2LCAwLjAwMDE3NjQxMzc0Mzg5ODk3NTU2LCAwLjAwMDE3NjQxMzc0Mzg5ODk3NTU2LCAwLjEwMDAwMDEzMDcyOTEzNDI5LCAwLjEwMDAwMDEzMDcyOTEzNDI5LCAwLjEwMDAwMDEzMDcyOTEzNDI5LCAwLjEwMDAwMDEzMDcyOTEzNDI5LCAwLjEwMDAwMDEzMDcyOTEzNDI5XSwgInYyN19jb25nZXN0aW9uIjogWzAuMDU1OTc1Mjc1MTg1MzAyMDg0LCAwLjA1NTk3NTI3NTE4NTMwMjA4NCwgMC4w[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:NTU5NzUyNzUxODUzMDIwODQsIDAuMDU1OTc1Mjc1MTg1MzAyMDg0LCAwLjA1NTk3NTI3NTE4NTMwMjA4NCwgMC4wNTU5NzUyNzUxODUzMDIwODQsIDAuMDU1OTc1Mjc1MTg1MzAyMDg0LCAwLjA1NTk3NTI3NTE4NTMwMjA4NCwgMC4wNTU5NzUyNzUxODUzMDIwODQsIDAuMDU1OTc1Mjc1MTg1MzAyMDg0LCAwLjAyMzcxOTkyODI5MjE1NTMsIDAuMDIzNzE5OTI4MjkyMTU1MywgMC4wMjM3MTk5MjgyOTIxNTUzLCAwLjAyMzcxOTkyODI5MjE1NTMsIDAuMDIzNzE5OTI4MjkyMTU1MywgMC4wMjM3MTk5MjgyOTIxNTUzXSwgInYyNl9jb25nZXN0aW9uIjogWzAuMDE3NjQxNDIxNjY3NzA3NzksIDAuMDE3NjQxNDIxNjY3NzA3NzksIDAuMDE3NjQxNDIxNjY3NzA3NzksIDAuMDE3NjQxNDIxNjY3NzA3NzksIDAuMDE3NjQxNDIxNjY3NzA3NzksIDAuMDE3NjQxNDIxNjY3NzA3NzksIDAuMDE3NjQxNDIxNjY3NzA3NzksIDAuMDE3NjQxNDIxNjY3NzA3NzksIDAuMDE3NjQxNDIxNjY3NzA3NzksIDAuMDE3NjQxNDIxNjY3NzA3NzksIDEwLjAwMDAzOTg3MjM0MDE2LCAxMC4wMDAwMzk4NzIzNDAxNiwgMTAuMDAwMDM5ODcyMzQwMTYsIDEwLjAwMDAzOTg3MjM0MDE2LCAxMC4wMDAwMzk4NzIzNDAxNiwgMTAuMDAwMDM5ODcyMzQwMTZdLCAidjI3X21lbXBvb2xfbWIiOiBbMCwgMCwgMCwgMCwgMCwgMCwgMCwgMCwgMCwgMCwgMCwgMCwgMCwgMCwgMCwgMF0sICJ2MjZfbWVtcG9vbF9tYiI6IFswLCAwLCAwLCAwLCAwLCAwLCAwLCAwLCAw[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:LCAwLCAwLCA5MC4wMDAxMzA3MjkxMzQzLCA5MC4wMDAxMzA3MjkxMzQzLCA5MC4wMDAxMzA3MjkxMzQzLCA5MC4wMDAxMzA3MjkxMzQzLCA5MC4wMDAxMzA3MjkxMzQzXSwgInYyN190cmFuc2FjdGlvbmFsIjogWzY5Ljk5OTk2MDc4MTI1OTcyLCA2OS45OTk5NjA3ODEyNTk3MiwgNjkuOTk5OTYwNzgxMjU5NzIsIDY5Ljk5OTk2MDc4MTI1OTcyLCA2OS45OTk5NjA3ODEyNTk3MiwgNjkuOTk5OTYwNzgxMjU5NzIsIDY5Ljk5OTk2MDc4MTI1OTcyLCA2OS45OTk5NjA3ODEyNTk3MiwgNjkuOTk5OTYwNzgxMjU5NzIsIDY5Ljk5OTk2MDc4MTI1OTcyLCA2OS45OTk5NjA3ODEyNTk3MiwgNjkuOTk5OTYwNzgxMjU5NzIsIDY5Ljk5OTk2MDc4MTI1OTcyLCA2OS45OTk5NjA3ODEyNTk3MiwgNjkuOTk5OTYwNzgxMjU5NzIsIDY5Ljk5OTk2MDc4MTI1OTcyXSwgInYyNl90cmFuc2FjdGlvbmFsIjogWzMwLjAwMDAzOTIxODc0MDI4NywgMzAuMDAwMDM5MjE4NzQwMjg3LCAzMC4wMDAwMzkyMTg3NDAyODcsIDMwLjAwMDAzOTIxODc0MDI4NywgMzAuMDAwMDM5MjE4NzQwMjg3LCAzMC4wMDAwMzkyMTg3NDAyODcsIDMwLjAwMDAzOTIxODc0MDI4NywgMzAuMDAwMDM5MjE4NzQwMjg3LCAzMC4wMDAwMzkyMTg3NDAyODcsIDMwLjAwMDAzOTIxODc0MDI4NywgMzAuMDAwMDM5MjE4NzQwMjg3LCAzMC4wMDAwMzkyMTg3NDAyODcsIDMwLjAwMDAzOTIxODc0MDI4NywgMzAuMDAwMDM5MjE4NzQwMjg3LCAzMC4wMDAwMzkyMTg3NDAyODcsIDMw[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:LjAwMDAzOTIxODc0MDI4N10sICJ2Mjdfc29sb19oYXNocmF0ZSI6IFswLjAsIDAuMCwgMC4wLCAwLjAsIDAuMCwgMC4wLCAwLjAsIDAuMCwgMC4wLCAwLjAsIDAuMCwgMC4wLCAwLjAsIDAuMCwgMC4wLCAwLjBdLCAidjI2X3NvbG9faGFzaHJhdGUiOiBbMC4wLCAwLjAsIDAuMCwgMC4wLCAwLjAsIDAuMCwgMC4wLCAwLjAsIDAuMCwgMC4wLCAwLjAsIDAuMCwgMC4wLCAwLjAsIDAuMCwgMC4wXX0sICJwb29scyI6IHsicG9vbHMiOiB7ImZvdW5kcnl1c2EiOiB7InByb2ZpbGUiOiB7InBvb2xfaWQiOiAiZm91bmRyeXVzYSIsICJoYXNocmF0ZV9wY3QiOiAyNi44OSwgImZvcmtfcHJlZmVyZW5jZSI6ICJ2MjciLCAiaWRlb2xvZ3lfc3RyZW5ndGgiOiAwLjE4OCwgInByb2ZpdGFiaWxpdHlfdGhyZXNob2xkIjogMC4xMDIsICJtYXhfbG9zc191c2QiOiBudWxsLCAibWF4X2xvc3NfcGN0IjogMC4wNjQsICJjdXJyZW50X2ZvcmsiOiAidjI3In0sICJjb3N0cyI6IHsiYWN0dWFsX3JldmVudWVfdXNkIjogMC4wLCAib3B0aW1hbF9yZXZlbnVlX3VzZCI6IDAuMCwgImN1bXVsYXRpdmVfb3Bwb3J0dW5pdHlfY29zdF91c2QiOiAwLjAsICJmb3JjZWRfc3dpdGNoX2NvdW50IjogMCwgImlkZW9sb2d5X292ZXJyaWRlX2NvdW50IjogMH0sICJjdXJyZW50X2FsbG9jYXRpb24iOiAidjI3In0sICJhbnRwb29sIjogeyJwcm9maWxlIjogeyJwb29sX2lkIjogImFudHBvb2wiLCAiaGFzaHJhdGVfcGN0IjogMTkuMjUsICJmb3JrX3ByZWZl[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:cmVuY2UiOiAidjI2IiwgImlkZW9sb2d5X3N0cmVuZ3RoIjogMC4xODgsICJwcm9maXRhYmlsaXR5X3RocmVzaG9sZCI6IDAuMTAyLCAibWF4X2xvc3NfdXNkIjogbnVsbCwgIm1heF9sb3NzX3BjdCI6IDAuMDY0LCAiY3VycmVudF9mb3JrIjogInYyNyJ9LCAiY29zdHMiOiB7ImFjdHVhbF9yZXZlbnVlX3VzZCI6IDAuMCwgIm9wdGltYWxfcmV2ZW51ZV91c2QiOiAwLjAsICJjdW11bGF0aXZlX29wcG9ydHVuaXR5X2Nvc3RfdXNkIjogMC4wLCAiZm9yY2VkX3N3aXRjaF9jb3VudCI6IDEsICJpZGVvbG9neV9vdmVycmlkZV9jb3VudCI6IDB9LCAiY3VycmVudF9hbGxvY2F0aW9uIjogInYyNyJ9LCAidmlhYnRjIjogeyJwcm9maWxlIjogeyJwb29sX2lkIjogInZpYWJ0YyIsICJoYXNocmF0ZV9wY3QiOiAxMS4zOSwgImZvcmtfcHJlZmVyZW5jZSI6ICJ2MjYiLCAiaWRlb2xvZ3lfc3RyZW5ndGgiOiAwLjE4OCwgInByb2ZpdGFiaWxpdHlfdGhyZXNob2xkIjogMC4xMDIsICJtYXhfbG9zc191c2QiOiBudWxsLCAibWF4X2xvc3NfcGN0IjogMC4wNjQsICJjdXJyZW50X2ZvcmsiOiAidjI3In0sICJjb3N0cyI6IHsiYWN0dWFsX3JldmVudWVfdXNkIjogMC4wLCAib3B0aW1hbF9yZXZlbnVlX3VzZCI6IDAuMCwgImN1bXVsYXRpdmVfb3Bwb3J0dW5pdHlfY29zdF91c2QiOiAwLjAsICJmb3JjZWRfc3dpdGNoX2NvdW50IjogMSwgImlkZW9sb2d5X292ZXJyaWRlX2NvdW50IjogMH0sICJjdXJyZW50X2FsbG9jYXRpb24iOiAidjI3[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:In0sICJmMnBvb2wiOiB7InByb2ZpbGUiOiB7InBvb2xfaWQiOiAiZjJwb29sIiwgImhhc2hyYXRlX3BjdCI6IDExLjI1LCAiZm9ya19wcmVmZXJlbmNlIjogInYyNiIsICJpZGVvbG9neV9zdHJlbmd0aCI6IDAuMTg4LCAicHJvZml0YWJpbGl0eV90aHJlc2hvbGQiOiAwLjEwMiwgIm1heF9sb3NzX3VzZCI6IG51bGwsICJtYXhfbG9zc19wY3QiOiAwLjA2NCwgImN1cnJlbnRfZm9yayI6ICJ2MjcifSwgImNvc3RzIjogeyJhY3R1YWxfcmV2ZW51ZV91c2QiOiAwLjAsICJvcHRpbWFsX3JldmVudWVfdXNkIjogMC4wLCAiY3VtdWxhdGl2ZV9vcHBvcnR1bml0eV9jb3N0X3VzZCI6IDAuMCwgImZvcmNlZF9zd2l0Y2hfY291bnQiOiAxLCAiaWRlb2xvZ3lfb3ZlcnJpZGVfY291bnQiOiAwfSwgImN1cnJlbnRfYWxsb2NhdGlvbiI6ICJ2MjcifSwgImJpbmFuY2Vwb29sIjogeyJwcm9maWxlIjogeyJwb29sX2lkIjogImJpbmFuY2Vwb29sIiwgImhhc2hyYXRlX3BjdCI6IDEwLjA0LCAiZm9ya19wcmVmZXJlbmNlIjogIm5ldXRyYWwiLCAiaWRlb2xvZ3lfc3RyZW5ndGgiOiAwLjEsICJwcm9maXRhYmlsaXR5X3RocmVzaG9sZCI6IDAuMTAyLCAibWF4X2xvc3NfdXNkIjogbnVsbCwgIm1heF9sb3NzX3BjdCI6IDAuMDIsICJjdXJyZW50X2ZvcmsiOiAidjI3In0sICJjb3N0cyI6IHsiYWN0dWFsX3JldmVudWVfdXNkIjogMC4wLCAib3B0aW1hbF9yZXZlbnVlX3VzZCI6IDAuMCwgImN1bXVsYXRpdmVfb3Bwb3J0dW5pdHlfY29zdF91[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:c2QiOiAwLjAsICJmb3JjZWRfc3dpdGNoX2NvdW50IjogMCwgImlkZW9sb2d5X292ZXJyaWRlX2NvdW50IjogMH0sICJjdXJyZW50X2FsbG9jYXRpb24iOiAidjI3In0sICJtYXJhcG9vbCI6IHsicHJvZmlsZSI6IHsicG9vbF9pZCI6ICJtYXJhcG9vbCIsICJoYXNocmF0ZV9wY3QiOiA4LjI1LCAiZm9ya19wcmVmZXJlbmNlIjogIm5ldXRyYWwiLCAiaWRlb2xvZ3lfc3RyZW5ndGgiOiAwLjEsICJwcm9maXRhYmlsaXR5X3RocmVzaG9sZCI6IDAuMTAyLCAibWF4X2xvc3NfdXNkIjogbnVsbCwgIm1heF9sb3NzX3BjdCI6IDAuMDIsICJjdXJyZW50X2ZvcmsiOiAidjI3In0sICJjb3N0cyI6IHsiYWN0dWFsX3JldmVudWVfdXNkIjogMC4wLCAib3B0aW1hbF9yZXZlbnVlX3VzZCI6IDAuMCwgImN1bXVsYXRpdmVfb3Bwb3J0dW5pdHlfY29zdF91c2QiOiAwLjAsICJmb3JjZWRfc3dpdGNoX2NvdW50IjogMCwgImlkZW9sb2d5X292ZXJyaWRlX2NvdW50IjogMH0sICJjdXJyZW50X2FsbG9jYXRpb24iOiAidjI3In0sICJzYmljcnlwdG8iOiB7InByb2ZpbGUiOiB7InBvb2xfaWQiOiAic2JpY3J5cHRvIiwgImhhc2hyYXRlX3BjdCI6IDQuNTcsICJmb3JrX3ByZWZlcmVuY2UiOiAibmV1dHJhbCIsICJpZGVvbG9neV9zdHJlbmd0aCI6IDAuMSwgInByb2ZpdGFiaWxpdHlfdGhyZXNob2xkIjogMC4xMDIsICJtYXhfbG9zc191c2QiOiBudWxsLCAibWF4X2xvc3NfcGN0IjogMC4wMiwgImN1cnJlbnRfZm9yayI6ICJ2MjcifSwgImNv[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:c3RzIjogeyJhY3R1YWxfcmV2ZW51ZV91c2QiOiAwLjAsICJvcHRpbWFsX3JldmVudWVfdXNkIjogMC4wLCAiY3VtdWxhdGl2ZV9vcHBvcnR1bml0eV9jb3N0X3VzZCI6IDAuMCwgImZvcmNlZF9zd2l0Y2hfY291bnQiOiAwLCAiaWRlb2xvZ3lfb3ZlcnJpZGVfY291bnQiOiAwfSwgImN1cnJlbnRfYWxsb2NhdGlvbiI6ICJ2MjcifSwgImx1eG9yIjogeyJwcm9maWxlIjogeyJwb29sX2lkIjogImx1eG9yIiwgImhhc2hyYXRlX3BjdCI6IDMuOTQsICJmb3JrX3ByZWZlcmVuY2UiOiAibmV1dHJhbCIsICJpZGVvbG9neV9zdHJlbmd0aCI6IDAuMSwgInByb2ZpdGFiaWxpdHlfdGhyZXNob2xkIjogMC4xMDIsICJtYXhfbG9zc191c2QiOiBudWxsLCAibWF4X2xvc3NfcGN0IjogMC4wMiwgImN1cnJlbnRfZm9yayI6ICJ2MjcifSwgImNvc3RzIjogeyJhY3R1YWxfcmV2ZW51ZV91c2QiOiAwLjAsICJvcHRpbWFsX3JldmVudWVfdXNkIjogMC4wLCAiY3VtdWxhdGl2ZV9vcHBvcnR1bml0eV9jb3N0X3VzZCI6IDAuMCwgImZvcmNlZF9zd2l0Y2hfY291bnQiOiAwLCAiaWRlb2xvZ3lfb3ZlcnJpZGVfY291bnQiOiAwfSwgImN1cnJlbnRfYWxsb2NhdGlvbiI6ICJ2MjcifSwgIm9jZWFuIjogeyJwcm9maWxlIjogeyJwb29sX2lkIjogIm9jZWFuIiwgImhhc2hyYXRlX3BjdCI6IDEuNDIsICJmb3JrX3ByZWZlcmVuY2UiOiAibmV1dHJhbCIsICJpZGVvbG9neV9zdHJlbmd0aCI6IDAuMSwgInByb2ZpdGFiaWxpdHlfdGhyZXNob2xkIjog[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:MC4xMDIsICJtYXhfbG9zc191c2QiOiBudWxsLCAibWF4X2xvc3NfcGN0IjogMC4wMiwgImN1cnJlbnRfZm9yayI6ICJ2MjcifSwgImNvc3RzIjogeyJhY3R1YWxfcmV2ZW51ZV91c2QiOiAwLjAsICJvcHRpbWFsX3JldmVudWVfdXNkIjogMC4wLCAiY3VtdWxhdGl2ZV9vcHBvcnR1bml0eV9jb3N0X3VzZCI6IDAuMCwgImZvcmNlZF9zd2l0Y2hfY291bnQiOiAwLCAiaWRlb2xvZ3lfb3ZlcnJpZGVfY291bnQiOiAwfSwgImN1cnJlbnRfYWxsb2NhdGlvbiI6ICJ2MjcifSwgImJyYWlpbnNwb29sIjogeyJwcm9maWxlIjogeyJwb29sX2lkIjogImJyYWlpbnNwb29sIiwgImhhc2hyYXRlX3BjdCI6IDEuMzcsICJmb3JrX3ByZWZlcmVuY2UiOiAibmV1dHJhbCIsICJpZGVvbG9neV9zdHJlbmd0aCI6IDAuMSwgInByb2ZpdGFiaWxpdHlfdGhyZXNob2xkIjogMC4xMDIsICJtYXhfbG9zc191c2QiOiBudWxsLCAibWF4X2xvc3NfcGN0IjogMC4wMiwgImN1cnJlbnRfZm9yayI6ICJ2MjcifSwgImNvc3RzIjogeyJhY3R1YWxfcmV2ZW51ZV91c2QiOiAwLjAsICJvcHRpbWFsX3JldmVudWVfdXNkIjogMC4wLCAiY3VtdWxhdGl2ZV9vcHBvcnR1bml0eV9jb3N0X3VzZCI6IDAuMCwgImZvcmNlZF9zd2l0Y2hfY291bnQiOiAwLCAiaWRlb2xvZ3lfb3ZlcnJpZGVfY291bnQiOiAwfSwgImN1cnJlbnRfYWxsb2NhdGlvbiI6ICJ2MjcifX0sICJkZWNpc2lvbl9oaXN0b3J5IjogW3sidGltZXN0YW1wIjogMTc3MTI5NzI3Mi4yNzY1ODcyLCAi[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:cG9vbF9pZCI6ICJmb3VuZHJ5dXNhIiwgImNob3Nlbl9mb3JrIjogInYyNyIsICJ2MjdfcHJvZml0YWJpbGl0eV91c2QiOiA5MDI0NTM0LjQ2Njg3NTU4MSwgInYyNl9wcm9maXRhYmlsaXR5X3VzZCI6IDc4OTY4MzkuMDI0NTU3OTkxLCAicmF0aW9uYWxfY2hvaWNlIjogInYyNyIsICJpZGVvbG9neV9vdmVycmlkZSI6IGZhbHNlLCAib3Bwb3J0dW5pdHlfY29zdF91c2QiOiAwLCAiY3VtdWxhdGl2ZV9jb3N0X3VzZCI6IDAuMCwgInJlYXNvbiI6ICJJZGVvbG9neSBhbmQgcHJvZml0IGFsaWduZWQifSwgeyJ0aW1lc3RhbXAiOiAxNzcxMjk3MjcyLjI3NjU4NzIsICJwb29sX2lkIjogImFudHBvb2wiLCAiY2hvc2VuX2ZvcmsiOiAidjI3IiwgInYyN19wcm9maXRhYmlsaXR5X3VzZCI6IDY0NjA0NzkuMzA0MTAzOTM5LCAidjI2X3Byb2ZpdGFiaWxpdHlfdXNkIjogNTY1MzE4NS4yNDQ0MzA2OTEsICJyYXRpb25hbF9jaG9pY2UiOiAidjI3IiwgImlkZW9sb2d5X292ZXJyaWRlIjogZmFsc2UsICJvcHBvcnR1bml0eV9jb3N0X3VzZCI6IDAsICJjdW11bGF0aXZlX2Nvc3RfdXNkIjogMC4wLCAicmVhc29uIjogIkZvcmNlZCBzd2l0Y2g6IGxvc3MgMTIuNSUgZXhjZWVkcyB0b2xlcmFuY2UgMS4yJSJ9LCB7InRpbWVzdGFtcCI6IDE3NzEyOTcyNzIuMjc2NTg3MiwgInBvb2xfaWQiOiAidmlhYnRjIiwgImNob3Nlbl9mb3JrIjogInYyNyIsICJ2MjdfcHJvZml0YWJpbGl0eV91c2QiOiAzODIyNTkwLjA5MjE0MjUzOCwgInYyNl9w[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:cm9maXRhYmlsaXR5X3VzZCI6IDMzNDQ5MjMuNjMyOTM4NDcwNywgInJhdGlvbmFsX2Nob2ljZSI6ICJ2MjciLCAiaWRlb2xvZ3lfb3ZlcnJpZGUiOiBmYWxzZSwgIm9wcG9ydHVuaXR5X2Nvc3RfdXNkIjogMCwgImN1bXVsYXRpdmVfY29zdF91c2QiOiAwLjAsICJyZWFzb24iOiAiRm9yY2VkIHN3aXRjaDogbG9zcyAxMi41JSBleGNlZWRzIHRvbGVyYW5jZSAxLjIlIn0sIHsidGltZXN0YW1wIjogMTc3MTI5NzI3Mi4yNzY1ODcyLCAicG9vbF9pZCI6ICJmMnBvb2wiLCAiY2hvc2VuX2ZvcmsiOiAidjI3IiwgInYyN19wcm9maXRhYmlsaXR5X3VzZCI6IDM3NzU2MDQuNzg4MTEyNjkxNiwgInYyNl9wcm9maXRhYmlsaXR5X3VzZCI6IDMzMDM4MDkuNTU4NDMzNTIwNiwgInJhdGlvbmFsX2Nob2ljZSI6ICJ2MjciLCAiaWRlb2xvZ3lfb3ZlcnJpZGUiOiBmYWxzZSwgIm9wcG9ydHVuaXR5X2Nvc3RfdXNkIjogMCwgImN1bXVsYXRpdmVfY29zdF91c2QiOiAwLjAsICJyZWFzb24iOiAiRm9yY2VkIHN3aXRjaDogbG9zcyAxMi41JSBleGNlZWRzIHRvbGVyYW5jZSAxLjIlIn0sIHsidGltZXN0YW1wIjogMTc3MTI5NzI3Mi4yNzY1ODcyLCAicG9vbF9pZCI6ICJiaW5hbmNlcG9vbCIsICJjaG9zZW5fZm9yayI6ICJ2MjciLCAidjI3X3Byb2ZpdGFiaWxpdHlfdXNkIjogMzM2OTUxNy41MTc1NjkwMTUsICJ2MjZfcHJvZml0YWJpbGl0eV91c2QiOiAyOTQ4NDY2LjQ4NTkyNjQ0ODQsICJyYXRpb25hbF9jaG9pY2UiOiAidjI3IiwgImlk[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:ZW9sb2d5X292ZXJyaWRlIjogZmFsc2UsICJvcHBvcnR1bml0eV9jb3N0X3VzZCI6IDAsICJjdW11bGF0aXZlX2Nvc3RfdXNkIjogMC4wLCAicmVhc29uIjogIlJhdGlvbmFsIHByb2ZpdCBtYXhpbWl6YXRpb24ifSwgeyJ0aW1lc3RhbXAiOiAxNzcxMjk3MjcyLjI3NjU4NzIsICJwb29sX2lkIjogIm1hcmFwb29sIiwgImNob3Nlbl9mb3JrIjogInYyNyIsICJ2MjdfcHJvZml0YWJpbGl0eV91c2QiOiAyNzY4Nzc2Ljg0NDYxNTk3NCwgInYyNl9wcm9maXRhYmlsaXR5X3VzZCI6IDI0MjI3OTMuNjc2MTg0NTgyLCAicmF0aW9uYWxfY2hvaWNlIjogInYyNyIsICJpZGVvbG9neV9vdmVycmlkZSI6IGZhbHNlLCAib3Bwb3J0dW5pdHlfY29zdF91c2QiOiAwLCAiY3VtdWxhdGl2ZV9jb3N0X3VzZCI6IDAuMCwgInJlYXNvbiI6ICJSYXRpb25hbCBwcm9maXQgbWF4aW1pemF0aW9uIn0sIHsidGltZXN0YW1wIjogMTc3MTI5NzI3Mi4yNzY1ODcyLCAicG9vbF9pZCI6ICJzYmljcnlwdG8iLCAiY2hvc2VuX2ZvcmsiOiAidjI3IiwgInYyN19wcm9maXRhYmlsaXR5X3VzZCI6IDE1MzM3MzQuNTY3MjYwMDAwMiwgInYyNl9wcm9maXRhYmlsaXR5X3VzZCI6IDEzNDIwODAuODYwNjI1ODgzOCwgInJhdGlvbmFsX2Nob2ljZSI6ICJ2MjciLCAiaWRlb2xvZ3lfb3ZlcnJpZGUiOiBmYWxzZSwgIm9wcG9ydHVuaXR5X2Nvc3RfdXNkIjogMCwgImN1bXVsYXRpdmVfY29zdF91c2QiOiAwLjAsICJyZWFzb24iOiAiUmF0aW9uYWwgcHJvZml0IG1h[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:eGltaXphdGlvbiJ9LCB7InRpbWVzdGFtcCI6IDE3NzEyOTcyNzIuMjc2NTg3MiwgInBvb2xfaWQiOiAibHV4b3IiLCAiY2hvc2VuX2ZvcmsiOiAidjI3IiwgInYyN19wcm9maXRhYmlsaXR5X3VzZCI6IDEzMjIzMDAuNjk5MTI1Njg5LCAidjI2X3Byb2ZpdGFiaWxpdHlfdXNkIjogMTE1NzA2Ny41MjUzNTM2MDYzLCAicmF0aW9uYWxfY2hvaWNlIjogInYyNyIsICJpZGVvbG9neV9vdmVycmlkZSI6IGZhbHNlLCAib3Bwb3J0dW5pdHlfY29zdF91c2QiOiAwLCAiY3VtdWxhdGl2ZV9jb3N0X3VzZCI6IDAuMCwgInJlYXNvbiI6ICJSYXRpb25hbCBwcm9maXQgbWF4aW1pemF0aW9uIn0sIHsidGltZXN0YW1wIjogMTc3MTI5NzI3Mi4yNzY1ODcyLCAicG9vbF9pZCI6ICJvY2VhbiIsICJjaG9zZW5fZm9yayI6ICJ2MjciLCAidjI3X3Byb2ZpdGFiaWxpdHlfdXNkIjogNDc2NTY1LjIyNjU4ODQ0NjQsICJ2MjZfcHJvZml0YWJpbGl0eV91c2QiOiA0MTcwMTQuMTg0MjY0NDk3NywgInJhdGlvbmFsX2Nob2ljZSI6ICJ2MjciLCAiaWRlb2xvZ3lfb3ZlcnJpZGUiOiBmYWxzZSwgIm9wcG9ydHVuaXR5X2Nvc3RfdXNkIjogMCwgImN1bXVsYXRpdmVfY29zdF91c2QiOiAwLjAsICJyZWFzb24iOiAiUmF0aW9uYWwgcHJvZml0IG1heGltaXphdGlvbiJ9LCB7InRpbWVzdGFtcCI6IDE3NzEyOTcyNzIuMjc2NTg3MiwgInBvb2xfaWQiOiAiYnJhaWluc3Bvb2wiLCAiY2hvc2VuX2ZvcmsiOiAidjI3IiwgInYyN19wcm9maXRhYmlsaXR5X3Vz[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:ZCI6IDQ1OTc4NC43NjA4NjM1MDEwNSwgInYyNl9wcm9maXRhYmlsaXR5X3VzZCI6IDQwMjMzMC41ODYyMjcwMTU0LCAicmF0aW9uYWxfY2hvaWNlIjogInYyNyIsICJpZGVvbG9neV9vdmVycmlkZSI6IGZhbHNlLCAib3Bwb3J0dW5pdHlfY29zdF91c2QiOiAwLCAiY3VtdWxhdGl2ZV9jb3N0X3VzZCI6IDAuMCwgInJlYXNvbiI6ICJSYXRpb25hbCBwcm9maXQgbWF4aW1pemF0aW9uIn1dfSwgImVjb25vbWljIjogeyJub2RlcyI6IHsibm9kZS0wMDAwIjogeyJwcm9maWxlIjogeyJub2RlX2lkIjogIm5vZGUtMDAwMCIsICJub2RlX3R5cGUiOiAiZWNvbm9taWMiLCAiYWN0aXZpdHlfdHlwZSI6ICJ0cmFuc2FjdGlvbmFsIiwgInRyYW5zYWN0aW9uX3ZlbG9jaXR5IjogMC45MTUsICJmb3JrX3ByZWZlcmVuY2UiOiAibmV1dHJhbCIsICJpZGVvbG9neV9zdHJlbmd0aCI6IDAuNDc2LCAic3dpdGNoaW5nX3RocmVzaG9sZCI6IDAuMTM4LCAiY3VzdG9keV9idGMiOiAyODAwMDAwLCAiZGFpbHlfdm9sdW1lX2J0YyI6IDI5NDAwMCwgImNvbnNlbnN1c193ZWlnaHQiOiAyMDQuODIsICJoYXNocmF0ZV9wY3QiOiAwLjAsICJpbmVydGlhIjogMC4xNywgInJvbGUiOiAibWFqb3JfZXhjaGFuZ2UifSwgImN1cnJlbnRfYWxsb2NhdGlvbiI6ICJ2MjciLCAic3RhdHMiOiB7InN3aXRjaGVzIjogMCwgImlkZW9sb2d5X292ZXJyaWRlcyI6IDAsICJpbmVydGlhX2hvbGRzIjogMH19LCAibm9kZS0wMDEyIjogeyJwcm9maWxlIjogeyJub2Rl[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:X2lkIjogIm5vZGUtMDAxMiIsICJub2RlX3R5cGUiOiAiZWNvbm9taWMiLCAiYWN0aXZpdHlfdHlwZSI6ICJ0cmFuc2FjdGlvbmFsIiwgInRyYW5zYWN0aW9uX3ZlbG9jaXR5IjogMC45MTUsICJmb3JrX3ByZWZlcmVuY2UiOiAibmV1dHJhbCIsICJpZGVvbG9neV9zdHJlbmd0aCI6IDAuNDc2LCAic3dpdGNoaW5nX3RocmVzaG9sZCI6IDAuMTM4LCAiY3VzdG9keV9idGMiOiAxMjAwMDAwLCAiZGFpbHlfdm9sdW1lX2J0YyI6IDEyNjAwMCwgImNvbnNlbnN1c193ZWlnaHQiOiA4Ny43OCwgImhhc2hyYXRlX3BjdCI6IDAuMCwgImluZXJ0aWEiOiAwLjE3LCAicm9sZSI6ICJtYWpvcl9leGNoYW5nZSJ9LCAiY3VycmVudF9hbGxvY2F0aW9uIjogInYyNiIsICJzdGF0cyI6IHsic3dpdGNoZXMiOiAwLCAiaWRlb2xvZ3lfb3ZlcnJpZGVzIjogMCwgImluZXJ0aWFfaG9sZHMiOiAxfX0sICJub2RlLTAwMTEiOiB7InByb2ZpbGUiOiB7Im5vZGVfaWQiOiAibm9kZS0wMDExIiwgIm5vZGVfdHlwZSI6ICJ1c2VyIiwgImFjdGl2aXR5X3R5cGUiOiAibWl4ZWQiLCAidHJhbnNhY3Rpb25fdmVsb2NpdHkiOiAwLjMsICJmb3JrX3ByZWZlcmVuY2UiOiAibmV1dHJhbCIsICJpZGVvbG9neV9zdHJlbmd0aCI6IDAuNjg2LCAic3dpdGNoaW5nX3RocmVzaG9sZCI6IDAuMTgzLCAiY3VzdG9keV9idGMiOiAyLjIsICJkYWlseV92b2x1bWVfYnRjIjogMC40OCwgImNvbnNlbnN1c193ZWlnaHQiOiAwLjAwMDIsICJoYXNocmF0ZV9wY3QiOiAwLjAs[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:ICJpbmVydGlhIjogMC4wNSwgInJvbGUiOiBudWxsfSwgImN1cnJlbnRfYWxsb2NhdGlvbiI6ICJ2MjYiLCAic3RhdHMiOiB7InN3aXRjaGVzIjogMCwgImlkZW9sb2d5X292ZXJyaWRlcyI6IDAsICJpbmVydGlhX2hvbGRzIjogMX19LCAibm9kZS0wMDIzIjogeyJwcm9maWxlIjogeyJub2RlX2lkIjogIm5vZGUtMDAyMyIsICJub2RlX3R5cGUiOiAidXNlciIsICJhY3Rpdml0eV90eXBlIjogIm1peGVkIiwgInRyYW5zYWN0aW9uX3ZlbG9jaXR5IjogMC4zLCAiZm9ya19wcmVmZXJlbmNlIjogIm5ldXRyYWwiLCAiaWRlb2xvZ3lfc3RyZW5ndGgiOiAwLjY4NiwgInN3aXRjaGluZ190aHJlc2hvbGQiOiAwLjE4MywgImN1c3RvZHlfYnRjIjogMy45LCAiZGFpbHlfdm9sdW1lX2J0YyI6IDAuNzYsICJjb25zZW5zdXNfd2VpZ2h0IjogMC4wMDAzLCAiaGFzaHJhdGVfcGN0IjogMC4wLCAiaW5lcnRpYSI6IDAuMDUsICJyb2xlIjogbnVsbH0sICJjdXJyZW50X2FsbG9jYXRpb24iOiAidjI2IiwgInN0YXRzIjogeyJzd2l0Y2hlcyI6IDAsICJpZGVvbG9neV9vdmVycmlkZXMiOiAwLCAiaW5lcnRpYV9ob2xkcyI6IDF9fX0sICJzb2xvX21pbmluZyI6IHsidG90YWxfaGFzaHJhdGVfcGN0IjogMCwgInYyN19oYXNocmF0ZV9wY3QiOiAwLjAsICJ2MjZfaGFzaHJhdGVfcGN0IjogMC4wLCAibWluZXJzIjogW119LCAiYWxsb2NhdGlvbl9icmVha2Rvd24iOiB7ImVjb25vbWljIjogeyJ2Mjdfd2VpZ2h0IjogMjA0LjgyLCAidjI2X3dl[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:aWdodCI6IDg3Ljc4LCAidjI3X2NvdW50IjogMSwgInYyNl9jb3VudCI6IDF9LCAidXNlciI6IHsidjI3X3dlaWdodCI6IDAuMCwgInYyNl93ZWlnaHQiOiAwLjAwMDUsICJ2MjdfY291bnQiOiAwLCAidjI2X2NvdW50IjogMn19LCAidHJhbnNhY3Rpb25hbF9icmVha2Rvd24iOiB7InYyN190cmFuc2FjdGlvbmFsX3BjdCI6IDY5Ljk5OTk2MDc4MTI1OTcyLCAidjI2X3RyYW5zYWN0aW9uYWxfcGN0IjogMzAuMDAwMDM5MjE4NzQwMjg3LCAidjI3X2N1c3RvZGlhbF9wY3QiOiA2OS45OTkwMTQ5MzA4MzQwNiwgInYyNl9jdXN0b2RpYWxfcGN0IjogMzAuMDAwOTg1MDY5MTY1OTI1fSwgImRlY2lzaW9uX2hpc3RvcnkiOiBbeyJ0aW1lc3RhbXAiOiAxNzcxMjk2NjcxLjY3MTE5NDMsICJub2RlX2lkIjogIm5vZGUtMDAwMCIsICJub2RlX3R5cGUiOiAiZWNvbm9taWMiLCAiY2hvc2VuX2ZvcmsiOiAidjI3IiwgInYyN19wcmljZV91c2QiOiA2MDAwMCwgInYyNl9wcmljZV91c2QiOiA2MDAwMCwgInByaWNlX3JhdGlvIjogMS4wLCAicmF0aW9uYWxfY2hvaWNlIjogInYyNyIsICJpZGVvbG9neV9vdmVycmlkZSI6IGZhbHNlLCAiaW5lcnRpYV9oZWxkIjogZmFsc2UsICJlY29ub21pY193ZWlnaHQiOiAyMDQuODIsICJyZWFzb24iOiAiUmF0aW9uYWw6IGZvbGxvd2luZyBoaWdoZXItcHJpY2VkIGZvcmsifSwgeyJ0aW1lc3RhbXAiOiAxNzcxMjk2NjcxLjY3MTE5NDMsICJub2RlX2lkIjogIm5vZGUtMDAxMiIsICJub2RlX3R5cGUi[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:OiAiZWNvbm9taWMiLCAiY2hvc2VuX2ZvcmsiOiAidjI2IiwgInYyN19wcmljZV91c2QiOiA2MDAwMCwgInYyNl9wcmljZV91c2QiOiA2MDAwMCwgInByaWNlX3JhdGlvIjogMS4wLCAicmF0aW9uYWxfY2hvaWNlIjogInYyNyIsICJpZGVvbG9neV9vdmVycmlkZSI6IGZhbHNlLCAiaW5lcnRpYV9oZWxkIjogdHJ1ZSwgImVjb25vbWljX3dlaWdodCI6IDg3Ljc4LCAicmVhc29uIjogIkluZXJ0aWE6IHN0YXlpbmcgb24gdjI2IChhZHZhbnRhZ2UgMC4wJSA8IHRocmVzaG9sZCAzMC44JSkifSwgeyJ0aW1lc3RhbXAiOiAxNzcxMjk2NjcxLjY3MTE5NDMsICJub2RlX2lkIjogIm5vZGUtMDAxMSIsICJub2RlX3R5cGUiOiAidXNlciIsICJjaG9zZW5fZm9yayI6ICJ2MjYiLCAidjI3X3ByaWNlX3VzZCI6IDYwMDAwLCAidjI2X3ByaWNlX3VzZCI6IDYwMDAwLCAicHJpY2VfcmF0aW8iOiAxLjAsICJyYXRpb25hbF9jaG9pY2UiOiAidjI3IiwgImlkZW9sb2d5X292ZXJyaWRlIjogZmFsc2UsICJpbmVydGlhX2hlbGQiOiB0cnVlLCAiZWNvbm9taWNfd2VpZ2h0IjogMC4wMDAyLCAicmVhc29uIjogIkluZXJ0aWE6IHN0YXlpbmcgb24gdjI2IChhZHZhbnRhZ2UgMC4wJSA8IHRocmVzaG9sZCAyMy4zJSkifSwgeyJ0aW1lc3RhbXAiOiAxNzcxMjk2NjcxLjY3MTE5NDMsICJub2RlX2lkIjogIm5vZGUtMDAyMyIsICJub2RlX3R5cGUiOiAidXNlciIsICJjaG9zZW5fZm9yayI6ICJ2MjYiLCAidjI3X3ByaWNlX3VzZCI6IDYwMDAwLCAi[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:djI2X3ByaWNlX3VzZCI6IDYwMDAwLCAicHJpY2VfcmF0aW8iOiAxLjAsICJyYXRpb25hbF9jaG9pY2UiOiAidjI3IiwgImlkZW9sb2d5X292ZXJyaWRlIjogZmFsc2UsICJpbmVydGlhX2hlbGQiOiB0cnVlLCAiZWNvbm9taWNfd2VpZ2h0IjogMC4wMDAzLCAicmVhc29uIjogIkluZXJ0aWE6IHN0YXlpbmcgb24gdjI2IChhZHZhbnRhZ2UgMC4wJSA8IHRocmVzaG9sZCAyMy4zJSkifV19LCAicHJpY2VzIjogeyJjb25maWciOiB7ImJhc2VfcHJpY2UiOiA2MDAwMCwgIm1heF9kaXZlcmdlbmNlIjogMC4yLCAiY29lZmZpY2llbnRzIjogeyJjaGFpbl93ZWlnaHQiOiAwLjMsICJlY29ub21pY193ZWlnaHQiOiAwLjUsICJoYXNocmF0ZV93ZWlnaHQiOiAwLjJ9fSwgImN1cnJlbnRfcHJpY2VzIjogeyJ2MjciOiA2NTU0NC42MDI3ODg4MTQ2OCwgInYyNiI6IDU0Mzc3LjE1NzIxMTE4NTMyfSwgInRpbWVsaW5lIjogeyJ0aW1lc3RhbXBzIjogWzE3NzEyOTY2NzEuNDQ3MjAxMywgMTc3MTI5NjczMi4zNTg2MjI4LCAxNzcxMjk2NzMyLjM1ODY1MjgsIDE3NzEyOTY3OTIuNTA1LCAxNzcxMjk2NzkyLjUwNTAyNTYsIDE3NzEyOTY4NTIuODgwNjk0OSwgMTc3MTI5Njg1Mi44ODA3MTgsIDE3NzEyOTY5MTIuOTA1OTAxLCAxNzcxMjk2OTEyLjkwNTkyMywgMTc3MTI5Njk3My4zMjY5NTU4LCAxNzcxMjk2OTczLjMyNjk4OTIsIDE3NzEyOTcwMzQuOTc0MTg4OCwgMTc3MTI5NzAzNC45NzQyMjQzLCAxNzcxMjk3MDk1LjIxNTQ5MjIsIDE3[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:NzEyOTcwOTUuMjE1NTEyOCwgMTc3MTI5NzE1NS40ODk1MjE3LCAxNzcxMjk3MTU1LjQ4OTU0MTgsIDE3NzEyOTcyMTUuODY3MDAwMywgMTc3MTI5NzIxNS44NjcwMzI1LCAxNzcxMjk3Mjc2LjI4MDQ4ODcsIDE3NzEyOTcyNzYuMjgwNTEsIDE3NzEyOTczMzYuNDgwMDQwOCwgMTc3MTI5NzMzNi40ODAwNDg3LCAxNzcxMjk3Mzk3LjQxNzUxMywgMTc3MTI5NzM5Ny40MTc1MzQ0LCAxNzcxMjk3NDU3LjgzODkyMzIsIDE3NzEyOTc0NTcuODM4OTQ1NCwgMTc3MTI5NzUxOC4xNTIwNjIsIDE3NzEyOTc1MTguMTUyMDcyXSwgInYyN19wcmljZXMiOiBbNjAwMDAsIDYyMDAwLjg2NTY0NTk1NzU1LCA2MjAwMC44NjU2NDU5NTc1NSwgNjE2NzMuNTkyOTE4Njg0ODE1LCA2MTY3My41OTI5MTg2ODQ4MTUsIDYxNTUwLjg2NTY0NTk1NzU0LCA2MTU1MC44NjU2NDU5NTc1NCwgNjE1NTAuODY1NjQ1OTU3NTQsIDYxNTUwLjg2NTY0NTk1NzU0LCA2MTQ4Ni41Nzk5MzE2NzE4MjYsIDYxNDg2LjU3OTkzMTY3MTgyNiwgNjEwNjcuNTMyMzEyNjI0MjE1LCA2MTA2Ny41MzIzMTI2MjQyMTUsIDYxNjUyLjQ3ODU0OTE4MzM1LCA2MTY1Mi40Nzg1NDkxODMzNSwgNjE2MDAuODY1NjQ1OTU3NTM2LCA2MTYwMC44NjU2NDU5NTc1MzYsIDYxODIwLjg2NTY0NTk1NzU0LCA2MTgyMC44NjU2NDU5NTc1NCwgNjQxODUuNTc1NDMzMTkxNTksIDY0MTg1LjU3NTQzMzE5MTU5LCA2NDc4Ny4yMDAxOTE0MTIwODUsIDY0Nzg3LjIwMDE5MTQxMjA4NSwgNjUwMjYu[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:ODMwMzkxNzIwMjYsIDY1MDI2LjgzMDM5MTcyMDI2LCA2NTMzMC45NzY0MTUxODgzMTQsIDY1MzMwLjk3NjQxNTE4ODMxNCwgNjU1NDQuNjAyNzg4ODE0NjgsIDY1NTQ0LjYwMjc4ODgxNDY4XSwgInYyNl9wcmljZXMiOiBbNjAwMDAsIDYwMDAwLCA1NzkyMC44OTQzNTQwNDI0NiwgNTc5MjAuODk0MzU0MDQyNDYsIDU4MjQ4LjE2NzA4MTMxNTE4LCA1ODI0OC4xNjcwODEzMTUxOCwgNTgzNzAuODk0MzU0MDQyNDY2LCA1ODM3MC44OTQzNTQwNDI0NjYsIDU4MzcwLjg5NDM1NDA0MjQ2NiwgNTgzNzAuODk0MzU0MDQyNDY2LCA1ODQzNS4xODAwNjgzMjgxNzYsIDU4NDM1LjE4MDA2ODMyODE3NiwgNTg4NTQuMjI3Njg3Mzc1Nzk1LCA1ODg1NC4yMjc2ODczNzU3OTUsIDU4MjY5LjI4MTQ1MDgxNjY1NiwgNTgyNjkuMjgxNDUwODE2NjU2LCA1ODMyMC44OTQzNTQwNDI0NiwgNTgzMjAuODk0MzU0MDQyNDYsIDU4MTAwLjg5NDM1NDA0MjQ1LCA1ODEwMC44OTQzNTQwNDI0NSwgNTU3MzYuMTg0NTY2ODA4NDIsIDU1NzM2LjE4NDU2NjgwODQyLCA1NTEzNC41NTk4MDg1ODc5MiwgNTUxMzQuNTU5ODA4NTg3OTIsIDU0ODk0LjkyOTYwODI3OTc1LCA1NDg5NC45Mjk2MDgyNzk3NSwgNTQ1OTAuNzgzNTg0ODExNjk2LCA1NDU5MC43ODM1ODQ4MTE2OTYsIDU0Mzc3LjE1NzIxMTE4NTMyXX0sICJoaXN0b3J5IjogW3sidGltZXN0YW1wIjogMTc3MTI5NjY3MS40NDcyMDEzLCAiY2hhaW5faWQiOiAidjI3IiwgInByaWNlIjogNjAwMDAsICJt[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:ZXRhZGF0YSI6IHsiaW5pdGlhbCI6IHRydWV9fSwgeyJ0aW1lc3RhbXAiOiAxNzcxMjk2NjcxLjQ0NzIwMTMsICJjaGFpbl9pZCI6ICJ2MjYiLCAicHJpY2UiOiA2MDAwMCwgIm1ldGFkYXRhIjogeyJpbml0aWFsIjogdHJ1ZX19LCB7InRpbWVzdGFtcCI6IDE3NzEyOTY3MzIuMzU4NjIyOCwgImNoYWluX2lkIjogInYyNyIsICJwcmljZSI6IDYyMDAwLjg2NTY0NTk1NzU1LCAibWV0YWRhdGEiOiB7ImZvcmtfc3VzdGFpbmVkIjogdHJ1ZSwgImZvcmtfZGVwdGgiOiA2fX0sIHsidGltZXN0YW1wIjogMTc3MTI5NjczMi4zNTg2NTI4LCAiY2hhaW5faWQiOiAidjI2IiwgInByaWNlIjogNTc5MjAuODk0MzU0MDQyNDYsICJtZXRhZGF0YSI6IHsiZm9ya19zdXN0YWluZWQiOiB0cnVlLCAiZm9ya19kZXB0aCI6IDZ9fSwgeyJ0aW1lc3RhbXAiOiAxNzcxMjk2NzkyLjUwNSwgImNoYWluX2lkIjogInYyNyIsICJwcmljZSI6IDYxNjczLjU5MjkxODY4NDgxNSwgIm1ldGFkYXRhIjogeyJmb3JrX3N1c3RhaW5lZCI6IHRydWUsICJmb3JrX2RlcHRoIjogMTF9fSwgeyJ0aW1lc3RhbXAiOiAxNzcxMjk2NzkyLjUwNTAyNTYsICJjaGFpbl9pZCI6ICJ2MjYiLCAicHJpY2UiOiA1ODI0OC4xNjcwODEzMTUxOCwgIm1ldGFkYXRhIjogeyJmb3JrX3N1c3RhaW5lZCI6IHRydWUsICJmb3JrX2RlcHRoIjogMTF9fSwgeyJ0aW1lc3RhbXAiOiAxNzcxMjk2ODUyLjg4MDY5NDksICJjaGFpbl9pZCI6ICJ2MjciLCAicHJpY2UiOiA2MTU1MC44NjU2[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:NDU5NTc1NCwgIm1ldGFkYXRhIjogeyJmb3JrX3N1c3RhaW5lZCI6IHRydWUsICJmb3JrX2RlcHRoIjogMTZ9fSwgeyJ0aW1lc3RhbXAiOiAxNzcxMjk2ODUyLjg4MDcxOCwgImNoYWluX2lkIjogInYyNiIsICJwcmljZSI6IDU4MzcwLjg5NDM1NDA0MjQ2NiwgIm1ldGFkYXRhIjogeyJmb3JrX3N1c3RhaW5lZCI6IHRydWUsICJmb3JrX2RlcHRoIjogMTZ9fSwgeyJ0aW1lc3RhbXAiOiAxNzcxMjk2OTEyLjkwNTkwMSwgImNoYWluX2lkIjogInYyNyIsICJwcmljZSI6IDYxNTUwLjg2NTY0NTk1NzU0LCAibWV0YWRhdGEiOiB7ImZvcmtfc3VzdGFpbmVkIjogdHJ1ZSwgImZvcmtfZGVwdGgiOiAxNn19LCB7InRpbWVzdGFtcCI6IDE3NzEyOTY5MTIuOTA1OTIzLCAiY2hhaW5faWQiOiAidjI2IiwgInByaWNlIjogNTgzNzAuODk0MzU0MDQyNDY2LCAibWV0YWRhdGEiOiB7ImZvcmtfc3VzdGFpbmVkIjogdHJ1ZSwgImZvcmtfZGVwdGgiOiAxNn19LCB7InRpbWVzdGFtcCI6IDE3NzEyOTY5NzMuMzI2OTU1OCwgImNoYWluX2lkIjogInYyNyIsICJwcmljZSI6IDYxNDg2LjU3OTkzMTY3MTgyNiwgIm1ldGFkYXRhIjogeyJmb3JrX3N1c3RhaW5lZCI6IHRydWUsICJmb3JrX2RlcHRoIjogMjF9fSwgeyJ0aW1lc3RhbXAiOiAxNzcxMjk2OTczLjMyNjk4OTIsICJjaGFpbl9pZCI6ICJ2MjYiLCAicHJpY2UiOiA1ODQzNS4xODAwNjgzMjgxNzYsICJtZXRhZGF0YSI6IHsiZm9ya19zdXN0YWluZWQiOiB0cnVlLCAiZm9ya19kZXB0aCI6[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:IDIxfX0sIHsidGltZXN0YW1wIjogMTc3MTI5NzAzNC45NzQxODg4LCAiY2hhaW5faWQiOiAidjI3IiwgInByaWNlIjogNjEwNjcuNTMyMzEyNjI0MjE1LCAibWV0YWRhdGEiOiB7ImZvcmtfc3VzdGFpbmVkIjogdHJ1ZSwgImZvcmtfZGVwdGgiOiAyN319LCB7InRpbWVzdGFtcCI6IDE3NzEyOTcwMzQuOTc0MjI0MywgImNoYWluX2lkIjogInYyNiIsICJwcmljZSI6IDU4ODU0LjIyNzY4NzM3NTc5NSwgIm1ldGFkYXRhIjogeyJmb3JrX3N1c3RhaW5lZCI6IHRydWUsICJmb3JrX2RlcHRoIjogMjd9fSwgeyJ0aW1lc3RhbXAiOiAxNzcxMjk3MDk1LjIxNTQ5MjIsICJjaGFpbl9pZCI6ICJ2MjciLCAicHJpY2UiOiA2MTY1Mi40Nzg1NDkxODMzNSwgIm1ldGFkYXRhIjogeyJmb3JrX3N1c3RhaW5lZCI6IHRydWUsICJmb3JrX2RlcHRoIjogMzF9fSwgeyJ0aW1lc3RhbXAiOiAxNzcxMjk3MDk1LjIxNTUxMjgsICJjaGFpbl9pZCI6ICJ2MjYiLCAicHJpY2UiOiA1ODI2OS4yODE0NTA4MTY2NTYsICJtZXRhZGF0YSI6IHsiZm9ya19zdXN0YWluZWQiOiB0cnVlLCAiZm9ya19kZXB0aCI6IDMxfX0sIHsidGltZXN0YW1wIjogMTc3MTI5NzE1NS40ODk1MjE3LCAiY2hhaW5faWQiOiAidjI3IiwgInByaWNlIjogNjE2MDAuODY1NjQ1OTU3NTM2LCAibWV0YWRhdGEiOiB7ImZvcmtfc3VzdGFpbmVkIjogdHJ1ZSwgImZvcmtfZGVwdGgiOiAzNn19LCB7InRpbWVzdGFtcCI6IDE3NzEyOTcxNTUuNDg5NTQxOCwgImNoYWluX2lkIjogInYy[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:NiIsICJwcmljZSI6IDU4MzIwLjg5NDM1NDA0MjQ2LCAibWV0YWRhdGEiOiB7ImZvcmtfc3VzdGFpbmVkIjogdHJ1ZSwgImZvcmtfZGVwdGgiOiAzNn19LCB7InRpbWVzdGFtcCI6IDE3NzEyOTcyMTUuODY3MDAwMywgImNoYWluX2lkIjogInYyNyIsICJwcmljZSI6IDYxODIwLjg2NTY0NTk1NzU0LCAibWV0YWRhdGEiOiB7ImZvcmtfc3VzdGFpbmVkIjogdHJ1ZSwgImZvcmtfZGVwdGgiOiA0MH19LCB7InRpbWVzdGFtcCI6IDE3NzEyOTcyMTUuODY3MDMyNSwgImNoYWluX2lkIjogInYyNiIsICJwcmljZSI6IDU4MTAwLjg5NDM1NDA0MjQ1LCAibWV0YWRhdGEiOiB7ImZvcmtfc3VzdGFpbmVkIjogdHJ1ZSwgImZvcmtfZGVwdGgiOiA0MH19LCB7InRpbWVzdGFtcCI6IDE3NzEyOTcyNzYuMjgwNDg4NywgImNoYWluX2lkIjogInYyNyIsICJwcmljZSI6IDY0MTg1LjU3NTQzMzE5MTU5LCAibWV0YWRhdGEiOiB7ImZvcmtfc3VzdGFpbmVkIjogdHJ1ZSwgImZvcmtfZGVwdGgiOiA0N319LCB7InRpbWVzdGFtcCI6IDE3NzEyOTcyNzYuMjgwNTEsICJjaGFpbl9pZCI6ICJ2MjYiLCAicHJpY2UiOiA1NTczNi4xODQ1NjY4MDg0MiwgIm1ldGFkYXRhIjogeyJmb3JrX3N1c3RhaW5lZCI6IHRydWUsICJmb3JrX2RlcHRoIjogNDd9fSwgeyJ0aW1lc3RhbXAiOiAxNzcxMjk3MzM2LjQ4MDA0MDgsICJjaGFpbl9pZCI6ICJ2MjciLCAicHJpY2UiOiA2NDc4Ny4yMDAxOTE0MTIwODUsICJtZXRhZGF0YSI6IHsiZm9ya19zdXN0YWluZWQi[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:OiB0cnVlLCAiZm9ya19kZXB0aCI6IDU1fX0sIHsidGltZXN0YW1wIjogMTc3MTI5NzMzNi40ODAwNDg3LCAiY2hhaW5faWQiOiAidjI2IiwgInByaWNlIjogNTUxMzQuNTU5ODA4NTg3OTIsICJtZXRhZGF0YSI6IHsiZm9ya19zdXN0YWluZWQiOiB0cnVlLCAiZm9ya19kZXB0aCI6IDU1fX0sIHsidGltZXN0YW1wIjogMTc3MTI5NzM5Ny40MTc1MTMsICJjaGFpbl9pZCI6ICJ2MjciLCAicHJpY2UiOiA2NTAyNi44MzAzOTE3MjAyNiwgIm1ldGFkYXRhIjogeyJmb3JrX3N1c3RhaW5lZCI6IHRydWUsICJmb3JrX2RlcHRoIjogNTl9fSwgeyJ0aW1lc3RhbXAiOiAxNzcxMjk3Mzk3LjQxNzUzNDQsICJjaGFpbl9pZCI6ICJ2MjYiLCAicHJpY2UiOiA1NDg5NC45Mjk2MDgyNzk3NSwgIm1ldGFkYXRhIjogeyJmb3JrX3N1c3RhaW5lZCI6IHRydWUsICJmb3JrX2RlcHRoIjogNTl9fSwgeyJ0aW1lc3RhbXAiOiAxNzcxMjk3NDU3LjgzODkyMzIsICJjaGFpbl9pZCI6ICJ2MjciLCAicHJpY2UiOiA2NTMzMC45NzY0MTUxODgzMTQsICJtZXRhZGF0YSI6IHsiZm9ya19zdXN0YWluZWQiOiB0cnVlLCAiZm9ya19kZXB0aCI6IDY1fX0sIHsidGltZXN0YW1wIjogMTc3MTI5NzQ1Ny44Mzg5NDU0LCAiY2hhaW5faWQiOiAidjI2IiwgInByaWNlIjogNTQ1OTAuNzgzNTg0ODExNjk2LCAibWV0YWRhdGEiOiB7ImZvcmtfc3VzdGFpbmVkIjogdHJ1ZSwgImZvcmtfZGVwdGgiOiA2NX19LCB7InRpbWVzdGFtcCI6IDE3NzEyOTc1MTguMTUyMDYy[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:LCAiY2hhaW5faWQiOiAidjI3IiwgInByaWNlIjogNjU1NDQuNjAyNzg4ODE0NjgsICJtZXRhZGF0YSI6IHsiZm9ya19zdXN0YWluZWQiOiB0cnVlLCAiZm9ya19kZXB0aCI6IDcwfX0sIHsidGltZXN0YW1wIjogMTc3MTI5NzUxOC4xNTIwNzIsICJjaGFpbl9pZCI6ICJ2MjYiLCAicHJpY2UiOiA1NDM3Ny4xNTcyMTExODUzMiwgIm1ldGFkYXRhIjogeyJmb3JrX3N1c3RhaW5lZCI6IHRydWUsICJmb3JrX2RlcHRoIjogNzB9fV19LCAiZmVlcyI6IHsiY29uZmlnIjogeyJiYXNlX2ZlZV9yYXRlIjogMS4wLCAibWFuaXB1bGF0aW9uX2RldGVjdGlvbiI6IHRydWUsICJzdXN0YWluYWJpbGl0eV90cmFja2luZyI6IHRydWV9LCAiY3VycmVudF9mZWVzIjogeyJ2MjciOiB7InRvdGFsIjogMC4wMjM3MTk5NTU1MzU2NTEwMTcsICJvcmdhbmljIjogMC4wMjM3MTk5NTU1MzU2NTEwMTcsICJtYW5pcHVsYXRpb24iOiAwLjB9LCAidjI2IjogeyJ0b3RhbCI6IDEwLjAwMDAxMzA3MjkxMzQzLCAib3JnYW5pYyI6IDEwLjAwMDAxMzA3MjkxMzQzLCAibWFuaXB1bGF0aW9uIjogMC4wfX0sICJtYW5pcHVsYXRpb25fc3RhdHVzIjogeyJ2MjdfYWN0aXZlIjogZmFsc2UsICJ2MjZfYWN0aXZlIjogZmFsc2UsICJ2MjdfY29zdF9idGMiOiAwLjAsICJ2MjZfY29zdF9idGMiOiAwLjAsICJ2MjdfY29zdF91c2QiOiAwLjAsICJ2MjZfY29zdF91c2QiOiAwLjB9LCAiYWN0b3JzIjoge30sICJmZWVfaGlzdG9yeSI6IFt7InRpbWVzdGFtcCI6IDE3[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:NzEyOTY2NzEuNDQ3MjY2MywgImNoYWluX2lkIjogInYyNyIsICJvcmdhbmljX2ZlZSI6IDEuMCwgIm1hbmlwdWxhdGlvbl9wcmVtaXVtIjogMC4wLCAidG90YWxfZmVlIjogMS4wLCAibWV0YWRhdGEiOiB7ImluaXRpYWwiOiB0cnVlfX0sIHsidGltZXN0YW1wIjogMTc3MTI5NjY3MS40NDcyNjYzLCAiY2hhaW5faWQiOiAidjI2IiwgIm9yZ2FuaWNfZmVlIjogMS4wLCAibWFuaXB1bGF0aW9uX3ByZW1pdW0iOiAwLjAsICJ0b3RhbF9mZWUiOiAxLjAsICJtZXRhZGF0YSI6IHsiaW5pdGlhbCI6IHRydWV9fSwgeyJ0aW1lc3RhbXAiOiAxNzcxMjk2NzMyLjM1ODY5NzcsICJjaGFpbl9pZCI6ICJ2MjciLCAib3JnYW5pY19mZWUiOiAwLjA1NTk3NTMzOTQ3NTYzODUxLCAibWFuaXB1bGF0aW9uX3ByZW1pdW0iOiAwLjAsICJ0b3RhbF9mZWUiOiAwLjA1NTk3NTMzOTQ3NTYzODUxLCAibWV0YWRhdGEiOiBudWxsfSwgeyJ0aW1lc3RhbXAiOiAxNzcxMjk2NzMyLjM1ODY5NzcsICJjaGFpbl9pZCI6ICJ2MjYiLCAib3JnYW5pY19mZWUiOiAwLjAxNzY0MTM3NDM4OTg5NzU1NywgIm1hbmlwdWxhdGlvbl9wcmVtaXVtIjogMC4wLCAidG90YWxfZmVlIjogMC4wMTc2NDEzNzQzODk4OTc1NTcsICJtZXRhZGF0YSI6IG51bGx9LCB7InRpbWVzdGFtcCI6IDE3NzEyOTY3OTIuNTA1MDY5NSwgImNoYWluX2lkIjogInYyNyIsICJvcmdhbmljX2ZlZSI6IDAuMDU1OTc1MzM5NDc1NjM4NTEsICJtYW5pcHVsYXRpb25fcHJlbWl1bSI6IDAuMCwg[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:InRvdGFsX2ZlZSI6IDAuMDU1OTc1MzM5NDc1NjM4NTEsICJtZXRhZGF0YSI6IG51bGx9LCB7InRpbWVzdGFtcCI6IDE3NzEyOTY3OTIuNTA1MDY5NSwgImNoYWluX2lkIjogInYyNiIsICJvcmdhbmljX2ZlZSI6IDAuMDE3NjQxMzc0Mzg5ODk3NTU3LCAibWFuaXB1bGF0aW9uX3ByZW1pdW0iOiAwLjAsICJ0b3RhbF9mZWUiOiAwLjAxNzY0MTM3NDM4OTg5NzU1NywgIm1ldGFkYXRhIjogbnVsbH0sIHsidGltZXN0YW1wIjogMTc3MTI5Njg1Mi44ODA3NDksICJjaGFpbl9pZCI6ICJ2MjciLCAib3JnYW5pY19mZWUiOiAwLjA1NTk3NTMzOTQ3NTYzODUxLCAibWFuaXB1bGF0aW9uX3ByZW1pdW0iOiAwLjAsICJ0b3RhbF9mZWUiOiAwLjA1NTk3NTMzOTQ3NTYzODUxLCAibWV0YWRhdGEiOiBudWxsfSwgeyJ0aW1lc3RhbXAiOiAxNzcxMjk2ODUyLjg4MDc0OSwgImNoYWluX2lkIjogInYyNiIsICJvcmdhbmljX2ZlZSI6IDAuMDE3NjQxMzc0Mzg5ODk3NTU3LCAibWFuaXB1bGF0aW9uX3ByZW1pdW0iOiAwLjAsICJ0b3RhbF9mZWUiOiAwLjAxNzY0MTM3NDM4OTg5NzU1NywgIm1ldGFkYXRhIjogbnVsbH0sIHsidGltZXN0YW1wIjogMTc3MTI5NjkxMi45MDU5NTYzLCAiY2hhaW5faWQiOiAidjI3IiwgIm9yZ2FuaWNfZmVlIjogMC4wNTU5NzUzMzk0NzU2Mzg1MSwgIm1hbmlwdWxhdGlvbl9wcmVtaXVtIjogMC4wLCAidG90YWxfZmVlIjogMC4wNTU5NzUzMzk0NzU2Mzg1MSwgIm1ldGFkYXRhIjogbnVsbH0sIHsidGltZXN0YW1w[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:IjogMTc3MTI5NjkxMi45MDU5NTYzLCAiY2hhaW5faWQiOiAidjI2IiwgIm9yZ2FuaWNfZmVlIjogMC4wMTc2NDEzNzQzODk4OTc1NTcsICJtYW5pcHVsYXRpb25fcHJlbWl1bSI6IDAuMCwgInRvdGFsX2ZlZSI6IDAuMDE3NjQxMzc0Mzg5ODk3NTU3LCAibWV0YWRhdGEiOiBudWxsfSwgeyJ0aW1lc3RhbXAiOiAxNzcxMjk2OTczLjMyNzA0ODgsICJjaGFpbl9pZCI6ICJ2MjciLCAib3JnYW5pY19mZWUiOiAwLjA1NTk3NTMzOTQ3NTYzODUxLCAibWFuaXB1bGF0aW9uX3ByZW1pdW0iOiAwLjAsICJ0b3RhbF9mZWUiOiAwLjA1NTk3NTMzOTQ3NTYzODUxLCAibWV0YWRhdGEiOiBudWxsfSwgeyJ0aW1lc3RhbXAiOiAxNzcxMjk2OTczLjMyNzA0ODgsICJjaGFpbl9pZCI6ICJ2MjYiLCAib3JnYW5pY19mZWUiOiAwLjAxNzY0MTM3NDM4OTg5NzU1NywgIm1hbmlwdWxhdGlvbl9wcmVtaXVtIjogMC4wLCAidG90YWxfZmVlIjogMC4wMTc2NDEzNzQzODk4OTc1NTcsICJtZXRhZGF0YSI6IG51bGx9LCB7InRpbWVzdGFtcCI6IDE3NzEyOTcwMzQuOTc0MjU3MiwgImNoYWluX2lkIjogInYyNyIsICJvcmdhbmljX2ZlZSI6IDAuMDU1OTc1MzM5NDc1NjM4NTEsICJtYW5pcHVsYXRpb25fcHJlbWl1bSI6IDAuMCwgInRvdGFsX2ZlZSI6IDAuMDU1OTc1MzM5NDc1NjM4NTEsICJtZXRhZGF0YSI6IG51bGx9LCB7InRpbWVzdGFtcCI6IDE3NzEyOTcwMzQuOTc0MjU3MiwgImNoYWluX2lkIjogInYyNiIsICJvcmdhbmljX2ZlZSI6IDAuMDE3[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:NjQxMzc0Mzg5ODk3NTU3LCAibWFuaXB1bGF0aW9uX3ByZW1pdW0iOiAwLjAsICJ0b3RhbF9mZWUiOiAwLjAxNzY0MTM3NDM4OTg5NzU1NywgIm1ldGFkYXRhIjogbnVsbH0sIHsidGltZXN0YW1wIjogMTc3MTI5NzA5NS4yMTU1NDU0LCAiY2hhaW5faWQiOiAidjI3IiwgIm9yZ2FuaWNfZmVlIjogMC4wNTU5NzUzMzk0NzU2Mzg1MSwgIm1hbmlwdWxhdGlvbl9wcmVtaXVtIjogMC4wLCAidG90YWxfZmVlIjogMC4wNTU5NzUzMzk0NzU2Mzg1MSwgIm1ldGFkYXRhIjogbnVsbH0sIHsidGltZXN0YW1wIjogMTc3MTI5NzA5NS4yMTU1NDU0LCAiY2hhaW5faWQiOiAidjI2IiwgIm9yZ2FuaWNfZmVlIjogMC4wMTc2NDEzNzQzODk4OTc1NTcsICJtYW5pcHVsYXRpb25fcHJlbWl1bSI6IDAuMCwgInRvdGFsX2ZlZSI6IDAuMDE3NjQxMzc0Mzg5ODk3NTU3LCAibWV0YWRhdGEiOiBudWxsfSwgeyJ0aW1lc3RhbXAiOiAxNzcxMjk3MTU1LjQ4OTU3OTQsICJjaGFpbl9pZCI6ICJ2MjciLCAib3JnYW5pY19mZWUiOiAwLjA1NTk3NTMzOTQ3NTYzODUxLCAibWFuaXB1bGF0aW9uX3ByZW1pdW0iOiAwLjAsICJ0b3RhbF9mZWUiOiAwLjA1NTk3NTMzOTQ3NTYzODUxLCAibWV0YWRhdGEiOiBudWxsfSwgeyJ0aW1lc3RhbXAiOiAxNzcxMjk3MTU1LjQ4OTU3OTQsICJjaGFpbl9pZCI6ICJ2MjYiLCAib3JnYW5pY19mZWUiOiAwLjAxNzY0MTM3NDM4OTg5NzU1NywgIm1hbmlwdWxhdGlvbl9wcmVtaXVtIjogMC4wLCAidG90YWxfZmVlIjogMC4w[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:MTc2NDEzNzQzODk4OTc1NTcsICJtZXRhZGF0YSI6IG51bGx9LCB7InRpbWVzdGFtcCI6IDE3NzEyOTcyMTUuODY3MDg5NSwgImNoYWluX2lkIjogInYyNyIsICJvcmdhbmljX2ZlZSI6IDAuMDU1OTc1MzM5NDc1NjM4NTEsICJtYW5pcHVsYXRpb25fcHJlbWl1bSI6IDAuMCwgInRvdGFsX2ZlZSI6IDAuMDU1OTc1MzM5NDc1NjM4NTEsICJtZXRhZGF0YSI6IG51bGx9LCB7InRpbWVzdGFtcCI6IDE3NzEyOTcyMTUuODY3MDg5NSwgImNoYWluX2lkIjogInYyNiIsICJvcmdhbmljX2ZlZSI6IDAuMDE3NjQxMzc0Mzg5ODk3NTU3LCAibWFuaXB1bGF0aW9uX3ByZW1pdW0iOiAwLjAsICJ0b3RhbF9mZWUiOiAwLjAxNzY0MTM3NDM4OTg5NzU1NywgIm1ldGFkYXRhIjogbnVsbH0sIHsidGltZXN0YW1wIjogMTc3MTI5NzI3Ni4yODA1NDE0LCAiY2hhaW5faWQiOiAidjI3IiwgIm9yZ2FuaWNfZmVlIjogMC4wMjM3MTk5NTU1MzU2NTEwMTcsICJtYW5pcHVsYXRpb25fcHJlbWl1bSI6IDAuMCwgInRvdGFsX2ZlZSI6IDAuMDIzNzE5OTU1NTM1NjUxMDE3LCAibWV0YWRhdGEiOiBudWxsfSwgeyJ0aW1lc3RhbXAiOiAxNzcxMjk3Mjc2LjI4MDU0MTQsICJjaGFpbl9pZCI6ICJ2MjYiLCAib3JnYW5pY19mZWUiOiAxMC4wMDAwMTMwNzI5MTM0MywgIm1hbmlwdWxhdGlvbl9wcmVtaXVtIjogMC4wLCAidG90YWxfZmVlIjogMTAuMDAwMDEzMDcyOTEzNDMsICJtZXRhZGF0YSI6IG51bGx9LCB7InRpbWVzdGFtcCI6IDE3NzEyOTczMzYuNDgw[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:MDY2LCAiY2hhaW5faWQiOiAidjI3IiwgIm9yZ2FuaWNfZmVlIjogMC4wMjM3MTk5NTU1MzU2NTEwMTcsICJtYW5pcHVsYXRpb25fcHJlbWl1bSI6IDAuMCwgInRvdGFsX2ZlZSI6IDAuMDIzNzE5OTU1NTM1NjUxMDE3LCAibWV0YWRhdGEiOiBudWxsfSwgeyJ0aW1lc3RhbXAiOiAxNzcxMjk3MzM2LjQ4MDA2NiwgImNoYWluX2lkIjogInYyNiIsICJvcmdhbmljX2ZlZSI6IDEwLjAwMDAxMzA3MjkxMzQzLCAibWFuaXB1bGF0aW9uX3ByZW1pdW0iOiAwLjAsICJ0b3RhbF9mZWUiOiAxMC4wMDAwMTMwNzI5MTM0MywgIm1ldGFkYXRhIjogbnVsbH0sIHsidGltZXN0YW1wIjogMTc3MTI5NzM5Ny40MTc1Njk5LCAiY2hhaW5faWQiOiAidjI3IiwgIm9yZ2FuaWNfZmVlIjogMC4wMjM3MTk5NTU1MzU2NTEwMTcsICJtYW5pcHVsYXRpb25fcHJlbWl1bSI6IDAuMCwgInRvdGFsX2ZlZSI6IDAuMDIzNzE5OTU1NTM1NjUxMDE3LCAibWV0YWRhdGEiOiBudWxsfSwgeyJ0aW1lc3RhbXAiOiAxNzcxMjk3Mzk3LjQxNzU2OTksICJjaGFpbl9pZCI6ICJ2MjYiLCAib3JnYW5pY19mZWUiOiAxMC4wMDAwMTMwNzI5MTM0MywgIm1hbmlwdWxhdGlvbl9wcmVtaXVtIjogMC4wLCAidG90YWxfZmVlIjogMTAuMDAwMDEzMDcyOTEzNDMsICJtZXRhZGF0YSI6IG51bGx9LCB7InRpbWVzdGFtcCI6IDE3NzEyOTc0NTcuODM4OTc3LCAiY2hhaW5faWQiOiAidjI3IiwgIm9yZ2FuaWNfZmVlIjogMC4wMjM3MTk5NTU1MzU2NTEwMTcsICJtYW5pcHVsYXRp[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:b25fcHJlbWl1bSI6IDAuMCwgInRvdGFsX2ZlZSI6IDAuMDIzNzE5OTU1NTM1NjUxMDE3LCAibWV0YWRhdGEiOiBudWxsfSwgeyJ0aW1lc3RhbXAiOiAxNzcxMjk3NDU3LjgzODk3NywgImNoYWluX2lkIjogInYyNiIsICJvcmdhbmljX2ZlZSI6IDEwLjAwMDAxMzA3MjkxMzQzLCAibWFuaXB1bGF0aW9uX3ByZW1pdW0iOiAwLjAsICJ0b3RhbF9mZWUiOiAxMC4wMDAwMTMwNzI5MTM0MywgIm1ldGFkYXRhIjogbnVsbH0sIHsidGltZXN0YW1wIjogMTc3MTI5NzUxOC4xNTIxNjY4LCAiY2hhaW5faWQiOiAidjI3IiwgIm9yZ2FuaWNfZmVlIjogMC4wMjM3MTk5NTU1MzU2NTEwMTcsICJtYW5pcHVsYXRpb25fcHJlbWl1bSI6IDAuMCwgInRvdGFsX2ZlZSI6IDAuMDIzNzE5OTU1NTM1NjUxMDE3LCAibWV0YWRhdGEiOiBudWxsfSwgeyJ0aW1lc3RhbXAiOiAxNzcxMjk3NTE4LjE1MjE2NjgsICJjaGFpbl9pZCI6ICJ2MjYiLCAib3JnYW5pY19mZWUiOiAxMC4wMDAwMTMwNzI5MTM0MywgIm1hbmlwdWxhdGlvbl9wcmVtaXVtIjogMC4wLCAidG90YWxfZmVlIjogMTAuMDAwMDEzMDcyOTEzNDMsICJtZXRhZGF0YSI6IG51bGx9XSwgInBvcnRmb2xpb19oaXN0b3J5IjogW119LCAiZGlmZmljdWx0eSI6IHsiY29uZmlnIjogeyJ0YXJnZXRfYmxvY2tfaW50ZXJ2YWwiOiAxMC4wLCAicmV0YXJnZXRfaW50ZXJ2YWwiOiAxNDQsICJwcmVfZm9ya19kaWZmaWN1bHR5IjogMS4wLCAibWF4X2FkanVzdG1lbnRfZmFjdG9yIjogNC4wLCAibWlu[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:X2RpZmZpY3VsdHkiOiAwLjA2MjUsICJlbmFibGVfZWRhIjogZmFsc2UsICJlZGFfdGhyZXNob2xkIjogNi4wLCAiZWRhX3JlZHVjdGlvbiI6IDAuMn0sICJmb3JrcyI6IHsidjI3IjogeyJmb3JrX2lkIjogInYyNyIsICJjdXJyZW50X2RpZmZpY3VsdHkiOiAxLjAsICJibG9ja3Nfc2luY2VfcmV0YXJnZXQiOiA1MCwgImN1bXVsYXRpdmVfY2hhaW53b3JrIjogNTAuMCwgImxhc3RfYmxvY2tfc2ltX3RpbWUiOiA4OTcsICJsYXN0X3JldGFyZ2V0X3NpbV90aW1lIjogMC4wLCAiZXhwZWN0ZWRfYmxvY2tfaW50ZXJ2YWwiOiAxMC4xNjU3MDA5MjUwNzg3ODQsICJpbml0aWFsX2hlaWdodCI6IDEwMSwgImJsb2Nrc19taW5lZCI6IDUwfSwgInYyNiI6IHsiZm9ya19pZCI6ICJ2MjYiLCAiY3VycmVudF9kaWZmaWN1bHR5IjogMS4wLCAiYmxvY2tzX3NpbmNlX3JldGFyZ2V0IjogMjcsICJjdW11bGF0aXZlX2NoYWlud29yayI6IDI3LjAsICJsYXN0X2Jsb2NrX3NpbV90aW1lIjogNTk2LCAibGFzdF9yZXRhcmdldF9zaW1fdGltZSI6IDAuMCwgImV4cGVjdGVkX2Jsb2NrX2ludGVydmFsIjogMTAwMDAuMCwgImluaXRpYWxfaGVpZ2h0IjogMTAxLCAiYmxvY2tzX21pbmVkIjogMjd9fSwgIndpbm5pbmdfZm9yayI6ICJ2MjciLCAiYWRqdXN0bWVudF9oaXN0b3J5IjogW119LCAicmVvcmciOiB7ImNvbmZpZyI6IHsibGNhX2hlaWdodCI6IDAsICJsY2FfaGFzaCI6ICJmb3JrLXBvaW50IiwgInByb3BhZ2F0aW9uX3dpbmRvdyI6IDMw[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:LjAsICJ0b3RhbF9ub2RlcyI6IDEwfSwgImZvcmtfaGVpZ2h0cyI6IHsidjI3IjogNTAsICJ2MjYiOiAyN30sICJuZXR3b3JrX3N1bW1hcnkiOiB7ImxjYV9oZWlnaHQiOiAwLCAibGNhX2hhc2giOiAiZm9yay1wb2ludCIsICJ2MjdfZmluYWxfaGVpZ2h0IjogNTAsICJ2MjZfZmluYWxfaGVpZ2h0IjogMjcsICJ0b3RhbF9ub2Rlc190cmFja2VkIjogMTAsICJ0b3RhbF9ibG9ja3NfbWluZWQiOiA3NywgInRvdGFsX2Jsb2Nrc19vcnBoYW5lZCI6IDI3LCAidG90YWxfcmVvcmdfZXZlbnRzIjogNiwgInRvdGFsX2ZvcmtfaW5jaWRlbnRzIjogMSwgInRvdGFsX3Jlb3JnX21hc3MiOiAxNjIsICJub3JtYWxpemVkX3Jlb3JnX21hc3MiOiAxNi4yLCAiY29uc2Vuc3VzX3N0cmVzc19zY29yZSI6IDkuNzE5OTk5OTk5OTk5OTk5fSwgIm5vZGVfc3VtbWFyaWVzIjogeyJmb3VuZHJ5dXNhIjogeyJub2RlX2lkIjogImZvdW5kcnl1c2EiLCAiY3VycmVudF9mb3JrIjogInYyNyIsICJibG9ja3NfbWluZWQiOiAxNCwgImJsb2Nrc19taW5lZF9wZXJfZm9yayI6IHsidjI3IjogMTR9LCAiYmxvY2tzX29ycGhhbmVkIjogMCwgIm9ycGhhbl9yYXRlIjogMC4wLCAicmVvcmdfY291bnQiOiAwLCAidG90YWxfZXhwb3N1cmUiOiAwfSwgImFudHBvb2wiOiB7Im5vZGVfaWQiOiAiYW50cG9vbCIsICJjdXJyZW50X2ZvcmsiOiAidjI3IiwgImJsb2Nrc19taW5lZCI6IDcsICJibG9ja3NfbWluZWRfcGVyX2ZvcmsiOiB7InYyNyI6IDd9LCAiYmxv[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:Y2tzX29ycGhhbmVkIjogMCwgIm9ycGhhbl9yYXRlIjogMC4wLCAicmVvcmdfY291bnQiOiAxLCAidG90YWxfZXhwb3N1cmUiOiAyN30sICJ2aWFidGMiOiB7Im5vZGVfaWQiOiAidmlhYnRjIiwgImN1cnJlbnRfZm9yayI6ICJ2MjciLCAiYmxvY2tzX21pbmVkIjogMTcsICJibG9ja3NfbWluZWRfcGVyX2ZvcmsiOiB7InYyNiI6IDEyLCAidjI3IjogNX0sICJibG9ja3Nfb3JwaGFuZWQiOiAxMiwgIm9ycGhhbl9yYXRlIjogMC43MDU4ODIzNTI5NDExNzY1LCAicmVvcmdfY291bnQiOiAxLCAidG90YWxfZXhwb3N1cmUiOiAyN30sICJmMnBvb2wiOiB7Im5vZGVfaWQiOiAiZjJwb29sIiwgImN1cnJlbnRfZm9yayI6ICJ2MjciLCAiYmxvY2tzX21pbmVkIjogMTAsICJibG9ja3NfbWluZWRfcGVyX2ZvcmsiOiB7InYyNiI6IDYsICJ2MjciOiA0fSwgImJsb2Nrc19vcnBoYW5lZCI6IDYsICJvcnBoYW5fcmF0ZSI6IDAuNiwgInJlb3JnX2NvdW50IjogMSwgInRvdGFsX2V4cG9zdXJlIjogMjd9LCAiYmluYW5jZXBvb2wiOiB7Im5vZGVfaWQiOiAiYmluYW5jZXBvb2wiLCAiY3VycmVudF9mb3JrIjogInYyNyIsICJibG9ja3NfbWluZWQiOiAxMCwgImJsb2Nrc19taW5lZF9wZXJfZm9yayI6IHsidjI3IjogMTB9LCAiYmxvY2tzX29ycGhhbmVkIjogMCwgIm9ycGhhbl9yYXRlIjogMC4wLCAicmVvcmdfY291bnQiOiAwLCAidG90YWxfZXhwb3N1cmUiOiAwfSwgIm1hcmFwb29sIjogeyJub2RlX2lkIjogIm1hcmFwb29sIiwgImN1[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:cnJlbnRfZm9yayI6ICJ2MjciLCAiYmxvY2tzX21pbmVkIjogMTAsICJibG9ja3NfbWluZWRfcGVyX2ZvcmsiOiB7InYyNiI6IDcsICJ2MjciOiAzfSwgImJsb2Nrc19vcnBoYW5lZCI6IDcsICJvcnBoYW5fcmF0ZSI6IDAuNywgInJlb3JnX2NvdW50IjogMSwgInRvdGFsX2V4cG9zdXJlIjogMjd9LCAic2JpY3J5cHRvIjogeyJub2RlX2lkIjogInNiaWNyeXB0byIsICJjdXJyZW50X2ZvcmsiOiAidjI3IiwgImJsb2Nrc19taW5lZCI6IDUsICJibG9ja3NfbWluZWRfcGVyX2ZvcmsiOiB7InYyNyI6IDV9LCAiYmxvY2tzX29ycGhhbmVkIjogMCwgIm9ycGhhbl9yYXRlIjogMC4wLCAicmVvcmdfY291bnQiOiAwLCAidG90YWxfZXhwb3N1cmUiOiAwfSwgImx1eG9yIjogeyJub2RlX2lkIjogImx1eG9yIiwgImN1cnJlbnRfZm9yayI6ICJ2MjciLCAiYmxvY2tzX21pbmVkIjogMywgImJsb2Nrc19taW5lZF9wZXJfZm9yayI6IHsidjI2IjogMSwgInYyNyI6IDJ9LCAiYmxvY2tzX29ycGhhbmVkIjogMSwgIm9ycGhhbl9yYXRlIjogMC4zMzMzMzMzMzMzMzMzMzMzLCAicmVvcmdfY291bnQiOiAxLCAidG90YWxfZXhwb3N1cmUiOiAyN30sICJvY2VhbiI6IHsibm9kZV9pZCI6ICJvY2VhbiIsICJjdXJyZW50X2ZvcmsiOiAidjI3IiwgImJsb2Nrc19taW5lZCI6IDAsICJibG9ja3NfbWluZWRfcGVyX2ZvcmsiOiB7fSwgImJsb2Nrc19vcnBoYW5lZCI6IDAsICJvcnBoYW5fcmF0ZSI6IDAuMCwgInJlb3JnX2NvdW50IjogMCwgInRv[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:dGFsX2V4cG9zdXJlIjogMH0sICJicmFpaW5zcG9vbCI6IHsibm9kZV9pZCI6ICJicmFpaW5zcG9vbCIsICJjdXJyZW50X2ZvcmsiOiAidjI3IiwgImJsb2Nrc19taW5lZCI6IDEsICJibG9ja3NfbWluZWRfcGVyX2ZvcmsiOiB7InYyNiI6IDF9LCAiYmxvY2tzX29ycGhhbmVkIjogMSwgIm9ycGhhbl9yYXRlIjogMS4wLCAicmVvcmdfY291bnQiOiAxLCAidG90YWxfZXhwb3N1cmUiOiAyN319LCAicmVvcmdfZXZlbnRzIjogW3sidGltZXN0YW1wIjogNjAwLCAibm9kZV9pZCI6ICJhbnRwb29sIiwgImxjYV9oZWlnaHQiOiAwLCAiZGVwdGgiOiAyNywgImZvcmtfb2xkIjogInYyNiIsICJmb3JrX25ldyI6ICJ2MjciLCAiYmxvY2tzX29ycGhhbmVkIjogMH0sIHsidGltZXN0YW1wIjogNjAwLCAibm9kZV9pZCI6ICJ2aWFidGMiLCAibGNhX2hlaWdodCI6IDAsICJkZXB0aCI6IDI3LCAiZm9ya19vbGQiOiAidjI2IiwgImZvcmtfbmV3IjogInYyNyIsICJibG9ja3Nfb3JwaGFuZWQiOiAxMn0sIHsidGltZXN0YW1wIjogNjAwLCAibm9kZV9pZCI6ICJmMnBvb2wiLCAibGNhX2hlaWdodCI6IDAsICJkZXB0aCI6IDI3LCAiZm9ya19vbGQiOiAidjI2IiwgImZvcmtfbmV3IjogInYyNyIsICJibG9ja3Nfb3JwaGFuZWQiOiA2fSwgeyJ0aW1lc3RhbXAiOiA2MDAsICJub2RlX2lkIjogIm1hcmFwb29sIiwgImxjYV9oZWlnaHQiOiAwLCAiZGVwdGgiOiAyNywgImZvcmtfb2xkIjogInYyNiIsICJmb3JrX25ldyI6ICJ2MjciLCAiYmxv[0m
+[0mPartitionMinerWithPools - RESULTS_DATA:Y2tzX29ycGhhbmVkIjogN30sIHsidGltZXN0YW1wIjogNjAwLCAibm9kZV9pZCI6ICJsdXhvciIsICJsY2FfaGVpZ2h0IjogMCwgImRlcHRoIjogMjcsICJmb3JrX29sZCI6ICJ2MjYiLCAiZm9ya19uZXciOiAidjI3IiwgImJsb2Nrc19vcnBoYW5lZCI6IDF9LCB7InRpbWVzdGFtcCI6IDYwMCwgIm5vZGVfaWQiOiAiYnJhaWluc3Bvb2wiLCAibGNhX2hlaWdodCI6IDAsICJkZXB0aCI6IDI3LCAiZm9ya19vbGQiOiAidjI2IiwgImZvcmtfbmV3IjogInYyNyIsICJibG9ja3Nfb3JwaGFuZWQiOiAxfV0sICJmb3JrX2luY2lkZW50cyI6IFt7ImluY2lkZW50X2lkIjogImluY2lkZW50LTEiLCAibGNhX2hhc2giOiAiZm9yay1wb2ludCIsICJ3aW5uaW5nX2ZvcmsiOiAidjI3IiwgImV2ZW50X2NvdW50IjogNiwgInJlb3JnX21hc3MiOiAxNjIsICJwZW5ldHJhdGlvbiI6IDAuNiwgImZpcnN0X29ic2VydmVkIjogNjAwLCAibGFzdF9vYnNlcnZlZCI6IDYwMH1dLCAicmV1bmlvbl9hbmFseXNpcyI6IHsid2lubmluZ19mb3JrIjogInYyNyIsICJsb3NpbmdfZm9yayI6ICJ2MjYiLCAibG9zaW5nX2ZvcmtfZGVwdGgiOiAyNywgIm5vZGVzX29uX2xvc2luZ19mb3JrIjogW10sICJudW1fbm9kZXNfb25fbG9zaW5nX2ZvcmsiOiAwLCAicmV1bmlvbl9yZW9yZ19tYXNzIjogMCwgImFkZGl0aW9uYWxfb3JwaGFucyI6IDAsICJ2MjdfY2hhaW53b3JrIjogNTAuMCwgInYyNl9jaGFpbndvcmsiOiAyNy4wfX19[0m
+[0mPartitionMinerWithPools - RESULTS_EXPORT_END[0m
+[0mPartitionMinerWithPools - ======================================================================[0m
+[0mPartitionMinerWithPools - ======================================================================
+[0m
+[0mPartitionMinerWithPools - Stopping nodes[0m
+[0mPartitionMinerWithPools - Cleaning up /tmp/bitcoin_func_test_ikjtgmo7 on exit[0m
+[0mPartitionMinerWithPools - Tests successful[0m

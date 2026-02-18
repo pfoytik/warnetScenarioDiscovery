@@ -1,0 +1,220 @@
+{
+  "config": {
+    "lca_height": 0,
+    "lca_hash": "fork-point",
+    "propagation_window": 30.0,
+    "total_nodes": 10
+  },
+  "fork_heights": {
+    "v27": 89,
+    "v26": 17
+  },
+  "network_summary": {
+    "lca_height": 0,
+    "lca_hash": "fork-point",
+    "v27_final_height": 89,
+    "v26_final_height": 17,
+    "total_nodes_tracked": 10,
+    "total_blocks_mined": 106,
+    "total_blocks_orphaned": 17,
+    "total_reorg_events": 5,
+    "total_fork_incidents": 1,
+    "total_reorg_mass": 85,
+    "normalized_reorg_mass": 8.5,
+    "consensus_stress_score": 4.25
+  },
+  "node_summaries": {
+    "foundryusa": {
+      "node_id": "foundryusa",
+      "current_fork": "v27",
+      "blocks_mined": 31,
+      "blocks_mined_per_fork": {
+        "v27": 31
+      },
+      "blocks_orphaned": 0,
+      "orphan_rate": 0.0,
+      "reorg_count": 0,
+      "total_exposure": 0
+    },
+    "antpool": {
+      "node_id": "antpool",
+      "current_fork": "v27",
+      "blocks_mined": 22,
+      "blocks_mined_per_fork": {
+        "v27": 22
+      },
+      "blocks_orphaned": 0,
+      "orphan_rate": 0.0,
+      "reorg_count": 0,
+      "total_exposure": 0
+    },
+    "viabtc": {
+      "node_id": "viabtc",
+      "current_fork": "v27",
+      "blocks_mined": 5,
+      "blocks_mined_per_fork": {
+        "v27": 5
+      },
+      "blocks_orphaned": 0,
+      "orphan_rate": 0.0,
+      "reorg_count": 1,
+      "total_exposure": 17
+    },
+    "f2pool": {
+      "node_id": "f2pool",
+      "current_fork": "v27",
+      "blocks_mined": 8,
+      "blocks_mined_per_fork": {
+        "v27": 8
+      },
+      "blocks_orphaned": 0,
+      "orphan_rate": 0.0,
+      "reorg_count": 1,
+      "total_exposure": 17
+    },
+    "binancepool": {
+      "node_id": "binancepool",
+      "current_fork": "v27",
+      "blocks_mined": 13,
+      "blocks_mined_per_fork": {
+        "v26": 8,
+        "v27": 5
+      },
+      "blocks_orphaned": 8,
+      "orphan_rate": 0.6153846153846154,
+      "reorg_count": 1,
+      "total_exposure": 17
+    },
+    "marapool": {
+      "node_id": "marapool",
+      "current_fork": "v27",
+      "blocks_mined": 11,
+      "blocks_mined_per_fork": {
+        "v27": 11
+      },
+      "blocks_orphaned": 0,
+      "orphan_rate": 0.0,
+      "reorg_count": 0,
+      "total_exposure": 0
+    },
+    "sbicrypto": {
+      "node_id": "sbicrypto",
+      "current_fork": "v27",
+      "blocks_mined": 9,
+      "blocks_mined_per_fork": {
+        "v26": 7,
+        "v27": 2
+      },
+      "blocks_orphaned": 7,
+      "orphan_rate": 0.7777777777777778,
+      "reorg_count": 1,
+      "total_exposure": 17
+    },
+    "luxor": {
+      "node_id": "luxor",
+      "current_fork": "v27",
+      "blocks_mined": 4,
+      "blocks_mined_per_fork": {
+        "v27": 4
+      },
+      "blocks_orphaned": 0,
+      "orphan_rate": 0.0,
+      "reorg_count": 0,
+      "total_exposure": 0
+    },
+    "ocean": {
+      "node_id": "ocean",
+      "current_fork": "v27",
+      "blocks_mined": 2,
+      "blocks_mined_per_fork": {
+        "v26": 2
+      },
+      "blocks_orphaned": 2,
+      "orphan_rate": 1.0,
+      "reorg_count": 1,
+      "total_exposure": 17
+    },
+    "braiinspool": {
+      "node_id": "braiinspool",
+      "current_fork": "v27",
+      "blocks_mined": 1,
+      "blocks_mined_per_fork": {
+        "v27": 1
+      },
+      "blocks_orphaned": 0,
+      "orphan_rate": 0.0,
+      "reorg_count": 0,
+      "total_exposure": 0
+    }
+  },
+  "reorg_events": [
+    {
+      "timestamp": 600,
+      "node_id": "viabtc",
+      "lca_height": 0,
+      "depth": 17,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 600,
+      "node_id": "f2pool",
+      "lca_height": 0,
+      "depth": 17,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 600,
+      "node_id": "binancepool",
+      "lca_height": 0,
+      "depth": 17,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 8
+    },
+    {
+      "timestamp": 600,
+      "node_id": "sbicrypto",
+      "lca_height": 0,
+      "depth": 17,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 7
+    },
+    {
+      "timestamp": 600,
+      "node_id": "ocean",
+      "lca_height": 0,
+      "depth": 17,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 2
+    }
+  ],
+  "fork_incidents": [
+    {
+      "incident_id": "incident-1",
+      "lca_hash": "fork-point",
+      "winning_fork": "v27",
+      "event_count": 5,
+      "reorg_mass": 85,
+      "penetration": 0.5,
+      "first_observed": 600,
+      "last_observed": 600
+    }
+  ],
+  "reunion_analysis": {
+    "winning_fork": "v27",
+    "losing_fork": "v26",
+    "losing_fork_depth": 17,
+    "nodes_on_losing_fork": [],
+    "num_nodes_on_losing_fork": 0,
+    "reunion_reorg_mass": 0,
+    "additional_orphans": 0,
+    "v27_chainwork": 89.0,
+    "v26_chainwork": 17.0
+  }
+}

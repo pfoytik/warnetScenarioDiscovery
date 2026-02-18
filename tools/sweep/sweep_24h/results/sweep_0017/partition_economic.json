@@ -1,0 +1,180 @@
+{
+  "nodes": {
+    "node-0000": {
+      "profile": {
+        "node_id": "node-0000",
+        "node_type": "economic",
+        "activity_type": "transactional",
+        "transaction_velocity": 0.915,
+        "fork_preference": "neutral",
+        "ideology_strength": 0.438,
+        "switching_threshold": 0.12,
+        "custody_btc": 2800000,
+        "daily_volume_btc": 294000,
+        "consensus_weight": 204.82,
+        "hashrate_pct": 0.0,
+        "inertia": 0.205,
+        "role": "major_exchange"
+      },
+      "current_allocation": "v27",
+      "stats": {
+        "switches": 0,
+        "ideology_overrides": 0,
+        "inertia_holds": 0
+      }
+    },
+    "node-0012": {
+      "profile": {
+        "node_id": "node-0012",
+        "node_type": "economic",
+        "activity_type": "transactional",
+        "transaction_velocity": 0.915,
+        "fork_preference": "neutral",
+        "ideology_strength": 0.438,
+        "switching_threshold": 0.12,
+        "custody_btc": 1200000,
+        "daily_volume_btc": 126000,
+        "consensus_weight": 87.78,
+        "hashrate_pct": 0.0,
+        "inertia": 0.205,
+        "role": "major_exchange"
+      },
+      "current_allocation": "v26",
+      "stats": {
+        "switches": 0,
+        "ideology_overrides": 0,
+        "inertia_holds": 1
+      }
+    },
+    "node-0011": {
+      "profile": {
+        "node_id": "node-0011",
+        "node_type": "user",
+        "activity_type": "mixed",
+        "transaction_velocity": 0.3,
+        "fork_preference": "neutral",
+        "ideology_strength": 0.527,
+        "switching_threshold": 0.127,
+        "custody_btc": 2.2,
+        "daily_volume_btc": 0.48,
+        "consensus_weight": 0.0002,
+        "hashrate_pct": 0.0,
+        "inertia": 0.05,
+        "role": null
+      },
+      "current_allocation": "v26",
+      "stats": {
+        "switches": 0,
+        "ideology_overrides": 0,
+        "inertia_holds": 1
+      }
+    },
+    "node-0023": {
+      "profile": {
+        "node_id": "node-0023",
+        "node_type": "user",
+        "activity_type": "mixed",
+        "transaction_velocity": 0.3,
+        "fork_preference": "neutral",
+        "ideology_strength": 0.527,
+        "switching_threshold": 0.127,
+        "custody_btc": 3.9,
+        "daily_volume_btc": 0.76,
+        "consensus_weight": 0.0003,
+        "hashrate_pct": 0.0,
+        "inertia": 0.05,
+        "role": null
+      },
+      "current_allocation": "v26",
+      "stats": {
+        "switches": 0,
+        "ideology_overrides": 0,
+        "inertia_holds": 1
+      }
+    }
+  },
+  "solo_mining": {
+    "total_hashrate_pct": 0,
+    "v27_hashrate_pct": 0.0,
+    "v26_hashrate_pct": 0.0,
+    "miners": []
+  },
+  "allocation_breakdown": {
+    "economic": {
+      "v27_weight": 204.82,
+      "v26_weight": 87.78,
+      "v27_count": 1,
+      "v26_count": 1
+    },
+    "user": {
+      "v27_weight": 0.0,
+      "v26_weight": 0.0005,
+      "v27_count": 0,
+      "v26_count": 2
+    }
+  },
+  "transactional_breakdown": {
+    "v27_transactional_pct": 69.99996078125972,
+    "v26_transactional_pct": 30.000039218740287,
+    "v27_custodial_pct": 69.99901493083406,
+    "v26_custodial_pct": 30.000985069165925
+  },
+  "decision_history": [
+    {
+      "timestamp": 1771335494.1510508,
+      "node_id": "node-0000",
+      "node_type": "economic",
+      "chosen_fork": "v27",
+      "v27_price_usd": 60000,
+      "v26_price_usd": 60000,
+      "price_ratio": 1.0,
+      "rational_choice": "v27",
+      "ideology_override": false,
+      "inertia_held": false,
+      "economic_weight": 204.82,
+      "reason": "Rational: following higher-priced fork"
+    },
+    {
+      "timestamp": 1771335494.1510508,
+      "node_id": "node-0012",
+      "node_type": "economic",
+      "chosen_fork": "v26",
+      "v27_price_usd": 60000,
+      "v26_price_usd": 60000,
+      "price_ratio": 1.0,
+      "rational_choice": "v27",
+      "ideology_override": false,
+      "inertia_held": true,
+      "economic_weight": 87.78,
+      "reason": "Inertia: staying on v26 (advantage 0.0% < threshold 32.5%)"
+    },
+    {
+      "timestamp": 1771335494.1510508,
+      "node_id": "node-0011",
+      "node_type": "user",
+      "chosen_fork": "v26",
+      "v27_price_usd": 60000,
+      "v26_price_usd": 60000,
+      "price_ratio": 1.0,
+      "rational_choice": "v27",
+      "ideology_override": false,
+      "inertia_held": true,
+      "economic_weight": 0.0002,
+      "reason": "Inertia: staying on v26 (advantage 0.0% < threshold 17.7%)"
+    },
+    {
+      "timestamp": 1771335494.1510508,
+      "node_id": "node-0023",
+      "node_type": "user",
+      "chosen_fork": "v26",
+      "v27_price_usd": 60000,
+      "v26_price_usd": 60000,
+      "price_ratio": 1.0,
+      "rational_choice": "v27",
+      "ideology_override": false,
+      "inertia_held": true,
+      "economic_weight": 0.0003,
+      "reason": "Inertia: staying on v26 (advantage 0.0% < threshold 17.7%)"
+    }
+  ]
+}

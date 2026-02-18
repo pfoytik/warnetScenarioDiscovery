@@ -1,0 +1,180 @@
+{
+  "metadata": {
+    "n_samples": 3,
+    "seed": 42,
+    "n_parameters": 16,
+    "parameters": [
+      {
+        "name": "v27_economic_pct",
+        "min": 20,
+        "max": 80,
+        "type": "continuous",
+        "description": "Initial economic weight on v27 fork (%)"
+      },
+      {
+        "name": "v27_hashrate_pct",
+        "min": 20,
+        "max": 80,
+        "type": "continuous",
+        "description": "Initial hashrate on v27 fork (%)"
+      },
+      {
+        "name": "pool_ideology_strength",
+        "min": 0.1,
+        "max": 0.9,
+        "type": "continuous",
+        "description": "How much pools sacrifice for ideology (0=rational, 1=ideological)"
+      },
+      {
+        "name": "pool_profitability_threshold",
+        "min": 0.02,
+        "max": 0.3,
+        "type": "continuous",
+        "description": "Min profit advantage for pools to consider switching"
+      },
+      {
+        "name": "pool_max_loss_pct",
+        "min": 0.02,
+        "max": 0.5,
+        "type": "continuous",
+        "description": "Max revenue loss pools tolerate for ideology"
+      },
+      {
+        "name": "pool_v27_preference_pct",
+        "min": 10,
+        "max": 70,
+        "type": "continuous",
+        "description": "Percentage of pools ideologically favoring v27"
+      },
+      {
+        "name": "pool_neutral_pct",
+        "min": 10,
+        "max": 50,
+        "type": "continuous",
+        "description": "Percentage of pools that are neutral/rational"
+      },
+      {
+        "name": "econ_ideology_strength",
+        "min": 0.0,
+        "max": 0.8,
+        "type": "continuous",
+        "description": "How much economic nodes sacrifice for ideology"
+      },
+      {
+        "name": "econ_switching_threshold",
+        "min": 0.02,
+        "max": 0.25,
+        "type": "continuous",
+        "description": "Min price advantage for economic nodes to switch"
+      },
+      {
+        "name": "econ_inertia",
+        "min": 0.05,
+        "max": 0.3,
+        "type": "continuous",
+        "description": "Additional switching friction (infrastructure costs)"
+      },
+      {
+        "name": "user_ideology_strength",
+        "min": 0.1,
+        "max": 0.9,
+        "type": "continuous",
+        "description": "How much users sacrifice for ideology"
+      },
+      {
+        "name": "user_switching_threshold",
+        "min": 0.05,
+        "max": 0.2,
+        "type": "continuous",
+        "description": "Min price advantage for users to switch"
+      },
+      {
+        "name": "transaction_velocity",
+        "min": 0.1,
+        "max": 0.9,
+        "type": "continuous",
+        "description": "Rate of fee-generating transactions (0=custodial, 1=high volume)"
+      },
+      {
+        "name": "user_nodes_per_partition",
+        "min": 2,
+        "max": 10,
+        "type": "discrete",
+        "description": "Number of user nodes per partition"
+      },
+      {
+        "name": "economic_nodes_per_partition",
+        "min": 1,
+        "max": 3,
+        "type": "discrete",
+        "description": "Number of economic/exchange nodes per partition"
+      },
+      {
+        "name": "solo_miner_hashrate",
+        "min": 0.02,
+        "max": 0.15,
+        "type": "continuous",
+        "description": "Hashrate percentage per solo miner"
+      }
+    ]
+  },
+  "scenarios": [
+    {
+      "scenario_id": "sweep_0000",
+      "v27_economic_pct": 59.014,
+      "v27_hashrate_pct": 61.162,
+      "pool_ideology_strength": 0.138,
+      "pool_profitability_threshold": 0.02,
+      "pool_max_loss_pct": 0.021,
+      "pool_v27_preference_pct": 54.655,
+      "pool_neutral_pct": 28.433,
+      "econ_ideology_strength": 0.229,
+      "econ_switching_threshold": 0.203,
+      "econ_inertia": 0.274,
+      "user_ideology_strength": 0.109,
+      "user_switching_threshold": 0.076,
+      "transaction_velocity": 0.872,
+      "user_nodes_per_partition": 8,
+      "economic_nodes_per_partition": 3,
+      "solo_miner_hashrate": 0.076
+    },
+    {
+      "scenario_id": "sweep_0001",
+      "v27_economic_pct": 74.64,
+      "v27_hashrate_pct": 43.12,
+      "pool_ideology_strength": 0.648,
+      "pool_profitability_threshold": 0.264,
+      "pool_max_loss_pct": 0.184,
+      "pool_v27_preference_pct": 10.933,
+      "pool_neutral_pct": 49.776,
+      "econ_ideology_strength": 0.653,
+      "econ_switching_threshold": 0.092,
+      "econ_inertia": 0.153,
+      "user_ideology_strength": 0.702,
+      "user_switching_threshold": 0.127,
+      "transaction_velocity": 0.307,
+      "user_nodes_per_partition": 5,
+      "economic_nodes_per_partition": 2,
+      "solo_miner_hashrate": 0.13
+    },
+    {
+      "scenario_id": "sweep_0002",
+      "v27_economic_pct": 27.491,
+      "v27_hashrate_pct": 23.12,
+      "pool_ideology_strength": 0.54,
+      "pool_profitability_threshold": 0.206,
+      "pool_max_loss_pct": 0.424,
+      "pool_v27_preference_pct": 49.475,
+      "pool_neutral_pct": 18.245,
+      "econ_ideology_strength": 0.448,
+      "econ_switching_threshold": 0.14,
+      "econ_inertia": 0.069,
+      "user_ideology_strength": 0.609,
+      "user_switching_threshold": 0.159,
+      "transaction_velocity": 0.617,
+      "user_nodes_per_partition": 4,
+      "economic_nodes_per_partition": 1,
+      "solo_miner_hashrate": 0.035
+    }
+  ]
+}

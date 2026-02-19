@@ -144,3 +144,176 @@ From `close_battle_021326` defection timeline:
 - ideology 0.7–0.85, loss tolerance 25–35%: sustained but vulnerable to persistent losses
 - ideology 0.85, loss tolerance 40%: eventually capitulates against a >50% opposing hashrate after ~4–5 ideology overrides
 - No pool configuration tested sustained indefinite resistance against a >50% opposing hashrate majority
+
+---
+
+## Asymmetric / Dynamic Scenarios (`tools/results/`)
+
+### balanced_4hr_test — Cascade in 25 Minutes
+
+**Configuration:** pool=`asymmetric_balanced`, economic=`asymmetric_balanced`, 240 min, difficulty enabled, retarget-interval=20
+
+| Metric | Value |
+|---|---|
+| v27 blocks | 1,424 |
+| v26 blocks | 41 |
+| Final hashrate | v27=100%, v26=0% |
+| Final prices | v27=$71,795, v26=$48,205 |
+| Reorg events | 4 |
+| Total orphans | 40 |
+| Orphan rate | 2.73% |
+
+**Why it cascaded so fast:** Three compounding failures in the parameter design:
+
+1. **Economic starting bias** — `asymmetric_balanced` gave v27 ~55% initial economic weight, producing a 5.8% price premium at t=0 before any blocks were mined
+2. **Neutral pools immediately piled on** — 23% hashrate joined v27 at the first decision round (v27 already more profitable), pushing v27 to ~58% effective hashrate
+3. **Low committed v26 tolerances** — f2pool=8.2%, viabtc=13%, antpool=17.5% tolerances were exceeded within 3 consecutive decision rounds as the loss gap grew 5.8% → 14.3% → 22.4%
+
+**Pool defection timeline:**
+- Round 1 (t=0): antpool, viabtc, f2pool hold on v26; neutrals go v27; 5.8% gap
+- Round 2 (~10 min): viabtc forced off (14.3% > 13%), f2pool forced off (14.3% > 8.2%)
+- Round 3 (~20 min): antpool forced off (22.4% > 17.5%)
+- Round 4 (~25 min): all pools v27 with 65.3% gap — permanently resolved
+
+**Conclusion:** This scenario was misconfigured for study of oscillation. The economic starting bias turned a nominally "balanced" scenario into a rapid cascade.
+
+---
+
+### standoff_4hr_test — Sustained Oscillation via Difficulty Oracle
+
+**Configuration:** pool=`ideological_standoff`, economic=`ideological_standoff`, 240 min, difficulty enabled, retarget-interval=20, dynamic-switching enabled
+**Network:** `ideological-standoff` (generated from `networkGen/scenarios/ideological_standoff.yaml`)
+
+| Metric | Value |
+|---|---|
+| v27 blocks | 1,037 |
+| v26 blocks | 1,000 |
+| Final hashrate | v27=31.3%, v26=68.7% |
+| Final economic | v27=55%, v26=45% |
+| Final prices | v27=$59,897, v26=$60,103 (0.3% spread) |
+| Chainwork winner | v27 (758.8 vs 680.9) |
+| Difficulty (final) | v27=0.265, v26=0.753 |
+| Total decision rounds | 23 over 4 hours |
+
+**Pool configuration:**
+
+| Pool(s) | Hashrate | Role | Tolerance |
+|---|---|---|---|
+| foundryusa + ocean + braiinspool | 31.3% | v27 committed | 31.5% (0.9 × 0.35) |
+| antpool + viabtc | 30.6% | v26 committed | 31.5% (0.9 × 0.35) |
+| f2pool + binancepool + marapool + luxor + sbicrypto | 38.1% | neutral swing | 2–5% threshold |
+
+**Economic configuration:** 50/50 iron-lock (effective switching threshold=60%, max price divergence=20% — nodes never switch).
+
+#### The Oscillation Mechanism (emergent from difficulty oracle)
+
+True sustained oscillation emerged not from price dynamics but from the interaction between the **difficulty oracle** and the **profitability calculation**:
+
+Pool decisions evaluate each fork using `assumed_fork_hashrate=50%` but the **current real difficulty**:
+```
+fork_profitability = blocks_per_hour(fork, assumed_50%) × (price + fees)
+```
+
+When a fork has a **low difficulty** (because few miners are on it), the assumed-50% calculation produces a high block rate — making that fork look far more profitable than it currently is. This creates a lagged negative feedback loop:
+
+1. Neutral pools + committed v26 (68.7%) mine v26 → v26 difficulty rises, v27 difficulty falls
+2. At next decision: "v27 at low difficulty, assuming 50% miners → many blocks" → v27 looks 40–60%+ more profitable
+3. Loss gap exceeds antpool/viabtc's 31.5% tolerance → **forced off v26**
+4. Now 100% on v27 → v27 difficulty spikes, v26 difficulty collapses
+5. At next decision: v26 looks cheap → gap hits 33–42% → **foundryusa/ocean/braiinspool forced off v27**
+6. Repeat every ~20 minutes for the full 4 hours
+
+**Key observations:**
+- Both chains produced nearly equal blocks (1,037 vs 1,000) throughout — neither chain died
+- Prices stayed within 0.3% of each other at the end — no sustained price divergence
+- v27 wins chainwork (758 vs 681) despite ending with only 31.3% hashrate, because it accumulated more work during periods of 100% dominance
+- The 31.5% tolerance is not a "never switch" threshold here — it becomes a **damping factor** that delays switching by one decision round, sustaining oscillation rather than triggering immediate cascade
+- Committed factions alternate between ideology-override (holding at 5–30% loss) and forced-switch (60%+ loss), then return to their preferred fork each cycle
+
+**Sample oscillation cycle (antpool as reference):**
+
+| Round | t (min) | antpool | loss gap |
+|---|---|---|---|
+| 1 | 0 | v26 (ideology+profit) | — |
+| 2 | 10 | v27 (forced) | 60.0% |
+| 3 | 20 | v26 (returned) | — |
+| 4 | 30 | v26 (ideology, holds) | 19.5% |
+| 5 | 40 | v27 (forced) | 46.6% |
+| 6 | 50 | v26 (returned) | — |
+| 7 | 60 | v26 (ideology, holds) | 12.1% |
+| 8 | 70 | v27 (forced) | 51.4% |
+| ... | ... | repeats 15 more rounds | ... |
+
+**Tuning knobs for oscillation speed:**
+- `retarget-interval` — shorter = faster difficulty swings = faster cycles (current: 20 blocks ≈ 20-min cycle)
+- `ideology_strength × max_loss_pct` — higher = longer hold before switching = slower oscillation
+- Neutral pool size — larger neutral bloc = larger hashrate swings = more extreme profitability gaps
+
+---
+
+### idwar_reunion_test — Fork Expiry with Real Bitcoin Reorg
+
+**Configuration:** pool=`ideological_war`, economic=`purely_rational`, 900 sec, difficulty enabled, retarget-interval=20, `--enable-reunion --reunion-timeout 90`
+
+| Metric | Value |
+|---|---|
+| v27 blocks | 18 |
+| v26 blocks | 80 |
+| Final hashrate | v27=0%, v26=98.4% |
+| Final prices | v27=$56,275, v26=$63,647 (13% spread) |
+| Chainwork winner | v26 (64.86 vs 18.0) |
+
+**Pool defection timeline (single decision round at t=600s):**
+
+| Pool | Starting fork | Final fork | Reason |
+|---|---|---|---|
+| foundryusa | v27 | v26 | Forced switch: exceeded max loss $5M |
+| luxor | v27 | v26 | Forced switch: exceeded max loss $500k |
+| ocean | v27 | v26 | Forced switch: exceeded max loss $200k |
+| antpool | v26 | v26 | Ideology and profit aligned |
+| viabtc | v26 | v26 | Ideology and profit aligned |
+| f2pool | v26 | v26 | Ideology and profit aligned |
+| marapool | v26 | v26 | Ideology and profit aligned |
+| binancepool | neutral | v26 | Rational profit maximization |
+| sbicrypto | neutral | v26 | Rational profit maximization |
+| braiinspool | neutral | v26 | Rational profit maximization |
+
+v27's committed pools (foundryusa 26.89%, luxor 3.94%, ocean 1.42%) provided ~32% hashrate for the first 600 seconds (one decision interval), mining 18 v27 blocks. At t=600s the profitability gap (~$6.5M/day for foundryusa) exceeded all their max-loss thresholds and all three were **forced off** in the same decision round. v26 mined the final 300 seconds at 100%.
+
+**Reunion results:**
+
+| Metric | Value |
+|---|---|
+| Winner | v26 |
+| Loser (v27) pre-reorg height | 17 |
+| Winner (v26) tip height | 82 |
+| Reorg depth | 17 blocks orphaned |
+| Nodes converged | 16/16 |
+| Convergence time | **2.0 seconds** |
+| Timed out | No |
+
+All 16 v27 partition nodes reorged from height 17 to height 82 (jumped 65 blocks, orphaned 17) within **2 seconds** of cross-partition connections being established. The 3.6× chainwork advantage (64.86 vs 18.0) was immediately decisive — nodes accepted the heavier chain without any ambiguity.
+
+**Economic note:** Final economic weight remained 55/45 (v27 favored) despite `purely_rational` config. This is an artifact of the `ideological-standoff` network YAML, which bakes in `ideology_strength: 0.9` at the node level. Per-node ideology from the network YAML takes precedence over the economic scenario config in the current implementation, producing the same 55/45 zombie pattern even when the scenario intends pure rationality.
+
+---
+
+## Updated Conclusions
+
+### 9. Price and profitability can decouple under difficulty dynamics
+When the difficulty oracle is active, a fork's **profitability** (blocks-per-hour × price, evaluated at assumed 50% hashrate) can diverge dramatically from its current **price** alone. A fork with low real hashrate and low difficulty appears far more profitable in the pool decision model than its price ratio suggests. This is the primary driver of oscillation in `standoff_4hr_test`.
+
+### 10. Sustained oscillation requires symmetric committed factions + difficulty oracle
+In `standoff_4hr_test`, both committed factions had equal tolerance (~31%) and the difficulty oracle created profitability swings of 40–60%. The combination produced a repeating forced-switch cycle that kept both chains viable for the full 4 hours. Without the difficulty oracle (flat block rate assumed), this oscillation does not occur — the system finds a stable attractor.
+
+### 11. The difficulty oracle is a natural stabilizer against cascade
+In `balanced_4hr_test` (no oscillation), difficulty was enabled but tolerances were too low — the cascade resolved before difficulty could create counter-pressure. In `standoff_4hr_test`, higher tolerances gave the difficulty mechanism time to operate, resulting in oscillation instead of cascade. The key parameter relationship: **if tolerance is high enough to survive one full oscillation cycle, the fork persists indefinitely**.
+
+### 12. Chainwork winner ≠ current hashrate winner
+`standoff_4hr_test` ended with v26 at 68.7% current hashrate but v27 winning chainwork (758 vs 681). Periods of 100% dominance (when one side is forced off entirely) accumulate disproportionate chainwork. A fork that survives oscillation cycles while briefly dominating hashrate can "win" by chainwork despite spending most of the simulation as the minority chain.
+
+### 13. Fork reunion via real Bitcoin reorg is instantaneous when chainwork advantage is decisive
+In `idwar_reunion_test`, the losing v27 partition (17 orphaned blocks, chainwork=18.0) was reconnected to the winning v26 partition (chainwork=64.86). All 16 losing-fork nodes reorged in **2 seconds** via normal Bitcoin P2P `headers` propagation — no custom logic required beyond `addnode`. A 3.6× chainwork advantage leaves no ambiguity; nodes immediately switch to the heavier chain. Convergence time will be longer in oscillation scenarios where chainwork is closer.
+
+### 14. Forced pool defection from economic loss can occur in a single decision round
+The three `ideological_war` v27-committed pools (foundryusa, luxor, ocean) entered the scenario with `max_loss_pct` of 35–40%. With `purely_rational` economics, v26's profitability advantage grew to ~80% by t=600s (the first decision round). All three pools were simultaneously forced off v27 in a single round, collapsing v27 hashrate from 32% to 0% instantaneously. This confirms: under rational economics, pool ideology thresholds act as a **one-way ratchet** — once the cumulative loss exceeds the threshold, defection is abrupt rather than gradual.

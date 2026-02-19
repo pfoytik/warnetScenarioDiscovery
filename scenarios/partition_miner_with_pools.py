@@ -207,6 +207,12 @@ class PartitionMinerWithPools(Commander):
         parser.add_argument('--enable-dynamic-switching', action='store_true', default=False,
                           help='Enable dynamic partition switching for economic/user nodes')
 
+        # Fork reunion
+        parser.add_argument('--enable-reunion', action='store_true', default=False,
+                          help='At end of duration, reconnect partitions and let the heavier chain reorg the loser')
+        parser.add_argument('--reunion-timeout', type=int, default=120,
+                          help='Seconds to wait for reorg convergence after reconnection (default 120)')
+
         # Results management
         parser.add_argument('--results-id', type=str, default=None,
                           help='Unique identifier for this run (default: auto-generated timestamp)')
@@ -517,6 +523,165 @@ class PartitionMinerWithPools(Commander):
         except Exception as e:
             self.log.error(f"    Switch failed for {node_name}: {e}")
             return False
+
+    def reunite_forks(self) -> dict:
+        """
+        Reconnect the two fork partitions and wait for the losing fork to reorg
+        to the heavier chain.
+
+        The winning fork is determined by cumulative chainwork (difficulty oracle)
+        or by block count if difficulty tracking is disabled.
+
+        Steps:
+        1. Determine the winning fork by chainwork / block count
+        2. Connect each losing-fork node to several winning-fork peers via addnode
+        3. Poll until all losing-fork nodes converge to the winning tip (or timeout)
+        4. Report reorg depth, orphaned blocks, and convergence metrics
+
+        Returns:
+            dict with reunion metrics (included in the results export)
+        """
+        if not self.options.enable_reunion:
+            return {'enabled': False}
+
+        self.log.info(f"\n{'='*70}")
+        self.log.info("FORK REUNION")
+        self.log.info(f"{'='*70}")
+
+        # Determine winning and losing forks
+        if self.difficulty_oracle:
+            winner_id, winner_cw, loser_cw = self.difficulty_oracle.get_winning_fork()
+        else:
+            winner_id = 'v27' if self.blocks_mined['v27'] >= self.blocks_mined['v26'] else 'v26'
+            winner_cw = float(self.blocks_mined[winner_id])
+            loser_cw = float(self.blocks_mined['v26' if winner_id == 'v27' else 'v27'])
+
+        loser_id = 'v26' if winner_id == 'v27' else 'v27'
+        winning_nodes = self.v27_nodes if winner_id == 'v27' else self.v26_nodes
+        losing_nodes = self.v26_nodes if winner_id == 'v27' else self.v27_nodes
+        winning_peers = self.v27_peer_addresses if winner_id == 'v27' else self.v26_peer_addresses
+
+        if not winning_nodes or not losing_nodes:
+            self.log.warning("  Cannot reunite: one partition has no nodes")
+            return {'enabled': True, 'skipped': True, 'reason': 'empty_partition'}
+
+        # Snapshot pre-reorg state
+        try:
+            winning_tip_hash = winning_nodes[0].getbestblockhash()
+            winning_tip_height = winning_nodes[0].getblockcount()
+        except Exception as e:
+            self.log.error(f"  Cannot read winning fork tip: {e}")
+            return {'enabled': True, 'skipped': True, 'reason': 'rpc_error'}
+
+        pre_reorg_heights = {}
+        for node in losing_nodes:
+            node_name = f"node-{node.index:04d}"
+            try:
+                pre_reorg_heights[node_name] = node.getblockcount()
+            except Exception as e:
+                self.log.warning(f"  Could not get height for {node_name}: {e}")
+                pre_reorg_heights[node_name] = 0
+
+        losing_tip_height = max(pre_reorg_heights.values(), default=0)
+        self.log.info(f"  Winning fork: {winner_id}  height={winning_tip_height}  chainwork={winner_cw:.4f}")
+        self.log.info(f"  Losing fork:  {loser_id}  height={losing_tip_height}  chainwork={loser_cw:.4f}")
+        self.log.info(f"  Connecting {len(losing_nodes)} {loser_id} nodes to {winner_id} peers...")
+
+        # Connect each losing-fork node to up to 4 winning-fork peers
+        peers_to_add = winning_peers[:min(4, len(winning_peers))]
+        connected_count = 0
+        for node in losing_nodes:
+            node_name = f"node-{node.index:04d}"
+            for peer_name in peers_to_add:
+                if peer_name != node_name:
+                    try:
+                        node.addnode(peer_name, "onetry")
+                        connected_count += 1
+                    except Exception as e:
+                        self.log.debug(f"  Could not connect {node_name} -> {peer_name}: {e}")
+
+        self.log.info(f"  Added {connected_count} cross-partition connections")
+        self.log.info(f"  Waiting up to {self.options.reunion_timeout}s for reorg convergence...")
+
+        # Poll for convergence
+        poll_interval = 2.0
+        reunion_start = time()
+        converged_nodes = set()
+        wait_elapsed = 0.0
+
+        while True:
+            wait_elapsed = time() - reunion_start
+            if wait_elapsed >= self.options.reunion_timeout:
+                break
+
+            # Refresh winning tip in case mining is still active
+            try:
+                winning_tip_hash = winning_nodes[0].getbestblockhash()
+                winning_tip_height = winning_nodes[0].getblockcount()
+            except Exception:
+                pass
+
+            for node in losing_nodes:
+                node_name = f"node-{node.index:04d}"
+                if node_name in converged_nodes:
+                    continue
+                try:
+                    best_hash = node.getbestblockhash()
+                    if best_hash == winning_tip_hash:
+                        post_h = node.getblockcount()
+                        self.log.info(f"  {node_name} converged at height {post_h} ({wait_elapsed:.1f}s)")
+                        converged_nodes.add(node_name)
+                except Exception as e:
+                    self.log.debug(f"  Polling {node_name}: {e}")
+
+            if len(converged_nodes) >= len(losing_nodes):
+                break
+
+            sleep(poll_interval)
+
+        # Final heights after waiting
+        post_reorg_heights = {}
+        for node in losing_nodes:
+            node_name = f"node-{node.index:04d}"
+            try:
+                post_reorg_heights[node_name] = node.getblockcount()
+            except Exception:
+                post_reorg_heights[node_name] = pre_reorg_heights.get(node_name, 0)
+
+        # Metrics
+        fork_point_height = self.options.start_height
+        losing_fork_depth = losing_tip_height - fork_point_height
+        orphaned_blocks = self.blocks_mined[loser_id]
+        nodes_converged = len(converged_nodes)
+        nodes_total = len(losing_nodes)
+        timed_out = nodes_converged < nodes_total
+
+        self.log.info(f"\n  REUNION RESULTS:")
+        self.log.info(f"  Winner:          {winner_id} (height {winning_tip_height})")
+        self.log.info(f"  Reorg depth:     {losing_fork_depth} blocks ({loser_id} fork above fork point)")
+        self.log.info(f"  Orphaned blocks: {orphaned_blocks}")
+        self.log.info(f"  Nodes converged: {nodes_converged}/{nodes_total} in {wait_elapsed:.1f}s")
+        if timed_out:
+            self.log.warning(f"  WARNING: {nodes_total - nodes_converged} nodes did not converge within timeout")
+
+        return {
+            'enabled': True,
+            'winner': winner_id,
+            'loser': loser_id,
+            'winner_chainwork': winner_cw,
+            'loser_chainwork': loser_cw,
+            'winning_tip_height': winning_tip_height,
+            'winning_tip_hash': winning_tip_hash,
+            'fork_point_height': fork_point_height,
+            'losing_fork_depth': losing_fork_depth,
+            'orphaned_blocks': orphaned_blocks,
+            'nodes_converged': nodes_converged,
+            'nodes_total': nodes_total,
+            'timed_out': timed_out,
+            'wait_elapsed_seconds': round(wait_elapsed, 1),
+            'pre_reorg_heights': pre_reorg_heights,
+            'post_reorg_heights': post_reorg_heights,
+        }
 
     def evaluate_economic_node_switches(self, elapsed: float):
         """
@@ -1494,6 +1659,9 @@ class PartitionMinerWithPools(Commander):
 
                 sleep(self.options.interval)
 
+        # Fork reunion (before final summary so we can log it inline)
+        reunion_results = self.reunite_forks()
+
         # Final summary
         elapsed_min = (time() - start_time) / 60.0
         total_blocks = self.blocks_mined['v27'] + self.blocks_mined['v26']
@@ -1671,6 +1839,9 @@ class PartitionMinerWithPools(Commander):
                 consolidated_results['reorg'] = reorg_export
                 with open('/tmp/partition_reorg.json', 'w') as f:
                     json.dump(reorg_export, f, indent=2)
+
+            # Fork reunion results
+            consolidated_results['reunion'] = reunion_results
 
             # Save consolidated results to file
             with open('/tmp/partition_results.json', 'w') as f:

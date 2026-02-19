@@ -316,6 +316,62 @@ asymmetric_softfork:
         ideology_strength: 0.2
 
 # ============================================================================
+# SCENARIO: Ideological Standoff
+# ============================================================================
+# Economic nodes are iron-locked 50/50 — they CANNOT switch forks under any
+# realistic price divergence the model can produce.
+#
+# Math check:
+#   Max price divergence (model cap) = 20%
+#   switching_threshold (0.30) + inertia (0.30) = 0.60 effective threshold
+#   0.60 >> 0.20 → economic nodes never evaluate a switch
+#   Even if they did: max_loss_pct=0.50, ideology=0.9 → tolerance=45% >> 20%
+#
+# Effect: The 50/50 economic split is FROZEN throughout the simulation.
+# This constrains the price oracle, preventing runaway cascade:
+#   - With 50/50 econ locked, max price gap = ±20% (capped)
+#   - Committed pool tolerance = 31.5% > 20% → also never switch
+#   - Only neutral pools (38%) shift based on the constrained price signal
+ideological_standoff:
+  description: "50/50 economic iron-lock. Neither side switches under any realistic price divergence."
+
+  economic_defaults:
+    switching_threshold: 0.30      # Need 30% price advantage to trigger evaluation
+    inertia: 0.30                  # Additional 30% resistance (effective threshold = 60%)
+    switching_cooldown: 7200       # 2-hour cooldown (longer than any reasonable test)
+    max_loss_pct: 0.50             # Would accept 50% loss before forced switch (never reached)
+
+  user_defaults:
+    switching_threshold: 0.25
+    inertia: 0.20
+    switching_cooldown: 7200
+    max_loss_pct: 0.40
+
+  overrides:
+    major_exchange:
+      fork_preference: "neutral"   # Major exchanges are neutral but also locked by inertia
+      ideology_strength: 0.5
+      inertia: 0.35
+
+  # Exactly 50/50 split — no starting advantage for either fork
+  # High ideology ensures nodes stay committed regardless of price
+  distribution_pattern:
+    economic:
+      - pct: 50
+        fork_preference: "v27"
+        ideology_strength: 0.9
+      - pct: 50
+        fork_preference: "v26"
+        ideology_strength: 0.9
+    user:
+      - pct: 50
+        fork_preference: "v27"
+        ideology_strength: 0.8
+      - pct: 50
+        fork_preference: "v26"
+        ideology_strength: 0.8
+
+# ============================================================================
 # Model Parameters (apply to all scenarios)
 # ============================================================================
 model_parameters:

@@ -777,6 +777,115 @@ asymmetric_softfork:
       max_loss_pct: 0.02
 
 # ============================================================================
+# SCENARIO: Ideological Standoff
+# ============================================================================
+# Committed factions CANNOT be forced off their preferred fork.
+# Neutral bloc (38%) drives hashrate oscillation around a stable equilibrium.
+#
+# Math:
+#   Max price divergence with 50/50 economic lock = 22.2% (capped at 20%)
+#   Committed tolerance = 0.9 * 0.35 = 31.5% > 22.2% → never forced off
+#   Neutral pools calibrated to detect small (2-5%) price signals
+#
+# v27 committed: foundryusa + ocean + braiinspool = ~31.3%
+# v26 committed: antpool + viabtc = ~30.6%
+# Neutral swing:  f2pool + binancepool + marapool + luxor + sbicrypto = ~38.1%
+ideological_standoff:
+  description: "Iron-committed factions (31% each) vs large neutral swing bloc (38%). Fork persists indefinitely."
+
+  pools:
+    # v27 committed faction (~31.3% hashrate)
+    # tolerance = 0.9 * 0.35 = 31.5% > max possible divergence (22.2%) → NEVER switches
+    - pool_id: "foundryusa"
+      hashrate_pct: 26.89
+      fork_preference: "v27"
+      ideology_strength: 0.9
+      profitability_threshold: 0.30
+      max_loss_usd: null
+      max_loss_pct: 0.35
+
+    - pool_id: "ocean"
+      hashrate_pct: 1.56
+      fork_preference: "v27"
+      ideology_strength: 0.9
+      profitability_threshold: 0.30
+      max_loss_usd: null
+      max_loss_pct: 0.35
+
+    - pool_id: "braiinspool"
+      hashrate_pct: 2.86
+      fork_preference: "v27"
+      ideology_strength: 0.9
+      profitability_threshold: 0.28
+      max_loss_usd: null
+      max_loss_pct: 0.35
+
+    # v26 committed faction (~30.6% hashrate)
+    # Symmetric commitment — neither side can force the other off
+    - pool_id: "antpool"
+      hashrate_pct: 19.25
+      fork_preference: "v26"
+      ideology_strength: 0.9
+      profitability_threshold: 0.30
+      max_loss_usd: null
+      max_loss_pct: 0.35
+
+    - pool_id: "viabtc"
+      hashrate_pct: 11.39
+      fork_preference: "v26"
+      ideology_strength: 0.9
+      profitability_threshold: 0.28
+      max_loss_usd: null
+      max_loss_pct: 0.35
+
+    # Neutral swing voters (~38.1% hashrate)
+    # Staggered profitability_threshold creates layered switching (not simultaneous cascade):
+    #   binancepool (2%) triggers first on tiny signals
+    #   f2pool + sbicrypto (3%) follow
+    #   marapool (4%) follows
+    #   luxor (5%) triggers last
+    # This creates wave-like hashrate shifts rather than cliff-edge cascades
+    - pool_id: "f2pool"
+      hashrate_pct: 11.25
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.03
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "binancepool"
+      hashrate_pct: 10.04
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.02
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "marapool"
+      hashrate_pct: 8.25
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.04
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "luxor"
+      hashrate_pct: 3.94
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.05
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "sbicrypto"
+      hashrate_pct: 4.57
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.03
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+# ============================================================================
 # Model Parameters (apply to all scenarios)
 # ============================================================================
 model_parameters:

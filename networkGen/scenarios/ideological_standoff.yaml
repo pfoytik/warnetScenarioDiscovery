@@ -1,0 +1,145 @@
+# Ideological Standoff Scenario
+#
+# Purpose: Maximize fork persistence by preventing committed pool cascade.
+#
+# Design rationale (from balanced_4hr_test post-mortem):
+#   The "balanced" test cascaded in ~25 minutes because:
+#     1. Economic split started at 55/45 (v27 advantage), giving v27 a 5.8% price premium
+#     2. Neutral pools (23%) immediately moved to v27 (already profitable)
+#     3. Committed v26 tolerances (8.2-17.5%) were exceeded within 3 decision rounds
+#
+# This scenario fixes all three issues:
+#
+# Fix 1 - Economic iron-lock (50/50):
+#   Both economic nodes have ideology_strength*max_loss_pct > 0.50.
+#   Max price divergence with 50/50 econ = 22.2% (capped at 20%).
+#   Economic nodes require 50%+ price loss to switch → NEVER switch.
+#
+# Fix 2 - Large, staggered neutral bloc (~38%):
+#   Neutral pools have varied thresholds (2-5%) and no ideology.
+#   They chase price signals without creating a cascade because the
+#   50/50 economic lock constrains the max price gap.
+#
+# Fix 3 - Committed pool tolerances above the theoretical maximum (~31%):
+#   ideology_strength=0.9, max_loss_pct=0.35 → tolerance=31.5%
+#   Max price gap with 50/50 econ = 22.2% → committed factions NEVER switch.
+#
+# Expected behavior:
+#   - Fork persists for the full test duration
+#   - Both chains continue producing blocks throughout
+#   - Neutral pools (38%) shift between forks based on small price signals
+#   - Hashrate oscillates in the 60-70% / 30-40% range
+#   - Prices stay within ±10-20% of each other
+#   - No clear winner — models a contentious fork that lasts months in reality
+
+name: "ideological-standoff"
+description: "Maximum fork persistence: committed factions locked in, large neutral bloc creates hashrate variance."
+
+# True 50/50 starting split — no initial economic advantage for either fork
+v27_economic_pct: 50
+v27_hashrate_pct: 50
+
+# Enough nodes to represent diverse stakeholders
+economic_nodes_per_partition: 2
+user_nodes_per_partition: 4
+
+# v27 economic node: iron-locked, will not switch for any realistic price divergence
+v27_economic:
+  role: "major_exchange"
+  fork_preference: "v27"
+  ideology_strength: 0.9
+  switching_threshold: 0.30   # Need 30% price advantage to even evaluate
+  inertia: 0.30               # Additional 30% resistance
+  activity_type: "transactional"
+  transaction_velocity: 0.7
+
+# v26 economic node: symmetric iron-lock
+v26_economic:
+  role: "major_exchange"
+  fork_preference: "v26"
+  ideology_strength: 0.9
+  switching_threshold: 0.30
+  inertia: 0.30
+  activity_type: "transactional"
+  transaction_velocity: 0.7
+
+# User nodes: ideologically committed (also locked in)
+user_config:
+  fork_preference: "neutral"
+  ideology_strength: 0.6
+  switching_threshold: 0.20
+  inertia: 0.15
+  activity_type: "mixed"
+  transaction_velocity: 0.3
+
+# Pool ideology overrides
+# v27 committed faction (~31.3% hashrate):
+#   tolerance = 0.9 * 0.35 = 31.5% → above 22.2% max divergence → NEVER forced off
+pool_overrides:
+  - pool_name: "Foundry USA"
+    fork_preference: "v27"
+    ideology_strength: 0.9
+    profitability_threshold: 0.30
+    max_loss_pct: 0.35
+
+  - pool_name: "OCEAN"
+    fork_preference: "v27"
+    ideology_strength: 0.9
+    profitability_threshold: 0.30
+    max_loss_pct: 0.35
+
+  - pool_name: "Braiins Pool"
+    fork_preference: "v27"
+    ideology_strength: 0.9
+    profitability_threshold: 0.28
+    max_loss_pct: 0.35
+
+  # v26 committed faction (~30.6% hashrate):
+  #   symmetric tolerance → NEVER forced off
+  - pool_name: "AntPool"
+    fork_preference: "v26"
+    ideology_strength: 0.9
+    profitability_threshold: 0.30
+    max_loss_pct: 0.35
+
+  - pool_name: "ViaBTC"
+    fork_preference: "v26"
+    ideology_strength: 0.9
+    profitability_threshold: 0.28
+    max_loss_pct: 0.35
+
+  # Neutral swing bloc (~38.1% hashrate):
+  # Staggered profitability_threshold creates layered switching behavior,
+  # not a simultaneous cascade. Pools switch in waves as price gap widens.
+  - pool_name: "F2Pool"
+    fork_preference: "neutral"
+    ideology_strength: 0.0
+    profitability_threshold: 0.03
+    max_loss_pct: 0.0
+
+  - pool_name: "Binance Pool"
+    fork_preference: "neutral"
+    ideology_strength: 0.0
+    profitability_threshold: 0.02
+    max_loss_pct: 0.0
+
+  - pool_name: "MARA Pool"
+    fork_preference: "neutral"
+    ideology_strength: 0.0
+    profitability_threshold: 0.04
+    max_loss_pct: 0.0
+
+  - pool_name: "Luxor"
+    fork_preference: "neutral"
+    ideology_strength: 0.0
+    profitability_threshold: 0.05
+    max_loss_pct: 0.0
+
+  - pool_name: "SBI Crypto"
+    fork_preference: "neutral"
+    ideology_strength: 0.0
+    profitability_threshold: 0.03
+    max_loss_pct: 0.0
+
+partition_mode: "static"
+fork_observer_enabled: false

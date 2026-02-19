@@ -1,0 +1,83 @@
+{
+  "config": {
+    "target_block_interval": 10.0,
+    "retarget_interval": 144,
+    "pre_fork_difficulty": 1.0,
+    "max_adjustment_factor": 4.0,
+    "min_difficulty": 0.0625,
+    "enable_eda": false,
+    "eda_threshold": 6.0,
+    "eda_reduction": 0.2
+  },
+  "forks": {
+    "v27": {
+      "fork_id": "v27",
+      "current_difficulty": 0.9235943479580961,
+      "blocks_since_retarget": 110,
+      "cumulative_chainwork": 663.8155917426101,
+      "last_block_sim_time": 7191,
+      "last_retarget_sim_time": 6076,
+      "expected_block_interval": 9.388983917435155,
+      "initial_height": 101,
+      "blocks_mined": 686
+    },
+    "v26": {
+      "fork_id": "v26",
+      "current_difficulty": 1.0,
+      "blocks_since_retarget": 61,
+      "cumulative_chainwork": 61.0,
+      "last_block_sim_time": 1785,
+      "last_retarget_sim_time": 0.0,
+      "expected_block_interval": 10000.0,
+      "initial_height": 101,
+      "blocks_mined": 61
+    }
+  },
+  "winning_fork": "v27",
+  "adjustment_history": [
+    {
+      "fork_id": "v27",
+      "sim_time": 1979,
+      "height": 144,
+      "old_difficulty": 1.0,
+      "new_difficulty": 0.7276402223345124,
+      "actual_time": 1979.0,
+      "target_time": 1440.0,
+      "adjustment_factor": 0.7276402223345124,
+      "is_eda": false
+    },
+    {
+      "fork_id": "v27",
+      "sim_time": 2958,
+      "height": 287,
+      "old_difficulty": 0.7276402223345124,
+      "new_difficulty": 1.0702777529741552,
+      "actual_time": 979,
+      "target_time": 1440.0,
+      "adjustment_factor": 1.4708886618998978,
+      "is_eda": false
+    },
+    {
+      "fork_id": "v27",
+      "sim_time": 4351,
+      "height": 431,
+      "old_difficulty": 1.0702777529741552,
+      "new_difficulty": 1.106389062658136,
+      "actual_time": 1393,
+      "target_time": 1440.0,
+      "adjustment_factor": 1.0337401292175161,
+      "is_eda": false
+    },
+    {
+      "fork_id": "v27",
+      "sim_time": 6076,
+      "height": 575,
+      "old_difficulty": 1.106389062658136,
+      "new_difficulty": 0.9235943479580961,
+      "actual_time": 1725,
+      "target_time": 1440.0,
+      "adjustment_factor": 0.8347826086956521,
+      "is_eda": false
+    }
+  ]
+}

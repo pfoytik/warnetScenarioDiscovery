@@ -54,7 +54,6 @@ from lib.economic_node_strategy import (
     load_economic_nodes_from_network,
 )
 from lib.difficulty_oracle import DifficultyOracle
-from lib.reorg_oracle import ReorgOracle
 
 
 class PartitionMinerWithPools(Commander):
@@ -85,7 +84,6 @@ class PartitionMinerWithPools(Commander):
         self.pool_strategy = None
         self.economic_strategy = None
         self.difficulty_oracle = None
-        self.reorg_oracle = None
 
         # Difficulty mode tick interval
         self.tick_interval = 1.0
@@ -98,63 +96,12 @@ class PartitionMinerWithPools(Commander):
         self.current_v27_economic = 0.0
         self.current_v26_economic = 0.0
 
-        # Transactional economic allocation (fee-generating activity only)
-        # Distinguishes exchanges/merchants (high velocity) from HODLers (low velocity)
-        self.current_v27_transactional = 0.0
-        self.current_v26_transactional = 0.0
-
-        # Solo miner hashrate (user/economic nodes that mine)
-        self.current_v27_solo_hashrate = 0.0
-        self.current_v26_solo_hashrate = 0.0
-
         # Pool-to-node mappings (per partition)
         self.pool_nodes_v27 = {}  # pool_id -> list of v27 nodes
         self.pool_nodes_v26 = {}  # pool_id -> list of v26 nodes
 
         # Node metadata from network.yaml
         self.node_metadata = {}  # node_name -> metadata dict
-
-        # Asymmetric fork: nodes that accept blocks from the foreign fork
-        # v26 nodes have accepts_foreign_blocks=True and receive v27 blocks via submitblock
-        self.foreign_accepting_nodes = []
-
-        # Dynamic partition switching: track peer lists and node partition assignments
-        self.v27_peer_addresses = []  # List of v27 node addresses for reconnection
-        self.v26_peer_addresses = []  # List of v26 node addresses for reconnection
-        self.node_current_partition = {}  # node_name -> current partition ('v27' or 'v26')
-        self.partition_switch_history = []  # Track all partition switches for analysis
-
-        # Time series data for charting
-        self.time_series = {
-            'timestamps': [],           # elapsed seconds
-            'v27_price': [],
-            'v26_price': [],
-            'v27_hashrate': [],
-            'v26_hashrate': [],
-            'v27_economic': [],
-            'v26_economic': [],
-            'v27_blocks': [],
-            'v26_blocks': [],
-            'v27_difficulty': [],
-            'v26_difficulty': [],
-            'v27_chainwork': [],
-            'v26_chainwork': [],
-            # Fee market metrics
-            'v27_fee_rate': [],         # sats/vbyte
-            'v26_fee_rate': [],
-            'v27_fee_revenue_btc': [],  # fee revenue per block
-            'v26_fee_revenue_btc': [],
-            'v27_congestion': [],       # tx_volume / throughput ratio
-            'v26_congestion': [],
-            'v27_mempool_mb': [],       # estimated mempool size
-            'v26_mempool_mb': [],
-            # Transactional vs custodial activity
-            'v27_transactional': [],    # fee-generating economic activity %
-            'v26_transactional': [],
-            # Solo miner hashrate (user nodes that mine)
-            'v27_solo_hashrate': [],
-            'v26_solo_hashrate': [],
-        }
 
     def add_options(self, parser: argparse.ArgumentParser):
         """Add command-line arguments"""
@@ -201,18 +148,6 @@ class PartitionMinerWithPools(Commander):
         parser.add_argument('--min-difficulty', type=float, default=0.0625,
                           help='Minimum difficulty floor (default 0.0625 = 1/16)')
 
-        # Reorg metrics
-        parser.add_argument('--enable-reorg-metrics', action='store_true', default=False,
-                          help='Enable reorg tracking oracle for fork impact metrics')
-        parser.add_argument('--enable-dynamic-switching', action='store_true', default=False,
-                          help='Enable dynamic partition switching for economic/user nodes')
-
-        # Results management
-        parser.add_argument('--results-id', type=str, default=None,
-                          help='Unique identifier for this run (default: auto-generated timestamp)')
-        parser.add_argument('--snapshot-interval', type=int, default=60,
-                          help='Interval in seconds for time series snapshots (default: 60)')
-
         # Debug options
         parser.add_argument('--debug-prices', action='store_true', default=False,
                           help='Enable verbose price calculation debugging')
@@ -242,25 +177,6 @@ class PartitionMinerWithPools(Commander):
                     self.log.info("Loading network metadata from bundled config")
             except Exception as e:
                 self.log.debug(f"No bundled network metadata: {e}")
-
-        # If we loaded config, check for accepts_foreign_blocks and infer from version if missing
-        if network_config:
-            nodes = network_config.get('nodes', [])
-            foreign_blocks_set = any(
-                n.get('metadata', {}).get('accepts_foreign_blocks') is not None
-                for n in nodes
-            )
-            if not foreign_blocks_set:
-                self.log.info("Inferring accepts_foreign_blocks from node versions (v26 nodes accept v27 blocks)")
-                for node_config in nodes:
-                    image_tag = node_config.get('image', {}).get('tag', '')
-                    metadata = node_config.get('metadata', {})
-                    # v26 nodes accept v27 blocks (non-contentious soft fork model)
-                    if '26' in str(image_tag):
-                        metadata['accepts_foreign_blocks'] = True
-                    else:
-                        metadata['accepts_foreign_blocks'] = False
-                    node_config['metadata'] = metadata
 
         if network_config is None:
             self.log.warning("No network metadata available, pool/economic mapping will be limited")
@@ -303,298 +219,6 @@ class PartitionMinerWithPools(Commander):
         self.log.info(f"\nPartition summary:")
         self.log.info(f"  v27 nodes: {len(self.v27_nodes)}")
         self.log.info(f"  v26 nodes: {len(self.v26_nodes)}")
-
-    def build_foreign_accepting_nodes(self):
-        """
-        Identify nodes that accept blocks from the foreign fork (accepts_foreign_blocks=True).
-
-        In the asymmetric fork model:
-          - v27 (strict): rejects v26 blocks — accepts_foreign_blocks=False
-          - v26 (permissive): accepts v27 blocks — accepts_foreign_blocks=True
-
-        When a v27 block is mined, it is submitted to the first foreign-accepting node
-        via submitblock. P2P propagation within the v26 island handles the rest.
-
-        Note: v26 nodes automatically accept v27 blocks in non-contentious soft fork model,
-        so we treat all v26 nodes as foreign-accepting by default.
-        """
-        self.foreign_accepting_nodes = []
-
-        for node in self.v26_nodes:
-            node_name = f"node-{node.index:04d}"
-            metadata = self.node_metadata.get(node_name, {})
-
-            # Check explicit flag first
-            accepts_foreign = metadata.get('accepts_foreign_blocks', None)
-
-            # If not explicitly set, v26 nodes accept v27 blocks by default
-            # (non-contentious soft fork model)
-            if accepts_foreign is None:
-                # v26 nodes accept v27 blocks (stricter rules are valid under looser rules)
-                accepts_foreign = True
-                self.log.debug(f"  {node_name}: accepts_foreign_blocks not set, defaulting to True (v26 node)")
-
-            if accepts_foreign:
-                self.foreign_accepting_nodes.append(node)
-
-        if self.foreign_accepting_nodes:
-            self.log.info(
-                f"\nAsymmetric fork mode: {len(self.foreign_accepting_nodes)} foreign-accepting node(s). "
-                f"v27 blocks will be submitted to node-{self.foreign_accepting_nodes[0].index:04d} "
-                f"for v26-island propagation."
-            )
-        else:
-            self.log.info(
-                "\nAsymmetric fork mode: no foreign-accepting nodes found "
-                "(accepts_foreign_blocks not set in metadata). "
-                "Running as standard symmetric partition."
-            )
-
-    def propagate_to_foreign_accepting(self, miner, fork_id: str):
-        """
-        After mining a v27 block, push it to the v26 island via submitblock.
-
-        Only acts when fork_id=='v27' and foreign-accepting nodes exist.
-        Submits to one bridge node only — P2P handles intra-island propagation.
-        """
-        if fork_id != 'v27' or not self.foreign_accepting_nodes:
-            return
-
-        try:
-            block_hash = miner.getbestblockhash()
-            raw_block = miner.getblock(block_hash, 0)
-            bridge_node = self.foreign_accepting_nodes[0]
-            result = bridge_node.submitblock(raw_block)
-            if result is not None:
-                # submitblock returns None on success; any other value is a rejection reason
-                self.log.warning(
-                    f"  [asymmetric] submitblock to node-{bridge_node.index:04d} returned: {result}"
-                )
-        except Exception as e:
-            self.log.error(f"  [asymmetric] Failed to propagate v27 block to v26 island: {e}")
-
-    def build_partition_peer_lists(self):
-        """
-        Build lists of peer addresses for each partition.
-        Used for dynamic partition switching - nodes can reconnect to a different partition.
-        """
-        self.log.info("\nBuilding partition peer lists for dynamic switching...")
-
-        # Get addresses from nodes in each partition
-        for node in self.v27_nodes:
-            try:
-                # Get the node's address that other nodes can connect to
-                node_name = f"node-{node.index:04d}"
-                # In warnet, nodes are addressable by their service name
-                self.v27_peer_addresses.append(node_name)
-                self.node_current_partition[node_name] = 'v27'
-            except Exception as e:
-                self.log.warning(f"  Could not get address for v27 node {node.index}: {e}")
-
-        for node in self.v26_nodes:
-            try:
-                node_name = f"node-{node.index:04d}"
-                self.v26_peer_addresses.append(node_name)
-                self.node_current_partition[node_name] = 'v26'
-            except Exception as e:
-                self.log.warning(f"  Could not get address for v26 node {node.index}: {e}")
-
-        self.log.info(f"  v27 peers: {len(self.v27_peer_addresses)} nodes")
-        self.log.info(f"  v26 peers: {len(self.v26_peer_addresses)} nodes")
-
-    def get_node_peers(self, node) -> list:
-        """Get list of currently connected peer addresses for a node."""
-        try:
-            peer_info = node.getpeerinfo()
-            return [p.get('addr', '').split(':')[0] for p in peer_info]
-        except Exception as e:
-            self.log.warning(f"  Could not get peers for node {node.index}: {e}")
-            return []
-
-    def switch_node_partition(self, node, old_partition: str, new_partition: str, reason: str = "") -> bool:
-        """
-        Switch a node from one partition to another by changing P2P connections.
-
-        Steps:
-        1. Disconnect from old partition peers
-        2. Connect to new partition peers
-        3. Wait for sync to new chain
-        4. Update tracking
-
-        Args:
-            node: The node to switch
-            old_partition: Current partition ('v27' or 'v26')
-            new_partition: Target partition ('v27' or 'v26')
-            reason: Why the switch is happening (for logging)
-
-        Returns:
-            True if switch was successful
-        """
-        if old_partition == new_partition:
-            return True  # No switch needed
-
-        node_name = f"node-{node.index:04d}"
-        self.log.info(f"\n  PARTITION SWITCH: {node_name} {old_partition} -> {new_partition}")
-        if reason:
-            self.log.info(f"    Reason: {reason}")
-
-        old_peers = self.v27_peer_addresses if old_partition == 'v27' else self.v26_peer_addresses
-        new_peers = self.v26_peer_addresses if new_partition == 'v26' else self.v27_peer_addresses
-
-        try:
-            # Step 1: Get current height before switch
-            old_height = node.getblockcount()
-            old_hash = node.getbestblockhash()
-
-            # Step 2: Disconnect from old partition peers
-            current_peers = self.get_node_peers(node)
-            disconnected = 0
-            for peer_addr in current_peers:
-                # Check if this peer is in the old partition
-                for old_peer in old_peers:
-                    if old_peer in peer_addr:
-                        try:
-                            node.disconnectnode(peer_addr)
-                            disconnected += 1
-                        except Exception:
-                            pass  # May already be disconnected
-                        break
-
-            self.log.info(f"    Disconnected from {disconnected} {old_partition} peers")
-
-            # Step 3: Connect to new partition peers
-            connected = 0
-            # Connect to a subset of new peers (not all, to avoid overwhelming)
-            peers_to_add = new_peers[:min(8, len(new_peers))]
-            for peer_name in peers_to_add:
-                if peer_name != node_name:  # Don't connect to self
-                    try:
-                        node.addnode(peer_name, "onetry")
-                        connected += 1
-                    except Exception as e:
-                        self.log.warning(f"    Could not connect to {peer_name}: {e}")
-
-            self.log.info(f"    Connected to {connected} {new_partition} peers")
-
-            # Step 4: Wait briefly for connection establishment
-            import time
-            time.sleep(2)
-
-            # Step 5: Check if we synced to new chain
-            new_height = node.getblockcount()
-            new_hash = node.getbestblockhash()
-
-            if new_hash != old_hash:
-                self.log.info(f"    Chain changed: height {old_height} -> {new_height}")
-                self.log.info(f"    Old tip: {old_hash[:16]}...")
-                self.log.info(f"    New tip: {new_hash[:16]}...")
-
-            # Step 6: Update tracking
-            self.node_current_partition[node_name] = new_partition
-
-            # Move node between partition lists
-            if old_partition == 'v27' and node in self.v27_nodes:
-                self.v27_nodes.remove(node)
-                self.v26_nodes.append(node)
-            elif old_partition == 'v26' and node in self.v26_nodes:
-                self.v26_nodes.remove(node)
-                self.v27_nodes.append(node)
-
-            # Record the switch
-            self.partition_switch_history.append({
-                'node': node_name,
-                'from': old_partition,
-                'to': new_partition,
-                'reason': reason,
-                'old_height': old_height,
-                'new_height': new_height,
-                'timestamp': time.time()
-            })
-
-            self.log.info(f"    Switch complete: {node_name} is now on {new_partition}")
-            return True
-
-        except Exception as e:
-            self.log.error(f"    Switch failed for {node_name}: {e}")
-            return False
-
-    def evaluate_economic_node_switches(self, elapsed: float):
-        """
-        Evaluate whether economic/user nodes should switch partitions based on
-        economic conditions (price, fees, ideology).
-
-        Called periodically during simulation to allow dynamic partition changes.
-        """
-        if not self.economic_strategy:
-            return
-
-        switches = []
-
-        # Get current prices and conditions
-        v27_price = self.price_oracle.get_price('v27') if self.price_oracle else 60000
-        v26_price = self.price_oracle.get_price('v26') if self.price_oracle else 60000
-        price_ratio = v27_price / v26_price if v26_price > 0 else 1.0
-
-        # Evaluate each economic node
-        for node in list(self.v27_nodes) + list(self.v26_nodes):
-            node_name = f"node-{node.index:04d}"
-            metadata = self.node_metadata.get(node_name, {})
-
-            # Skip pool nodes - they have their own switching logic
-            if metadata.get('node_type') == 'mining_pool':
-                continue
-
-            # Only evaluate economic and user nodes
-            node_type = metadata.get('node_type', '')
-            if node_type not in ['economic', 'user']:
-                continue
-
-            current_partition = self.node_current_partition.get(node_name, 'v27')
-            fork_preference = metadata.get('fork_preference', 'neutral')
-            ideology_strength = metadata.get('ideology_strength', 0.0)
-            switching_threshold = metadata.get('switching_threshold', 0.10)
-            inertia = metadata.get('inertia', 0.05)
-
-            # Determine if node should switch
-            should_switch = False
-            reason = ""
-
-            if current_partition == 'v27':
-                # On v27, consider switching to v26 if:
-                # 1. v26 has significantly better price AND low ideology
-                # 2. Or fork_preference is v26 with high ideology
-                if fork_preference == 'v26' and ideology_strength > 0.7:
-                    should_switch = True
-                    reason = f"ideological preference for v26 (strength={ideology_strength:.2f})"
-                elif price_ratio < (1 - switching_threshold) and ideology_strength < 0.3:
-                    should_switch = True
-                    reason = f"economic: v27 price {price_ratio:.2%} below v26"
-
-            else:  # current_partition == 'v26'
-                # On v26, consider switching to v27 if:
-                # 1. v27 has significantly better price AND low ideology
-                # 2. Or fork_preference is v27 with high ideology
-                if fork_preference == 'v27' and ideology_strength > 0.7:
-                    should_switch = True
-                    reason = f"ideological preference for v27 (strength={ideology_strength:.2f})"
-                elif price_ratio > (1 + switching_threshold) and ideology_strength < 0.3:
-                    should_switch = True
-                    reason = f"economic: v27 price {price_ratio:.2%} above v26"
-
-            # Apply inertia - random chance to delay switch
-            if should_switch:
-                import random
-                if random.random() < inertia:
-                    should_switch = False
-                    self.log.debug(f"  {node_name} switch delayed by inertia")
-
-            if should_switch:
-                new_partition = 'v26' if current_partition == 'v27' else 'v27'
-                switches.append((node, current_partition, new_partition, reason))
-
-        # Execute switches
-        for node, old_part, new_part, reason in switches:
-            self.switch_node_partition(node, old_part, new_part, reason)
 
     def build_pool_node_mapping(self):
         """
@@ -766,8 +390,8 @@ class PartitionMinerWithPools(Commander):
         Select a mining node for a specific fork (used in difficulty mode).
 
         In difficulty mode, we already know WHICH fork gets a block. This method
-        selects which pool/node mines it, weighted by hashrate of pools AND solo
-        miners allocated to that fork.
+        selects which pool/node mines it, weighted by hashrate of pools allocated
+        to that fork.
 
         Args:
             fork_id: 'v27' or 'v26'
@@ -784,10 +408,9 @@ class PartitionMinerWithPools(Commander):
             return choices(nodes, k=1)[0]
 
         # Build weighted list of pools allocated to this fork
-        miner_choices = []
-        miner_weights = []
+        pool_choices = []
+        pool_weights = []
 
-        # Add pools
         for pool_id, allocation in self.pool_strategy.current_allocation.items():
             if allocation != fork_id:
                 continue
@@ -796,132 +419,14 @@ class PartitionMinerWithPools(Commander):
             pool_node_map = self.pool_nodes_v27 if fork_id == 'v27' else self.pool_nodes_v26
 
             if pool_id in pool_node_map and pool_node_map[pool_id]:
-                miner_choices.append(pool_node_map[pool_id][0])
-                miner_weights.append(pool.hashrate_pct)
+                pool_choices.append(pool_node_map[pool_id][0])
+                pool_weights.append(pool.hashrate_pct)
 
-        # Add solo miners (user/economic nodes with hashrate)
-        if self.economic_strategy:
-            solo_miners = self.economic_strategy.get_solo_miners()
-            for node_id, miner_fork, hashrate in solo_miners:
-                if miner_fork != fork_id or hashrate <= 0:
-                    continue
-
-                # Find the actual node object by node_id
-                node_obj = self._get_node_by_id(node_id, fork_id)
-                if node_obj:
-                    miner_choices.append(node_obj)
-                    miner_weights.append(hashrate)
-
-        if not miner_choices:
+        if not pool_choices:
             # Fallback: random node from partition
             return choices(nodes, k=1)[0]
 
-        return choices(miner_choices, weights=miner_weights, k=1)[0]
-
-    def _get_node_by_id(self, node_id: str, fork_id: str) -> Optional[object]:
-        """
-        Get a node object by its node_id string.
-
-        Args:
-            node_id: Node identifier (e.g., "node-0008")
-            fork_id: Which fork partition to look in ('v27' or 'v26')
-
-        Returns:
-            Node object or None if not found
-        """
-        nodes = self.v27_nodes if fork_id == 'v27' else self.v26_nodes
-
-        for node in nodes:
-            # Node names are typically "node-XXXX" format
-            node_name = f"node-{node.index:04d}"
-            if node_name == node_id:
-                return node
-
-        return None
-
-    def capture_time_series_snapshot(self, elapsed: int):
-        """
-        Capture a snapshot of current state for time series charting.
-
-        Args:
-            elapsed: Seconds since simulation start
-        """
-        self.time_series['timestamps'].append(elapsed)
-        self.time_series['v27_price'].append(self.price_oracle.get_price('v27'))
-        self.time_series['v26_price'].append(self.price_oracle.get_price('v26'))
-        self.time_series['v27_hashrate'].append(self.current_v27_hashrate)
-        self.time_series['v26_hashrate'].append(self.current_v26_hashrate)
-        self.time_series['v27_economic'].append(self.current_v27_economic)
-        self.time_series['v26_economic'].append(self.current_v26_economic)
-        self.time_series['v27_blocks'].append(self.blocks_mined['v27'])
-        self.time_series['v26_blocks'].append(self.blocks_mined['v26'])
-
-        if self.difficulty_oracle:
-            v27_state = self.difficulty_oracle.forks.get('v27')
-            v26_state = self.difficulty_oracle.forks.get('v26')
-            self.time_series['v27_difficulty'].append(
-                v27_state.current_difficulty if v27_state else 1.0)
-            self.time_series['v26_difficulty'].append(
-                v26_state.current_difficulty if v26_state else 1.0)
-            self.time_series['v27_chainwork'].append(
-                v27_state.cumulative_chainwork if v27_state else 0.0)
-            self.time_series['v26_chainwork'].append(
-                v26_state.cumulative_chainwork if v26_state else 0.0)
-        else:
-            self.time_series['v27_difficulty'].append(1.0)
-            self.time_series['v26_difficulty'].append(1.0)
-            self.time_series['v27_chainwork'].append(float(self.blocks_mined['v27']))
-            self.time_series['v26_chainwork'].append(float(self.blocks_mined['v26']))
-
-        # Fee market metrics
-        if self.fee_oracle:
-            # Fee rates
-            self.time_series['v27_fee_rate'].append(self.fee_oracle.get_fee('v27'))
-            self.time_series['v26_fee_rate'].append(self.fee_oracle.get_fee('v26'))
-
-            # Fee revenue per block (miner incentive from fees)
-            self.time_series['v27_fee_revenue_btc'].append(
-                self.fee_oracle.get_fee_revenue_per_block('v27'))
-            self.time_series['v26_fee_revenue_btc'].append(
-                self.fee_oracle.get_fee_revenue_per_block('v26'))
-
-            # Mempool/congestion estimates
-            # Get blocks per hour for congestion calculation
-            if self.difficulty_oracle:
-                v27_bph = self.difficulty_oracle.get_blocks_per_hour('v27', self.current_v27_hashrate)
-                v26_bph = self.difficulty_oracle.get_blocks_per_hour('v26', self.current_v26_hashrate)
-            else:
-                # Estimate from hashrate (normal rate = 6 blocks/hour)
-                v27_bph = 6.0 * (self.current_v27_hashrate / 100.0) if self.current_v27_hashrate > 0 else 0.1
-                v26_bph = 6.0 * (self.current_v26_hashrate / 100.0) if self.current_v26_hashrate > 0 else 0.1
-
-            v27_mempool = self.fee_oracle.estimate_mempool_size(
-                'v27', v27_bph, self.current_v27_economic)
-            v26_mempool = self.fee_oracle.estimate_mempool_size(
-                'v26', v26_bph, self.current_v26_economic)
-
-            self.time_series['v27_congestion'].append(v27_mempool['congestion_ratio'])
-            self.time_series['v26_congestion'].append(v26_mempool['congestion_ratio'])
-            self.time_series['v27_mempool_mb'].append(v27_mempool['estimated_mempool_mb'])
-            self.time_series['v26_mempool_mb'].append(v26_mempool['estimated_mempool_mb'])
-        else:
-            # Default values if no fee oracle
-            self.time_series['v27_fee_rate'].append(1.0)
-            self.time_series['v26_fee_rate'].append(1.0)
-            self.time_series['v27_fee_revenue_btc'].append(0.01)
-            self.time_series['v26_fee_revenue_btc'].append(0.01)
-            self.time_series['v27_congestion'].append(1.0)
-            self.time_series['v26_congestion'].append(1.0)
-            self.time_series['v27_mempool_mb'].append(0.0)
-            self.time_series['v26_mempool_mb'].append(0.0)
-
-        # Transactional weight (fee-generating economic activity)
-        self.time_series['v27_transactional'].append(self.current_v27_transactional)
-        self.time_series['v26_transactional'].append(self.current_v26_transactional)
-
-        # Solo miner hashrate
-        self.time_series['v27_solo_hashrate'].append(self.current_v27_solo_hashrate)
-        self.time_series['v26_solo_hashrate'].append(self.current_v26_solo_hashrate)
+        return choices(pool_choices, weights=pool_weights, k=1)[0]
 
     def run_test(self):
         """Main mining loop with dynamic pool strategy"""
@@ -971,8 +476,6 @@ class PartitionMinerWithPools(Commander):
                     fork_preference=ForkPreference(pool_data.get('fork_preference', 'neutral')),
                     ideology_strength=pool_data.get('ideology_strength', pool_data.get('ideology_score', 0.5)),
                     profitability_threshold=pool_data.get('profitability_threshold', pool_data.get('switch_threshold_pct', 5.0) / 100.0),
-                    max_loss_usd=pool_data.get('max_loss_usd'),
-                    max_loss_pct=pool_data.get('max_loss_pct', 0.10),
                 ))
             self.pool_strategy = MiningPoolStrategy(pools)
             self.log.info(f"✓ Pool strategy initialized ({len(pools)} pools)")
@@ -1046,38 +549,19 @@ class PartitionMinerWithPools(Commander):
                         time(), self.price_oracle
                     )
 
-                # Calculate transactional weights (fee-generating activity)
-                self.current_v27_transactional, self.current_v26_transactional = \
-                    self.economic_strategy.get_fee_generation_weight()
-
-                # Calculate solo miner hashrate
-                self.current_v27_solo_hashrate, self.current_v26_solo_hashrate, solo_miners = \
-                    self.economic_strategy.get_mining_allocation()
-
                 econ_count = len(economic_profiles)
                 econ_types = {}
-                solo_miner_count = 0
                 for p in economic_profiles:
                     t = p.node_type.value
                     econ_types[t] = econ_types.get(t, 0) + 1
-                    if p.hashrate_pct > 0:
-                        solo_miner_count += 1
 
                 self.log.info(f"✓ Economic strategy initialized ({econ_count} nodes: {econ_types})")
                 self.log.info(f"  Initial economic weight: v27={self.current_v27_economic:.1f}%, v26={self.current_v26_economic:.1f}%")
-                self.log.info(f"  Initial transactional weight: v27={self.current_v27_transactional:.1f}%, v26={self.current_v26_transactional:.1f}%")
-                if solo_miner_count > 0:
-                    total_solo = self.current_v27_solo_hashrate + self.current_v26_solo_hashrate
-                    self.log.info(f"  Solo miners: {solo_miner_count} nodes with {total_solo:.2f}% hashrate")
-                    self.log.info(f"    v27: {self.current_v27_solo_hashrate:.2f}%, v26: {self.current_v26_solo_hashrate:.2f}%")
                 self.log.info(f"  Update interval: {self.options.economic_update_interval}s")
             else:
                 self.log.info("No economic/user nodes found in metadata, using static economic weight")
                 self.current_v27_economic = self.options.v27_economic
                 self.current_v26_economic = self.options.v26_economic
-                # Without economic strategy, assume 50/50 transactional split
-                self.current_v27_transactional = self.options.v27_economic
-                self.current_v26_transactional = self.options.v26_economic
                 self.economic_strategy = None
 
         except Exception as e:
@@ -1085,8 +569,6 @@ class PartitionMinerWithPools(Commander):
             self.log.info("Using static economic allocation from --v27-economic")
             self.current_v27_economic = self.options.v27_economic
             self.current_v26_economic = self.options.v26_economic
-            self.current_v27_transactional = self.options.v27_economic
-            self.current_v26_transactional = self.options.v26_economic
             self.economic_strategy = None
 
         # Initialize difficulty oracle (if enabled)
@@ -1110,18 +592,11 @@ class PartitionMinerWithPools(Commander):
         # Partition nodes
         self.partition_nodes_by_version()
 
-        # Identify foreign-accepting nodes for asymmetric fork propagation
-        self.build_foreign_accepting_nodes()
-
-        # Build partition peer lists for dynamic switching
-        self.build_partition_peer_lists()
-
         # Build pool-to-node mapping
         if self.pool_strategy:
             self.build_pool_node_mapping()
 
-        # Auto-detect starting height BEFORE reorg oracle initialization
-        # This ensures lca_height matches the actual fork point
+        # Auto-detect starting height if not explicitly set or if default
         if self.options.start_height == 101:  # Default value, auto-detect instead
             detected_heights = []
             for node in (self.v27_nodes + self.v26_nodes)[:3]:  # Sample first few nodes
@@ -1135,44 +610,11 @@ class PartitionMinerWithPools(Commander):
                 self.options.start_height = min(detected_heights)
                 self.log.info(f"Auto-detected start_height={self.options.start_height} from nodes")
 
-        # Initialize reorg oracle (if enabled) - AFTER auto-detection so lca_height is correct
-        if self.options.enable_reorg_metrics:
-            # Get initial fork height (LCA = starting height before fork diverges)
-            lca_height = self.options.start_height
-
-            # Determine total nodes from pool strategy if available
-            total_pool_nodes = len(self.pool_strategy.pools) if self.pool_strategy else 8
-
-            self.reorg_oracle = ReorgOracle(
-                lca_height=lca_height,
-                lca_hash="fork-point",
-                propagation_window=30.0,
-                total_nodes=total_pool_nodes
-            )
-            # Initialize both forks from the LCA
-            self.reorg_oracle.initialize_fork('v27', lca_height)
-            self.reorg_oracle.initialize_fork('v26', lca_height)
-
-            self.log.info(f"✓ Reorg oracle initialized (LCA height={lca_height})")
-
-            # Register pool nodes with reorg oracle
-            if self.pool_strategy:
-                for pool_id, pool in self.pool_strategy.pools.items():
-                    initial_fork = self.pool_strategy.current_allocation.get(pool_id, 'v27')
-                    self.reorg_oracle.register_node(pool_id, initial_fork)
-                    # Also set current_fork on pool profile for tracking
-                    pool.current_fork = initial_fork
-                self.log.info(f"  Registered {len(self.pool_strategy.pools)} pools with reorg oracle")
-
         # Main mining loop
         start_time = time()
         last_hashrate_update = start_time
         last_price_update = start_time
         last_economic_update = start_time
-        last_snapshot = start_time
-
-        # Capture initial snapshot
-        self.capture_time_series_snapshot(0)
 
         self.log.info(f"\n{'='*70}")
         if self.difficulty_oracle:
@@ -1195,29 +637,11 @@ class PartitionMinerWithPools(Commander):
                         current_time, self.price_oracle
                     )
 
-                # Update transactional weights (for fee calculations)
-                self.current_v27_transactional, self.current_v26_transactional = \
-                    self.economic_strategy.get_fee_generation_weight()
-
-                # Update solo miner hashrate allocation
-                old_v27_solo = self.current_v27_solo_hashrate
-                old_v26_solo = self.current_v26_solo_hashrate
-                self.current_v27_solo_hashrate, self.current_v26_solo_hashrate, _ = \
-                    self.economic_strategy.get_mining_allocation()
-
                 econ_change = abs(self.current_v27_economic - old_v27_econ)
-                solo_change = abs(self.current_v27_solo_hashrate - old_v27_solo)
-
                 if econ_change > 0.5:  # More than 0.5% change
                     self.log.info(f"\n ECONOMIC REALLOCATION at {elapsed}s:")
                     self.log.info(f"   v27: {old_v27_econ:.1f}% -> {self.current_v27_economic:.1f}%")
                     self.log.info(f"   v26: {old_v26_econ:.1f}% -> {self.current_v26_economic:.1f}%")
-                    self.log.info(f"   Transactional: v27={self.current_v27_transactional:.1f}%, v26={self.current_v26_transactional:.1f}%")
-
-                    # Log solo miner changes if any
-                    if solo_change > 0.01:
-                        self.log.info(f"   Solo miners: v27={old_v27_solo:.2f}%->{self.current_v27_solo_hashrate:.2f}%, "
-                                      f"v26={old_v26_solo:.2f}%->{self.current_v26_solo_hashrate:.2f}%")
 
                     # Log notable node decisions
                     recent = [d for d in self.economic_strategy.decision_history[-30:]
@@ -1229,11 +653,6 @@ class PartitionMinerWithPools(Commander):
                             self.log.info(f"   {decision.node_id}: staying on {decision.chosen_fork} (inertia)")
 
                 last_economic_update = current_time
-
-            # Capture time series snapshot at regular intervals
-            if current_time - last_snapshot >= self.options.snapshot_interval:
-                self.capture_time_series_snapshot(elapsed)
-                last_snapshot = current_time
 
             # Update prices (every minute by default)
             if current_time - last_price_update >= self.options.price_update_interval:
@@ -1297,10 +716,6 @@ class PartitionMinerWithPools(Commander):
                     difficulty_oracle=self.difficulty_oracle,
                     v27_hashrate_pct=self.current_v27_hashrate,
                     v26_hashrate_pct=self.current_v26_hashrate,
-                    # Pass transactional weights for fee calculation
-                    # Fees are driven by transaction activity, not custody holdings
-                    v27_transactional_pct=self.current_v27_transactional,
-                    v26_transactional_pct=self.current_v26_transactional,
                 )
 
                 last_price_update = current_time
@@ -1317,33 +732,6 @@ class PartitionMinerWithPools(Commander):
                         current_time, self.price_oracle, self.fee_oracle,
                         difficulty_oracle=self.difficulty_oracle,
                     )
-
-                # Ensure fork heights are current before detecting reorgs
-                if self.reorg_oracle:
-                    self.reorg_oracle.update_fork_heights(
-                        v27_height=self.options.start_height + self.blocks_mined['v27'],
-                        v26_height=self.options.start_height + self.blocks_mined['v26']
-                    )
-
-                # Detect fork switches and record reorgs
-                if self.reorg_oracle:
-                    for pool_id, pool in self.pool_strategy.pools.items():
-                        old_fork = pool.current_fork
-                        new_fork = self.pool_strategy.current_allocation.get(pool_id, old_fork)
-
-                        if old_fork != new_fork:
-                            # Pool is switching forks - this causes a reorg!
-                            reorg_event = self.reorg_oracle.record_fork_switch(
-                                node_id=pool_id,
-                                old_fork=old_fork,
-                                new_fork=new_fork,
-                                sim_time=elapsed
-                            )
-                            self.log.info(f"  REORG: {pool_id} switched {old_fork}->{new_fork}, "
-                                          f"depth={reorg_event.depth}, orphaned={len(reorg_event.blocks_invalidated)} blocks")
-
-                        # Update pool's current_fork tracking
-                        pool.current_fork = new_fork
 
                 # Log significant changes
                 hash_change = abs(self.current_v27_hashrate - old_v27_hash)
@@ -1365,11 +753,6 @@ class PartitionMinerWithPools(Commander):
 
                 last_hashrate_update = current_time
 
-                # Evaluate economic/user node partition switches
-                # These nodes may switch partitions based on price, ideology, etc.
-                if self.options.enable_dynamic_switching:
-                    self.evaluate_economic_node_switches(elapsed)
-
             # === BLOCK PRODUCTION ===
             if self.difficulty_oracle:
                 # DIFFICULTY MODE: per-tick probability for each fork independently
@@ -1388,24 +771,10 @@ class PartitionMinerWithPools(Commander):
                             address = miner_wallet.getnewaddress()
                             self.generatetoaddress(miner, 1, address, sync_fun=self.no_op)
 
-                            # Asymmetric fork: push v27 blocks into the v26 island
-                            self.propagate_to_foreign_accepting(miner, fork_id)
-
                             self.blocks_mined[fork_id] += 1
                             new_height = (self.v27_nodes[0].getblockcount() if fork_id == 'v27' and self.v27_nodes
                                           else self.v26_nodes[0].getblockcount() if fork_id == 'v26' and self.v26_nodes
                                           else self.options.start_height + self.blocks_mined[fork_id])
-
-                            # Record block with reorg oracle
-                            if self.reorg_oracle:
-                                pool_id = self.get_node_pool_id(miner)
-                                if pool_id:
-                                    self.reorg_oracle.record_block_mined(pool_id, fork_id, new_height)
-                                # Update fork heights
-                                self.reorg_oracle.update_fork_heights(
-                                    v27_height=self.options.start_height + self.blocks_mined['v27'],
-                                    v26_height=self.options.start_height + self.blocks_mined['v26']
-                                )
 
                             retarget_event = self.difficulty_oracle.record_block(fork_id, sim_elapsed, new_height)
 
@@ -1452,23 +821,11 @@ class PartitionMinerWithPools(Commander):
                     address = miner_wallet.getnewaddress()
                     self.generatetoaddress(miner, 1, address, sync_fun=self.no_op)
 
-                    # Asymmetric fork: push v27 blocks into the v26 island
-                    self.propagate_to_foreign_accepting(miner, partition)
-
                     self.blocks_mined[partition] += 1
 
                     v27_height = self.v27_nodes[0].getblockcount() if self.v27_nodes else 0
                     v26_height = self.v26_nodes[0].getblockcount() if self.v26_nodes else 0
                     fork_depth = v27_height + v26_height - (2 * self.options.start_height)
-
-                    # Record block with reorg oracle
-                    if self.reorg_oracle:
-                        pool_id = self.get_node_pool_id(miner)
-                        if pool_id:
-                            block_height = v27_height if partition == 'v27' else v26_height
-                            self.reorg_oracle.record_block_mined(pool_id, partition, block_height)
-                        # Update fork heights
-                        self.reorg_oracle.update_fork_heights(v27_height, v26_height)
 
                     # Get current state
                     v27_price = self.price_oracle.get_price('v27')
@@ -1537,167 +894,19 @@ class PartitionMinerWithPools(Commander):
             self.log.info("")
             self.economic_strategy.print_allocation_summary()
 
-        # Dynamic partition switching summary
-        if self.partition_switch_history:
-            self.log.info("")
-            self.log.info("=" * 50)
-            self.log.info("DYNAMIC PARTITION SWITCHES")
-            self.log.info("=" * 50)
-            self.log.info(f"  Total switches: {len(self.partition_switch_history)}")
-
-            # Count by direction
-            v27_to_v26 = sum(1 for s in self.partition_switch_history if s['from'] == 'v27')
-            v26_to_v27 = sum(1 for s in self.partition_switch_history if s['from'] == 'v26')
-            self.log.info(f"  v27 -> v26: {v27_to_v26}")
-            self.log.info(f"  v26 -> v27: {v26_to_v27}")
-
-            # Final partition distribution
-            v27_count = sum(1 for p in self.node_current_partition.values() if p == 'v27')
-            v26_count = sum(1 for p in self.node_current_partition.values() if p == 'v26')
-            self.log.info(f"  Final distribution: v27={v27_count} nodes, v26={v26_count} nodes")
-
-            # List recent switches
-            self.log.info("\n  Recent switches:")
-            for switch in self.partition_switch_history[-10:]:
-                self.log.info(f"    {switch['node']}: {switch['from']} -> {switch['to']} ({switch['reason']})")
-
-        # Reorg oracle summary
-        if self.reorg_oracle:
-            # Calculate reunion analysis
-            if self.difficulty_oracle:
-                v27_chainwork = self.difficulty_oracle.get_cumulative_chainwork('v27')
-                v26_chainwork = self.difficulty_oracle.get_cumulative_chainwork('v26')
-            else:
-                v27_chainwork = float(self.blocks_mined['v27'])
-                v26_chainwork = float(self.blocks_mined['v26'])
-
-            reunion = self.reorg_oracle.calculate_reunion_reorg(v27_chainwork, v26_chainwork)
-
-            self.log.info("")
-            self.reorg_oracle.print_summary()
-
-            self.log.info(f"\nReunion Analysis (hypothetical partition merge):")
-            self.log.info(f"  Winning fork: {reunion['winning_fork']}")
-            self.log.info(f"  Losing fork depth: {reunion['losing_fork_depth']} blocks")
-            self.log.info(f"  Nodes on losing fork: {reunion['num_nodes_on_losing_fork']}")
-            self.log.info(f"  Reunion reorg mass: {reunion['reunion_reorg_mass']}")
-            self.log.info(f"  Additional orphans on reunion: {reunion['additional_orphans']}")
-
         # Export results
         try:
-            import json
-            import base64
-            from datetime import datetime
-
-            # Generate results ID if not provided
-            results_id = self.options.results_id
-            if not results_id:
-                results_id = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-            # Build consolidated results object
-            consolidated_results = {
-                'metadata': {
-                    'results_id': results_id,
-                    'timestamp': datetime.now().isoformat(),
-                    'duration_seconds': self.options.duration,
-                    'pool_scenario': self.options.pool_scenario,
-                    'economic_scenario': self.options.economic_scenario,
-                    'difficulty_enabled': self.options.enable_difficulty,
-                    'reorg_metrics_enabled': self.options.enable_reorg_metrics,
-                    'interval': self.options.interval,
-                    'start_height': self.options.start_height,
-                },
-                'summary': {
-                    'blocks_mined': dict(self.blocks_mined),
-                    'total_blocks': self.blocks_mined['v27'] + self.blocks_mined['v26'],
-                    'final_hashrate': {
-                        'v27': self.current_v27_hashrate,
-                        'v26': self.current_v26_hashrate,
-                    },
-                    'final_economic': {
-                        'v27': self.current_v27_economic,
-                        'v26': self.current_v26_economic,
-                    },
-                    'final_prices': {
-                        'v27': self.price_oracle.get_price('v27'),
-                        'v26': self.price_oracle.get_price('v26'),
-                    },
-                },
-                'time_series': self.time_series,  # For charting
-                'partition_switches': {
-                    'total_switches': len(self.partition_switch_history),
-                    'switches': self.partition_switch_history,
-                    'final_partition_state': dict(self.node_current_partition),
-                },
-            }
-
-            # Capture final snapshot
-            self.capture_time_series_snapshot(int(time() - start_time))
-
-            # Add oracle exports
             if self.pool_strategy:
                 self.pool_strategy.export_to_json('/tmp/partition_pools.json')
-                # Read back for consolidated export
-                with open('/tmp/partition_pools.json', 'r') as f:
-                    consolidated_results['pools'] = json.load(f)
-
             if self.economic_strategy:
                 self.economic_strategy.export_to_json('/tmp/partition_economic.json')
-                with open('/tmp/partition_economic.json', 'r') as f:
-                    consolidated_results['economic'] = json.load(f)
-
             self.price_oracle.export_to_json('/tmp/partition_prices.json')
-            with open('/tmp/partition_prices.json', 'r') as f:
-                consolidated_results['prices'] = json.load(f)
-
             self.fee_oracle.export_to_json('/tmp/partition_fees.json')
-            with open('/tmp/partition_fees.json', 'r') as f:
-                consolidated_results['fees'] = json.load(f)
-
             if self.difficulty_oracle:
                 self.difficulty_oracle.export_to_json('/tmp/partition_difficulty.json')
-                with open('/tmp/partition_difficulty.json', 'r') as f:
-                    consolidated_results['difficulty'] = json.load(f)
-
-            if self.reorg_oracle:
-                reorg_export = self.reorg_oracle.export_to_json()
-                if self.difficulty_oracle:
-                    v27_cw = self.difficulty_oracle.get_cumulative_chainwork('v27')
-                    v26_cw = self.difficulty_oracle.get_cumulative_chainwork('v26')
-                else:
-                    v27_cw = float(self.blocks_mined['v27'])
-                    v26_cw = float(self.blocks_mined['v26'])
-                reorg_export['reunion_analysis'] = self.reorg_oracle.calculate_reunion_reorg(v27_cw, v26_cw)
-                consolidated_results['reorg'] = reorg_export
-                with open('/tmp/partition_reorg.json', 'w') as f:
-                    json.dump(reorg_export, f, indent=2)
-
-            # Save consolidated results to file
-            with open('/tmp/partition_results.json', 'w') as f:
-                json.dump(consolidated_results, f, indent=2)
-
             self.log.info(f"\n Results exported to /tmp/partition_*.json")
-            self.log.info(f" Results ID: {results_id}")
-
-            # Output base64-encoded results to logs for extraction
-            # This survives pod termination since it's in the logs
-            results_json = json.dumps(consolidated_results)
-            results_b64 = base64.b64encode(results_json.encode()).decode()
-
-            self.log.info(f"\n{'='*70}")
-            self.log.info("RESULTS_EXPORT_START")
-            self.log.info(f"RESULTS_ID:{results_id}")
-            # Split into chunks for readability (some log systems have line limits)
-            chunk_size = 1000
-            for i in range(0, len(results_b64), chunk_size):
-                self.log.info(f"RESULTS_DATA:{results_b64[i:i+chunk_size]}")
-            self.log.info("RESULTS_EXPORT_END")
-            self.log.info(f"{'='*70}")
-
         except Exception as e:
             self.log.error(f"Error exporting results: {e}")
-            import traceback
-            self.log.error(traceback.format_exc())
 
         self.log.info(f"{'='*70}\n")
 

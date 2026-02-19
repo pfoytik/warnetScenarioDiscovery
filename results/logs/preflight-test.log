@@ -1,0 +1,455 @@
+======================================================================
+OVERNIGHT TEST - MARKET DYNAMICS VALIDATION
+======================================================================
+
+Test ID:         preflight-test
+Duration:        0.083 hours (298 seconds)
+v27 Economic:    70%
+v27 Hashrate:    30% (initial)
+Pool Decisions:  Every 60 seconds (1 minutes)
+Price Updates:   Every 15 seconds
+
+Start Time:      Tue Jan 27 07:50:26 PM EST 2026
+Expected End:    
+
+======================================================================
+
+[STEP 1/4] Generating network...
+----------------------------------------------------------------------
+
+Generating network for Test preflight-test
+  v27: 70% economic, 30% hashrate
+  v22: 30% economic, 70% hashrate
+  Paired pool distribution:
+    v27 partition: 10 pools, 98.37% total capacity
+    v22 partition: 10 pools, 98.37% total capacity
+    Note: Same pools in both partitions (paired nodes)
+    Pool decisions determine mining allocation, not topology
+
+  Generated network:
+    Total nodes: 24
+    Pool nodes: 10 pools × 2 partitions = 20 nodes (paired)
+    v27 partition: nodes 0-9
+    v22 partition: nodes 10-19
+    Total edges: 22
+    Cross-partition edges: 4 (static mode)
+
+  Note: Each pool has nodes in both partitions (same entity_id)
+        Pool strategy determines which node mines, not topology
+
+  ✓ Saved to: ../../test-networks/test-preflight-test-economic-70-hashrate-30/network.yaml
+  ✓ Created node-defaults.yaml
+
+✓ Test preflight-test network configuration complete!
+
+Next steps:
+  1. Review: cat ../../test-networks/test-preflight-test-economic-70-hashrate-30/network.yaml
+  2. Deploy: warnet deploy ../../test-networks/test-preflight-test-economic-70-hashrate-30
+  3. Run test: ./run_partition_test.sh preflight-test
+✓ Network generated: /home/pfoytik/bitcoinTools/warnet/warnetScenarioDiscovery/../test-networks/test-preflight-test-economic-70-hashrate-30/network.yaml
+
+[STEP 2/4] Deploying network to warnet...
+----------------------------------------------------------------------
+Deploying ingress controller
+Deploying node: node-0000
+Deploying node: node-0001
+Deploying node: node-0002
+Deploying node: node-0003
+Deploying node: node-0005
+Deploying node: node-0006
+Deploying node: node-0004
+Deploying node: node-0008
+Deploying node: node-0007
+Adding services to dashboard: [
+  {
+    "title": "Fork Observer",
+    "path": "/fork-observer/",
+    "host": "fork-observer",
+    "port": 2323
+  }
+]
+Deploying node: node-0009
+Deploying node: node-0010
+Deploying node: node-0011
+Deploying node: node-0012
+Deploying node: node-0010
+Deploying node: node-0011
+Deploying node: node-0013
+Deploying node: node-0014
+Deploying node: node-0015
+Deploying node: node-0017
+Deploying node: node-0016
+Deploying node: node-0018
+Deploying node: node-0019
+Deploying node: node-0020
+Deploying node: node-0021
+Release "node-0006" does not exist. Installing it now.
+NAME: node-0006
+LAST DEPLOYED: Tue Jan 27 19:50:27 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Thank you for installing node-0006.
+Release "node-0000" does not exist. Installing it now.
+NAME: node-0000
+LAST DEPLOYED: Tue Jan 27 19:50:28 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Thank you for installing node-0000.
+Release "node-0010" does not exist. Installing it now.
+Error: release: already exists
+Error: Release "node-0010" does not exist. Installing it now.
+Error: release: already exists
+
+Release "node-0002" does not exist. Installing it now.
+NAME: node-0002
+LAST DEPLOYED: Tue Jan 27 19:50:28 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Thank you for installing node-0002.
+Release "node-0010" does not exist. Installing it now.
+NAME: node-0010
+LAST DEPLOYED: Tue Jan 27 19:50:28 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Thank you for installing node-0010.
+Release "node-0001" does not exist. Installing it now.
+NAME: node-0001
+LAST DEPLOYED: Tue Jan 27 19:50:28 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Thank you for installing node-0001.
+Release "node-0003" does not exist. Installing it now.
+NAME: node-0003
+LAST DEPLOYED: Tue Jan 27 19:50:28 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Thank you for installing node-0003.
+Release "node-0012" does not exist. Installing it now.
+NAME: node-0012
+LAST DEPLOYED: Tue Jan 27 19:50:28 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Thank you for installing node-0012.
+Release "node-0013" does not exist. Installing it now.
+NAME: node-0013
+LAST DEPLOYED: Tue Jan 27 19:50:29 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Thank you for installing node-0013.
+Release "node-0018" does not exist. Installing it now.
+NAME: node-0018
+LAST DEPLOYED: Tue Jan 27 19:50:28 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Thank you for installing node-0018.
+Release "node-0017" does not exist. Installing it now.
+NAME: node-0017
+LAST DEPLOYED: Tue Jan 27 19:50:29 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Thank you for installing node-0017.
+Release "node-0004" does not exist. Installing it now.
+NAME: node-0004
+LAST DEPLOYED: Tue Jan 27 19:50:28 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Thank you for installing node-0004.
+Release "node-0016" does not exist. Installing it now.
+NAME: node-0016
+LAST DEPLOYED: Tue Jan 27 19:50:28 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Thank you for installing node-0016.
+Release "node-0011" does not exist. Installing it now.
+Error: release: already exists
+Error: Release "node-0011" does not exist. Installing it now.
+Error: release: already exists
+
+Release "node-0021" does not exist. Installing it now.
+NAME: node-0021
+LAST DEPLOYED: Tue Jan 27 19:50:29 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Thank you for installing node-0021.
+Release "node-0005" does not exist. Installing it now.
+NAME: node-0005
+LAST DEPLOYED: Tue Jan 27 19:50:28 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Thank you for installing node-0005.
+Release "node-0014" does not exist. Installing it now.
+NAME: node-0014
+LAST DEPLOYED: Tue Jan 27 19:50:28 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Thank you for installing node-0014.
+Release "node-0008" does not exist. Installing it now.
+NAME: node-0008
+LAST DEPLOYED: Tue Jan 27 19:50:28 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Thank you for installing node-0008.
+Release "node-0019" does not exist. Installing it now.
+NAME: node-0019
+LAST DEPLOYED: Tue Jan 27 19:50:29 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Thank you for installing node-0019.
+Release "node-0011" does not exist. Installing it now.
+NAME: node-0011
+LAST DEPLOYED: Tue Jan 27 19:50:28 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Thank you for installing node-0011.
+Release "node-0020" does not exist. Installing it now.
+NAME: node-0020
+LAST DEPLOYED: Tue Jan 27 19:50:28 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Thank you for installing node-0020.
+Release "node-0009" does not exist. Installing it now.
+NAME: node-0009
+LAST DEPLOYED: Tue Jan 27 19:50:29 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Thank you for installing node-0009.
+Release "node-0007" does not exist. Installing it now.
+NAME: node-0007
+LAST DEPLOYED: Tue Jan 27 19:50:29 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Thank you for installing node-0007.
+Release "node-0015" does not exist. Installing it now.
+NAME: node-0015
+LAST DEPLOYED: Tue Jan 27 19:50:29 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Thank you for installing node-0015.
+Release "fork-observer" does not exist. Installing it now.
+NAME: fork-observer
+LAST DEPLOYED: Tue Jan 27 19:50:32 2026
+NAMESPACE: warnet-logging
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Fork observer enabled.
+Release "caddy" does not exist. Installing it now.
+NAME: caddy
+LAST DEPLOYED: Tue Jan 27 19:50:27 2026
+NAMESPACE: warnet-logging
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Caddy is serving your every need.
+
+To access the warnet dashboard run:
+  warnet dashboard
+"ingress-nginx" already exists with the same configuration, skipping
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "examples" chart repository
+...Successfully got an update from the "ingress-nginx" chart repository
+...Successfully got an update from the "grafana" chart repository
+...Successfully got an update from the "prometheus-community" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Release "ingress-nginx" does not exist. Installing it now.
+NAME: ingress-nginx
+LAST DEPLOYED: Tue Jan 27 19:50:33 2026
+NAMESPACE: ingress
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+The ingress-nginx controller has been installed.
+It may take a few minutes for the load balancer IP to be available.
+You can watch the status by running 'kubectl get service --namespace ingress ingress-nginx-controller --output wide --watch'
+
+An example Ingress that makes use of the controller:
+  apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    name: example
+    namespace: foo
+  spec:
+    ingressClassName: nginx
+    rules:
+      - host: www.example.com
+        http:
+          paths:
+            - pathType: Prefix
+              backend:
+                service:
+                  name: exampleService
+                  port:
+                    number: 80
+              path: /
+    # This section is only required if TLS is to be enabled for the Ingress
+    tls:
+      - hosts:
+        - www.example.com
+        secretName: example-tls
+
+If TLS is enabled for the Ingress, a Secret containing the certificate and key must also be provided:
+
+  apiVersion: v1
+  kind: Secret
+  metadata:
+    name: example-tls
+    namespace: foo
+  data:
+    tls.crt: <base64 encoded cert>
+    tls.key: <base64 encoded key>
+  type: kubernetes.io/tls
+✓ Network deployed
+  Waiting 90 seconds for nodes to sync...
+
+[STEP 3/4] Starting mining scenario...
+----------------------------------------------------------------------
+  Duration: 298 seconds (0.083 hours)
+  Pool decisions: Every 60 seconds
+  Price updates: Every 15 seconds
+
+✓ Mining scenario started (PID: 312487)
+  Log file: /home/pfoytik/bitcoinTools/warnet/warnetScenarioDiscovery/results/logs/preflight-test.log
+
+Running scenario: partition_miner_with_pools.py
+Scenario dir: /home/pfoytik/bitcoinTools/warnet/warnetScenarioDiscovery/scenarios
+Source dir (includes lib/ and config/): /home/pfoytik/bitcoinTools/warnet/warnetScenarioDiscovery
+
+[STEP 4/4] Monitoring market dynamics...
+----------------------------------------------------------------------
+  Will check every 60 seconds (1 minutes)
+  Press Ctrl+C to stop monitoring (scenario continues in background)
+
+Waiting for scenario to complete...
+(This will take 0.083 hours)
+
+
+[Tue Jan 27 07:52:23 PM EST 2026] Market Status Check
+----------------------------------------------------------------------
+  Pool decisions file not yet created
+
+  Price history file not yet created
+----------------------------------------------------------------------
+Including: test_framework
+Including: commander.py
+Including: ln_framework
+Including: warnet_test_framework.py
+Including: scenarios/__init__.py
+Including: scenarios/partition_miner_with_pools.py
+Including: lib/price_oracle.py
+Including: lib/fee_oracle.py
+Including: lib/__init__.py
+Including: lib/mining_pool_strategy.py
+Including: config/mining_pools_config.yaml
+Successfully deployed scenario commander: partition_miner_with_pools
+Commander pod name: commander-partitionminerwithpools-1769561544
+initContainer in pod commander-partitionminerwithpools-1769561544 (default) is ready
+Successfully copied data to commander-partitionminerwithpools-1769561544(init):/shared/archive.pyz
+Successfully uploaded scenario data to commander: partition_miner_with_pools
+
+======================================================================
+SCENARIO COMPLETED
+======================================================================
+End Time:     Tue Jan 27 07:52:39 PM EST 2026
+Exit Code:    0
+
+Running final fork analysis...
+----------------------------------------------------------------------
+Loading network configuration...
+✓ Loaded network config: unknown
+  Economic nodes: 22
+Loading pool decisions...
+⚠️  Pool decisions file not found: /tmp/partition_pools.json
+   Hashrate analysis will be skipped
+
+Querying warnet deployment...
+✓ Queried 22 nodes
+
+✓ No fork detected - network is synchronized
+
+Saving results...
+  ⚠️  Pool decisions file not found: /tmp/partition_pools.json
+  ⚠️  Price history file not found: /tmp/partition_prices.json
+  ⚠️  Fee history file not found: /tmp/partition_fees.json
+  - logs/preflight-test.log
+❌ No result files were generated by the scenario
+
+======================================================================
+TEST COMPLETE
+======================================================================
+
+Analyzing market dynamics...
+⚠️  Skipping market dynamics analysis - result files not generated
+   This may indicate the scenario exited before completing.
+   Check the log above for errors during mining.
+
+All logs saved to: /home/pfoytik/bitcoinTools/warnet/warnetScenarioDiscovery/results/logs/preflight-test.log
+

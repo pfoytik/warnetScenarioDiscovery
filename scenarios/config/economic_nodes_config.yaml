@@ -163,6 +163,159 @@ strong_v26_resistance:
       inertia: 0.20
 
 # ============================================================================
+# SCENARIO: Asymmetric Soft Fork - Balanced Battle
+# ============================================================================
+# Close economic split with moderate ideology
+# Designed for oscillation and dynamic equilibrium
+asymmetric_balanced:
+  description: "Balanced battle - slight v27 economic edge vs v26 hashrate edge. Moderate ideology creates tension."
+
+  economic_defaults:
+    switching_threshold: 0.08      # 8% price diff triggers evaluation
+    inertia: 0.10                  # Moderate inertia
+    switching_cooldown: 900        # 15 min cooldown
+    max_loss_pct: 0.12
+
+  user_defaults:
+    switching_threshold: 0.10
+    inertia: 0.08
+    switching_cooldown: 1200
+    max_loss_pct: 0.15
+
+  overrides:
+    major_exchange:
+      fork_preference: "neutral"
+      ideology_strength: 0.15
+      inertia: 0.05
+
+  # Close split: v27=55%, v26=45% economic
+  # Moderate ideology so switching is possible but not instant
+  distribution_pattern:
+    economic:
+      - pct: 45
+        fork_preference: "v27"
+        ideology_strength: 0.4
+      - pct: 35
+        fork_preference: "v26"
+        ideology_strength: 0.4
+      - pct: 20
+        fork_preference: "neutral"
+        ideology_strength: 0.1
+    user:
+      - pct: 40
+        fork_preference: "v27"
+        ideology_strength: 0.35
+      - pct: 35
+        fork_preference: "v26"
+        ideology_strength: 0.35
+      - pct: 25
+        fork_preference: "neutral"
+        ideology_strength: 0.1
+
+# ============================================================================
+# SCENARIO: Asymmetric Soft Fork - Extreme Divergence
+# ============================================================================
+# Designed to trigger dynamic partition switching
+# v27 starts with overwhelming economic support but minority hashrate
+# Low ideology = nodes will switch based on economics
+asymmetric_extreme:
+  description: "Extreme price divergence scenario. v27 economic dominance vs v26 hashrate dominance. Low ideology for switching."
+
+  economic_defaults:
+    switching_threshold: 0.05      # Very sensitive - 5% price diff triggers evaluation
+    inertia: 0.02                  # Low inertia - quick to switch
+    switching_cooldown: 600        # 10 min cooldown
+    max_loss_pct: 0.10
+
+  user_defaults:
+    switching_threshold: 0.08
+    inertia: 0.03
+    switching_cooldown: 900
+    max_loss_pct: 0.15
+
+  overrides:
+    major_exchange:
+      fork_preference: "neutral"   # Exchanges follow the money
+      ideology_strength: 0.05
+      inertia: 0.01
+
+  # v27 gets 80% economic support initially (will create price premium)
+  # v26 gets 20% (but has hashrate dominance)
+  # Low ideology means nodes WILL switch if economics shift
+  distribution_pattern:
+    economic:
+      - pct: 70
+        fork_preference: "v27"
+        ideology_strength: 0.2      # Low - will switch for profit
+      - pct: 20
+        fork_preference: "v26"
+        ideology_strength: 0.2
+      - pct: 10
+        fork_preference: "neutral"
+        ideology_strength: 0.0
+    user:
+      - pct: 60
+        fork_preference: "v27"
+        ideology_strength: 0.15
+      - pct: 25
+        fork_preference: "v26"
+        ideology_strength: 0.15
+      - pct: 15
+        fork_preference: "neutral"
+        ideology_strength: 0.0
+
+# ============================================================================
+# SCENARIO: Asymmetric Soft Fork (Non-Contentious)
+# ============================================================================
+# Matches asymmetric_softfork pool scenario
+# v27 minority with moderate economic support
+# v26 majority with dominant economic position
+asymmetric_softfork:
+  description: "Non-contentious soft fork economic distribution. v27 minority with committed supporters."
+
+  economic_defaults:
+    switching_threshold: 0.12
+    inertia: 0.15
+    switching_cooldown: 1200
+    max_loss_pct: 0.25
+
+  user_defaults:
+    switching_threshold: 0.10
+    inertia: 0.05
+    switching_cooldown: 1800
+    max_loss_pct: 0.15
+
+  overrides:
+    major_exchange:
+      fork_preference: "neutral"
+      ideology_strength: 0.2
+      inertia: 0.20
+
+  # v27 gets 40% economic support (minority but committed)
+  # v26 gets 60% economic support (majority, less committed)
+  distribution_pattern:
+    economic:
+      - pct: 35
+        fork_preference: "v27"
+        ideology_strength: 0.7
+      - pct: 45
+        fork_preference: "v26"
+        ideology_strength: 0.5
+      - pct: 20
+        fork_preference: "neutral"
+        ideology_strength: 0.1
+    user:
+      - pct: 30
+        fork_preference: "v27"
+        ideology_strength: 0.6
+      - pct: 40
+        fork_preference: "v26"
+        ideology_strength: 0.4
+      - pct: 30
+        fork_preference: "neutral"
+        ideology_strength: 0.2
+
+# ============================================================================
 # Model Parameters (apply to all scenarios)
 # ============================================================================
 model_parameters:

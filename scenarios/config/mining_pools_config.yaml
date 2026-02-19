@@ -500,6 +500,283 @@ close_battle_legacy:
       max_loss_pct: 0.0
 
 # ============================================================================
+# SCENARIO: Asymmetric Soft Fork - Balanced Battle
+# ============================================================================
+# Close hashrate split with moderate ideology on both sides
+# Creates tension and potential for oscillation
+asymmetric_balanced:
+  description: "Balanced battle - v27 ~40% vs v26 ~45% committed, ~15% swing voters"
+
+  pools:
+    # v27 faction (~40% hashrate): Committed but not extreme
+    - pool_id: "foundryusa"
+      hashrate_pct: 26.89
+      fork_preference: "v27"
+      ideology_strength: 0.7
+      profitability_threshold: 0.15
+      max_loss_usd: null
+      max_loss_pct: 0.25
+
+    - pool_id: "luxor"
+      hashrate_pct: 3.94
+      fork_preference: "v27"
+      ideology_strength: 0.65
+      profitability_threshold: 0.12
+      max_loss_usd: null
+      max_loss_pct: 0.20
+
+    - pool_id: "ocean"
+      hashrate_pct: 1.56
+      fork_preference: "v27"
+      ideology_strength: 0.6
+      profitability_threshold: 0.10
+      max_loss_usd: null
+      max_loss_pct: 0.18
+
+    - pool_id: "braiinspool"
+      hashrate_pct: 2.86
+      fork_preference: "v27"
+      ideology_strength: 0.55
+      profitability_threshold: 0.10
+      max_loss_usd: null
+      max_loss_pct: 0.15
+
+    # v26 faction (~45% hashrate): Similar commitment level
+    - pool_id: "antpool"
+      hashrate_pct: 19.25
+      fork_preference: "v26"
+      ideology_strength: 0.7
+      profitability_threshold: 0.15
+      max_loss_usd: null
+      max_loss_pct: 0.25
+
+    - pool_id: "viabtc"
+      hashrate_pct: 11.39
+      fork_preference: "v26"
+      ideology_strength: 0.65
+      profitability_threshold: 0.12
+      max_loss_usd: null
+      max_loss_pct: 0.20
+
+    - pool_id: "f2pool"
+      hashrate_pct: 11.25
+      fork_preference: "v26"
+      ideology_strength: 0.55
+      profitability_threshold: 0.10
+      max_loss_usd: null
+      max_loss_pct: 0.15
+
+    # Swing voters (~15% hashrate): Low ideology, will flip
+    - pool_id: "binancepool"
+      hashrate_pct: 10.04
+      fork_preference: "neutral"
+      ideology_strength: 0.1
+      profitability_threshold: 0.05
+      max_loss_usd: null
+      max_loss_pct: 0.02
+
+    - pool_id: "marapool"
+      hashrate_pct: 8.25
+      fork_preference: "neutral"
+      ideology_strength: 0.15
+      profitability_threshold: 0.06
+      max_loss_usd: null
+      max_loss_pct: 0.03
+
+    - pool_id: "sbicrypto"
+      hashrate_pct: 4.57
+      fork_preference: "neutral"
+      ideology_strength: 0.1
+      profitability_threshold: 0.05
+      max_loss_usd: null
+      max_loss_pct: 0.02
+
+# ============================================================================
+# SCENARIO: Asymmetric Soft Fork - Extreme Divergence
+# ============================================================================
+# Designed to show pool migration when economics shift dramatically
+# v27 ideological minority vs v26 pragmatic majority
+# Neutral pools will flip based on price
+asymmetric_extreme:
+  description: "Extreme divergence scenario. v27 committed minority, v26 pragmatic majority, large neutral bloc."
+
+  pools:
+    # v27 faction (~32% hashrate): VERY committed - won't switch
+    - pool_id: "foundryusa"
+      hashrate_pct: 26.89
+      fork_preference: "v27"
+      ideology_strength: 0.95       # Almost never switches
+      profitability_threshold: 0.40
+      max_loss_usd: null
+      max_loss_pct: 0.50
+
+    - pool_id: "luxor"
+      hashrate_pct: 3.94
+      fork_preference: "v27"
+      ideology_strength: 0.90
+      profitability_threshold: 0.35
+      max_loss_usd: null
+      max_loss_pct: 0.45
+
+    - pool_id: "ocean"
+      hashrate_pct: 1.56
+      fork_preference: "v27"
+      ideology_strength: 0.92
+      profitability_threshold: 0.38
+      max_loss_usd: null
+      max_loss_pct: 0.48
+
+    # v26 faction (~40% hashrate): Moderate commitment - will switch if v27 price is much better
+    - pool_id: "antpool"
+      hashrate_pct: 19.25
+      fork_preference: "v26"
+      ideology_strength: 0.5        # Moderate - can be swayed
+      profitability_threshold: 0.12
+      max_loss_usd: null
+      max_loss_pct: 0.15
+
+    - pool_id: "viabtc"
+      hashrate_pct: 11.39
+      fork_preference: "v26"
+      ideology_strength: 0.4
+      profitability_threshold: 0.10
+      max_loss_usd: null
+      max_loss_pct: 0.12
+
+    - pool_id: "f2pool"
+      hashrate_pct: 11.25
+      fork_preference: "v26"
+      ideology_strength: 0.35
+      profitability_threshold: 0.08
+      max_loss_usd: null
+      max_loss_pct: 0.10
+
+    # Neutral bloc (~26% hashrate): Purely profit-driven - will flip quickly
+    - pool_id: "binancepool"
+      hashrate_pct: 10.04
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.02  # Flips for 2% advantage
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "marapool"
+      hashrate_pct: 8.25
+      fork_preference: "neutral"
+      ideology_strength: 0.05
+      profitability_threshold: 0.03
+      max_loss_usd: null
+      max_loss_pct: 0.01
+
+    - pool_id: "sbicrypto"
+      hashrate_pct: 4.57
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.02
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "braiinspool"
+      hashrate_pct: 2.86
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.02
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+# ============================================================================
+# SCENARIO: Asymmetric Soft Fork (Non-Contentious)
+# ============================================================================
+# v27 = strict new rules (UASF), v26 = permissive old rules (no URSF)
+# v27 blocks are valid under v26 rules, creating asymmetric propagation
+asymmetric_softfork:
+  description: "Non-contentious soft fork with asymmetric block propagation. v27 minority hashrate with strong ideology."
+
+  pools:
+    # v27 faction (~32% hashrate): strongly committed to new rules
+    - pool_id: "foundryusa"
+      hashrate_pct: 26.89
+      fork_preference: "v27"
+      ideology_strength: 0.9
+      profitability_threshold: 0.25
+      max_loss_usd: null
+      max_loss_pct: 0.40
+
+    - pool_id: "luxor"
+      hashrate_pct: 3.94
+      fork_preference: "v27"
+      ideology_strength: 0.8
+      profitability_threshold: 0.20
+      max_loss_usd: null
+      max_loss_pct: 0.30
+
+    - pool_id: "ocean"
+      hashrate_pct: 1.56
+      fork_preference: "v27"
+      ideology_strength: 0.85
+      profitability_threshold: 0.22
+      max_loss_usd: null
+      max_loss_pct: 0.35
+
+    # v26 faction (~50% hashrate): dominant, ideologically committed to old rules
+    - pool_id: "antpool"
+      hashrate_pct: 19.25
+      fork_preference: "v26"
+      ideology_strength: 0.9
+      profitability_threshold: 0.25
+      max_loss_usd: null
+      max_loss_pct: 0.40
+
+    - pool_id: "viabtc"
+      hashrate_pct: 11.39
+      fork_preference: "v26"
+      ideology_strength: 0.85
+      profitability_threshold: 0.22
+      max_loss_usd: null
+      max_loss_pct: 0.35
+
+    - pool_id: "f2pool"
+      hashrate_pct: 11.25
+      fork_preference: "v26"
+      ideology_strength: 0.8
+      profitability_threshold: 0.20
+      max_loss_usd: null
+      max_loss_pct: 0.30
+
+    - pool_id: "marapool"
+      hashrate_pct: 8.25
+      fork_preference: "v26"
+      ideology_strength: 0.7
+      profitability_threshold: 0.15
+      max_loss_usd: null
+      max_loss_pct: 0.25
+
+    # Neutral (~16% hashrate): purely rational, will follow profit
+    - pool_id: "binancepool"
+      hashrate_pct: 10.04
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.01
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "sbicrypto"
+      hashrate_pct: 4.57
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.02
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "braiinspool"
+      hashrate_pct: 2.86
+      fork_preference: "neutral"
+      ideology_strength: 0.1
+      profitability_threshold: 0.05
+      max_loss_usd: null
+      max_loss_pct: 0.02
+
+# ============================================================================
 # Model Parameters (apply to all scenarios)
 # ============================================================================
 model_parameters:

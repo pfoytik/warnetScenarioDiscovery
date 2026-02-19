@@ -1,1 +1,1 @@
-/home/pfoytik/bitcoinTools/warnet/warnet/resources/scenarios/commander.py
+../warnet/resources/scenarios/commander.py

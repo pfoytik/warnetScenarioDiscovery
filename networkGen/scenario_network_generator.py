@@ -115,8 +115,10 @@ class ScenarioConfig:
     v27_economic: Optional[EconomicNodeConfig] = None
     v26_economic: Optional[EconomicNodeConfig] = None
 
-    # User node configuration
+    # User node configuration (partition-specific overrides take precedence)
     user_config: Optional[UserNodeConfig] = None
+    v27_user: Optional[UserNodeConfig] = None
+    v26_user: Optional[UserNodeConfig] = None
 
     # Topology
     partition_mode: str = "static"  # "static" or "dynamic"
@@ -322,18 +324,22 @@ class ScenarioNetworkGenerator:
     def _create_user_node(self, node_idx: int, version: str,
                           partition: str) -> Dict:
         """Create a user node configuration"""
-        # Use config or randomize
-        if self.config.user_config:
-            custody = self.config.user_config.custody_btc
-            volume = self.config.user_config.daily_volume_btc
-            fork_pref = self.config.user_config.fork_preference
-            ideology = self.config.user_config.ideology_strength
-            switch_thresh = self.config.user_config.switching_threshold
-            inertia = self.config.user_config.inertia
-            activity_type = self.config.user_config.activity_type
-            transaction_velocity = self.config.user_config.transaction_velocity
-            hashrate_pct = self.config.user_config.hashrate_pct
-            is_solo_miner = self.config.user_config.is_solo_miner
+        # Partition-specific config takes precedence over shared user_config
+        cfg = (
+            (self.config.v27_user if partition == "v27" else self.config.v26_user)
+            or self.config.user_config
+        )
+        if cfg:
+            custody = cfg.custody_btc
+            volume = cfg.daily_volume_btc
+            fork_pref = cfg.fork_preference
+            ideology = cfg.ideology_strength
+            switch_thresh = cfg.switching_threshold
+            inertia = cfg.inertia
+            activity_type = cfg.activity_type
+            transaction_velocity = cfg.transaction_velocity
+            hashrate_pct = cfg.hashrate_pct
+            is_solo_miner = cfg.is_solo_miner
         else:
             # Randomize with seed for reproducibility
             self.rng.seed((self.config.random_seed or 0) + node_idx)
@@ -673,10 +679,9 @@ def load_config_from_yaml(config_path: str) -> ScenarioConfig:
             hashrate_pct=e.get('hashrate_pct', 0.0),
         )
 
-    # User node configuration
-    if 'user_config' in data:
-        u = data['user_config']
-        config.user_config = UserNodeConfig(
+    # User node configuration (shared fallback + partition-specific overrides)
+    def _parse_user_config(u: dict) -> UserNodeConfig:
+        return UserNodeConfig(
             custody_btc=u.get('custody_btc', 1.0),
             daily_volume_btc=u.get('daily_volume_btc', 0.1),
             fork_preference=u.get('fork_preference', 'neutral'),
@@ -688,6 +693,13 @@ def load_config_from_yaml(config_path: str) -> ScenarioConfig:
             hashrate_pct=u.get('hashrate_pct', 0.0),
             is_solo_miner=u.get('is_solo_miner', False),
         )
+
+    if 'user_config' in data:
+        config.user_config = _parse_user_config(data['user_config'])
+    if 'v27_user' in data:
+        config.v27_user = _parse_user_config(data['v27_user'])
+    if 'v26_user' in data:
+        config.v26_user = _parse_user_config(data['v26_user'])
 
     # Topology
     config.partition_mode = data.get('partition_mode', 'static')

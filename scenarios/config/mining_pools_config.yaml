@@ -888,6 +888,208 @@ ideological_standoff:
 # ============================================================================
 # Model Parameters (apply to all scenarios)
 # ============================================================================
+# ============================================================================
+# SCENARIO: V26 Dominant
+# ============================================================================
+# Matches the v26-dominant network YAML pool_overrides exactly.
+#
+# Hashrate split:
+#   v27 committed: foundryusa (26.89%) + ocean (1.42%) + braiinspool (1.37%) = 29.68%
+#   v26 committed: antpool (19.25%) + viabtc (11.39%) + f2pool (11.25%)
+#                  + binancepool (10.04%) + sbicrypto (4.57%)               = 56.50%
+#   Neutral:       marapool (8.25%) + luxor (3.94%)                         = 12.19%
+#
+# High-ideology v27 faction (25% of v27 network nodes):
+#   foundryusa: ideology=0.85 — anchor of committed minority
+#   ocean/braiinspool: moderate (0.55/0.40) — switchable under sustained losses
+#
+# v26 pool ideologies kept below 0.70 so network YAML high-ideology node
+# count stays at exactly 25% (3/12 v27-partition nodes).
+v26_dominant:
+  description: "v26 holds ~70% hashrate. Committed 25% v27 minority resists but ultimately loses."
+
+  pools:
+    # === v27 committed faction (29.68%) ===
+    - pool_id: "foundryusa"
+      hashrate_pct: 26.89
+      fork_preference: "v27"
+      ideology_strength: 0.85
+      profitability_threshold: 0.22
+      max_loss_usd: 5000000
+      max_loss_pct: 0.40
+
+    - pool_id: "ocean"
+      hashrate_pct: 1.42
+      fork_preference: "v27"
+      ideology_strength: 0.55
+      profitability_threshold: 0.12
+      max_loss_usd: 200000
+      max_loss_pct: 0.25
+
+    - pool_id: "braiinspool"
+      hashrate_pct: 1.37
+      fork_preference: "v27"
+      ideology_strength: 0.40
+      profitability_threshold: 0.10
+      max_loss_usd: 150000
+      max_loss_pct: 0.18
+
+    # === v26 committed faction (56.50%) ===
+    - pool_id: "antpool"
+      hashrate_pct: 19.25
+      fork_preference: "v26"
+      ideology_strength: 0.65
+      profitability_threshold: 0.18
+      max_loss_usd: 5000000
+      max_loss_pct: 0.40
+
+    - pool_id: "viabtc"
+      hashrate_pct: 11.39
+      fork_preference: "v26"
+      ideology_strength: 0.60
+      profitability_threshold: 0.15
+      max_loss_usd: 2000000
+      max_loss_pct: 0.35
+
+    - pool_id: "f2pool"
+      hashrate_pct: 11.25
+      fork_preference: "v26"
+      ideology_strength: 0.55
+      profitability_threshold: 0.12
+      max_loss_usd: 1000000
+      max_loss_pct: 0.28
+
+    - pool_id: "binancepool"
+      hashrate_pct: 10.04
+      fork_preference: "v26"
+      ideology_strength: 0.45
+      profitability_threshold: 0.10
+      max_loss_usd: 500000
+      max_loss_pct: 0.22
+
+    - pool_id: "sbicrypto"
+      hashrate_pct: 4.57
+      fork_preference: "v26"
+      ideology_strength: 0.45
+      profitability_threshold: 0.08
+      max_loss_usd: 200000
+      max_loss_pct: 0.18
+
+    # === Neutral / profit-following (12.19%) ===
+    - pool_id: "marapool"
+      hashrate_pct: 8.25
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.02
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "luxor"
+      hashrate_pct: 3.94
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.03
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+# ============================================================================
+# SCENARIO: V26 Dominant — Committed True Believers
+# ============================================================================
+# Identical to v26_dominant except Foundry USA is a permanent v27 true believer:
+#   ideology_strength=1.0, max_loss_pct=10.0 (1000% floor — never exceeded),
+#   max_loss_usd=null (no USD cap).
+# OCEAN and Braiins Pool retain moderate ideology and can still defect.
+# v27 will hold at least 26.89% hashrate (Foundry USA) for the entire run.
+v26_dominant_committed:
+  description: "v26 ~70% hashrate. Foundry USA is a permanent v27 true believer — will never switch regardless of cost."
+
+  pools:
+    # === v27 faction ===
+    # Foundry USA: TRUE BELIEVER — ideology=1.0, no loss cap, never switches
+    - pool_id: "foundryusa"
+      hashrate_pct: 26.89
+      fork_preference: "v27"
+      ideology_strength: 1.0
+      profitability_threshold: 1.0
+      max_loss_usd: null
+      max_loss_pct: 10.0
+
+    # OCEAN: moderate — can still defect under sustained losses
+    - pool_id: "ocean"
+      hashrate_pct: 1.42
+      fork_preference: "v27"
+      ideology_strength: 0.55
+      profitability_threshold: 0.12
+      max_loss_usd: 200000
+      max_loss_pct: 0.25
+
+    # Braiins Pool: low-moderate — switchable under pressure
+    - pool_id: "braiinspool"
+      hashrate_pct: 1.37
+      fork_preference: "v27"
+      ideology_strength: 0.40
+      profitability_threshold: 0.10
+      max_loss_usd: 150000
+      max_loss_pct: 0.18
+
+    # === v26 committed faction (56.50%) — unchanged from v26_dominant ===
+    - pool_id: "antpool"
+      hashrate_pct: 19.25
+      fork_preference: "v26"
+      ideology_strength: 0.65
+      profitability_threshold: 0.18
+      max_loss_usd: 5000000
+      max_loss_pct: 0.40
+
+    - pool_id: "viabtc"
+      hashrate_pct: 11.39
+      fork_preference: "v26"
+      ideology_strength: 0.60
+      profitability_threshold: 0.15
+      max_loss_usd: 2000000
+      max_loss_pct: 0.35
+
+    - pool_id: "f2pool"
+      hashrate_pct: 11.25
+      fork_preference: "v26"
+      ideology_strength: 0.55
+      profitability_threshold: 0.12
+      max_loss_usd: 1000000
+      max_loss_pct: 0.28
+
+    - pool_id: "binancepool"
+      hashrate_pct: 10.04
+      fork_preference: "v26"
+      ideology_strength: 0.45
+      profitability_threshold: 0.10
+      max_loss_usd: 500000
+      max_loss_pct: 0.22
+
+    - pool_id: "sbicrypto"
+      hashrate_pct: 4.57
+      fork_preference: "v26"
+      ideology_strength: 0.45
+      profitability_threshold: 0.08
+      max_loss_usd: 200000
+      max_loss_pct: 0.18
+
+    # === Neutral (12.19%) — unchanged ===
+    - pool_id: "marapool"
+      hashrate_pct: 8.25
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.02
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
+    - pool_id: "luxor"
+      hashrate_pct: 3.94
+      fork_preference: "neutral"
+      ideology_strength: 0.0
+      profitability_threshold: 0.03
+      max_loss_usd: null
+      max_loss_pct: 0.0
+
 model_parameters:
   # Decision making
   decision_interval: 600  # Re-evaluate every 10 minutes

@@ -1,0 +1,136 @@
+# V26 Dominant — Committed True Believers
+#
+# Identical to v26_dominant except the three high-ideology v27 nodes are
+# permanent true believers: ideology=1.0, switching_threshold=1.0.
+# The model's max price divergence is ~20%, so a 100% threshold means
+# these nodes can NEVER be triggered to switch forks.
+#
+# High-ideology v27 true believers (3/12 = 25% of v27 partition):
+#   Foundry USA pool   (ideology=1.0, max_loss_pct=10.0 in pool scenario)
+#   v27 economic node  (ideology=1.0, switching_threshold=1.0)
+#   v27 user node      (ideology=1.0, switching_threshold=1.0)
+#
+# OCEAN and Braiins Pool retain moderate ideology and can still defect.
+# v27 holds at least 26.89% hashrate (Foundry USA) for the entire run.
+
+name: "v26-dominant-committed"
+description: "v26 ~70% hashrate/economic. Foundry USA, v27 economic node, and v27 user are permanent true believers — ideology=1.0, never switch."
+
+v27_economic_pct: 30
+v27_hashrate_pct: 30
+
+economic_nodes_per_partition: 1
+user_nodes_per_partition: 1
+
+# v27 economic node: TRUE BELIEVER
+# switching_threshold=1.0 means needs 100% price advantage to evaluate —
+# impossible given the ~20% model cap on price divergence.
+v27_economic:
+  role: "major_exchange"
+  fork_preference: "v27"
+  ideology_strength: 1.0
+  switching_threshold: 1.0
+  inertia: 1.0
+  activity_type: "transactional"
+  transaction_velocity: 0.6
+
+# v26 economic node: unchanged from v26_dominant
+v26_economic:
+  role: "major_exchange"
+  fork_preference: "v26"
+  ideology_strength: 0.65
+  switching_threshold: 0.08
+  inertia: 0.10
+  activity_type: "transactional"
+  transaction_velocity: 0.7
+
+# v27 user node: TRUE BELIEVER
+v27_user:
+  fork_preference: "v27"
+  ideology_strength: 1.0
+  switching_threshold: 1.0
+  inertia: 1.0
+  custody_btc: 2.0
+  daily_volume_btc: 0.2
+  activity_type: "mixed"
+  transaction_velocity: 0.3
+
+# v26 user node: unchanged from v26_dominant
+v26_user:
+  fork_preference: "v26"
+  ideology_strength: 0.40
+  switching_threshold: 0.06
+  inertia: 0.08
+  custody_btc: 2.0
+  daily_volume_btc: 0.2
+  activity_type: "mixed"
+  transaction_velocity: 0.3
+
+pool_overrides:
+  # === v27 faction ===
+  # Foundry USA: ideology baked into pool scenario (v26_dominant_committed)
+  # Network metadata mirrors the same values for documentation consistency.
+  - pool_name: "Foundry USA"
+    fork_preference: "v27"
+    ideology_strength: 1.0
+    profitability_threshold: 1.0
+    max_loss_pct: 10.0
+
+  - pool_name: "OCEAN"
+    fork_preference: "v27"
+    ideology_strength: 0.55
+    profitability_threshold: 0.12
+    max_loss_pct: 0.25
+
+  - pool_name: "Braiins Pool"
+    fork_preference: "v27"
+    ideology_strength: 0.40
+    profitability_threshold: 0.10
+    max_loss_pct: 0.18
+
+  # === v26 committed faction — ideology kept below 0.70 ===
+  - pool_name: "AntPool"
+    fork_preference: "v26"
+    ideology_strength: 0.65
+    profitability_threshold: 0.18
+    max_loss_pct: 0.40
+
+  - pool_name: "ViaBTC"
+    fork_preference: "v26"
+    ideology_strength: 0.60
+    profitability_threshold: 0.15
+    max_loss_pct: 0.35
+
+  - pool_name: "F2Pool"
+    fork_preference: "v26"
+    ideology_strength: 0.55
+    profitability_threshold: 0.12
+    max_loss_pct: 0.28
+
+  - pool_name: "Binance Pool"
+    fork_preference: "v26"
+    ideology_strength: 0.45
+    profitability_threshold: 0.10
+    max_loss_pct: 0.22
+
+  - pool_name: "SBI Crypto"
+    fork_preference: "v26"
+    ideology_strength: 0.45
+    profitability_threshold: 0.08
+    max_loss_pct: 0.18
+
+  # === Neutral ===
+  - pool_name: "MARA Pool"
+    fork_preference: "neutral"
+    ideology_strength: 0.0
+    profitability_threshold: 0.02
+    max_loss_pct: 0.0
+
+  - pool_name: "Luxor"
+    fork_preference: "neutral"
+    ideology_strength: 0.0
+    profitability_threshold: 0.03
+    max_loss_pct: 0.0
+
+partition_mode: "static"
+fork_observer_enabled: false

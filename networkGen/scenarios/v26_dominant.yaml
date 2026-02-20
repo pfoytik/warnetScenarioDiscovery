@@ -1,0 +1,169 @@
+# V26 Dominant Scenario
+#
+# Purpose: Model a clear v26 hashrate/economic majority with a small but
+# committed v27 minority faction — designed for the full suite run with
+# fork reunion.
+#
+# Hashrate split (~70% v26, ~30% v27):
+#   v27 committed: Foundry USA (26.89%) + OCEAN (1.42%) + Braiins Pool (1.37%) = 29.68%
+#   v26 committed: AntPool (19.25%) + ViaBTC (11.39%) + F2Pool (11.25%)
+#                  + Binance Pool (10.04%) + SBI Crypto (4.57%)           = 56.50%
+#   Neutral:       MARA Pool (8.25%) + Luxor (3.94%)                      = 12.19%
+#   Neutrals follow profit → effective v26 ≈ 68.7% ≈ 70%
+#
+# Economic split: v27=30%, v26=70% (set via v27_economic_pct)
+#
+# High-ideology v27 faction (25% of v27 nodes = 3 of 12):
+#   Node counts per partition: 1 economic + 10 pools + 1 user = 12
+#   High-ideology (ideology >= 0.70):
+#     - Foundry USA pool      (ideology=0.85)  ← pool  ✓
+#     - v27 economic node     (ideology=0.75)  ← economic ✓
+#     - v27 user node         (ideology=0.75)  ← user ✓
+#   Remaining 9 v27 nodes: moderate-to-low ideology (switchable)
+#
+# Expected behavior:
+#   - v26 wins both hashrate and economic weight throughout
+#   - High-ideology v27 faction (Foundry USA + econ + user) resists up to
+#     25-30% price loss before being forced off
+#   - Low-ideology v27 nodes (OCEAN, Braiins Pool, other pools) defect
+#     earlier as losses accumulate
+#   - Reunion: v27 nodes reorg to the heavier v26 chain
+
+name: "v26-dominant"
+description: "v26 holds ~70% hashrate and economic weight. Committed 25% v27 minority resists but ultimately loses."
+
+# Starting price oracle: v27=30%, v26=70%
+v27_economic_pct: 30
+v27_hashrate_pct: 30
+
+# 1 economic + 10 pools + 1 user = 12 nodes per partition
+# 25% of 12 = 3 high-ideology v27 nodes (Foundry USA + econ + user)
+economic_nodes_per_partition: 1
+user_nodes_per_partition: 1
+
+# v27 economic node: HIGH ideology — part of the committed 25% minority
+# effective switching threshold = 0.15 + 0.10 = 25%
+# resists switching to v26 unless v26 is >25% more expensive
+v27_economic:
+  role: "major_exchange"
+  fork_preference: "v27"
+  ideology_strength: 0.75
+  switching_threshold: 0.15
+  inertia: 0.10
+  activity_type: "transactional"
+  transaction_velocity: 0.6
+
+# v26 economic node: moderate ideology — holds v26 position comfortably
+# effective switching threshold = 0.08 + 0.10 = 18%
+# won't switch to v27 unless v27 is >18% more expensive (unlikely given 70% v26 dominance)
+v26_economic:
+  role: "major_exchange"
+  fork_preference: "v26"
+  ideology_strength: 0.65
+  switching_threshold: 0.08
+  inertia: 0.10
+  activity_type: "transactional"
+  transaction_velocity: 0.7
+
+# v27 user node: HIGH ideology — part of the committed 25% minority
+# effective threshold = 0.12 + 0.08 = 20%
+v27_user:
+  fork_preference: "v27"
+  ideology_strength: 0.75
+  switching_threshold: 0.12
+  inertia: 0.08
+  custody_btc: 2.0
+  daily_volume_btc: 0.2
+  activity_type: "mixed"
+  transaction_velocity: 0.3
+
+# v26 user node: moderate ideology — follows v26 economic dominance
+# effective threshold = 0.06 + 0.08 = 14%
+v26_user:
+  fork_preference: "v26"
+  ideology_strength: 0.40
+  switching_threshold: 0.06
+  inertia: 0.08
+  custody_btc: 2.0
+  daily_volume_btc: 0.2
+  activity_type: "mixed"
+  transaction_velocity: 0.3
+
+# Pool ideology overrides
+pool_overrides:
+  # === v27 committed faction (29.68% hashrate) ===
+
+  # Foundry USA: HIGH ideology — anchor of committed v27 minority (25% faction)
+  - pool_name: "Foundry USA"
+    fork_preference: "v27"
+    ideology_strength: 0.85
+    profitability_threshold: 0.22
+    max_loss_pct: 0.40
+
+  # OCEAN: moderate ideology — v27 preference but will switch under sustained losses
+  - pool_name: "OCEAN"
+    fork_preference: "v27"
+    ideology_strength: 0.55
+    profitability_threshold: 0.12
+    max_loss_pct: 0.25
+
+  # Braiins Pool: low-moderate ideology — switchable under pressure
+  - pool_name: "Braiins Pool"
+    fork_preference: "v27"
+    ideology_strength: 0.40
+    profitability_threshold: 0.10
+    max_loss_pct: 0.18
+
+  # === v26 committed faction (56.50% hashrate) ===
+
+  # v26-committed pools: ideology kept below 0.70 so they don't inflate the
+  # v27-partition high-ideology count (25% target = 3 of 12 nodes).
+  # Commitment is maintained through max_loss_pct: AntPool will hold v26
+  # until losses exceed 40% (ideology × max_loss = 0.65 × 0.40 = 26% tolerance).
+  - pool_name: "AntPool"
+    fork_preference: "v26"
+    ideology_strength: 0.65
+    profitability_threshold: 0.18
+    max_loss_pct: 0.40
+
+  - pool_name: "ViaBTC"
+    fork_preference: "v26"
+    ideology_strength: 0.60
+    profitability_threshold: 0.15
+    max_loss_pct: 0.35
+
+  - pool_name: "F2Pool"
+    fork_preference: "v26"
+    ideology_strength: 0.55
+    profitability_threshold: 0.12
+    max_loss_pct: 0.28
+
+  - pool_name: "Binance Pool"
+    fork_preference: "v26"
+    ideology_strength: 0.45
+    profitability_threshold: 0.10
+    max_loss_pct: 0.22
+
+  - pool_name: "SBI Crypto"
+    fork_preference: "v26"
+    ideology_strength: 0.45
+    profitability_threshold: 0.08
+    max_loss_pct: 0.18
+
+  # === Neutral / profit-following (~12.19% hashrate) ===
+  # Low threshold = they defect to v26 quickly when v26 is more profitable
+
+  - pool_name: "MARA Pool"
+    fork_preference: "neutral"
+    ideology_strength: 0.0
+    profitability_threshold: 0.02
+    max_loss_pct: 0.0
+
+  - pool_name: "Luxor"
+    fork_preference: "neutral"
+    ideology_strength: 0.0
+    profitability_threshold: 0.03
+    max_loss_pct: 0.0
+
+partition_mode: "static"
+fork_observer_enabled: false

@@ -1,0 +1,995 @@
+{
+  "config": {
+    "base_fee_rate": 1.0,
+    "manipulation_detection": true,
+    "sustainability_tracking": true
+  },
+  "current_fees": {
+    "v27": {
+      "total": 0.0014258254290425128,
+      "organic": 0.0014258254290425128,
+      "manipulation": 0.0
+    },
+    "v26": {
+      "total": 1.0320486787099967,
+      "organic": 1.0320486787099967,
+      "manipulation": 0.0
+    }
+  },
+  "manipulation_status": {
+    "v27_active": false,
+    "v26_active": false,
+    "v27_cost_btc": 0.0,
+    "v26_cost_btc": 0.0,
+    "v27_cost_usd": 0.0,
+    "v26_cost_usd": 0.0
+  },
+  "actors": {},
+  "fee_history": [
+    {
+      "timestamp": 1771700251.0213203,
+      "chain_id": "v27",
+      "organic_fee": 1.0,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0,
+      "metadata": {
+        "initial": true
+      }
+    },
+    {
+      "timestamp": 1771700251.0213203,
+      "chain_id": "v26",
+      "organic_fee": 1.0,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0,
+      "metadata": {
+        "initial": true
+      }
+    },
+    {
+      "timestamp": 1771700311.8152835,
+      "chain_id": "v27",
+      "organic_fee": 0.005124934172071048,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.005124934172071048,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771700311.8152835,
+      "chain_id": "v26",
+      "organic_fee": 0.0023961788214312894,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0023961788214312894,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771700372.2143807,
+      "chain_id": "v27",
+      "organic_fee": 0.005124934172071048,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.005124934172071048,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771700372.2143807,
+      "chain_id": "v26",
+      "organic_fee": 0.0023961788214312894,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0023961788214312894,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771700432.2528484,
+      "chain_id": "v27",
+      "organic_fee": 0.005124934172071048,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.005124934172071048,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771700432.2528484,
+      "chain_id": "v26",
+      "organic_fee": 0.0023961788214312894,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0023961788214312894,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771700492.366397,
+      "chain_id": "v27",
+      "organic_fee": 0.005124934172071048,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.005124934172071048,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771700492.366397,
+      "chain_id": "v26",
+      "organic_fee": 0.0014682968097281092,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014682968097281092,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771700552.4860451,
+      "chain_id": "v27",
+      "organic_fee": 0.005124934172071048,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.005124934172071048,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771700552.4860451,
+      "chain_id": "v26",
+      "organic_fee": 0.0014682968097281092,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014682968097281092,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771700613.3859804,
+      "chain_id": "v27",
+      "organic_fee": 0.005124934172071048,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.005124934172071048,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771700613.3859804,
+      "chain_id": "v26",
+      "organic_fee": 0.0014682968097281092,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014682968097281092,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771700673.9232635,
+      "chain_id": "v27",
+      "organic_fee": 0.0017740156749476701,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0017740156749476701,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771700673.9232635,
+      "chain_id": "v26",
+      "organic_fee": 0.0014095649373389847,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014095649373389847,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771700734.7926178,
+      "chain_id": "v27",
+      "organic_fee": 0.0017740156749476701,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0017740156749476701,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771700734.7926178,
+      "chain_id": "v26",
+      "organic_fee": 0.0014095649373389847,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014095649373389847,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771700795.6642416,
+      "chain_id": "v27",
+      "organic_fee": 0.0017740156749476701,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0017740156749476701,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771700795.6642416,
+      "chain_id": "v26",
+      "organic_fee": 0.0013531823398454255,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0013531823398454255,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771700858.2832139,
+      "chain_id": "v27",
+      "organic_fee": 0.0006112140489358397,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0006112140489358397,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771700858.2832139,
+      "chain_id": "v26",
+      "organic_fee": 0.8470244856262441,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.8470244856262441,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771700919.1175392,
+      "chain_id": "v27",
+      "organic_fee": 0.001073351500570255,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.001073351500570255,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771700919.1175392,
+      "chain_id": "v26",
+      "organic_fee": 0.8470244856262441,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.8470244856262441,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771700979.9396267,
+      "chain_id": "v27",
+      "organic_fee": 0.001073351500570255,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.001073351500570255,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771700979.9396267,
+      "chain_id": "v26",
+      "organic_fee": 0.8470244856262441,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.8470244856262441,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701040.682317,
+      "chain_id": "v27",
+      "organic_fee": 0.0016619636137862014,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0016619636137862014,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701040.682317,
+      "chain_id": "v26",
+      "organic_fee": 0.8470244856262441,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.8470244856262441,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701100.7182174,
+      "chain_id": "v27",
+      "organic_fee": 0.0016619636137862014,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0016619636137862014,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701100.7182174,
+      "chain_id": "v26",
+      "organic_fee": 0.8470244856262441,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.8470244856262441,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701161.8021967,
+      "chain_id": "v27",
+      "organic_fee": 0.0016619636137862014,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0016619636137862014,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701161.8021967,
+      "chain_id": "v26",
+      "organic_fee": 0.8470244856262441,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.8470244856262441,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701222.753284,
+      "chain_id": "v27",
+      "organic_fee": 0.0016619636137862014,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0016619636137862014,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701222.753284,
+      "chain_id": "v26",
+      "organic_fee": 0.8470244856262441,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.8470244856262441,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701282.8067884,
+      "chain_id": "v27",
+      "organic_fee": 0.0016735857369595318,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0016735857369595318,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701282.8067884,
+      "chain_id": "v26",
+      "organic_fee": 0.8470244856262441,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.8470244856262441,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701343.6763353,
+      "chain_id": "v27",
+      "organic_fee": 0.0016735857369595318,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0016735857369595318,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701343.6763353,
+      "chain_id": "v26",
+      "organic_fee": 0.8470244856262441,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.8470244856262441,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701404.5936089,
+      "chain_id": "v27",
+      "organic_fee": 0.0016735857369595318,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0016735857369595318,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701404.5936089,
+      "chain_id": "v26",
+      "organic_fee": 0.8470244856262441,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.8470244856262441,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701465.5970852,
+      "chain_id": "v27",
+      "organic_fee": 0.006388563866756704,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.006388563866756704,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701465.5970852,
+      "chain_id": "v26",
+      "organic_fee": 0.0011849810934894296,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0011849810934894296,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701525.7547693,
+      "chain_id": "v27",
+      "organic_fee": 0.006388563866756704,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.006388563866756704,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701525.7547693,
+      "chain_id": "v26",
+      "organic_fee": 0.0002962452733723574,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0002962452733723574,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701586.5973783,
+      "chain_id": "v27",
+      "organic_fee": 0.006388563866756704,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.006388563866756704,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701586.5973783,
+      "chain_id": "v26",
+      "organic_fee": 0.0010404712040394991,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0010404712040394991,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701646.785222,
+      "chain_id": "v27",
+      "organic_fee": 0.006388563866756704,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.006388563866756704,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701646.785222,
+      "chain_id": "v26",
+      "organic_fee": 0.0010404712040394991,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0010404712040394991,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701707.2543182,
+      "chain_id": "v27",
+      "organic_fee": 0.006388563866756704,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.006388563866756704,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701707.2543182,
+      "chain_id": "v26",
+      "organic_fee": 0.0014134703149215836,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014134703149215836,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701767.3693225,
+      "chain_id": "v27",
+      "organic_fee": 0.006388563866756704,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.006388563866756704,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701767.3693225,
+      "chain_id": "v26",
+      "organic_fee": 0.0014134703149215836,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014134703149215836,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701828.0339115,
+      "chain_id": "v27",
+      "organic_fee": 0.006388563866756704,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.006388563866756704,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701828.0339115,
+      "chain_id": "v26",
+      "organic_fee": 0.0014037222437841934,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014037222437841934,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701888.9162428,
+      "chain_id": "v27",
+      "organic_fee": 0.006388563866756704,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.006388563866756704,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701888.9162428,
+      "chain_id": "v26",
+      "organic_fee": 0.0014037222437841934,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014037222437841934,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701949.0012343,
+      "chain_id": "v27",
+      "organic_fee": 0.006388563866756704,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.006388563866756704,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771701949.0012343,
+      "chain_id": "v26",
+      "organic_fee": 0.0014037222437841934,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014037222437841934,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702009.2005084,
+      "chain_id": "v27",
+      "organic_fee": 0.0017357607487037082,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0017357607487037082,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702009.2005084,
+      "chain_id": "v26",
+      "organic_fee": 0.0014438285936065989,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014438285936065989,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702069.8944073,
+      "chain_id": "v27",
+      "organic_fee": 0.00046674606532642714,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.00046674606532642714,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702069.8944073,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702131.7607675,
+      "chain_id": "v27",
+      "organic_fee": 0.0004942017162279818,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0004942017162279818,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702131.7607675,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702192.4289002,
+      "chain_id": "v27",
+      "organic_fee": 0.001046544810835726,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.001046544810835726,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702192.4289002,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702252.6405232,
+      "chain_id": "v27",
+      "organic_fee": 0.001046544810835726,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.001046544810835726,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702252.6405232,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702313.6556425,
+      "chain_id": "v27",
+      "organic_fee": 0.0013336500244278278,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0013336500244278278,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702313.6556425,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702373.8467553,
+      "chain_id": "v27",
+      "organic_fee": 0.0013336500244278278,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0013336500244278278,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702373.8467553,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702434.8481388,
+      "chain_id": "v27",
+      "organic_fee": 0.001433176145653785,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.001433176145653785,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702434.8481388,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702495.999791,
+      "chain_id": "v27",
+      "organic_fee": 0.001433176145653785,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.001433176145653785,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702495.999791,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702556.6311326,
+      "chain_id": "v27",
+      "organic_fee": 0.0014636692551357805,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014636692551357805,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702556.6311326,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702616.849783,
+      "chain_id": "v27",
+      "organic_fee": 0.0014636692551357805,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014636692551357805,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702616.849783,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702677.6157472,
+      "chain_id": "v27",
+      "organic_fee": 0.0014636692551357805,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014636692551357805,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702677.6157472,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702738.6820464,
+      "chain_id": "v27",
+      "organic_fee": 0.0014842843150672704,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014842843150672704,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702738.6820464,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702800.2333283,
+      "chain_id": "v27",
+      "organic_fee": 0.0014842843150672704,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014842843150672704,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702800.2333283,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702860.3014638,
+      "chain_id": "v27",
+      "organic_fee": 0.0014344761165750802,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014344761165750802,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702860.3014638,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702921.1796863,
+      "chain_id": "v27",
+      "organic_fee": 0.0014344761165750802,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014344761165750802,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702921.1796863,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702981.35728,
+      "chain_id": "v27",
+      "organic_fee": 0.0014052010937878336,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014052010937878336,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771702981.35728,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771703042.230597,
+      "chain_id": "v27",
+      "organic_fee": 0.0014052010937878336,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014052010937878336,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771703042.230597,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771703102.9335425,
+      "chain_id": "v27",
+      "organic_fee": 0.0014052010937878336,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014052010937878336,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771703102.9335425,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771703162.9847548,
+      "chain_id": "v27",
+      "organic_fee": 0.0014052010937878336,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014052010937878336,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771703162.9847548,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771703223.7293344,
+      "chain_id": "v27",
+      "organic_fee": 0.0014052010937878336,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014052010937878336,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771703223.7293344,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771703284.1504278,
+      "chain_id": "v27",
+      "organic_fee": 0.0013859517637359454,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0013859517637359454,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771703284.1504278,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771703344.167659,
+      "chain_id": "v27",
+      "organic_fee": 0.0013859517637359454,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0013859517637359454,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771703344.167659,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771703405.2629552,
+      "chain_id": "v27",
+      "organic_fee": 0.0013859517637359454,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0013859517637359454,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771703405.2629552,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771703466.6632264,
+      "chain_id": "v27",
+      "organic_fee": 0.0014054722111125077,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014054722111125077,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771703466.6632264,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771703527.8873158,
+      "chain_id": "v27",
+      "organic_fee": 0.0014054722111125077,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014054722111125077,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771703527.8873158,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771703587.9225419,
+      "chain_id": "v27",
+      "organic_fee": 0.0014456285600014365,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014456285600014365,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771703587.9225419,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771703648.4814966,
+      "chain_id": "v27",
+      "organic_fee": 0.0014456285600014365,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014456285600014365,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771703648.4814966,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771703709.1375275,
+      "chain_id": "v27",
+      "organic_fee": 0.0014258254290425128,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014258254290425128,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771703709.1375275,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771703770.1824822,
+      "chain_id": "v27",
+      "organic_fee": 0.0014258254290425128,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014258254290425128,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771703770.1824822,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771703831.3244076,
+      "chain_id": "v27",
+      "organic_fee": 0.0014258254290425128,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0014258254290425128,
+      "metadata": null
+    },
+    {
+      "timestamp": 1771703831.3244076,
+      "chain_id": "v26",
+      "organic_fee": 1.0320486787099967,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0320486787099967,
+      "metadata": null
+    }
+  ],
+  "portfolio_history": []
+}

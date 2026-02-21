@@ -124,6 +124,17 @@ class PartitionMinerWithPools(Commander):
         self.node_current_partition = {}  # node_name -> current partition ('v27' or 'v26')
         self.partition_switch_history = []  # Track all partition switches for analysis
 
+        # Time-limited UASF: v27 nodes enforce strict rules for a limited time
+        self.uasf_active = True  # Whether UASF is currently active
+        self.uasf_start_time = None  # When UASF started (simulation time)
+        self.uasf_expiry_time = None  # When UASF expires (simulation time)
+        self.uasf_expired = False  # Whether UASF has expired
+        self.uasf_expiry_data = None  # Snapshot of state at expiry
+
+        # Reunion state: after reunion, all hashrate goes to winning fork
+        self.reunion_completed = False  # Whether reunion has successfully completed
+        self.reunion_winner = None  # Winning fork after reunion ('v27' or 'v26')
+
         # Time series data for charting
         self.time_series = {
             'timestamps': [],           # elapsed seconds
@@ -212,6 +223,17 @@ class PartitionMinerWithPools(Commander):
                           help='At end of duration, reconnect partitions and let the heavier chain reorg the loser')
         parser.add_argument('--reunion-timeout', type=int, default=120,
                           help='Seconds to wait for reorg convergence after reconnection (default 120)')
+
+        # Time-limited UASF (User Activated Soft Fork)
+        parser.add_argument('--uasf-duration', type=int, default=None,
+                          help='UASF duration in seconds. After this time, v27 nodes stop enforcing strict rules '
+                               'and accept v26 blocks. If not set, UASF runs indefinitely.')
+        parser.add_argument('--uasf-expiry-action', type=str, default='reunion',
+                          choices=['reunion', 'accept', 'continue'],
+                          help='Action when UASF expires: '
+                               'reunion=reconnect partitions and reorg to heavier chain, '
+                               'accept=v27 nodes accept v26 blocks but stay partitioned, '
+                               'continue=just log expiry and continue (default: reunion)')
 
         # Results management
         parser.add_argument('--results-id', type=str, default=None,
@@ -524,7 +546,7 @@ class PartitionMinerWithPools(Commander):
             self.log.error(f"    Switch failed for {node_name}: {e}")
             return False
 
-    def reunite_forks(self) -> dict:
+    def reunite_forks(self, force: bool = False) -> dict:
         """
         Reconnect the two fork partitions and wait for the losing fork to reorg
         to the heavier chain.
@@ -538,10 +560,14 @@ class PartitionMinerWithPools(Commander):
         3. Poll until all losing-fork nodes converge to the winning tip (or timeout)
         4. Report reorg depth, orphaned blocks, and convergence metrics
 
+        Args:
+            force: If True, run reunion even if --enable-reunion flag is not set.
+                   Used by UASF expiry to trigger reunion regardless of flag.
+
         Returns:
             dict with reunion metrics (included in the results export)
         """
-        if not self.options.enable_reunion:
+        if not force and not self.options.enable_reunion:
             return {'enabled': False}
 
         self.log.info(f"\n{'='*70}")
@@ -682,6 +708,181 @@ class PartitionMinerWithPools(Commander):
             'pre_reorg_heights': pre_reorg_heights,
             'post_reorg_heights': post_reorg_heights,
         }
+
+    def handle_uasf_expiry(self, elapsed: float, current_time: float):
+        """
+        Handle UASF expiration.
+
+        When the time-limited UASF expires:
+        1. Log the expiry event with full state snapshot
+        2. Change v27 nodes to accept v26 blocks (accepts_foreign_blocks=True)
+        3. Based on --uasf-expiry-action:
+           - 'reunion': Reconnect partitions and let heavier chain win
+           - 'accept': v27 accepts v26 blocks but partitions stay separate
+           - 'continue': Just log and continue (no behavior change)
+
+        This simulates miners/nodes who committed to running UASF for a limited
+        period and then "give up" if the soft fork hasn't activated.
+        """
+        self.log.info(f"\n{'='*70}")
+        self.log.info(f"UASF EXPIRED at {elapsed}s ({elapsed/3600:.2f} hours)")
+        self.log.info(f"{'='*70}")
+
+        # Snapshot state at expiry
+        v27_blocks = self.blocks_mined['v27']
+        v26_blocks = self.blocks_mined['v26']
+        v27_price = self.price_oracle.get_price('v27') if self.price_oracle else 0
+        v26_price = self.price_oracle.get_price('v26') if self.price_oracle else 0
+
+        if self.difficulty_oracle:
+            v27_chainwork = self.difficulty_oracle.get_cumulative_chainwork('v27')
+            v26_chainwork = self.difficulty_oracle.get_cumulative_chainwork('v26')
+            v27_difficulty = self.difficulty_oracle.forks['v27'].current_difficulty
+            v26_difficulty = self.difficulty_oracle.forks['v26'].current_difficulty
+        else:
+            v27_chainwork = float(v27_blocks)
+            v26_chainwork = float(v26_blocks)
+            v27_difficulty = 1.0
+            v26_difficulty = 1.0
+
+        # Determine winning fork at expiry
+        winning_fork = 'v27' if v27_chainwork >= v26_chainwork else 'v26'
+        losing_fork = 'v26' if winning_fork == 'v27' else 'v27'
+
+        self.uasf_expiry_data = {
+            'expiry_elapsed_seconds': elapsed,
+            'expiry_timestamp': current_time,
+            'uasf_duration_seconds': self.options.uasf_duration,
+            'expiry_action': self.options.uasf_expiry_action,
+            'state_at_expiry': {
+                'v27_blocks': v27_blocks,
+                'v26_blocks': v26_blocks,
+                'v27_chainwork': v27_chainwork,
+                'v26_chainwork': v26_chainwork,
+                'v27_difficulty': v27_difficulty,
+                'v26_difficulty': v26_difficulty,
+                'v27_price': v27_price,
+                'v26_price': v26_price,
+                'v27_hashrate': self.current_v27_hashrate,
+                'v26_hashrate': self.current_v26_hashrate,
+                'v27_economic': self.current_v27_economic,
+                'v26_economic': self.current_v26_economic,
+                'winning_fork_at_expiry': winning_fork,
+            },
+            'reunion_triggered': False,
+            'reunion_results': None,
+        }
+
+        self.log.info(f"  State at expiry:")
+        self.log.info(f"    v27: {v27_blocks} blocks, chainwork={v27_chainwork:.2f}, price=${v27_price:,.0f}")
+        self.log.info(f"    v26: {v26_blocks} blocks, chainwork={v26_chainwork:.2f}, price=${v26_price:,.0f}")
+        self.log.info(f"    Hashrate: v27={self.current_v27_hashrate:.1f}%, v26={self.current_v26_hashrate:.1f}%")
+        self.log.info(f"    Winning fork at expiry: {winning_fork}")
+
+        # Mark UASF as expired
+        self.uasf_expired = True
+        self.uasf_active = False
+
+        # Handle expiry action
+        if self.options.uasf_expiry_action == 'reunion':
+            self.log.info(f"\n  Expiry action: REUNION - reconnecting partitions...")
+
+            # Change v27 nodes to accept v26 blocks
+            self._enable_v27_foreign_acceptance()
+
+            # Trigger reunion (force=True to bypass --enable-reunion check)
+            reunion_results = self.reunite_forks(force=True)
+            self.uasf_expiry_data['reunion_triggered'] = True
+            self.uasf_expiry_data['reunion_results'] = reunion_results
+
+            if reunion_results.get('timed_out'):
+                self.log.warning(f"  Reunion timed out - some nodes may not have converged")
+            elif reunion_results.get('enabled'):
+                # Successful reunion - all hashrate now goes to winning fork
+                self.reunion_completed = True
+                self.reunion_winner = reunion_results.get('winner')
+
+                if self.reunion_winner == 'v27':
+                    self.current_v27_hashrate = 100.0
+                    self.current_v26_hashrate = 0.0
+                else:
+                    self.current_v27_hashrate = 0.0
+                    self.current_v26_hashrate = 100.0
+
+                # Update all pool allocations to winning fork
+                if self.pool_strategy:
+                    for pool_id in self.pool_strategy.current_allocation:
+                        self.pool_strategy.current_allocation[pool_id] = self.reunion_winner
+                        # Also update pool's current_fork tracking
+                        if pool_id in self.pool_strategy.pools:
+                            self.pool_strategy.pools[pool_id].current_fork = self.reunion_winner
+
+                self.log.info(f"  Post-reunion hashrate: {self.reunion_winner}=100%, other=0%")
+                self.log.info(f"  All pools now mining on {self.reunion_winner}")
+
+        elif self.options.uasf_expiry_action == 'accept':
+            self.log.info(f"\n  Expiry action: ACCEPT - v27 nodes now accept v26 blocks")
+            self.log.info(f"  (Partitions remain separate, but cross-chain blocks are now valid)")
+
+            # Change v27 nodes to accept v26 blocks
+            self._enable_v27_foreign_acceptance()
+
+        else:  # 'continue'
+            self.log.info(f"\n  Expiry action: CONTINUE - logging expiry only, no behavior change")
+            self.log.info(f"  (v27 nodes continue to reject v26 blocks)")
+
+        # Calculate opportunity cost for UASF supporters
+        if winning_fork == 'v26':
+            # v27 lost - calculate cost of supporting losing fork
+            orphaned_blocks = v27_blocks
+            wasted_chainwork = v27_chainwork
+            self.log.info(f"\n  UASF FAILED - v27 chain will be orphaned")
+            self.log.info(f"    Orphaned blocks: {orphaned_blocks}")
+            self.log.info(f"    Wasted chainwork: {wasted_chainwork:.2f}")
+
+            self.uasf_expiry_data['uasf_outcome'] = 'failed'
+            self.uasf_expiry_data['orphaned_blocks'] = orphaned_blocks
+            self.uasf_expiry_data['wasted_chainwork'] = wasted_chainwork
+        else:
+            # v27 won - UASF was successful (though expired, the chain is still dominant)
+            self.log.info(f"\n  UASF SUCCEEDED - v27 chain is dominant")
+            self.log.info(f"    v27 chainwork lead: {v27_chainwork - v26_chainwork:.2f}")
+
+            self.uasf_expiry_data['uasf_outcome'] = 'succeeded'
+            self.uasf_expiry_data['chainwork_lead'] = v27_chainwork - v26_chainwork
+
+        self.log.info(f"{'='*70}\n")
+
+    def _enable_v27_foreign_acceptance(self):
+        """
+        Change v27 nodes to accept v26 blocks (accepts_foreign_blocks=True).
+
+        This simulates UASF nodes "giving up" and accepting the old rules again.
+        After this, v27 nodes will accept blocks from v26 and can reorg to
+        the longer chain if v26 has more chainwork.
+        """
+        self.log.info(f"  Changing v27 nodes to accept v26 blocks...")
+
+        changed_count = 0
+        for node in self.v27_nodes:
+            node_name = f"node-{node.index:04d}"
+            metadata = self.node_metadata.get(node_name, {})
+
+            # Update metadata to accept foreign blocks
+            old_value = metadata.get('accepts_foreign_blocks', False)
+            metadata['accepts_foreign_blocks'] = True
+            self.node_metadata[node_name] = metadata
+
+            if not old_value:
+                changed_count += 1
+                self.log.debug(f"    {node_name}: accepts_foreign_blocks = True")
+
+        # Add v27 nodes to foreign_accepting_nodes list
+        for node in self.v27_nodes:
+            if node not in self.foreign_accepting_nodes:
+                self.foreign_accepting_nodes.append(node)
+
+        self.log.info(f"  Changed {changed_count} v27 nodes to accept foreign blocks")
 
     def evaluate_economic_node_switches(self, elapsed: float):
         """
@@ -1336,6 +1537,21 @@ class PartitionMinerWithPools(Commander):
         last_economic_update = start_time
         last_snapshot = start_time
 
+        # Initialize time-limited UASF tracking
+        if self.options.uasf_duration is not None:
+            self.uasf_start_time = start_time
+            self.uasf_expiry_time = start_time + self.options.uasf_duration
+            self.uasf_active = True
+            self.uasf_expired = False
+            uasf_hours = self.options.uasf_duration / 3600
+            self.log.info(f"\n{'='*70}")
+            self.log.info(f"TIME-LIMITED UASF ENABLED")
+            self.log.info(f"{'='*70}")
+            self.log.info(f"  Duration: {self.options.uasf_duration}s ({uasf_hours:.1f} hours)")
+            self.log.info(f"  Expiry action: {self.options.uasf_expiry_action}")
+            self.log.info(f"  v27 nodes will enforce strict rules until UASF expires")
+            self.log.info(f"{'='*70}\n")
+
         # Capture initial snapshot
         self.capture_time_series_snapshot(0)
 
@@ -1349,6 +1565,12 @@ class PartitionMinerWithPools(Commander):
         while time() - start_time < self.options.duration:
             current_time = time()
             elapsed = int(current_time - start_time)
+
+            # Check for UASF expiry
+            if (self.uasf_active and not self.uasf_expired and
+                self.uasf_expiry_time is not None and
+                current_time >= self.uasf_expiry_time):
+                self.handle_uasf_expiry(elapsed, current_time)
 
             # Update economic node allocation (every 5 minutes by default)
             if self.economic_strategy and (current_time - last_economic_update >= self.options.economic_update_interval):
@@ -1471,7 +1693,10 @@ class PartitionMinerWithPools(Commander):
                 last_price_update = current_time
 
             # Update hashrate allocation (every 10 minutes by default)
-            if self.pool_strategy and (current_time - last_hashrate_update >= self.options.hashrate_update_interval):
+            # Skip if reunion has completed - all hashrate is already on winning fork
+            if self.reunion_completed:
+                pass  # Hashrate locked to winning fork after reunion
+            elif self.pool_strategy and (current_time - last_hashrate_update >= self.options.hashrate_update_interval):
 
                 # Pools make decisions
                 old_v27_hash = self.current_v27_hashrate
@@ -1538,12 +1763,16 @@ class PartitionMinerWithPools(Commander):
             # === BLOCK PRODUCTION ===
             if self.difficulty_oracle:
                 # DIFFICULTY MODE: per-tick probability for each fork independently
+                # Supports multiple blocks per tick when block times are faster than tick interval
                 sim_elapsed = elapsed  # Use wall-clock elapsed as sim_time
 
                 for fork_id in ['v27', 'v26']:
                     hashrate_pct = self.current_v27_hashrate if fork_id == 'v27' else self.current_v26_hashrate
 
-                    if self.difficulty_oracle.should_mine_block(fork_id, hashrate_pct, self.tick_interval):
+                    # Get number of blocks to mine this tick (can be 0, 1, or more)
+                    blocks_to_mine = self.difficulty_oracle.get_blocks_to_mine(fork_id, hashrate_pct, self.tick_interval)
+
+                    for block_num in range(blocks_to_mine):
                         miner = self._select_miner_for_fork(fork_id)
                         if not miner:
                             continue
@@ -1582,16 +1811,17 @@ class PartitionMinerWithPools(Commander):
                                     f"(factor={retarget_event.adjustment_factor:.3f})"
                                 )
 
-                            # Log the block
+                            # Log the block (show multi-block indicator if applicable)
                             v27_price = self.price_oracle.get_price('v27')
                             v26_price = self.price_oracle.get_price('v26')
                             fork_status = "SUSTAINED" if self.price_oracle.fork_sustained else "natural split"
                             diff_state = self.difficulty_oracle.forks[fork_id]
                             pool_id = self.get_node_pool_id(miner)
                             pool_str = f"({pool_id})" if pool_id else ""
+                            multi_str = f" [{block_num+1}/{blocks_to_mine}]" if blocks_to_mine > 1 else ""
 
                             self.log.info(
-                                f"[{elapsed:4d}s] {fork_id} block {pool_str:15s} | "
+                                f"[{elapsed:4d}s] {fork_id} block {pool_str:15s}{multi_str} | "
                                 f"Blks: v27={self.blocks_mined['v27']:3d} v26={self.blocks_mined['v26']:3d} | "
                                 f"Diff: {diff_state.current_difficulty:.4f} | "
                                 f"Hash: {self.current_v27_hashrate:4.1f}%/{self.current_v26_hashrate:4.1f}% | "
@@ -1751,6 +1981,33 @@ class PartitionMinerWithPools(Commander):
             self.log.info(f"  Reunion reorg mass: {reunion['reunion_reorg_mass']}")
             self.log.info(f"  Additional orphans on reunion: {reunion['additional_orphans']}")
 
+        # UASF summary
+        if self.options.uasf_duration is not None:
+            self.log.info("")
+            self.log.info("=" * 50)
+            self.log.info("TIME-LIMITED UASF SUMMARY")
+            self.log.info("=" * 50)
+            self.log.info(f"  Duration configured: {self.options.uasf_duration}s ({self.options.uasf_duration/3600:.2f} hours)")
+            self.log.info(f"  Expiry action: {self.options.uasf_expiry_action}")
+
+            if self.uasf_expired and self.uasf_expiry_data:
+                self.log.info(f"  UASF EXPIRED at {self.uasf_expiry_data['expiry_elapsed_seconds']}s")
+                self.log.info(f"  Outcome: {self.uasf_expiry_data.get('uasf_outcome', 'unknown')}")
+
+                state = self.uasf_expiry_data.get('state_at_expiry', {})
+                self.log.info(f"  State at expiry:")
+                self.log.info(f"    v27: {state.get('v27_blocks', 0)} blocks, chainwork={state.get('v27_chainwork', 0):.2f}")
+                self.log.info(f"    v26: {state.get('v26_blocks', 0)} blocks, chainwork={state.get('v26_chainwork', 0):.2f}")
+                self.log.info(f"    Winning fork: {state.get('winning_fork_at_expiry', 'unknown')}")
+
+                if self.uasf_expiry_data.get('uasf_outcome') == 'failed':
+                    self.log.info(f"  Orphaned blocks (v27): {self.uasf_expiry_data.get('orphaned_blocks', 0)}")
+                    self.log.info(f"  Wasted chainwork: {self.uasf_expiry_data.get('wasted_chainwork', 0):.2f}")
+            else:
+                remaining = self.options.duration - (self.options.uasf_duration or 0)
+                self.log.info(f"  UASF DID NOT EXPIRE (simulation ended before expiry)")
+                self.log.info(f"  Remaining time before expiry: {remaining}s")
+
         # Export results
         try:
             import json
@@ -1774,6 +2031,9 @@ class PartitionMinerWithPools(Commander):
                     'reorg_metrics_enabled': self.options.enable_reorg_metrics,
                     'interval': self.options.interval,
                     'start_height': self.options.start_height,
+                    'uasf_duration': self.options.uasf_duration,
+                    'uasf_expiry_action': self.options.uasf_expiry_action if self.options.uasf_duration else None,
+                    'uasf_expired': self.uasf_expired,
                 },
                 'summary': {
                     'blocks_mined': dict(self.blocks_mined),
@@ -1842,6 +2102,19 @@ class PartitionMinerWithPools(Commander):
 
             # Fork reunion results
             consolidated_results['reunion'] = reunion_results
+
+            # UASF expiry data
+            if self.uasf_expiry_data is not None:
+                consolidated_results['uasf'] = self.uasf_expiry_data
+            elif self.options.uasf_duration is not None:
+                # UASF was configured but didn't expire during simulation
+                consolidated_results['uasf'] = {
+                    'configured': True,
+                    'duration_seconds': self.options.uasf_duration,
+                    'expiry_action': self.options.uasf_expiry_action,
+                    'expired': False,
+                    'reason': 'simulation_ended_before_uasf_expiry'
+                }
 
             # Save consolidated results to file
             with open('/tmp/partition_results.json', 'w') as f:

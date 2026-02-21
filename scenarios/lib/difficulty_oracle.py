@@ -147,9 +147,26 @@ class DifficultyOracle:
         """
         Determine if a block should be mined on this fork during this tick.
 
-        Uses probability sampling: each tick, the chance of finding a block is
+        Wrapper for backwards compatibility. Use get_blocks_to_mine() for
+        multi-block support.
+
+        Returns:
+            True if at least one block should be mined
+        """
+        return self.get_blocks_to_mine(fork_id, hashrate_pct, tick_interval) > 0
+
+    def get_blocks_to_mine(
+        self, fork_id: str, hashrate_pct: float, tick_interval: float
+    ) -> int:
+        """
+        Calculate number of blocks to mine on this fork during this tick.
+
+        Uses probability sampling: each tick, the expected number of blocks is
         tick_interval / expected_block_interval, where expected_block_interval
         accounts for both difficulty and hashrate fraction.
+
+        When expected blocks per tick > 1 (fast block times), this correctly
+        returns multiple blocks to maintain accurate block production rates.
 
         Args:
             fork_id: Fork identifier
@@ -157,10 +174,10 @@ class DifficultyOracle:
             tick_interval: Duration of this tick in seconds
 
         Returns:
-            True if a block should be mined
+            Number of blocks to mine (0 or more)
         """
         if fork_id not in self.forks:
-            return False
+            return 0
 
         state = self.forks[fork_id]
         hashrate_fraction = max(hashrate_pct / 100.0, 0.001)  # Avoid division by zero
@@ -169,13 +186,18 @@ class DifficultyOracle:
         expected = self.target_block_interval * (state.current_difficulty / hashrate_fraction)
         state.expected_block_interval = expected
 
-        # Probability of finding a block in this tick
-        probability = tick_interval / expected if expected > 0 else 1.0
+        # Expected blocks per tick (can be > 1.0)
+        expected_blocks = tick_interval / expected if expected > 0 else 1.0
 
-        # Clamp probability to [0, 1]
-        probability = min(probability, 1.0)
-
-        return random.random() < probability
+        if expected_blocks < 1.0:
+            # Normal case: probabilistic single block
+            return 1 if random.random() < expected_blocks else 0
+        else:
+            # Fast block case: guaranteed blocks + probabilistic remainder
+            guaranteed = int(expected_blocks)
+            remainder = expected_blocks - guaranteed
+            extra = 1 if random.random() < remainder else 0
+            return guaranteed + extra
 
     def record_block(
         self, fork_id: str, sim_time: float, height: int
@@ -570,3 +592,36 @@ if __name__ == '__main__':
     output_file = '/tmp/difficulty_oracle_test.json'
     oracle.export_to_json(output_file)
     print(f"\nResults exported to: {output_file}")
+
+    # Test multi-block per tick scenario
+    print("\n" + "=" * 70)
+    print("MULTI-BLOCK PER TICK TEST")
+    print("=" * 70)
+
+    # Create oracle with very low difficulty to trigger multi-block
+    multi_oracle = DifficultyOracle(
+        target_block_interval=1.0,  # 1 second target
+        retarget_interval=100,
+        pre_fork_difficulty=0.1,    # Low difficulty = fast blocks
+        min_difficulty=0.01,
+    )
+    multi_oracle.initialize_fork('test', initial_height=0)
+
+    # With 100% hashrate and difficulty 0.1:
+    # expected_interval = 1.0 * (0.1 / 1.0) = 0.1 seconds
+    # With 1.0s tick: expected_blocks = 1.0 / 0.1 = 10 blocks per tick!
+
+    print(f"Target interval: 1.0s, Difficulty: 0.1, Hashrate: 100%")
+    print(f"Expected blocks per tick (1s): {1.0 / (1.0 * (0.1 / 1.0)):.1f}")
+    print()
+
+    # Run 10 ticks and count total blocks
+    total_blocks = 0
+    for tick in range(10):
+        blocks = multi_oracle.get_blocks_to_mine('test', 100.0, 1.0)
+        total_blocks += blocks
+        print(f"  Tick {tick+1}: {blocks} blocks")
+
+    print(f"\nTotal blocks in 10 ticks: {total_blocks}")
+    print(f"Expected ~100 blocks (10 per tick × 10 ticks)")
+    print(f"Actual rate: {total_blocks / 10:.1f} blocks/tick")

@@ -36,13 +36,15 @@ Output:
 """
 
 import argparse
+import copy
 import json
 import os
+import shutil
 import subprocess
 import sys
 import yaml
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 
 
 # Real-world pool distribution
@@ -197,10 +199,189 @@ def generate_network(config_path: Path, output_path: Path, generator_path: Path)
         return False
 
 
+def load_base_network(network_path: Path) -> Dict:
+    """Load a base network template"""
+    with open(network_path) as f:
+        return yaml.safe_load(f)
+
+
+def apply_scenario_to_base_network(base_network: Dict, scenario: Dict) -> Dict:
+    """
+    Apply scenario parameters to a base network template.
+
+    This modifies node metadata based on scenario parameters while preserving
+    the network structure (nodes, connections, etc.).
+    """
+    network = copy.deepcopy(base_network)
+    nodes = network.get('nodes', [])
+
+    # Extract parameters with defaults for backward compatibility
+    pool_ideology = scenario.get('pool_ideology_strength', 0.5)
+    pool_max_loss = scenario.get('pool_max_loss_pct', 0.25)
+    pool_prof_threshold = scenario.get('pool_profitability_threshold', 0.1)
+
+    econ_ideology = scenario.get('econ_ideology_strength', 0.2)
+    econ_switching = scenario.get('econ_switching_threshold', 0.1)
+    econ_inertia = scenario.get('econ_inertia', 0.15)
+
+    user_ideology = scenario.get('user_ideology_strength', 0.5)
+    user_switching = scenario.get('user_switching_threshold', 0.1)
+
+    solo_hashrate_mult = scenario.get('solo_miner_hashrate', 0.05)
+    transaction_velocity = scenario.get('transaction_velocity', 0.5)
+
+    # Calculate target hashrate distribution
+    v27_hash_target = scenario.get('v27_hashrate_pct', 50)
+    v27_econ_target = scenario.get('v27_economic_pct', 50)
+
+    # Separate nodes by role
+    pool_nodes = [n for n in nodes if n.get('metadata', {}).get('role') == 'mining_pool']
+
+    # Sort pools by hashrate for strategic assignment
+    pool_nodes_sorted = sorted(
+        pool_nodes,
+        key=lambda n: n['metadata'].get('hashrate_pct', 0),
+        reverse=True
+    )
+
+    # Assign pools to forks to match target hashrate
+    v27_hashrate = 0
+    total_hashrate = sum(n['metadata'].get('hashrate_pct', 0) for n in pool_nodes)
+
+    for node in nodes:
+        metadata = node.get('metadata', {})
+        role = metadata.get('role', '')
+
+        if role == 'mining_pool':
+            hashrate = metadata.get('hashrate_pct', 0)
+
+            # Assign to v27 if we haven't hit target yet
+            if v27_hashrate < v27_hash_target and v27_hashrate + hashrate <= v27_hash_target + 10:
+                metadata['fork_preference'] = 'v27'
+                v27_hashrate += hashrate
+            else:
+                metadata['fork_preference'] = 'v26'
+
+            # Apply ideology parameters based on original ideology strength
+            original_ideology = metadata.get('ideology_strength', 0.5)
+            if original_ideology > 0.7:
+                # Committed pools - scale with scenario parameter
+                metadata['ideology_strength'] = round(pool_ideology * 1.2, 3)
+                metadata['max_loss_pct'] = round(pool_max_loss * 1.5, 3)
+            elif original_ideology > 0.4:
+                # Moderate pools
+                metadata['ideology_strength'] = round(pool_ideology, 3)
+                metadata['max_loss_pct'] = round(pool_max_loss, 3)
+            else:
+                # Rational pools
+                metadata['ideology_strength'] = round(pool_ideology * 0.3, 3)
+                metadata['max_loss_pct'] = round(pool_max_loss * 0.5, 3)
+
+            metadata['profitability_threshold'] = round(pool_prof_threshold, 3)
+
+        elif role in ['major_exchange', 'exchange']:
+            metadata['ideology_strength'] = round(econ_ideology, 3)
+            metadata['switching_threshold'] = round(econ_switching, 3)
+            metadata['inertia'] = round(econ_inertia, 3)
+            metadata['max_loss_pct'] = round(econ_ideology * 0.5, 3)
+            if 'transaction_velocity' in metadata:
+                metadata['transaction_velocity'] = round(transaction_velocity, 3)
+
+        elif role == 'institutional':
+            metadata['ideology_strength'] = round(econ_ideology * 1.2, 3)
+            metadata['inertia'] = round(econ_inertia * 2, 3)
+            metadata['max_loss_pct'] = round(econ_ideology * 0.4, 3)
+
+        elif role == 'payment_processor':
+            metadata['ideology_strength'] = round(user_ideology * 0.8, 3)
+            metadata['switching_threshold'] = round(user_switching, 3)
+            if 'transaction_velocity' in metadata:
+                metadata['transaction_velocity'] = round(transaction_velocity * 1.2, 3)
+
+        elif role == 'merchant':
+            metadata['ideology_strength'] = round(user_ideology * 0.6, 3)
+            metadata['switching_threshold'] = round(user_switching, 3)
+
+        elif role == 'power_user':
+            metadata['ideology_strength'] = round(user_ideology, 3)
+            metadata['switching_threshold'] = round(user_switching * 1.5, 3)
+            # Scale solo mining hashrate
+            if metadata.get('hashrate_pct', 0) > 0:
+                metadata['hashrate_pct'] = round(metadata['hashrate_pct'] * (solo_hashrate_mult / 0.05), 4)
+
+        elif role == 'casual_user':
+            metadata['ideology_strength'] = round(user_ideology * 0.5, 3)
+            metadata['switching_threshold'] = round(user_switching * 0.8, 3)
+            if metadata.get('hashrate_pct', 0) > 0:
+                metadata['hashrate_pct'] = round(metadata['hashrate_pct'] * (solo_hashrate_mult / 0.05), 4)
+
+        node['metadata'] = metadata
+
+    return network
+
+
+def generate_from_base_network(
+    base_network: Dict,
+    scenario: Dict,
+    output_dir: Path,
+    node_defaults_path: Optional[Path] = None
+) -> bool:
+    """Generate a network by applying scenario to base network template"""
+    try:
+        # Apply scenario parameters to base network
+        network = apply_scenario_to_base_network(base_network, scenario)
+
+        # Create output directory
+        scenario_id = scenario['scenario_id']
+        network_dir = output_dir / scenario_id
+        network_dir.mkdir(parents=True, exist_ok=True)
+
+        # Write network.yaml
+        network_file = network_dir / "network.yaml"
+        with open(network_file, "w") as f:
+            yaml.dump(network, f, default_flow_style=False, sort_keys=False)
+
+        # Copy node-defaults.yaml if provided
+        if node_defaults_path and node_defaults_path.exists():
+            shutil.copy(node_defaults_path, network_dir / "node-defaults.yaml")
+        else:
+            # Create a minimal node-defaults.yaml
+            node_defaults = {
+                "chain": "regtest",
+                "image": {
+                    "repository": "bitcoindevproject/bitcoin",
+                    "pullPolicy": "IfNotPresent"
+                },
+                "defaultConfig": "regtest=1\n  server=1\n  txindex=1\n  fallbackfee=0.00001\n  rpcuser=bitcoin\n  rpcpassword=bitcoin\n  rpcallowip=0.0.0.0/0\n  rpcbind=0.0.0.0\n  rpcport=18443\n  zmqpubrawblock=tcp://0.0.0.0:28332\n  zmqpubrawtx=tcp://0.0.0.0:28333\n  debug=rpc",
+                "collectLogs": False,
+                "metricsExport": False
+            }
+            with open(network_dir / "node-defaults.yaml", "w") as f:
+                yaml.dump(node_defaults, f, default_flow_style=False)
+
+        return True
+    except Exception as e:
+        print(f"  Error generating network from base: {e}")
+        return False
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Build network and scenario configs from parameter scenarios",
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+    # Generate networks from scratch (default)
+    python 2_build_configs.py --input scenarios.json
+
+    # Use realistic-economy as base template
+    python 2_build_configs.py --input scenarios.json \\
+        --base-network ../../networks/realistic-economy/network.yaml
+
+    # Use custom network as base
+    python 2_build_configs.py --input scenarios.json \\
+        --base-network path/to/my-network/network.yaml
+        """
     )
     parser.add_argument("--input", "-i", type=str, required=True,
                         help="Input scenarios.json file from step 1")
@@ -209,7 +390,9 @@ def main():
     parser.add_argument("--configs-only", action="store_true",
                         help="Only generate config files, skip network generation")
     parser.add_argument("--generator", "-g", type=str, default=None,
-                        help="Path to scenario_network_generator.py")
+                        help="Path to scenario_network_generator.py (for from-scratch generation)")
+    parser.add_argument("--base-network", "-b", type=str, default=None,
+                        help="Path to base network.yaml to use as template (e.g., realistic-economy)")
 
     args = parser.parse_args()
 
@@ -238,18 +421,42 @@ def main():
     for d in [output_dir, networks_dir, configs_dir, network_configs_dir, pools_dir, economic_dir]:
         d.mkdir(parents=True, exist_ok=True)
 
-    # Find network generator
-    if args.generator:
-        generator_path = Path(args.generator)
-    else:
-        # Try to find it relative to this script
-        script_dir = Path(__file__).parent
-        generator_path = script_dir.parent.parent / "networkGen" / "scenario_network_generator.py"
+    # Determine network generation mode
+    use_base_network = args.base_network is not None
+    base_network = None
+    node_defaults_path = None
 
-    if not generator_path.exists():
-        print(f"Warning: Network generator not found at {generator_path}")
-        print("  Network generation will be skipped")
-        args.configs_only = True
+    if use_base_network:
+        base_network_path = Path(args.base_network)
+        if not base_network_path.exists():
+            print(f"Error: Base network not found: {base_network_path}")
+            sys.exit(1)
+
+        print(f"Using base network template: {base_network_path}")
+        base_network = load_base_network(base_network_path)
+
+        # Look for node-defaults.yaml
+        node_defaults_path = base_network_path.parent / "node-defaults.yaml"
+        if not node_defaults_path.exists():
+            node_defaults_path = base_network_path.parent.parent / "node-defaults.yaml"
+        if not node_defaults_path.exists():
+            node_defaults_path = None
+            print("  Note: No node-defaults.yaml found, will create default")
+
+    else:
+        # Find network generator for from-scratch generation
+        if args.generator:
+            generator_path = Path(args.generator)
+        else:
+            # Try to find it relative to this script
+            script_dir = Path(__file__).parent
+            generator_path = script_dir.parent.parent / "networkGen" / "scenario_network_generator.py"
+
+        if not generator_path.exists():
+            print(f"Warning: Network generator not found at {generator_path}")
+            print("  Network generation will be skipped")
+            print("  Tip: Use --base-network to generate from an existing network template")
+            args.configs_only = True
 
     # Generate configs
     print(f"\nGenerating configs...")
@@ -305,11 +512,13 @@ def main():
 
     # Generate networks
     if not args.configs_only:
-        print(f"\nGenerating networks using {generator_path}...")
+        if use_base_network:
+            print(f"\nGenerating networks from base template...")
+        else:
+            print(f"\nGenerating networks using {generator_path}...")
 
         for i, scenario in enumerate(scenarios):
             scenario_id = scenario["scenario_id"]
-            config_path = network_configs_dir / f"{scenario_id}.yaml"
             network_output = networks_dir / scenario_id / "network.yaml"
 
             # Skip if already exists
@@ -317,7 +526,18 @@ def main():
                 manifest["generated_networks"] += 1
                 continue
 
-            success = generate_network(config_path, network_output, generator_path)
+            if use_base_network:
+                # Generate from base network template
+                success = generate_from_base_network(
+                    base_network,
+                    scenario,
+                    networks_dir,
+                    node_defaults_path
+                )
+            else:
+                # Generate from scratch using generator
+                config_path = network_configs_dir / f"{scenario_id}.yaml"
+                success = generate_network(config_path, network_output, generator_path)
 
             if success:
                 manifest["generated_networks"] += 1
@@ -340,6 +560,8 @@ def main():
     print("Build complete!")
     print(f"{'='*60}")
     print(f"\nOutput directory: {output_dir}")
+    if use_base_network:
+        print(f"  - Base network: {args.base_network}")
     print(f"  - Network configs: {network_configs_dir}")
     print(f"  - Pool scenarios:  {pools_config_path}")
     print(f"  - Economic scenarios: {econ_config_path}")

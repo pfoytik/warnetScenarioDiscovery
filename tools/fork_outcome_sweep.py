@@ -29,6 +29,7 @@ import argparse
 import copy
 import json
 import os
+import shutil
 import yaml
 import numpy as np
 from dataclasses import dataclass, field
@@ -421,9 +422,13 @@ def create_run_script(scenarios: List[Dict], output_dir: Path, duration: int = 3
         "",
         "set -e",
         "",
-        f'SWEEP_DIR="{output_dir}"',
+        "# Get absolute path of script directory",
+        'SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"',
+        'SWEEP_DIR="$SCRIPT_DIR"',
         'RESULTS_DIR="$SWEEP_DIR/results"',
-        'SCENARIOS_DIR="$(dirname $0)/../../scenarios"',
+        'PROJECT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"',
+        'SCENARIOS_DIR="$PROJECT_DIR/scenarios"',
+        'TOOLS_DIR="$PROJECT_DIR/tools"',
         "",
         'mkdir -p "$RESULTS_DIR"',
         "",
@@ -437,8 +442,53 @@ def create_run_script(scenarios: List[Dict], output_dir: Path, duration: int = 3
         "",
     ]
 
+    # Add wait_for_scenario function
+    lines.extend([
+        '# Function to wait for scenario completion by polling warnet status',
+        'wait_for_scenario() {',
+        '  local max_wait=$1',
+        '  local poll_interval=30',
+        '  local elapsed=0',
+        '  ',
+        '  echo "  Waiting for scenario to complete (max ${max_wait}s)..."',
+        '  while [ $elapsed -lt $max_wait ]; do',
+        '    sleep $poll_interval',
+        '    elapsed=$((elapsed + poll_interval))',
+        '    ',
+        '    # Check warnet status for scenario completion',
+        '    status_output=$(warnet status 2>&1)',
+        '    ',
+        '    # Check for success',
+        '    if echo "$status_output" | grep -qi "succeeded\\|completed"; then',
+        '      echo "  Scenario completed successfully"',
+        '      return 0',
+        '    fi',
+        '    ',
+        '    # Check for failure',
+        '    if echo "$status_output" | grep -qi "failed\\|error"; then',
+        '      echo "  Scenario failed"',
+        '      return 1',
+        '    fi',
+        '    ',
+        '    # Check if no active scenarios (might have finished)',
+        '    if echo "$status_output" | grep -qi "no active scenarios"; then',
+        '      echo "  No active scenarios - assuming completed"',
+        '      return 0',
+        '    fi',
+        '    ',
+        '    echo "  Still running... (${elapsed}s elapsed)"',
+        '  done',
+        '  ',
+        '  echo "  Timeout waiting for scenario"',
+        '  return 1',
+        '}',
+        '',
+    ])
+
     for i, scenario in enumerate(scenarios):
         scenario_id = scenario["scenario_id"]
+        # Add buffer time for scenario (duration + 5 min for startup/cleanup)
+        max_wait = duration + 300
         lines.extend([
             f'# Scenario {i+1}/{len(scenarios)}: {scenario_id}',
             f'echo "[{i+1}/{len(scenarios)}] Running {scenario_id}..."',
@@ -446,30 +496,41 @@ def create_run_script(scenarios: List[Dict], output_dir: Path, duration: int = 3
             f'  echo "  Skipping (already completed)"',
             f'  ((COMPLETED++)) || true',
             'else',
-            '  # Deploy network',
-            f'  if warnet deploy "$SWEEP_DIR/networks/{scenario_id}.yaml" 2>&1; then',
+            '  # Deploy network (warnet expects a directory containing network.yaml)',
+            f'  if warnet deploy "$SWEEP_DIR/networks/{scenario_id}" 2>&1; then',
             '    sleep 30  # Wait for network to stabilize',
             '',
-            '    # Run scenario',
-            f'    if warnet run "$SCENARIOS_DIR/partition_miner_with_pools.py" \\',
-            f'        --network "$SWEEP_DIR/networks/{scenario_id}.yaml" \\',
+            '    # Start scenario (runs in background)',
+            f'    echo "  Starting scenario..."',
+            f'    warnet run "$SCENARIOS_DIR/partition_miner_with_pools.py" \\',
+            f'        --network "$SWEEP_DIR/networks/{scenario_id}/network.yaml" \\',
             '        --enable-difficulty \\',
             '        --retarget-interval 144 \\',
             '        --interval 1 \\',
             f'        --duration {duration} \\',
             f'        --results-id "{scenario_id}" \\',
-            f'        2>&1 | tee "$RESULTS_DIR/{scenario_id}.log"; then',
+            f'        2>&1 | tee "$RESULTS_DIR/{scenario_id}_start.log"',
             '',
+            '    # Wait for scenario to complete',
+            f'    if wait_for_scenario {max_wait}; then',
             '      # Extract results',
-            f'      python "$SWEEP_DIR/../../tools/extract_results.py" {scenario_id} \\',
-            f'        --output-dir "$RESULTS_DIR/{scenario_id}" 2>/dev/null || true',
+            f'      echo "  Extracting results..."',
+            f'      python "$TOOLS_DIR/extract_results.py" {scenario_id} \\',
+            f'        --output-dir "$RESULTS_DIR/{scenario_id}" 2>&1 || true',
+            '      ',
+            '      # Save warnet logs',
+            f'      warnet logs > "$RESULTS_DIR/{scenario_id}_warnet.log" 2>&1 || true',
             '      ((COMPLETED++)) || true',
             '    else',
             f'      echo "  FAILED: Scenario {scenario_id}"',
+            f'      warnet logs > "$RESULTS_DIR/{scenario_id}_warnet.log" 2>&1 || true',
             '      ((FAILED++)) || true',
             '    fi',
             '',
             '    # Cleanup',
+            '    echo "  Cleaning up..."',
+            '    warnet stop 2>/dev/null || true',
+            '    sleep 5',
             '    warnet down --force 2>/dev/null || true',
             '    sleep 10',
             '  else',
@@ -808,15 +869,56 @@ def main():
     print(f"\nLoading base network: {base_network_path}")
     base_network = load_base_network(base_network_path)
 
-    # Generate network configs
+    # Find node-defaults.yaml (check base network dir first, then parent networks/ dir)
+    node_defaults_path = base_network_path.parent / "node-defaults.yaml"
+    if not node_defaults_path.exists():
+        node_defaults_path = base_network_path.parent.parent / "node-defaults.yaml"
+    if not node_defaults_path.exists():
+        # Create a minimal node-defaults.yaml
+        node_defaults_content = """chain: regtest
+image:
+  repository: bitcoindevproject/bitcoin
+  pullPolicy: IfNotPresent
+defaultConfig: 'regtest=1
+  server=1
+  txindex=1
+  fallbackfee=0.00001
+  rpcuser=bitcoin
+  rpcpassword=bitcoin
+  rpcallowip=0.0.0.0/0
+  rpcbind=0.0.0.0
+  rpcport=18443
+  zmqpubrawblock=tcp://0.0.0.0:28332
+  zmqpubrawtx=tcp://0.0.0.0:28333
+  debug=rpc'
+collectLogs: false
+metricsExport: false
+"""
+        node_defaults_path = None
+        node_defaults_inline = node_defaults_content
+    else:
+        node_defaults_inline = None
+
+    # Generate network configs (each in its own directory for warnet deploy)
     print(f"Generating {args.samples} network configurations...")
     for scenario in scenarios:
         network = apply_scenario_to_network(base_network, scenario)
         # Convert numpy types to native Python types for clean YAML output
         network = convert_numpy_types(network)
-        network_file = output_dir / "networks" / f"{scenario['scenario_id']}.yaml"
+        # Create directory for this scenario's network
+        network_dir = output_dir / "networks" / scenario['scenario_id']
+        network_dir.mkdir(parents=True, exist_ok=True)
+        network_file = network_dir / "network.yaml"
         with open(network_file, "w") as f:
             yaml.dump(network, f, default_flow_style=False, sort_keys=False)
+
+        # Copy or create node-defaults.yaml
+        node_defaults_dest = network_dir / "node-defaults.yaml"
+        if node_defaults_path:
+            shutil.copy(node_defaults_path, node_defaults_dest)
+        else:
+            with open(node_defaults_dest, "w") as f:
+                f.write(node_defaults_inline)
 
     # Save parameters (convert numpy types for clean JSON)
     params_file = output_dir / "parameters.json"

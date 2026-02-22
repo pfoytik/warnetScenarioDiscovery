@@ -644,10 +644,15 @@ def load_economic_nodes_from_network(
                 defaults.update(assigned)
             economic_idx += 1
 
-        # Determine initial fork from node version (via node index)
-        # Nodes 0-9 are v27, 10-19 are v26 (standard partition layout)
-        node_idx = int(node_name.split('-')[1]) if '-' in node_name else 0
-        initial_fork = 'v27' if node_idx < 10 else 'v26'
+        # Determine initial fork from the node's image tag (stored in metadata
+        # by partition_miner_with_pools.py). Fall back to node index heuristic
+        # only if tag is absent (backwards compatibility with old network YAMLs).
+        image_tag = metadata.get('image_tag', '')
+        if image_tag:
+            initial_fork = 'v27' if '27' in image_tag else 'v26'
+        else:
+            node_idx = int(node_name.split('-')[1]) if '-' in node_name else 0
+            initial_fork = 'v27' if node_idx < 10 else 'v26'
 
         # Determine activity type and transaction velocity based on role
         # Exchanges and payment processors are highly transactional
@@ -689,8 +694,12 @@ def load_economic_nodes_from_network(
                 defaults.update(assigned)
             user_idx += 1
 
-        node_idx = int(node_name.split('-')[1]) if '-' in node_name else 0
-        initial_fork = 'v27' if node_idx < 10 else 'v26'
+        image_tag = metadata.get('image_tag', '')
+        if image_tag:
+            initial_fork = 'v27' if '27' in image_tag else 'v26'
+        else:
+            node_idx = int(node_name.split('-')[1]) if '-' in node_name else 0
+            initial_fork = 'v27' if node_idx < 10 else 'v26'
 
         # User nodes are typically mixed activity - some transactions, some holding
         activity_type = ActivityType(defaults.get('activity_type', 'mixed'))

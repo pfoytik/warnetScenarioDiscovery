@@ -63,9 +63,17 @@ DEFAULT_POOLS = [
 
 
 def create_pool_scenario(scenario: Dict[str, Any]) -> Dict[str, Any]:
-    """Create mining pool scenario config from parameters"""
+    """Create mining pool scenario config from parameters.
 
-    # Distribute preferences based on parameters
+    Two independent axes are assigned per pool:
+    - fork_preference / ideology: which fork the pool *wants* to mine long-term,
+      controlled by pool_v27_preference_pct and pool_neutral_pct.
+    - initial_fork: which fork the pool *starts* mining on, controlled by
+      v27_hashrate_pct. This decouples "where you are" from "where you want to be",
+      allowing scenarios where pools start on the incumbent chain but prefer the new one.
+    """
+
+    # --- Ideology / preference assignment (pool_v27_preference_pct, pool_neutral_pct) ---
     v27_pct = scenario["pool_v27_preference_pct"] / 100
     neutral_pct = scenario["pool_neutral_pct"] / 100
     v26_pct = max(0, 1 - v27_pct - neutral_pct)
@@ -76,19 +84,27 @@ def create_pool_scenario(scenario: Dict[str, Any]) -> Dict[str, Any]:
     v26_pct /= total
     neutral_pct /= total
 
+    # --- Initial fork assignment (v27_hashrate_pct) ---
+    # Pools are sorted by cumulative real-world hashrate. The top v27_hashrate_pct%
+    # start on v27, the rest start on v26. This is independent of their ideology.
+    v27_init_threshold = scenario["v27_hashrate_pct"] / 100
+
     pool_configs = []
     cumulative_hashrate = 0
 
     for pool_id, pool_name, hashrate in DEFAULT_POOLS:
-        # Assign preference based on cumulative distribution
         midpoint = (cumulative_hashrate + hashrate / 2) / 100
 
+        # Ideology assignment
         if midpoint < v27_pct:
             pref = "v27"
         elif midpoint < v27_pct + v26_pct:
             pref = "v26"
         else:
             pref = "neutral"
+
+        # Initial fork assignment (independent of ideology)
+        initial_fork = "v27" if midpoint < v27_init_threshold else "v26"
 
         # Neutral pools have minimal ideology
         if pref == "neutral":
@@ -103,6 +119,7 @@ def create_pool_scenario(scenario: Dict[str, Any]) -> Dict[str, Any]:
             "pool_name": pool_name,
             "hashrate_pct": hashrate,
             "fork_preference": pref,
+            "initial_fork": initial_fork,
             "ideology_strength": round(ideology, 3),
             "profitability_threshold": scenario["pool_profitability_threshold"],
             "max_loss_pct": round(max_loss, 3),
@@ -230,23 +247,41 @@ def apply_scenario_to_base_network(base_network: Dict, scenario: Dict) -> Dict:
     solo_hashrate_mult = scenario.get('solo_miner_hashrate', 0.05)
     transaction_velocity = scenario.get('transaction_velocity', 0.5)
 
-    # Calculate target hashrate distribution
+    # Calculate target distributions
     v27_hash_target = scenario.get('v27_hashrate_pct', 50)
     v27_econ_target = scenario.get('v27_economic_pct', 50)
 
-    # Separate nodes by role
+    # --- Assign economic node image tags based on v27_economic_pct ---
+    # Sort economic nodes by custody descending, assign the top ones to v27
+    # until cumulative custody reaches v27_econ_target % of total.
+    econ_roles = {'major_exchange', 'exchange', 'institutional', 'payment_processor', 'merchant'}
+    econ_nodes = [n for n in nodes if n.get('metadata', {}).get('role') in econ_roles]
+    total_econ_custody = sum(n['metadata'].get('custody_btc', 0) for n in econ_nodes)
+
+    if total_econ_custody > 0:
+        econ_nodes_sorted = sorted(
+            econ_nodes,
+            key=lambda n: n['metadata'].get('custody_btc', 0),
+            reverse=True
+        )
+        v27_custody_acc = 0
+        v27_custody_target = total_econ_custody * (v27_econ_target / 100)
+        for econ_node in econ_nodes_sorted:
+            custody = econ_node['metadata'].get('custody_btc', 0)
+            midpoint = v27_custody_acc + custody / 2
+            if midpoint < v27_custody_target:
+                econ_node['image'] = {'tag': '27.0'}
+            else:
+                econ_node['image'] = {'tag': '26.0'}
+            v27_custody_acc += custody
+
+    # --- Assign pool image tags based on v27_hashrate_pct ---
+    # This controls the pool's initial mining fork via node version.
+    # Note: pool ideology/preference is controlled separately by the pool
+    # config YAML (create_pool_scenario), not by node metadata.
     pool_nodes = [n for n in nodes if n.get('metadata', {}).get('role') == 'mining_pool']
-
-    # Sort pools by hashrate for strategic assignment
-    pool_nodes_sorted = sorted(
-        pool_nodes,
-        key=lambda n: n['metadata'].get('hashrate_pct', 0),
-        reverse=True
-    )
-
-    # Assign pools to forks to match target hashrate
-    v27_hashrate = 0
     total_hashrate = sum(n['metadata'].get('hashrate_pct', 0) for n in pool_nodes)
+    v27_hashrate_acc = 0
 
     for node in nodes:
         metadata = node.get('metadata', {})
@@ -254,13 +289,12 @@ def apply_scenario_to_base_network(base_network: Dict, scenario: Dict) -> Dict:
 
         if role == 'mining_pool':
             hashrate = metadata.get('hashrate_pct', 0)
-
-            # Assign to v27 if we haven't hit target yet
-            if v27_hashrate < v27_hash_target and v27_hashrate + hashrate <= v27_hash_target + 10:
-                metadata['fork_preference'] = 'v27'
-                v27_hashrate += hashrate
+            midpoint = v27_hashrate_acc + hashrate / 2
+            if midpoint < v27_hash_target:
+                node['image'] = {'tag': '27.0'}
             else:
-                metadata['fork_preference'] = 'v26'
+                node['image'] = {'tag': '26.0'}
+            v27_hashrate_acc += hashrate
 
             # Apply ideology parameters based on original ideology strength
             original_ideology = metadata.get('ideology_strength', 0.5)

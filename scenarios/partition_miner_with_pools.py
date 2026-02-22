@@ -299,6 +299,9 @@ class PartitionMinerWithPools(Commander):
             for node_config in network_config.get('nodes', []):
                 node_name = node_config.get('name')
                 metadata = node_config.get('metadata', {})
+                # Preserve image tag so economic_node_strategy can determine
+                # initial fork from version rather than a hardcoded index threshold
+                metadata['image_tag'] = node_config.get('image', {}).get('tag', '')
 
                 if node_name:
                     self.node_metadata[node_name] = metadata
@@ -1339,32 +1342,44 @@ class PartitionMinerWithPools(Commander):
                     profitability_threshold=pool_data.get('profitability_threshold', pool_data.get('switch_threshold_pct', 5.0) / 100.0),
                     max_loss_usd=pool_data.get('max_loss_usd'),
                     max_loss_pct=pool_data.get('max_loss_pct', 0.10),
+                    initial_fork=pool_data.get('initial_fork'),
                 ))
             self.pool_strategy = MiningPoolStrategy(pools)
             self.log.info(f"✓ Pool strategy initialized ({len(pools)} pools)")
 
-            # Set initial hashrate from pool scenario
-            # Assume pools start mining their preferred fork if they have one
+            # Set initial hashrate from pool scenario.
+            # If a pool has an explicit initial_fork, use that; otherwise fall
+            # back to fork_preference (neutral pools split evenly).
             initial_v27 = 0.0
             initial_v26 = 0.0
             for pool in pools:
-                if pool.fork_preference == ForkPreference.V27:
-                    initial_v27 += pool.hashrate_pct
+                if pool.initial_fork is not None:
+                    start = pool.initial_fork
+                elif pool.fork_preference == ForkPreference.V27:
+                    start = 'v27'
                 elif pool.fork_preference == ForkPreference.V26:
+                    start = 'v26'
+                else:
+                    start = None  # Neutral — split below
+
+                if start == 'v27':
+                    initial_v27 += pool.hashrate_pct
+                elif start == 'v26':
                     initial_v26 += pool.hashrate_pct
                 else:
-                    # Neutral pools split evenly initially
                     initial_v27 += pool.hashrate_pct / 2
                     initial_v26 += pool.hashrate_pct / 2
 
             self.current_v27_hashrate = initial_v27
             self.current_v26_hashrate = initial_v26
 
-            # Set initial allocation in pool strategy based on preferences
-            # Neutral pools alternate to approximate 50/50 split
+            # Set initial allocation in pool strategy.
+            # Neutral pools with no initial_fork alternate to approximate 50/50.
             neutral_toggle = True
             for pool in pools:
-                if pool.fork_preference == ForkPreference.V27:
+                if pool.initial_fork is not None:
+                    self.pool_strategy.current_allocation[pool.pool_id] = pool.initial_fork
+                elif pool.fork_preference == ForkPreference.V27:
                     self.pool_strategy.current_allocation[pool.pool_id] = 'v27'
                 elif pool.fork_preference == ForkPreference.V26:
                     self.pool_strategy.current_allocation[pool.pool_id] = 'v26'

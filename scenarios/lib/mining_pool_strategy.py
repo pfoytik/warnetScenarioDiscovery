@@ -43,6 +43,9 @@ class PoolProfile:
                                 0.05 = must be 5% more profitable
         max_loss_usd: Maximum USD loss before forced switch (absolute cap)
         max_loss_pct: Maximum % of potential revenue they'll sacrifice
+        initial_fork: Which fork the pool starts mining on. Defaults to fork_preference
+                      (or 'v27' for neutral). Can differ from fork_preference to model
+                      pools that are currently on one chain but ideologically favor another.
         current_fork: Track current fork for reorg detection
     """
     pool_id: str
@@ -52,6 +55,7 @@ class PoolProfile:
     profitability_threshold: float = 0.05
     max_loss_usd: Optional[float] = None
     max_loss_pct: Optional[float] = 0.10  # 10% default
+    initial_fork: Optional[str] = None    # If None, derived from fork_preference at init
     current_fork: str = 'v27'  # Track current fork for reorg detection
 
 
@@ -212,8 +216,11 @@ class MiningPoolStrategy:
                 # Keep current choice
                 current_choice = self.current_allocation[pool_id]
                 if current_choice is None:
-                    # First decision, initialize based on preference
-                    if pool.fork_preference == ForkPreference.NEUTRAL:
+                    # First decision: use explicit initial_fork if set,
+                    # otherwise fall back to fork_preference
+                    if pool.initial_fork is not None:
+                        current_choice = pool.initial_fork
+                    elif pool.fork_preference == ForkPreference.NEUTRAL:
                         current_choice = 'v27'  # Default
                     else:
                         current_choice = pool.fork_preference.value

@@ -5,9 +5,13 @@
 
 set -e
 
-SWEEP_DIR="sweeps/test_sweep_5"
+# Get absolute path of script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SWEEP_DIR="$SCRIPT_DIR"
 RESULTS_DIR="$SWEEP_DIR/results"
-SCENARIOS_DIR="$(dirname $0)/../../scenarios"
+PROJECT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+SCENARIOS_DIR="$PROJECT_DIR/scenarios"
+TOOLS_DIR="$PROJECT_DIR/tools"
 
 mkdir -p "$RESULTS_DIR"
 
@@ -25,13 +29,13 @@ if [ -f "$RESULTS_DIR/fork_sweep_0000/results.json" ]; then
   echo "  Skipping (already completed)"
   ((COMPLETED++)) || true
 else
-  # Deploy network
-  if warnet deploy "$SWEEP_DIR/networks/fork_sweep_0000.yaml" 2>&1; then
+  # Deploy network (warnet expects a directory containing network.yaml)
+  if warnet deploy "$SWEEP_DIR/networks/fork_sweep_0000" 2>&1; then
     sleep 30  # Wait for network to stabilize
 
     # Run scenario
     if warnet run "$SCENARIOS_DIR/partition_miner_with_pools.py" \
-        --network "$SWEEP_DIR/networks/fork_sweep_0000.yaml" \
+        --network "$SWEEP_DIR/networks/fork_sweep_0000/network.yaml" \
         --enable-difficulty \
         --retarget-interval 144 \
         --interval 1 \
@@ -40,7 +44,7 @@ else
         2>&1 | tee "$RESULTS_DIR/fork_sweep_0000.log"; then
 
       # Extract results
-      python "$SWEEP_DIR/../../tools/extract_results.py" fork_sweep_0000 \
+      python "$TOOLS_DIR/extract_results.py" fork_sweep_0000 \
         --output-dir "$RESULTS_DIR/fork_sweep_0000" 2>/dev/null || true
       ((COMPLETED++)) || true
     else
@@ -64,13 +68,13 @@ if [ -f "$RESULTS_DIR/fork_sweep_0001/results.json" ]; then
   echo "  Skipping (already completed)"
   ((COMPLETED++)) || true
 else
-  # Deploy network
-  if warnet deploy "$SWEEP_DIR/networks/fork_sweep_0001.yaml" 2>&1; then
+  # Deploy network (warnet expects a directory containing network.yaml)
+  if warnet deploy "$SWEEP_DIR/networks/fork_sweep_0001" 2>&1; then
     sleep 30  # Wait for network to stabilize
 
     # Run scenario
     if warnet run "$SCENARIOS_DIR/partition_miner_with_pools.py" \
-        --network "$SWEEP_DIR/networks/fork_sweep_0001.yaml" \
+        --network "$SWEEP_DIR/networks/fork_sweep_0001/network.yaml" \
         --enable-difficulty \
         --retarget-interval 144 \
         --interval 1 \
@@ -79,7 +83,7 @@ else
         2>&1 | tee "$RESULTS_DIR/fork_sweep_0001.log"; then
 
       # Extract results
-      python "$SWEEP_DIR/../../tools/extract_results.py" fork_sweep_0001 \
+      python "$TOOLS_DIR/extract_results.py" fork_sweep_0001 \
         --output-dir "$RESULTS_DIR/fork_sweep_0001" 2>/dev/null || true
       ((COMPLETED++)) || true
     else
@@ -103,13 +107,13 @@ if [ -f "$RESULTS_DIR/fork_sweep_0002/results.json" ]; then
   echo "  Skipping (already completed)"
   ((COMPLETED++)) || true
 else
-  # Deploy network
-  if warnet deploy "$SWEEP_DIR/networks/fork_sweep_0002.yaml" 2>&1; then
+  # Deploy network (warnet expects a directory containing network.yaml)
+  if warnet deploy "$SWEEP_DIR/networks/fork_sweep_0002" 2>&1; then
     sleep 30  # Wait for network to stabilize
 
     # Run scenario
     if warnet run "$SCENARIOS_DIR/partition_miner_with_pools.py" \
-        --network "$SWEEP_DIR/networks/fork_sweep_0002.yaml" \
+        --network "$SWEEP_DIR/networks/fork_sweep_0002/network.yaml" \
         --enable-difficulty \
         --retarget-interval 144 \
         --interval 1 \
@@ -118,7 +122,7 @@ else
         2>&1 | tee "$RESULTS_DIR/fork_sweep_0002.log"; then
 
       # Extract results
-      python "$SWEEP_DIR/../../tools/extract_results.py" fork_sweep_0002 \
+      python "$TOOLS_DIR/extract_results.py" fork_sweep_0002 \
         --output-dir "$RESULTS_DIR/fork_sweep_0002" 2>/dev/null || true
       ((COMPLETED++)) || true
     else
@@ -142,13 +146,13 @@ if [ -f "$RESULTS_DIR/fork_sweep_0003/results.json" ]; then
   echo "  Skipping (already completed)"
   ((COMPLETED++)) || true
 else
-  # Deploy network
-  if warnet deploy "$SWEEP_DIR/networks/fork_sweep_0003.yaml" 2>&1; then
+  # Deploy network (warnet expects a directory containing network.yaml)
+  if warnet deploy "$SWEEP_DIR/networks/fork_sweep_0003" 2>&1; then
     sleep 30  # Wait for network to stabilize
 
     # Run scenario
     if warnet run "$SCENARIOS_DIR/partition_miner_with_pools.py" \
-        --network "$SWEEP_DIR/networks/fork_sweep_0003.yaml" \
+        --network "$SWEEP_DIR/networks/fork_sweep_0003/network.yaml" \
         --enable-difficulty \
         --retarget-interval 144 \
         --interval 1 \
@@ -157,7 +161,7 @@ else
         2>&1 | tee "$RESULTS_DIR/fork_sweep_0003.log"; then
 
       # Extract results
-      python "$SWEEP_DIR/../../tools/extract_results.py" fork_sweep_0003 \
+      python "$TOOLS_DIR/extract_results.py" fork_sweep_0003 \
         --output-dir "$RESULTS_DIR/fork_sweep_0003" 2>/dev/null || true
       ((COMPLETED++)) || true
     else
@@ -181,13 +185,13 @@ if [ -f "$RESULTS_DIR/fork_sweep_0004/results.json" ]; then
   echo "  Skipping (already completed)"
   ((COMPLETED++)) || true
 else
-  # Deploy network
-  if warnet deploy "$SWEEP_DIR/networks/fork_sweep_0004.yaml" 2>&1; then
+  # Deploy network (warnet expects a directory containing network.yaml)
+  if warnet deploy "$SWEEP_DIR/networks/fork_sweep_0004" 2>&1; then
     sleep 30  # Wait for network to stabilize
 
     # Run scenario
     if warnet run "$SCENARIOS_DIR/partition_miner_with_pools.py" \
-        --network "$SWEEP_DIR/networks/fork_sweep_0004.yaml" \
+        --network "$SWEEP_DIR/networks/fork_sweep_0004/network.yaml" \
         --enable-difficulty \
         --retarget-interval 144 \
         --interval 1 \
@@ -196,7 +200,7 @@ else
         2>&1 | tee "$RESULTS_DIR/fork_sweep_0004.log"; then
 
       # Extract results
-      python "$SWEEP_DIR/../../tools/extract_results.py" fork_sweep_0004 \
+      python "$TOOLS_DIR/extract_results.py" fork_sweep_0004 \
         --output-dir "$RESULTS_DIR/fork_sweep_0004" 2>/dev/null || true
       ((COMPLETED++)) || true
     else

@@ -1,8 +1,10 @@
 # Realistic Bitcoin Economy Network Model
 
+**Current version:** `realistic-economy-v2` (February 2026)
+
 ## Overview
 
-The `realistic-economy` network provides a comprehensive simulation of the Bitcoin ecosystem with realistic distributions of participants across mining, exchanges, institutions, and users. This model is designed for studying fork dynamics, consensus formation, and economic coordination.
+The `realistic-economy-v2` network provides a comprehensive simulation of the Bitcoin ecosystem with realistic distributions of participants across mining, exchanges, institutions, and users. This model is designed for studying fork dynamics, consensus formation, and economic coordination.
 
 ## Network Composition
 
@@ -68,24 +70,23 @@ For example, a "Long-term HODLer" node at 1:1,250 compression representing HODLe
 
 ### Hashrate Coverage
 
-The eight modeled mining pools account for approximately **88.21%** of total network hashrate. The remaining **~11.79%** represents diffuse solo miners, home miners, small regional pools, and unidentified hashrate not attributable to named pools. This gap is distributed across non-pool nodes as follows:
+The eight modeled mining pools account for approximately **86.4%** of total network hashrate (based on 1-month blocks found from mempool.space 02/23/2026). The remaining **~11.75%** represents diffuse solo miners, home miners, small regional pools, and hashrate that doesn't appear in blocks-found data due to variance. This is distributed across Tier 2 user nodes as follows:
 
 | Node Type | Hashrate | Rationale |
 |---|---|---|
-| Mining Farm Operator | 3.50% | Aggregated small farms not in named pools |
-| Mining Hobbyist | 0.50% | Home ASIC mining |
-| Node Runner | 0.30% | Some run ASICs alongside their node |
-| Developer | 0.20% | Testing/dev mining setups |
-| BCH Supporter | 0.20% | Ideological solo miners |
-| Privacy Advocate | 0.20% | Solo mining for censorship resistance |
-| Big Blocker | 0.15% | Ideological miners |
-| Bitcoin Educator | 0.10% | Small home mining |
-| Lightning Node Operator | 0.10% | Some run ASICs |
-| Curious Experimenter | 0.05% | Minimal test mining |
-| **Unmodeled remainder** | **~6.49%** | Explicitly unmodeled diffuse hashrate |
-| **Total user/non-pool** | **~11.79%** | |
+| Mining Farm Operator | 7.80% | Aggregated small farms + diffuse hashrate |
+| Mining Hobbyist | 1.10% | Home ASIC mining |
+| Node Runner | 0.65% | Some run ASICs alongside their node |
+| Developer | 0.45% | Testing/dev mining setups |
+| BCH Supporter | 0.45% | Ideological solo miners |
+| Privacy Advocate | 0.45% | Solo mining for censorship resistance |
+| Big Blocker | 0.35% | Ideological miners |
+| Bitcoin Educator | 0.20% | Small home mining |
+| Lightning Node Operator | 0.20% | Some run ASICs |
+| Curious Experimenter | 0.10% | Minimal test mining |
+| **Total user/non-pool** | **~11.75%** | |
 
-The unmodeled remainder is intentional and academically defensible: there genuinely exists hashrate in the real network that does not map to any identifiable pool or actor. Documenting it explicitly is preferable to distributing it arbitrarily.
+All non-pool hashrate is distributed across the Tier 2 user nodes. Since these nodes are cohort aggregates representing many real-world participants, and their ideology/fork preference is configurable per scenario, absorbing the diffuse hashrate into these cohorts is appropriate. The Mining Farm Operator node in particular represents the "long tail" of small operations and unknown hashrate sources.
 
 ---
 
@@ -97,20 +98,24 @@ Mining pools control the hashrate and produce blocks. Their fork decisions are d
 
 | Pool | Hashrate | Ideology | Max Loss | Notes |
 |------|----------|----------|----------|-------|
-| Foundry USA | 26.89% | 0.95 | 50% | Highly committed |
-| MARA Pool | 4.85% | 0.70 | 30% | Strong preference |
-| Luxor | 3.12% | 0.65 | 25% | Moderate preference |
-| Ocean | 1.42% | 0.85 | 40% | Ideological, decentralization focus |
-| AntPool | 19.25% | 0.65 | 40% | Strong preference |
-| F2Pool | 11.25% | 0.55 | 28% | Moderate preference |
-| ViaBTC | 11.39% | 0.60 | 35% | Moderate preference |
-| Binance Pool | 10.04% | 0.45 | 22% | More rational, follows profit |
+| Foundry USA | 30.0% | 0.95 | 50% | Highly committed, US-based |
+| MARA Pool | 4.6% | 0.70 | 30% | Strong preference |
+| Luxor | 2.3% | 0.65 | 25% | Moderate preference, US-based |
+| Ocean | 1.2% | 0.85 | 40% | Ideological, decentralization focus |
+| AntPool | 16.9% | 0.65 | 40% | Strong preference |
+| F2Pool | 10.9% | 0.55 | 28% | Moderate preference |
+| ViaBTC | 11.2% | 0.60 | 35% | Moderate preference |
+| SpiderPool | 9.3% | 0.40 | 18% | Profit-driven, newer pool |
+
+*Hashrate calibrated from mempool.space/mining (1-month blocks found, Feb 2026)*
 
 **Total Hashrate Distribution:**
-- v27 pools: ~36.28% (Foundry + MARA + Luxor + Ocean)
-- v26 pools: ~51.93% (AntPool + F2Pool + ViaBTC + Binance Pool)
-- Non-pool nodes: ~5.30% (distributed across user categories, see above)
-- Unmodeled diffuse: ~6.49%
+- v27 pools: ~38.1% (Foundry + MARA + Luxor + Ocean)
+- v26 pools: ~48.3% (AntPool + F2Pool + ViaBTC + SpiderPool)
+- v27 user nodes: ~2.85% (solo miners, small pools)
+- v26 user nodes: ~8.90% (solo miners, small pools)
+- Variance/unmeasured: ~1.85% (solo miners who haven't found blocks recently)
+- Total: ~100%
 
 ### Major Exchanges (4 nodes)
 
@@ -175,7 +180,7 @@ Corporate treasuries and funds. High custody, low velocity (HODLing strategy). A
 | MicroStrategy | 190,000 | 500 | 0.85 |
 | Tesla | 10,000 | 100 | 0.20 |
 | Block Inc | 8,000 | 200 | 0.70 |
-| Grayscale | 620,000 | 2,000 | 0.15 |
+| Grayscale | 230,000 | 2,000 | 0.15 |
 | Fidelity Digital | 150,000 | 800 | 0.12 |
 
 **Key Characteristics:**
@@ -183,7 +188,7 @@ Corporate treasuries and funds. High custody, low velocity (HODLing strategy). A
 - High inertia — institutional processes are slow
 - Mixed ideology — some true believers, some purely financial
 
-> **Note on custody figures**: MicroStrategy has continued accumulating since this model was calibrated and now holds substantially more than 190,000 BTC. Grayscale experienced significant outflows following the GBTC ETF conversion and currently holds closer to 220,000–250,000 BTC rather than 620,000. These figures should be updated from bitcointreasuries.net before publication.
+> **Note on custody figures**: MicroStrategy has continued accumulating since this model was calibrated and likely holds more than 190,000 BTC. Grayscale figure (230,000 BTC) reflects post-ETF outflows. These figures should be refreshed from bitcointreasuries.net periodically.
 
 ### Power Users (12 nodes)
 
@@ -191,18 +196,18 @@ Developers, node runners, miners, and enthusiasts. High ideology, small individu
 
 | User Type | Custody BTC | Hashrate | Ideology |
 |-----------|-------------|----------|----------|
-| Developer | 100 | 0.20% | 0.90 |
-| Node Runner | 50 | 0.30% | 0.85 |
-| Bitcoin Educator | 25 | 0.10% | 0.80 |
+| Developer | 100 | 0.45% | 0.90 |
+| Node Runner | 50 | 0.65% | 0.85 |
+| Bitcoin Educator | 25 | 0.20% | 0.80 |
 | Active Trader | 200 | 0% | 0.15 |
-| Mining Hobbyist | 15 | 0.50% | 0.75 |
-| Privacy Advocate | 30 | 0.20% | 0.88 |
-| BCH Supporter | 80 | 0.20% | 0.88 |
-| Big Blocker | 40 | 0.15% | 0.82 |
+| Mining Hobbyist | 15 | 1.10% | 0.75 |
+| Privacy Advocate | 30 | 0.45% | 0.88 |
+| BCH Supporter | 80 | 0.45% | 0.88 |
+| Big Blocker | 40 | 0.35% | 0.82 |
 | Exchange Arbitrageur | 150 | 0% | 0.05 |
-| Mining Farm Operator | 500 | 3.50% | 0.55 |
+| Mining Farm Operator | 500 | 7.80% | 0.55 |
 | OTC Desk Operator | 1,000 | 0% | 0.10 |
-| Lightning Node Op | 20 | 0.10% | 0.45 |
+| Lightning Node Op | 20 | 0.20% | 0.45 |
 
 **Key Characteristics:**
 - Small individual holdings but high collective influence
@@ -242,12 +247,12 @@ General Bitcoin holders with varying engagement levels. Represent the "long tail
 | Category | Total BTC | % of Supply* |
 |----------|-----------|--------------|
 | Major Exchanges | 3,500,000 | 17.9% |
-| Institutional | 978,000 | 5.0% |
 | Mid-tier Exchanges | 880,000 | 4.5% |
+| Institutional | 588,000 | 3.0% |
 | Mining Pools | 183,000 | 0.9% |
-| Power Users | 2,210 | 0.01% |
 | Payment Processors | 16,000 | 0.08% |
 | Merchants | 2,450 | 0.01% |
+| Power Users | 2,210 | 0.01% |
 | Casual Users | ~38 (individual) / ~47,500 (cohort-scaled) | <0.01% / ~0.24% |
 
 *Based on ~19.5M total BTC supply. Casual user figures shown at both individual-node and cohort-scaled values to illustrate the difference in economic weight depending on modeling approach.
@@ -331,13 +336,13 @@ metadata:
 
 ### Deploy the network:
 ```bash
-warnet deploy networks/realistic-economy/network.yaml
+warnet deploy networks/realistic-economy-v2/network.yaml
 ```
 
 ### Run a fork simulation:
 ```bash
 warnet run scenarios/partition_miner_with_pools.py \
-    --network networks/realistic-economy/network.yaml \
+    --network networks/realistic-economy-v2/network.yaml \
     --pool-scenario realistic_current \
     --economic-scenario realistic_current \
     --enable-difficulty \
@@ -360,7 +365,7 @@ This network is designed for parameter sweep analysis across:
 
 ### Key Scenarios to Explore
 
-1. **Minority Persistence**: Can v27's committed 36% hashrate outlast v26's larger but less committed hashrate?
+1. **Minority Persistence**: Can v27's committed 38% hashrate outlast v26's larger but less committed hashrate?
 
 2. **Exchange Kingmaker**: If major exchanges (neutral) tip toward one fork, does that decide the outcome?
 
@@ -375,14 +380,16 @@ This network is designed for parameter sweep analysis across:
 ### Known Limitations
 
 - **Casual user compression**: The 1:1,250 ratio for casual users vs. 1:400 for the broader network means their collective economic influence is underrepresented at the individual node level. Cohort-scaled custody figures should be used for economic weight calculations.
-- **Custody figure staleness**: MicroStrategy and Grayscale figures in particular require updating. Use bitcointreasuries.net and exchange proof-of-reserves data before any publication.
-- **Hashrate gap**: ~6.49% of network hashrate is explicitly unmodeled. This is intentional but should be noted in any analysis.
+- **Custody figure staleness**: MicroStrategy figure (190,000 BTC) is likely understated as they continue accumulating. Use bitcointreasuries.net and exchange proof-of-reserves data before any publication.
+- **Hashrate distribution**: All non-pool hashrate (~11.75%) is distributed across Tier 2 user nodes. The Mining Farm Operator node carries the bulk (7.80%) representing diffuse/unknown hashrate sources.
 - **No cross-partition edges**: The two partitions are fully isolated by design. Pre-fork peering between the partitions is not modeled.
 - **Static ideology**: `ideology_strength` values do not decay or evolve over simulation time — commitment is treated as fixed for the duration of a run.
 
 ### Future Enhancements
 
-- [ ] Add `represents_count` and `representation_tier` fields to all Tier 2 nodes in network.yaml
+- [x] Add `represents_count` and `representation_tier` fields to all Tier 2 nodes in network.yaml *(completed in v2)*
+- [x] Distribute all non-pool hashrate to user nodes (no unmodeled gap) *(completed in v2)*
+- [x] Update Grayscale custody to reflect post-ETF holdings *(completed in v2)*
 - [ ] Update Tier 2 `custody_btc` values to cohort-scaled figures
 - [ ] Add cross-partition edges to model pre-fork connected state
 - [ ] Add more casual user nodes to reduce compression ratio toward the network average

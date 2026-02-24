@@ -2,63 +2,63 @@
 PARAMETER SWEEP ANALYSIS REPORT
 ======================================================================
 
-Total scenarios analyzed: 41
+Total scenarios analyzed: 50
 
 OUTCOME DISTRIBUTION:
-  v26_dominant: 8 (19.5%)
-  v27_dominant: 33 (80.5%)
+  v26_dominant: 10 (20.0%)
+  v27_dominant: 40 (80.0%)
 
 MOST DISCRIMINATING PARAMETERS:
 (Parameters with largest difference between v27/v26 dominant outcomes)
 
-  1. pool_v27_preference_pct
-     Separation: 26.108
+  1. pool_neutral_pct
+     Separation: 10.267
      v27 favored when: higher
-     Estimated threshold: 35.179
-     v27_dominant mean: 48.233
-     v26_dominant mean: 22.125
+     Estimated threshold: 26.953
+     v27_dominant mean: 32.086
+     v26_dominant mean: 21.819
 
-  2. pool_neutral_pct
-     Separation: 11.084
-     v27 favored when: higher
-     Estimated threshold: 25.868
-     v27_dominant mean: 31.41
-     v26_dominant mean: 20.326
-
-  3. v27_hashrate_pct
-     Separation: 9.754
-     v27 favored when: higher
-     Estimated threshold: 46.05
-     v27_dominant mean: 50.927
-     v26_dominant mean: 41.173
-
-  4. v27_economic_pct
-     Separation: 3.878
+  2. transaction_velocity
+     Separation: 0.058
      v27 favored when: lower
-     Estimated threshold: 51.112
-     v27_dominant mean: 49.173
-     v26_dominant mean: 53.051
+     Estimated threshold: 0.518
+     v27_dominant mean: 0.489
+     v26_dominant mean: 0.547
 
-  5. user_ideology_strength
-     Separation: 0.049
+  3. econ_switching_threshold
+     Separation: 0.032
      v27 favored when: higher
-     Estimated threshold: 0.496
-     v27_dominant mean: 0.521
-     v26_dominant mean: 0.472
+     Estimated threshold: 0.125
+     v27_dominant mean: 0.141
+     v26_dominant mean: 0.109
+
+  4. pool_profitability_threshold
+     Separation: 0.023
+     v27 favored when: higher
+     Estimated threshold: 0.153
+     v27_dominant mean: 0.165
+     v26_dominant mean: 0.142
+
+  5. pool_ideology_strength
+     Separation: 0.012
+     v27 favored when: lower
+     Estimated threshold: 0.505
+     v27_dominant mean: 0.499
+     v26_dominant mean: 0.511
 
 STRONG CORRELATIONS:
 (Parameters most correlated with v27 hashrate share)
 
-  v27_hashrate_pct: +0.229
-  user_ideology_strength: +0.085
-  v27_economic_pct: -0.080
-  pool_ideology_strength: +0.044
-  pool_max_loss_pct: +0.022
+  pool_profitability_threshold: +0.131
+  transaction_velocity: -0.093
+  econ_ideology_strength: -0.032
+  pool_max_loss_pct: +0.028
+  user_ideology_strength: -0.018
 
 KEY INSIGHTS:
 
-  * pool_v27_preference_pct is the strongest predictor of fork outcome
-    Threshold around 35.179
+  * pool_neutral_pct is the strongest predictor of fork outcome
+    Threshold around 26.953
     v27 dominant when higher
 
 ======================================================================

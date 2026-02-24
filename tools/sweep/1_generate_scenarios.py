@@ -49,11 +49,11 @@ class ParameterRange:
 
 # Define the parameter space
 PARAMETER_SPACE = [
-    # Initial conditions
-    ParameterRange("v27_economic_pct", 20, 80, "continuous",
-                   "Initial economic weight on v27 fork (%)"),
-    ParameterRange("v27_hashrate_pct", 20, 80, "continuous",
-                   "Initial hashrate on v27 fork (%)"),
+    # Initial conditions (symmetric: 0=all v26, 0.5=equal, 1=all v27)
+    ParameterRange("economic_split", 0.0, 1.0, "continuous",
+                   "Fraction of economic custody starting on v27 (0=all v26, 0.5=equal, 1=all v27)"),
+    ParameterRange("hashrate_split", 0.0, 1.0, "continuous",
+                   "Fraction of initial hashrate starting on v27 (0=all v26, 0.5=equal, 1=all v27)"),
 
     # Pool behavior
     ParameterRange("pool_ideology_strength", 0.1, 0.9, "continuous",
@@ -62,8 +62,8 @@ PARAMETER_SPACE = [
                    "Min profit advantage for pools to consider switching"),
     ParameterRange("pool_max_loss_pct", 0.02, 0.50, "continuous",
                    "Max revenue loss pools tolerate for ideology"),
-    ParameterRange("pool_v27_preference_pct", 10, 70, "continuous",
-                   "Percentage of pools ideologically favoring v27"),
+    ParameterRange("pool_committed_split", 0.0, 1.0, "continuous",
+                   "Fraction of committed pool hashrate preferring v27 (0=all v26, 0.5=equal, 1=all v27)"),
     ParameterRange("pool_neutral_pct", 10, 50, "continuous",
                    "Percentage of pools that are neutral/rational"),
 

@@ -30,6 +30,7 @@ Output:
 """
 
 import argparse
+import fcntl
 import json
 import os
 import shutil

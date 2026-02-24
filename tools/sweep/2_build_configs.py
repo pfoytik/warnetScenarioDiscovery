@@ -67,27 +67,26 @@ def create_pool_scenario(scenario: Dict[str, Any]) -> Dict[str, Any]:
 
     Two independent axes are assigned per pool:
     - fork_preference / ideology: which fork the pool *wants* to mine long-term,
-      controlled by pool_v27_preference_pct and pool_neutral_pct.
+      controlled by pool_committed_split and pool_neutral_pct.
     - initial_fork: which fork the pool *starts* mining on, controlled by
-      v27_hashrate_pct. This decouples "where you are" from "where you want to be",
+      hashrate_split. This decouples "where you are" from "where you want to be",
       allowing scenarios where pools start on the incumbent chain but prefer the new one.
     """
 
-    # --- Ideology / preference assignment (pool_v27_preference_pct, pool_neutral_pct) ---
-    v27_pct = scenario["pool_v27_preference_pct"] / 100
+    # --- Ideology / preference assignment (pool_committed_split, pool_neutral_pct) ---
+    # pool_committed_split is the fraction of *committed* hashrate that prefers v27.
+    # Neutral pools are subtracted first; the remainder is split symmetrically.
     neutral_pct = scenario["pool_neutral_pct"] / 100
-    v26_pct = max(0, 1 - v27_pct - neutral_pct)
+    committed_pct = 1.0 - neutral_pct
+    split = scenario["pool_committed_split"]
+    v27_pct = committed_pct * split
+    v26_pct = committed_pct * (1.0 - split)
+    # v27_pct + v26_pct + neutral_pct == 1.0 by construction; no normalization needed.
 
-    # Normalize to 100%
-    total = v27_pct + v26_pct + neutral_pct
-    v27_pct /= total
-    v26_pct /= total
-    neutral_pct /= total
-
-    # --- Initial fork assignment (v27_hashrate_pct) ---
-    # Pools are sorted by cumulative real-world hashrate. The top v27_hashrate_pct%
-    # start on v27, the rest start on v26. This is independent of their ideology.
-    v27_init_threshold = scenario["v27_hashrate_pct"] / 100
+    # --- Initial fork assignment (hashrate_split) ---
+    # Pools are sorted by cumulative real-world hashrate. The top hashrate_split
+    # fraction start on v27, the rest start on v26. Independent of ideology.
+    v27_init_threshold = scenario["hashrate_split"]
 
     pool_configs = []
     cumulative_hashrate = 0
@@ -161,8 +160,8 @@ def create_network_config(scenario: Dict[str, Any]) -> Dict[str, Any]:
     return {
         "name": scenario["scenario_id"],
         "description": f"Parameter sweep scenario {scenario['scenario_id']}",
-        "v27_economic_pct": scenario["v27_economic_pct"],
-        "v27_hashrate_pct": scenario["v27_hashrate_pct"],
+        "v27_economic_pct": scenario["economic_split"] * 100,
+        "v27_hashrate_pct": scenario["hashrate_split"] * 100,
         "economic_nodes_per_partition": int(scenario["economic_nodes_per_partition"]),
         "user_nodes_per_partition": int(scenario["user_nodes_per_partition"]),
         "v27_economic": {
@@ -247,11 +246,11 @@ def apply_scenario_to_base_network(base_network: Dict, scenario: Dict) -> Dict:
     solo_hashrate_mult = scenario.get('solo_miner_hashrate', 0.05)
     transaction_velocity = scenario.get('transaction_velocity', 0.5)
 
-    # Calculate target distributions
-    v27_hash_target = scenario.get('v27_hashrate_pct', 50)
-    v27_econ_target = scenario.get('v27_economic_pct', 50)
+    # Calculate target distributions (split parameters are 0–1 fractions)
+    v27_hash_target = scenario.get('hashrate_split', 0.5) * 100
+    v27_econ_target = scenario.get('economic_split', 0.5) * 100
 
-    # --- Assign economic node image tags based on v27_economic_pct ---
+    # --- Assign economic node image tags based on economic_split ---
     # Sort economic nodes by custody descending, assign the top ones to v27
     # until cumulative custody reaches v27_econ_target % of total.
     econ_roles = {'major_exchange', 'exchange', 'institutional', 'payment_processor', 'merchant'}
@@ -275,7 +274,7 @@ def apply_scenario_to_base_network(base_network: Dict, scenario: Dict) -> Dict:
                 econ_node['image'] = {'tag': '26.0'}
             v27_custody_acc += custody
 
-    # --- Assign pool image tags based on v27_hashrate_pct ---
+    # --- Assign pool image tags based on hashrate_split ---
     # This controls the pool's initial mining fork via node version.
     # Note: pool ideology/preference is controlled separately by the pool
     # config YAML (create_pool_scenario), not by node metadata.

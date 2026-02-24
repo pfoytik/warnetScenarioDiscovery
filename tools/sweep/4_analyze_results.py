@@ -161,9 +161,9 @@ def find_critical_thresholds(results: List[Dict], params: Dict[str, Dict]) -> Di
 
     # Parameters to analyze
     param_names = [
-        "v27_economic_pct", "v27_hashrate_pct",
+        "economic_split", "hashrate_split",
         "pool_ideology_strength", "pool_profitability_threshold", "pool_max_loss_pct",
-        "pool_v27_preference_pct", "pool_neutral_pct",
+        "pool_committed_split", "pool_neutral_pct",
         "econ_ideology_strength", "econ_switching_threshold",
         "user_ideology_strength", "transaction_velocity"
     ]
@@ -222,7 +222,7 @@ def calculate_correlations(results: List[Dict], params: Dict[str, Dict]) -> Dict
 
     # Numeric parameters and outcomes
     param_names = [
-        "v27_economic_pct", "v27_hashrate_pct",
+        "economic_split", "hashrate_split",
         "pool_ideology_strength", "pool_profitability_threshold", "pool_max_loss_pct",
         "econ_ideology_strength", "user_ideology_strength", "transaction_velocity"
     ]
@@ -350,8 +350,9 @@ def export_to_csv(results: List[Dict], params: Dict[str, Dict], output_path: Pat
     # Order columns logically
     priority_cols = [
         "scenario_id", "outcome",
-        "v27_economic_pct", "v27_hashrate_pct",
+        "economic_split", "hashrate_split",
         "pool_ideology_strength", "pool_profitability_threshold", "pool_max_loss_pct",
+        "pool_committed_split", "pool_neutral_pct",
         "econ_ideology_strength", "user_ideology_strength",
         "v27_hash_share", "v27_econ_share", "v27_block_share",
         "total_reorgs", "total_orphans"

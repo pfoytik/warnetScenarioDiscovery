@@ -141,7 +141,7 @@ def create_economic_scenario(scenario: Dict[str, Any]) -> Dict[str, Any]:
             "ideology_strength": scenario["econ_ideology_strength"],
             "switching_threshold": scenario["econ_switching_threshold"],
             "inertia": scenario["econ_inertia"],
-            "switching_cooldown": 1800,
+            "switching_cooldown": 300,
             "max_loss_pct": round(min(0.30, scenario["econ_ideology_strength"] * 0.5), 3),
         },
         "user_defaults": {
@@ -149,7 +149,7 @@ def create_economic_scenario(scenario: Dict[str, Any]) -> Dict[str, Any]:
             "ideology_strength": scenario["user_ideology_strength"],
             "switching_threshold": scenario["user_switching_threshold"],
             "inertia": 0.05,
-            "switching_cooldown": 3600,
+            "switching_cooldown": 600,
             "max_loss_pct": round(min(0.40, scenario["user_ideology_strength"] * 0.6), 3),
         }
     }

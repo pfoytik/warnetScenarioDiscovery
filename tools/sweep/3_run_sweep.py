@@ -235,6 +235,24 @@ def inject_sweep_config(
         return False
 
 
+def inject_network_metadata(network_path: Path, scenarios_dir: Path) -> bool:
+    """
+    Copy the sweep-specific network YAML to the bundled network_metadata.yaml.
+
+    The scenario runs inside a pod where the scenarios/config/ directory is
+    bundled. By overwriting network_metadata.yaml before each run, we ensure
+    the scenario uses the correct per-scenario node structure (with image tags
+    set from economic_split) rather than the static default.
+    """
+    try:
+        dest = scenarios_dir / "config" / "network_metadata.yaml"
+        shutil.copy2(str(network_path), str(dest))
+        return True
+    except Exception as e:
+        print(f"  Error injecting network metadata: {e}")
+        return False
+
+
 def wait_for_cluster_ready(timeout: int = 60) -> bool:
     """Wait for the cluster to be responsive with exponential backoff"""
     start = time.time()
@@ -520,6 +538,13 @@ def run_scenario(
     if not dry_run:
         if not inject_sweep_config(scenario_id, pools_config, economic_config, scenarios_dir):
             print(f"  Warning: Could not inject config, scenario may fail")
+
+    # Step 0c: Inject per-scenario network metadata so economic_split image tags
+    # are bundled into the pod (overrides the static network_metadata.yaml default)
+    print(f"  Injecting network metadata...")
+    if not dry_run:
+        if not inject_network_metadata(network_path, scenarios_dir):
+            print(f"  Warning: Could not inject network metadata, economic_split may be wrong")
 
     # Step 1: Stop any running network
     print(f"  Stopping previous network...")

@@ -566,6 +566,7 @@ def run_scenario(
         f"--economic-scenario={scenario_id}",
         "--enable-difficulty",
         "--enable-reorg-metrics",
+        "--retarget-interval=2016",
         f"--duration={duration}",
         f"--interval={interval}",
         f"--results-id={scenario_id}",

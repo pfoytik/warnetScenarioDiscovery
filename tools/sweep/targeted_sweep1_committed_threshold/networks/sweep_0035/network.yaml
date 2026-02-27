@@ -21,9 +21,9 @@ nodes:
     custody_btc: 50000
     daily_volume_btc: 5000
     fork_preference: v27
-    ideology_strength: 0.617
-    profitability_threshold: 0.171
-    max_loss_pct: 0.652
+    ideology_strength: 0.968
+    profitability_threshold: 0.181
+    max_loss_pct: 0.131
     accepts_foreign_blocks: false
   addnode:
   - node-0001
@@ -45,9 +45,9 @@ nodes:
     custody_btc: 15000
     daily_volume_btc: 1500
     fork_preference: v27
-    ideology_strength: 0.514
-    profitability_threshold: 0.171
-    max_loss_pct: 0.435
+    ideology_strength: 0.807
+    profitability_threshold: 0.181
+    max_loss_pct: 0.087
     accepts_foreign_blocks: false
   addnode:
   - node-0000
@@ -68,9 +68,9 @@ nodes:
     custody_btc: 8000
     daily_volume_btc: 800
     fork_preference: v27
-    ideology_strength: 0.514
-    profitability_threshold: 0.171
-    max_loss_pct: 0.435
+    ideology_strength: 0.807
+    profitability_threshold: 0.181
+    max_loss_pct: 0.087
     accepts_foreign_blocks: false
   addnode:
   - node-0001
@@ -91,9 +91,9 @@ nodes:
     custody_btc: 5000
     daily_volume_btc: 500
     fork_preference: v27
-    ideology_strength: 0.617
-    profitability_threshold: 0.171
-    max_loss_pct: 0.652
+    ideology_strength: 0.968
+    profitability_threshold: 0.181
+    max_loss_pct: 0.131
     accepts_foreign_blocks: false
   addnode:
   - node-0002
@@ -115,12 +115,12 @@ nodes:
     custody_btc: 1000000
     daily_volume_btc: 150000
     fork_preference: neutral
-    ideology_strength: 0.221
-    switching_threshold: 0.242
-    inertia: 0.087
-    max_loss_pct: 0.111
+    ideology_strength: 0.617
+    switching_threshold: 0.095
+    inertia: 0.081
+    max_loss_pct: 0.308
     activity_type: transactional
-    transaction_velocity: 0.562
+    transaction_velocity: 0.772
     accepts_foreign_blocks: false
   addnode:
   - node-0000
@@ -128,7 +128,7 @@ nodes:
   - node-0008
 - name: node-0005
   image:
-    tag: '26.0'
+    tag: '27.0'
   bitcoin_config:
     maxconnections: 125
     maxmempool: 500
@@ -143,19 +143,19 @@ nodes:
     custody_btc: 600000
     daily_volume_btc: 80000
     fork_preference: neutral
-    ideology_strength: 0.221
-    switching_threshold: 0.242
-    inertia: 0.087
-    max_loss_pct: 0.111
+    ideology_strength: 0.617
+    switching_threshold: 0.095
+    inertia: 0.081
+    max_loss_pct: 0.308
     activity_type: transactional
-    transaction_velocity: 0.562
+    transaction_velocity: 0.772
     accepts_foreign_blocks: false
   addnode:
   - node-0004
   - node-0006
 - name: node-0006
   image:
-    tag: '26.0'
+    tag: '27.0'
   bitcoin_config:
     maxconnections: 75
     maxmempool: 300
@@ -169,19 +169,19 @@ nodes:
     custody_btc: 200000
     daily_volume_btc: 25000
     fork_preference: v27
-    ideology_strength: 0.221
-    switching_threshold: 0.242
-    inertia: 0.087
-    max_loss_pct: 0.111
+    ideology_strength: 0.617
+    switching_threshold: 0.095
+    inertia: 0.081
+    max_loss_pct: 0.308
     activity_type: transactional
-    transaction_velocity: 0.562
+    transaction_velocity: 0.772
     accepts_foreign_blocks: false
   addnode:
   - node-0005
   - node-0007
 - name: node-0007
   image:
-    tag: '26.0'
+    tag: '27.0'
   bitcoin_config:
     maxconnections: 75
     maxmempool: 300
@@ -195,12 +195,12 @@ nodes:
     custody_btc: 80000
     daily_volume_btc: 10000
     fork_preference: v27
-    ideology_strength: 0.221
-    switching_threshold: 0.242
-    inertia: 0.087
-    max_loss_pct: 0.111
+    ideology_strength: 0.617
+    switching_threshold: 0.095
+    inertia: 0.081
+    max_loss_pct: 0.308
     activity_type: transactional
-    transaction_velocity: 0.562
+    transaction_velocity: 0.772
     accepts_foreign_blocks: false
   addnode:
   - node-0006
@@ -221,12 +221,12 @@ nodes:
     custody_btc: 50000
     daily_volume_btc: 8000
     fork_preference: v27
-    ideology_strength: 0.221
-    switching_threshold: 0.242
-    inertia: 0.087
-    max_loss_pct: 0.111
+    ideology_strength: 0.617
+    switching_threshold: 0.095
+    inertia: 0.081
+    max_loss_pct: 0.308
     activity_type: transactional
-    transaction_velocity: 0.562
+    transaction_velocity: 0.772
     accepts_foreign_blocks: false
   addnode:
   - node-0007
@@ -247,12 +247,12 @@ nodes:
     custody_btc: 5000
     daily_volume_btc: 15000
     fork_preference: v27
-    ideology_strength: 0.568
-    switching_threshold: 0.062
+    ideology_strength: 0.708
+    switching_threshold: 0.083
     inertia: 0.08
     max_loss_pct: 0.25
     activity_type: transactional
-    transaction_velocity: 0.674
+    transaction_velocity: 0.926
     accepts_foreign_blocks: false
   addnode:
   - node-0008
@@ -273,12 +273,12 @@ nodes:
     custody_btc: 3000
     daily_volume_btc: 5000
     fork_preference: v27
-    ideology_strength: 0.568
-    switching_threshold: 0.062
+    ideology_strength: 0.708
+    switching_threshold: 0.083
     inertia: 0.1
     max_loss_pct: 0.2
     activity_type: transactional
-    transaction_velocity: 0.674
+    transaction_velocity: 0.926
     accepts_foreign_blocks: false
   addnode:
   - node-0009
@@ -299,8 +299,8 @@ nodes:
     custody_btc: 500
     daily_volume_btc: 200
     fork_preference: v27
-    ideology_strength: 0.426
-    switching_threshold: 0.062
+    ideology_strength: 0.531
+    switching_threshold: 0.083
     inertia: 0.15
     max_loss_pct: 0.1
     activity_type: transactional
@@ -325,8 +325,8 @@ nodes:
     custody_btc: 300
     daily_volume_btc: 150
     fork_preference: neutral
-    ideology_strength: 0.426
-    switching_threshold: 0.062
+    ideology_strength: 0.531
+    switching_threshold: 0.083
     inertia: 0.12
     max_loss_pct: 0.08
     activity_type: transactional
@@ -351,8 +351,8 @@ nodes:
     custody_btc: 200
     daily_volume_btc: 100
     fork_preference: v27
-    ideology_strength: 0.426
-    switching_threshold: 0.062
+    ideology_strength: 0.531
+    switching_threshold: 0.083
     inertia: 0.1
     max_loss_pct: 0.12
     activity_type: transactional
@@ -363,7 +363,7 @@ nodes:
   - node-0014
 - name: node-0014
   image:
-    tag: '26.0'
+    tag: '27.0'
   bitcoin_config:
     maxconnections: 50
     maxmempool: 200
@@ -377,10 +377,10 @@ nodes:
     custody_btc: 190000
     daily_volume_btc: 500
     fork_preference: v27
-    ideology_strength: 0.265
+    ideology_strength: 0.74
     switching_threshold: 0.15
-    inertia: 0.174
-    max_loss_pct: 0.088
+    inertia: 0.162
+    max_loss_pct: 0.247
     activity_type: custody
     transaction_velocity: 0.05
     accepts_foreign_blocks: false
@@ -403,10 +403,10 @@ nodes:
     custody_btc: 10000
     daily_volume_btc: 100
     fork_preference: neutral
-    ideology_strength: 0.265
+    ideology_strength: 0.74
     switching_threshold: 0.05
-    inertia: 0.174
-    max_loss_pct: 0.088
+    inertia: 0.162
+    max_loss_pct: 0.247
     activity_type: custody
     transaction_velocity: 0.02
     accepts_foreign_blocks: false
@@ -429,10 +429,10 @@ nodes:
     custody_btc: 8000
     daily_volume_btc: 200
     fork_preference: v27
-    ideology_strength: 0.265
+    ideology_strength: 0.74
     switching_threshold: 0.12
-    inertia: 0.174
-    max_loss_pct: 0.088
+    inertia: 0.162
+    max_loss_pct: 0.247
     activity_type: custody
     transaction_velocity: 0.08
     accepts_foreign_blocks: false
@@ -452,12 +452,12 @@ nodes:
     entity_id: user-dev-001
     representation_tier: 2
     represents_count: 400
-    hashrate_pct: 1.152
+    hashrate_pct: 1.341
     custody_btc: 100
     daily_volume_btc: 5
     fork_preference: v27
-    ideology_strength: 0.71
-    switching_threshold: 0.093
+    ideology_strength: 0.885
+    switching_threshold: 0.124
     inertia: 0.05
     max_loss_pct: 0.4
     activity_type: mixed
@@ -479,12 +479,12 @@ nodes:
     entity_id: user-node-001
     representation_tier: 2
     represents_count: 400
-    hashrate_pct: 1.664
+    hashrate_pct: 1.937
     custody_btc: 50
     daily_volume_btc: 2
     fork_preference: v27
-    ideology_strength: 0.71
-    switching_threshold: 0.093
+    ideology_strength: 0.885
+    switching_threshold: 0.124
     inertia: 0.05
     max_loss_pct: 0.35
     activity_type: custody
@@ -506,12 +506,12 @@ nodes:
     entity_id: user-edu-001
     representation_tier: 2
     represents_count: 400
-    hashrate_pct: 0.512
+    hashrate_pct: 0.596
     custody_btc: 25
     daily_volume_btc: 3
     fork_preference: v27
-    ideology_strength: 0.71
-    switching_threshold: 0.093
+    ideology_strength: 0.885
+    switching_threshold: 0.124
     inertia: 0.08
     max_loss_pct: 0.3
     activity_type: mixed
@@ -537,8 +537,8 @@ nodes:
     custody_btc: 200
     daily_volume_btc: 50
     fork_preference: neutral
-    ideology_strength: 0.71
-    switching_threshold: 0.093
+    ideology_strength: 0.885
+    switching_threshold: 0.124
     inertia: 0.05
     max_loss_pct: 0.05
     activity_type: transactional
@@ -560,12 +560,12 @@ nodes:
     entity_id: user-miner-001
     representation_tier: 2
     represents_count: 400
-    hashrate_pct: 2.816
+    hashrate_pct: 3.278
     custody_btc: 15
     daily_volume_btc: 1
     fork_preference: v27
-    ideology_strength: 0.71
-    switching_threshold: 0.093
+    ideology_strength: 0.885
+    switching_threshold: 0.124
     inertia: 0.1
     max_loss_pct: 0.25
     activity_type: mixed
@@ -587,12 +587,12 @@ nodes:
     entity_id: user-privacy-001
     representation_tier: 2
     represents_count: 400
-    hashrate_pct: 1.152
+    hashrate_pct: 1.341
     custody_btc: 30
     daily_volume_btc: 2
     fork_preference: v27
-    ideology_strength: 0.71
-    switching_threshold: 0.093
+    ideology_strength: 0.885
+    switching_threshold: 0.124
     inertia: 0.05
     max_loss_pct: 0.45
     activity_type: mixed
@@ -618,8 +618,8 @@ nodes:
     custody_btc: 10
     daily_volume_btc: 0.01
     fork_preference: v27
-    ideology_strength: 0.355
-    switching_threshold: 0.05
+    ideology_strength: 0.443
+    switching_threshold: 0.066
     inertia: 0.2
     max_loss_pct: 0.3
     activity_type: custody
@@ -645,8 +645,8 @@ nodes:
     custody_btc: 5
     daily_volume_btc: 0.05
     fork_preference: neutral
-    ideology_strength: 0.355
-    switching_threshold: 0.05
+    ideology_strength: 0.443
+    switching_threshold: 0.066
     inertia: 0.15
     max_loss_pct: 0.12
     activity_type: mixed
@@ -672,8 +672,8 @@ nodes:
     custody_btc: 2
     daily_volume_btc: 0.1
     fork_preference: neutral
-    ideology_strength: 0.355
-    switching_threshold: 0.05
+    ideology_strength: 0.443
+    switching_threshold: 0.066
     inertia: 0.1
     max_loss_pct: 0.08
     activity_type: transactional
@@ -699,8 +699,8 @@ nodes:
     custody_btc: 0.5
     daily_volume_btc: 0.02
     fork_preference: neutral
-    ideology_strength: 0.355
-    switching_threshold: 0.05
+    ideology_strength: 0.443
+    switching_threshold: 0.066
     inertia: 0.05
     max_loss_pct: 0.05
     activity_type: mixed
@@ -726,8 +726,8 @@ nodes:
     custody_btc: 0.2
     daily_volume_btc: 0.5
     fork_preference: neutral
-    ideology_strength: 0.355
-    switching_threshold: 0.05
+    ideology_strength: 0.443
+    switching_threshold: 0.066
     inertia: 0.08
     max_loss_pct: 0.06
     activity_type: transactional
@@ -753,8 +753,8 @@ nodes:
     custody_btc: 3
     daily_volume_btc: 0.01
     fork_preference: v27
-    ideology_strength: 0.355
-    switching_threshold: 0.05
+    ideology_strength: 0.443
+    switching_threshold: 0.066
     inertia: 0.18
     max_loss_pct: 0.15
     activity_type: custody
@@ -780,8 +780,8 @@ nodes:
     custody_btc: 0.1
     daily_volume_btc: 0.005
     fork_preference: neutral
-    ideology_strength: 0.355
-    switching_threshold: 0.05
+    ideology_strength: 0.443
+    switching_threshold: 0.066
     inertia: 0.03
     max_loss_pct: 0.03
     activity_type: custody
@@ -806,9 +806,9 @@ nodes:
     custody_btc: 40000
     daily_volume_btc: 4000
     fork_preference: v26
-    ideology_strength: 0.514
-    profitability_threshold: 0.171
-    max_loss_pct: 0.435
+    ideology_strength: 0.807
+    profitability_threshold: 0.181
+    max_loss_pct: 0.087
     accepts_foreign_blocks: true
   addnode:
   - node-0031
@@ -816,7 +816,7 @@ nodes:
   - node-0038
 - name: node-0031
   image:
-    tag: '27.0'
+    tag: '26.0'
   bitcoin_config:
     maxconnections: 100
     maxmempool: 300
@@ -830,9 +830,9 @@ nodes:
     custody_btc: 25000
     daily_volume_btc: 2500
     fork_preference: v26
-    ideology_strength: 0.514
-    profitability_threshold: 0.171
-    max_loss_pct: 0.435
+    ideology_strength: 0.807
+    profitability_threshold: 0.181
+    max_loss_pct: 0.087
     accepts_foreign_blocks: true
   addnode:
   - node-0030
@@ -853,9 +853,9 @@ nodes:
     custody_btc: 22000
     daily_volume_btc: 2200
     fork_preference: v26
-    ideology_strength: 0.514
-    profitability_threshold: 0.171
-    max_loss_pct: 0.435
+    ideology_strength: 0.807
+    profitability_threshold: 0.181
+    max_loss_pct: 0.087
     accepts_foreign_blocks: true
   addnode:
   - node-0031
@@ -876,9 +876,9 @@ nodes:
     custody_btc: 15000
     daily_volume_btc: 1500
     fork_preference: v26
-    ideology_strength: 0.154
-    profitability_threshold: 0.171
-    max_loss_pct: 0.217
+    ideology_strength: 0.242
+    profitability_threshold: 0.181
+    max_loss_pct: 0.043
     accepts_foreign_blocks: true
   addnode:
   - node-0032
@@ -900,12 +900,12 @@ nodes:
     custody_btc: 1500000
     daily_volume_btc: 250000
     fork_preference: neutral
-    ideology_strength: 0.221
-    switching_threshold: 0.242
-    inertia: 0.087
-    max_loss_pct: 0.111
+    ideology_strength: 0.617
+    switching_threshold: 0.095
+    inertia: 0.081
+    max_loss_pct: 0.308
     activity_type: transactional
-    transaction_velocity: 0.562
+    transaction_velocity: 0.772
     accepts_foreign_blocks: true
   addnode:
   - node-0030
@@ -913,7 +913,7 @@ nodes:
   - node-0038
 - name: node-0035
   image:
-    tag: '26.0'
+    tag: '27.0'
   bitcoin_config:
     maxconnections: 125
     maxmempool: 500
@@ -928,19 +928,19 @@ nodes:
     custody_btc: 400000
     daily_volume_btc: 60000
     fork_preference: neutral
-    ideology_strength: 0.221
-    switching_threshold: 0.242
-    inertia: 0.087
-    max_loss_pct: 0.111
+    ideology_strength: 0.617
+    switching_threshold: 0.095
+    inertia: 0.081
+    max_loss_pct: 0.308
     activity_type: transactional
-    transaction_velocity: 0.562
+    transaction_velocity: 0.772
     accepts_foreign_blocks: true
   addnode:
   - node-0034
   - node-0036
 - name: node-0036
   image:
-    tag: '26.0'
+    tag: '27.0'
   bitcoin_config:
     maxconnections: 75
     maxmempool: 300
@@ -954,19 +954,19 @@ nodes:
     custody_btc: 300000
     daily_volume_btc: 45000
     fork_preference: v26
-    ideology_strength: 0.221
-    switching_threshold: 0.242
-    inertia: 0.087
-    max_loss_pct: 0.111
+    ideology_strength: 0.617
+    switching_threshold: 0.095
+    inertia: 0.081
+    max_loss_pct: 0.308
     activity_type: transactional
-    transaction_velocity: 0.562
+    transaction_velocity: 0.772
     accepts_foreign_blocks: true
   addnode:
   - node-0035
   - node-0037
 - name: node-0037
   image:
-    tag: '26.0'
+    tag: '27.0'
   bitcoin_config:
     maxconnections: 75
     maxmempool: 300
@@ -980,19 +980,19 @@ nodes:
     custody_btc: 150000
     daily_volume_btc: 30000
     fork_preference: v26
-    ideology_strength: 0.221
-    switching_threshold: 0.242
-    inertia: 0.087
-    max_loss_pct: 0.111
+    ideology_strength: 0.617
+    switching_threshold: 0.095
+    inertia: 0.081
+    max_loss_pct: 0.308
     activity_type: transactional
-    transaction_velocity: 0.562
+    transaction_velocity: 0.772
     accepts_foreign_blocks: true
   addnode:
   - node-0036
   - node-0038
 - name: node-0038
   image:
-    tag: '26.0'
+    tag: '27.0'
   bitcoin_config:
     maxconnections: 75
     maxmempool: 300
@@ -1006,12 +1006,12 @@ nodes:
     custody_btc: 100000
     daily_volume_btc: 20000
     fork_preference: v26
-    ideology_strength: 0.221
-    switching_threshold: 0.242
-    inertia: 0.087
-    max_loss_pct: 0.111
+    ideology_strength: 0.617
+    switching_threshold: 0.095
+    inertia: 0.081
+    max_loss_pct: 0.308
     activity_type: transactional
-    transaction_velocity: 0.562
+    transaction_velocity: 0.772
     accepts_foreign_blocks: true
   addnode:
   - node-0037
@@ -1032,12 +1032,12 @@ nodes:
     custody_btc: 8000
     daily_volume_btc: 20000
     fork_preference: v26
-    ideology_strength: 0.568
-    switching_threshold: 0.062
+    ideology_strength: 0.708
+    switching_threshold: 0.083
     inertia: 0.12
     max_loss_pct: 0.12
     activity_type: transactional
-    transaction_velocity: 0.674
+    transaction_velocity: 0.926
     accepts_foreign_blocks: true
   addnode:
   - node-0038
@@ -1058,8 +1058,8 @@ nodes:
     custody_btc: 800
     daily_volume_btc: 300
     fork_preference: v26
-    ideology_strength: 0.426
-    switching_threshold: 0.062
+    ideology_strength: 0.531
+    switching_threshold: 0.083
     inertia: 0.15
     max_loss_pct: 0.1
     activity_type: transactional
@@ -1084,8 +1084,8 @@ nodes:
     custody_btc: 400
     daily_volume_btc: 180
     fork_preference: neutral
-    ideology_strength: 0.426
-    switching_threshold: 0.062
+    ideology_strength: 0.531
+    switching_threshold: 0.083
     inertia: 0.12
     max_loss_pct: 0.07
     activity_type: transactional
@@ -1110,8 +1110,8 @@ nodes:
     custody_btc: 250
     daily_volume_btc: 120
     fork_preference: v26
-    ideology_strength: 0.426
-    switching_threshold: 0.062
+    ideology_strength: 0.531
+    switching_threshold: 0.083
     inertia: 0.18
     max_loss_pct: 0.06
     activity_type: transactional
@@ -1122,7 +1122,7 @@ nodes:
   - node-0043
 - name: node-0043
   image:
-    tag: '26.0'
+    tag: '27.0'
   bitcoin_config:
     maxconnections: 50
     maxmempool: 200
@@ -1136,10 +1136,10 @@ nodes:
     custody_btc: 230000
     daily_volume_btc: 2000
     fork_preference: neutral
-    ideology_strength: 0.265
+    ideology_strength: 0.74
     switching_threshold: 0.04
-    inertia: 0.174
-    max_loss_pct: 0.088
+    inertia: 0.162
+    max_loss_pct: 0.247
     activity_type: custody
     transaction_velocity: 0.03
     accepts_foreign_blocks: true
@@ -1148,7 +1148,7 @@ nodes:
   - node-0044
 - name: node-0044
   image:
-    tag: '26.0'
+    tag: '27.0'
   bitcoin_config:
     maxconnections: 50
     maxmempool: 200
@@ -1162,10 +1162,10 @@ nodes:
     custody_btc: 150000
     daily_volume_btc: 800
     fork_preference: neutral
-    ideology_strength: 0.265
+    ideology_strength: 0.74
     switching_threshold: 0.03
-    inertia: 0.174
-    max_loss_pct: 0.088
+    inertia: 0.162
+    max_loss_pct: 0.247
     activity_type: custody
     transaction_velocity: 0.04
     accepts_foreign_blocks: true
@@ -1185,12 +1185,12 @@ nodes:
     entity_id: user-bch-001
     representation_tier: 2
     represents_count: 400
-    hashrate_pct: 1.152
+    hashrate_pct: 1.341
     custody_btc: 80
     daily_volume_btc: 4
     fork_preference: v26
-    ideology_strength: 0.71
-    switching_threshold: 0.093
+    ideology_strength: 0.885
+    switching_threshold: 0.124
     inertia: 0.05
     max_loss_pct: 0.45
     activity_type: mixed
@@ -1212,12 +1212,12 @@ nodes:
     entity_id: user-bigblock-001
     representation_tier: 2
     represents_count: 400
-    hashrate_pct: 0.896
+    hashrate_pct: 1.043
     custody_btc: 40
     daily_volume_btc: 3
     fork_preference: v26
-    ideology_strength: 0.71
-    switching_threshold: 0.093
+    ideology_strength: 0.885
+    switching_threshold: 0.124
     inertia: 0.05
     max_loss_pct: 0.38
     activity_type: mixed
@@ -1243,8 +1243,8 @@ nodes:
     custody_btc: 150
     daily_volume_btc: 80
     fork_preference: neutral
-    ideology_strength: 0.71
-    switching_threshold: 0.093
+    ideology_strength: 0.885
+    switching_threshold: 0.124
     inertia: 0.03
     max_loss_pct: 0.03
     activity_type: transactional
@@ -1266,12 +1266,12 @@ nodes:
     entity_id: user-farm-001
     representation_tier: 2
     represents_count: 400
-    hashrate_pct: 19.968
+    hashrate_pct: 23.244
     custody_btc: 500
     daily_volume_btc: 20
     fork_preference: v26
-    ideology_strength: 0.71
-    switching_threshold: 0.093
+    ideology_strength: 0.885
+    switching_threshold: 0.124
     inertia: 0.12
     max_loss_pct: 0.2
     activity_type: mixed
@@ -1297,8 +1297,8 @@ nodes:
     custody_btc: 1000
     daily_volume_btc: 200
     fork_preference: neutral
-    ideology_strength: 0.71
-    switching_threshold: 0.093
+    ideology_strength: 0.885
+    switching_threshold: 0.124
     inertia: 0.08
     max_loss_pct: 0.05
     activity_type: transactional
@@ -1320,12 +1320,12 @@ nodes:
     entity_id: user-ln-001
     representation_tier: 2
     represents_count: 400
-    hashrate_pct: 0.512
+    hashrate_pct: 0.596
     custody_btc: 20
     daily_volume_btc: 10
     fork_preference: v26
-    ideology_strength: 0.71
-    switching_threshold: 0.093
+    ideology_strength: 0.885
+    switching_threshold: 0.124
     inertia: 0.1
     max_loss_pct: 0.18
     activity_type: transactional
@@ -1351,8 +1351,8 @@ nodes:
     custody_btc: 8
     daily_volume_btc: 0.01
     fork_preference: v26
-    ideology_strength: 0.355
-    switching_threshold: 0.05
+    ideology_strength: 0.443
+    switching_threshold: 0.066
     inertia: 0.18
     max_loss_pct: 0.22
     activity_type: custody
@@ -1378,8 +1378,8 @@ nodes:
     custody_btc: 4
     daily_volume_btc: 0.04
     fork_preference: neutral
-    ideology_strength: 0.355
-    switching_threshold: 0.05
+    ideology_strength: 0.443
+    switching_threshold: 0.066
     inertia: 0.12
     max_loss_pct: 0.1
     activity_type: mixed
@@ -1405,8 +1405,8 @@ nodes:
     custody_btc: 1.5
     daily_volume_btc: 0.08
     fork_preference: v26
-    ideology_strength: 0.355
-    switching_threshold: 0.05
+    ideology_strength: 0.443
+    switching_threshold: 0.066
     inertia: 0.08
     max_loss_pct: 0.08
     activity_type: transactional
@@ -1432,8 +1432,8 @@ nodes:
     custody_btc: 0.3
     daily_volume_btc: 0.01
     fork_preference: neutral
-    ideology_strength: 0.355
-    switching_threshold: 0.05
+    ideology_strength: 0.443
+    switching_threshold: 0.066
     inertia: 0.04
     max_loss_pct: 0.04
     activity_type: mixed
@@ -1459,8 +1459,8 @@ nodes:
     custody_btc: 0.15
     daily_volume_btc: 0.4
     fork_preference: v26
-    ideology_strength: 0.355
-    switching_threshold: 0.05
+    ideology_strength: 0.443
+    switching_threshold: 0.066
     inertia: 0.06
     max_loss_pct: 0.05
     activity_type: transactional
@@ -1486,8 +1486,8 @@ nodes:
     custody_btc: 2.5
     daily_volume_btc: 0.008
     fork_preference: v26
-    ideology_strength: 0.355
-    switching_threshold: 0.05
+    ideology_strength: 0.443
+    switching_threshold: 0.066
     inertia: 0.15
     max_loss_pct: 0.12
     activity_type: custody
@@ -1513,8 +1513,8 @@ nodes:
     custody_btc: 1
     daily_volume_btc: 0.5
     fork_preference: neutral
-    ideology_strength: 0.355
-    switching_threshold: 0.05
+    ideology_strength: 0.443
+    switching_threshold: 0.066
     inertia: 0.05
     max_loss_pct: 0.04
     activity_type: transactional
@@ -1540,8 +1540,8 @@ nodes:
     custody_btc: 0.08
     daily_volume_btc: 0.003
     fork_preference: neutral
-    ideology_strength: 0.355
-    switching_threshold: 0.05
+    ideology_strength: 0.443
+    switching_threshold: 0.066
     inertia: 0.02
     max_loss_pct: 0.02
     activity_type: custody
@@ -1563,12 +1563,12 @@ nodes:
     entity_id: user-curious-001
     representation_tier: 2
     represents_count: 1250
-    hashrate_pct: 0.256
+    hashrate_pct: 0.298
     custody_btc: 0.05
     daily_volume_btc: 0.01
     fork_preference: v26
-    ideology_strength: 0.355
-    switching_threshold: 0.05
+    ideology_strength: 0.443
+    switching_threshold: 0.066
     inertia: 0.05
     max_loss_pct: 0.08
     activity_type: mixed

@@ -2,63 +2,63 @@
 PARAMETER SWEEP ANALYSIS REPORT
 ======================================================================
 
-Total scenarios analyzed: 16
+Total scenarios analyzed: 50
 
 OUTCOME DISTRIBUTION:
-  v26_dominant: 9 (56.2%)
-  v27_dominant: 7 (43.8%)
+  v26_dominant: 24 (48.0%)
+  v27_dominant: 26 (52.0%)
 
 MOST DISCRIMINATING PARAMETERS:
 (Parameters with largest difference between v27/v26 dominant outcomes)
 
   1. pool_neutral_pct
-     Separation: 8.936
+     Separation: 4.376
      v27 favored when: higher
-     Estimated threshold: 27.616
-     v27_dominant mean: 32.084
-     v26_dominant mean: 23.148
+     Estimated threshold: 29.945
+     v27_dominant mean: 32.133
+     v26_dominant mean: 27.757
 
   2. hashrate_split
-     Separation: 0.504
+     Separation: 0.491
      v27 favored when: higher
-     Estimated threshold: 0.503
-     v27_dominant mean: 0.755
-     v26_dominant mean: 0.251
+     Estimated threshold: 0.489
+     v27_dominant mean: 0.735
+     v26_dominant mean: 0.244
 
-  3. econ_ideology_strength
-     Separation: 0.293
-     v27 favored when: lower
-     Estimated threshold: 0.301
-     v27_dominant mean: 0.155
-     v26_dominant mean: 0.448
-
-  4. pool_max_loss_pct
-     Separation: 0.244
+  3. user_ideology_strength
+     Separation: 0.108
      v27 favored when: higher
-     Estimated threshold: 0.277
-     v27_dominant mean: 0.399
-     v26_dominant mean: 0.155
-
-  5. economic_split
-     Separation: 0.18
-     v27 favored when: lower
      Estimated threshold: 0.496
-     v27_dominant mean: 0.406
-     v26_dominant mean: 0.586
+     v27_dominant mean: 0.55
+     v26_dominant mean: 0.442
+
+  4. pool_committed_split
+     Separation: 0.094
+     v27 favored when: higher
+     Estimated threshold: 0.499
+     v27_dominant mean: 0.546
+     v26_dominant mean: 0.452
+
+  5. econ_ideology_strength
+     Separation: 0.071
+     v27 favored when: lower
+     Estimated threshold: 0.399
+     v27_dominant mean: 0.364
+     v26_dominant mean: 0.435
 
 STRONG CORRELATIONS:
 (Parameters most correlated with v27 hashrate share)
 
-  hashrate_split: +0.896
-  pool_max_loss_pct: +0.727
-  econ_ideology_strength: -0.660
-  economic_split: -0.270
-  pool_ideology_strength: -0.211
+  hashrate_split: +0.853
+  user_ideology_strength: +0.233
+  pool_max_loss_pct: +0.164
+  pool_profitability_threshold: -0.156
+  econ_ideology_strength: -0.154
 
 KEY INSIGHTS:
 
   * pool_neutral_pct is the strongest predictor of fork outcome
-    Threshold around 27.616
+    Threshold around 29.945
     v27 dominant when higher
 
 ======================================================================

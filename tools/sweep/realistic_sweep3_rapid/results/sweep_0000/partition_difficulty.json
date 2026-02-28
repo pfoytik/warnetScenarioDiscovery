@@ -1,0 +1,38 @@
+{
+  "config": {
+    "target_block_interval": 2.0,
+    "retarget_interval": 2016,
+    "pre_fork_difficulty": 1.0,
+    "max_adjustment_factor": 4.0,
+    "min_difficulty": 0.0625,
+    "enable_eda": false,
+    "eda_threshold": 6.0,
+    "eda_reduction": 0.2
+  },
+  "forks": {
+    "v27": {
+      "fork_id": "v27",
+      "current_difficulty": 1.0,
+      "blocks_since_retarget": 673,
+      "cumulative_chainwork": 673.0,
+      "last_block_sim_time": 1797,
+      "last_retarget_sim_time": 0.0,
+      "expected_block_interval": 2.2956841138659323,
+      "initial_height": 101,
+      "blocks_mined": 673
+    },
+    "v26": {
+      "fork_id": "v26",
+      "current_difficulty": 1.0,
+      "blocks_since_retarget": 193,
+      "cumulative_chainwork": 193.0,
+      "last_block_sim_time": 1770,
+      "last_retarget_sim_time": 0.0,
+      "expected_block_interval": 17.77777777777778,
+      "initial_height": 101,
+      "blocks_mined": 193
+    }
+  },
+  "winning_fork": "v27",
+  "adjustment_history": []
+}

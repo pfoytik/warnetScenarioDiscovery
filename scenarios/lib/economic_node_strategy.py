@@ -161,6 +161,16 @@ class EconomicNodeStrategy:
             for n in nodes
         }
 
+    def _node_weight(self, node: 'EconomicNodeProfile') -> float:
+        """
+        Return the effective economic weight for a node.
+
+        Uses consensus_weight when set; falls back to custody_btc for networks
+        (e.g. realistic-economy-v2) that omit the pre-computed consensus_weight
+        field and only carry raw custody_btc in node metadata.
+        """
+        return node.consensus_weight if node.consensus_weight > 0 else node.custody_btc
+
     def make_decision(
         self,
         node_id: str,
@@ -303,9 +313,9 @@ class EconomicNodeStrategy:
             )
 
             if chosen_fork == 'v27':
-                v27_weight += node.consensus_weight
+                v27_weight += self._node_weight(node)
             else:
-                v26_weight += node.consensus_weight
+                v26_weight += self._node_weight(node)
 
         total_weight = v27_weight + v26_weight
         if total_weight > 0:
@@ -332,10 +342,10 @@ class EconomicNodeStrategy:
                 continue
 
             if fork == 'v27':
-                breakdown[ntype]['v27_weight'] += node.consensus_weight
+                breakdown[ntype]['v27_weight'] += self._node_weight(node)
                 breakdown[ntype]['v27_count'] += 1
             else:
-                breakdown[ntype]['v26_weight'] += node.consensus_weight
+                breakdown[ntype]['v26_weight'] += self._node_weight(node)
                 breakdown[ntype]['v26_count'] += 1
 
         return breakdown
@@ -362,7 +372,7 @@ class EconomicNodeStrategy:
 
         for node_id, node in self.nodes.items():
             fork = self.current_allocation[node_id]
-            weight = node.consensus_weight
+            weight = self._node_weight(node)
             velocity = node.transaction_velocity
 
             # Split weight between transactional and custodial based on velocity
@@ -460,9 +470,9 @@ class EconomicNodeStrategy:
         for node_id, node in self.nodes.items():
             fork = self.current_allocation[node_id]
             if fork == 'v27':
-                v27_total += node.consensus_weight
+                v27_total += self._node_weight(node)
             else:
-                v26_total += node.consensus_weight
+                v26_total += self._node_weight(node)
 
         total = v27_total + v26_total
         v27_pct = (v27_total / total * 100) if total > 0 else 50.0

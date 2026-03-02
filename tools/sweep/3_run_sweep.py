@@ -518,7 +518,9 @@ def run_scenario(
     startup_wait: int,
     cooldown: int,
     extract_script: Path,
-    dry_run: bool = False
+    dry_run: bool = False,
+    random_seed: int = None,
+    retarget_interval: int = 2016
 ) -> bool:
     """Run a single scenario and extract results"""
 
@@ -566,12 +568,16 @@ def run_scenario(
         f"--economic-scenario={scenario_id}",
         "--enable-difficulty",
         "--enable-reorg-metrics",
-        "--retarget-interval=2016",
+        f"--retarget-interval={retarget_interval}",
         f"--duration={duration}",
         f"--interval={interval}",
         f"--results-id={scenario_id}",
         "--snapshot-interval=60",
     ]
+
+    # Add random seed if provided (for baseline reproducibility testing)
+    if random_seed is not None:
+        cmd.append(f"--random-seed={random_seed}")
 
     if dry_run:
         print(f"  [DRY RUN] Would execute:")
@@ -702,6 +708,8 @@ def main():
                         help="Restart minikube after N consecutive failures (default: 3)")
     parser.add_argument("--no-auto-restart", action="store_true",
                         help="Disable automatic minikube restart on failures")
+    parser.add_argument("--retarget-interval", type=int, default=144,
+                        help="Difficulty retarget interval in blocks (default: 144)")
 
     args = parser.parse_args()
 
@@ -821,6 +829,10 @@ def main():
 
             scenario_start = time.time()
 
+            # Extract random_seed from scenario parameters if present (for baseline tests)
+            scenario_params = scenario.get("parameters", scenario)
+            random_seed = scenario_params.get("random_seed", None)
+
             success = run_scenario(
                 scenario_id=scenario_id,
                 network_path=network_path,
@@ -833,7 +845,9 @@ def main():
                 startup_wait=args.startup_wait,
                 cooldown=args.cooldown,
                 extract_script=extract_script,
-                dry_run=args.dry_run
+                dry_run=args.dry_run,
+                random_seed=random_seed,
+                retarget_interval=args.retarget_interval
             )
 
             scenario_elapsed = time.time() - scenario_start

@@ -47,7 +47,7 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional
 
 
-# Real-world pool distribution
+# Real-world pool distribution (used when no base network specified)
 DEFAULT_POOLS = [
     ("foundryusa", "Foundry USA", 26.89),
     ("antpool", "AntPool", 19.25),
@@ -62,69 +62,123 @@ DEFAULT_POOLS = [
 ]
 
 
-def create_pool_scenario(scenario: Dict[str, Any]) -> Dict[str, Any]:
+def extract_pools_from_network(network: Dict) -> List[tuple]:
+    """
+    Extract pool definitions from a network.yaml file.
+
+    Returns list of tuples: (pool_id, pool_name, hashrate_pct, fork_preference, initial_fork)
+    """
+    pools = []
+    nodes = network.get('nodes', [])
+
+    for node in nodes:
+        metadata = node.get('metadata', {})
+        if metadata.get('node_type') == 'mining_pool' or metadata.get('role') == 'mining_pool':
+            pool_id = metadata.get('entity_id', node.get('name', 'unknown'))
+            pool_name = metadata.get('pool_name', pool_id)
+            hashrate = metadata.get('hashrate_pct', 0)
+            fork_pref = metadata.get('fork_preference', 'neutral')
+            # Initial fork is determined by the node's image tag
+            image_tag = node.get('image', {}).get('tag', '27.0')
+            initial_fork = 'v27' if '27' in str(image_tag) else 'v26'
+
+            if hashrate > 0:
+                pools.append((pool_id, pool_name, hashrate, fork_pref, initial_fork))
+
+    return pools
+
+
+def create_pool_scenario(scenario: Dict[str, Any], pools: List[tuple] = None) -> Dict[str, Any]:
     """Create mining pool scenario config from parameters.
 
-    Two independent axes are assigned per pool:
-    - fork_preference / ideology: which fork the pool *wants* to mine long-term,
-      controlled by pool_committed_split and pool_neutral_pct.
-    - initial_fork: which fork the pool *starts* mining on, controlled by
-      hashrate_split. This decouples "where you are" from "where you want to be",
-      allowing scenarios where pools start on the incumbent chain but prefer the new one.
+    When pools is provided (from base network), uses the network's pool definitions
+    directly, preserving fork_preference and initial_fork from the network structure.
+    This is essential for balanced/custom networks.
+
+    When pools is None (default), uses DEFAULT_POOLS with dynamic assignment:
+    - fork_preference / ideology: controlled by pool_committed_split and pool_neutral_pct
+    - initial_fork: controlled by hashrate_split
     """
 
-    # --- Ideology / preference assignment (pool_committed_split, pool_neutral_pct) ---
-    # pool_committed_split is the fraction of *committed* hashrate that prefers v27.
-    # Neutral pools are subtracted first; the remainder is split symmetrically.
-    neutral_pct = scenario["pool_neutral_pct"] / 100
-    committed_pct = 1.0 - neutral_pct
-    split = scenario["pool_committed_split"]
-    v27_pct = committed_pct * split
-    v26_pct = committed_pct * (1.0 - split)
-    # v27_pct + v26_pct + neutral_pct == 1.0 by construction; no normalization needed.
-
-    # --- Initial fork assignment (hashrate_split) ---
-    # Pools are sorted by cumulative real-world hashrate. The top hashrate_split
-    # fraction start on v27, the rest start on v26. Independent of ideology.
-    v27_init_threshold = scenario["hashrate_split"]
-
     pool_configs = []
-    cumulative_hashrate = 0
 
-    for pool_id, pool_name, hashrate in DEFAULT_POOLS:
-        midpoint = (cumulative_hashrate + hashrate / 2) / 100
+    if pools is not None:
+        # Use pools from base network - preserve network structure
+        for pool_tuple in pools:
+            if len(pool_tuple) == 5:
+                pool_id, pool_name, hashrate, fork_pref, initial_fork = pool_tuple
+            else:
+                # Fallback for old format
+                pool_id, pool_name, hashrate = pool_tuple[:3]
+                fork_pref = "neutral"
+                initial_fork = "v27"
 
-        # Ideology assignment
-        if midpoint < v27_pct:
-            pref = "v27"
-        elif midpoint < v27_pct + v26_pct:
-            pref = "v26"
-        else:
-            pref = "neutral"
+            # Determine ideology based on fork_preference from network
+            if fork_pref == "neutral":
+                ideology = 0.1
+                max_loss = 0.02
+            else:
+                ideology = scenario["pool_ideology_strength"]
+                max_loss = scenario["pool_max_loss_pct"]
 
-        # Initial fork assignment (independent of ideology)
-        initial_fork = "v27" if midpoint < v27_init_threshold else "v26"
+            pool_configs.append({
+                "pool_id": pool_id,
+                "pool_name": pool_name,
+                "hashrate_pct": hashrate,
+                "fork_preference": fork_pref,
+                "initial_fork": initial_fork,
+                "ideology_strength": round(ideology, 3),
+                "profitability_threshold": scenario["pool_profitability_threshold"],
+                "max_loss_pct": round(max_loss, 3),
+            })
+    else:
+        # Use DEFAULT_POOLS with dynamic assignment based on scenario parameters
+        # --- Ideology / preference assignment (pool_committed_split, pool_neutral_pct) ---
+        neutral_pct = scenario["pool_neutral_pct"] / 100
+        committed_pct = 1.0 - neutral_pct
+        split = scenario["pool_committed_split"]
+        v27_pct = committed_pct * split
+        v26_pct = committed_pct * (1.0 - split)
 
-        # Neutral pools have minimal ideology
-        if pref == "neutral":
-            ideology = 0.1
-            max_loss = 0.02
-        else:
-            ideology = scenario["pool_ideology_strength"]
-            max_loss = scenario["pool_max_loss_pct"]
+        # --- Initial fork assignment (hashrate_split) ---
+        v27_init_threshold = scenario["hashrate_split"]
 
-        pool_configs.append({
-            "pool_id": pool_id,
-            "pool_name": pool_name,
-            "hashrate_pct": hashrate,
-            "fork_preference": pref,
-            "initial_fork": initial_fork,
-            "ideology_strength": round(ideology, 3),
-            "profitability_threshold": scenario["pool_profitability_threshold"],
-            "max_loss_pct": round(max_loss, 3),
-        })
+        cumulative_hashrate = 0
 
-        cumulative_hashrate += hashrate
+        for pool_id, pool_name, hashrate in DEFAULT_POOLS:
+            midpoint = (cumulative_hashrate + hashrate / 2) / 100
+
+            # Ideology assignment
+            if midpoint < v27_pct:
+                pref = "v27"
+            elif midpoint < v27_pct + v26_pct:
+                pref = "v26"
+            else:
+                pref = "neutral"
+
+            # Initial fork assignment (independent of ideology)
+            initial_fork = "v27" if midpoint < v27_init_threshold else "v26"
+
+            # Neutral pools have minimal ideology
+            if pref == "neutral":
+                ideology = 0.1
+                max_loss = 0.02
+            else:
+                ideology = scenario["pool_ideology_strength"]
+                max_loss = scenario["pool_max_loss_pct"]
+
+            pool_configs.append({
+                "pool_id": pool_id,
+                "pool_name": pool_name,
+                "hashrate_pct": hashrate,
+                "fork_preference": pref,
+                "initial_fork": initial_fork,
+                "ideology_strength": round(ideology, 3),
+                "profitability_threshold": scenario["pool_profitability_threshold"],
+                "max_loss_pct": round(max_loss, 3),
+            })
+
+            cumulative_hashrate += hashrate
 
     return {
         "description": f"Pool scenario for {scenario['scenario_id']}",
@@ -459,6 +513,9 @@ Examples:
     base_network = None
     node_defaults_path = None
 
+    # Pools extracted from base network (if using one)
+    network_pools = None
+
     if use_base_network:
         base_network_path = Path(args.base_network)
         if not base_network_path.exists():
@@ -467,6 +524,17 @@ Examples:
 
         print(f"Using base network template: {base_network_path}")
         base_network = load_base_network(base_network_path)
+
+        # Extract pools from the base network
+        network_pools = extract_pools_from_network(base_network)
+        if network_pools:
+            total_hashrate = sum(p[2] for p in network_pools)
+            v27_hashrate = sum(p[2] for p in network_pools if p[4] == 'v27')
+            print(f"  Extracted {len(network_pools)} pools from network:")
+            print(f"    Total hashrate: {total_hashrate:.1f}%")
+            print(f"    V27 initial: {v27_hashrate:.1f}%, V26 initial: {total_hashrate - v27_hashrate:.1f}%")
+        else:
+            print("  Warning: No pools found in base network, using DEFAULT_POOLS")
 
         # Look for node-defaults.yaml
         node_defaults_path = base_network_path.parent / "node-defaults.yaml"
@@ -512,8 +580,8 @@ Examples:
         with open(network_config_path, "w") as f:
             yaml.dump(network_config, f, default_flow_style=False, sort_keys=False)
 
-        # Create pool scenario
-        pool_config = create_pool_scenario(scenario)
+        # Create pool scenario (use network pools if available)
+        pool_config = create_pool_scenario(scenario, pools=network_pools)
         all_pool_scenarios[scenario_id] = pool_config
 
         # Create economic scenario

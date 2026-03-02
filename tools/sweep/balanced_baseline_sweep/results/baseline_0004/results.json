@@ -1,0 +1,3935 @@
+{
+  "metadata": {
+    "results_id": "baseline_0004",
+    "timestamp": "2026-03-01T15:41:02.927383",
+    "duration_seconds": 1800,
+    "pool_scenario": "baseline_0004",
+    "economic_scenario": "baseline_0004",
+    "difficulty_enabled": true,
+    "reorg_metrics_enabled": true,
+    "interval": 10,
+    "start_height": 0,
+    "uasf_duration": null,
+    "uasf_expiry_action": null,
+    "uasf_expired": false
+  },
+  "summary": {
+    "blocks_mined": {
+      "v27": 75,
+      "v26": 79
+    },
+    "total_blocks": 154,
+    "final_hashrate": {
+      "v27": 47.0,
+      "v26": 47.0
+    },
+    "final_economic": {
+      "v27": 50.0,
+      "v26": 50.0
+    },
+    "final_prices": {
+      "v27": 59757.3698630137,
+      "v26": 59954.6301369863
+    }
+  },
+  "time_series": {
+    "timestamps": [
+      0,
+      60,
+      121,
+      181,
+      241,
+      302,
+      362,
+      422,
+      482,
+      543,
+      603,
+      663,
+      723,
+      784,
+      844,
+      904,
+      965,
+      1025,
+      1085,
+      1146,
+      1206,
+      1267,
+      1327,
+      1387,
+      1448,
+      1508,
+      1568,
+      1629,
+      1689,
+      1750,
+      1800
+    ],
+    "v27_price": [
+      60000,
+      60000,
+      60000,
+      58313.142857142855,
+      60686.769230769234,
+      60370.285714285725,
+      59856.0,
+      59579.07692307692,
+      59739.87096774194,
+      59856.0,
+      59592.58536585366,
+      59473.02127659575,
+      59473.02127659575,
+      59727.42857142857,
+      59736.0,
+      59684.57142857143,
+      60012.52173913043,
+      59905.31506849315,
+      59856.0,
+      59856.0,
+      59816.43956043956,
+      59927.99999999999,
+      59925.230769230766,
+      59823.567567567574,
+      59856.0,
+      59765.24369747899,
+      59737.96721311475,
+      59743.5,
+      59803.05882352941,
+      59803.82608695652,
+      59757.3698630137
+    ],
+    "v26_price": [
+      60000,
+      60000,
+      60000,
+      61398.85714285714,
+      59025.23076923077,
+      59341.71428571428,
+      59856.0,
+      60132.92307692307,
+      59972.12903225807,
+      59856.0,
+      60119.41463414634,
+      60238.97872340425,
+      60238.97872340425,
+      59984.57142857142,
+      59976.0,
+      60027.42857142857,
+      59699.47826086956,
+      59806.684931506854,
+      59856.0,
+      59856.0,
+      59895.56043956044,
+      59784.0,
+      59786.76923076923,
+      59888.43243243243,
+      59856.0,
+      59946.756302521004,
+      59974.03278688525,
+      59968.5,
+      59908.94117647058,
+      59908.17391304348,
+      59954.6301369863
+    ],
+    "v27_hashrate": [
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0
+    ],
+    "v26_hashrate": [
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0,
+      47.0
+    ],
+    "v27_economic": [
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0
+    ],
+    "v26_economic": [
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0
+    ],
+    "v27_blocks": [
+      0,
+      1,
+      2,
+      8,
+      12,
+      12,
+      12,
+      15,
+      19,
+      19,
+      21,
+      21,
+      27,
+      29,
+      30,
+      36,
+      37,
+      38,
+      43,
+      45,
+      51,
+      53,
+      55,
+      57,
+      58,
+      59,
+      62,
+      67,
+      68,
+      71,
+      75
+    ],
+    "v26_blocks": [
+      0,
+      1,
+      5,
+      5,
+      9,
+      12,
+      14,
+      16,
+      19,
+      22,
+      26,
+      26,
+      29,
+      31,
+      33,
+      33,
+      36,
+      38,
+      43,
+      46,
+      49,
+      51,
+      56,
+      57,
+      61,
+      63,
+      66,
+      69,
+      70,
+      75,
+      79
+    ],
+    "v27_difficulty": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "v26_difficulty": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "v27_chainwork": [
+      0.0,
+      1.0,
+      2.0,
+      8.0,
+      12.0,
+      12.0,
+      12.0,
+      15.0,
+      19.0,
+      19.0,
+      21.0,
+      21.0,
+      27.0,
+      29.0,
+      30.0,
+      36.0,
+      37.0,
+      38.0,
+      43.0,
+      45.0,
+      51.0,
+      53.0,
+      55.0,
+      57.0,
+      58.0,
+      59.0,
+      62.0,
+      67.0,
+      68.0,
+      71.0,
+      75.0
+    ],
+    "v26_chainwork": [
+      0.0,
+      1.0,
+      5.0,
+      5.0,
+      9.0,
+      12.0,
+      14.0,
+      16.0,
+      19.0,
+      22.0,
+      26.0,
+      26.0,
+      29.0,
+      31.0,
+      33.0,
+      33.0,
+      36.0,
+      38.0,
+      43.0,
+      46.0,
+      49.0,
+      51.0,
+      56.0,
+      57.0,
+      61.0,
+      63.0,
+      66.0,
+      69.0,
+      70.0,
+      75.0,
+      79.0
+    ],
+    "v27_fee_rate": [
+      1.0,
+      1.0,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414
+    ],
+    "v26_fee_rate": [
+      1.0,
+      1.0,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414
+    ],
+    "v27_fee_revenue_btc": [
+      0.01,
+      0.01,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415
+    ],
+    "v26_fee_revenue_btc": [
+      0.01,
+      0.01,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415,
+      0.00035460992907801415
+    ],
+    "v27_congestion": [
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414
+    ],
+    "v26_congestion": [
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414,
+      0.035460992907801414
+    ],
+    "v27_mempool_mb": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "v26_mempool_mb": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "v27_transactional": [
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0
+    ],
+    "v26_transactional": [
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0,
+      50.0
+    ],
+    "v27_solo_hashrate": [
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0
+    ],
+    "v26_solo_hashrate": [
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0
+    ]
+  },
+  "partition_switches": {
+    "total_switches": 0,
+    "switches": [],
+    "final_partition_state": {
+      "node-0000": "v27",
+      "node-0001": "v27",
+      "node-0002": "v27",
+      "node-0003": "v27",
+      "node-0004": "v27",
+      "node-0005": "v27",
+      "node-0006": "v27",
+      "node-0007": "v27",
+      "node-0008": "v27",
+      "node-0009": "v27",
+      "node-0010": "v27",
+      "node-0011": "v27",
+      "node-0012": "v26",
+      "node-0013": "v26",
+      "node-0014": "v26",
+      "node-0015": "v26",
+      "node-0016": "v26",
+      "node-0017": "v26",
+      "node-0018": "v26",
+      "node-0019": "v26",
+      "node-0020": "v26",
+      "node-0021": "v26",
+      "node-0022": "v26",
+      "node-0023": "v26"
+    }
+  },
+  "pools": {
+    "pools": {
+      "pool-alpha": {
+        "profile": {
+          "pool_id": "pool-alpha",
+          "hashrate_pct": 20.0,
+          "fork_preference": "v27",
+          "ideology_strength": 0.5,
+          "profitability_threshold": 0.16,
+          "max_loss_usd": null,
+          "max_loss_pct": 0.26,
+          "initial_fork": "v27",
+          "current_fork": "v27"
+        },
+        "costs": {
+          "actual_revenue_usd": 0.0,
+          "optimal_revenue_usd": 0.0,
+          "cumulative_opportunity_cost_usd": 136354.2542356439,
+          "forced_switch_count": 0,
+          "ideology_override_count": 2
+        },
+        "current_allocation": "v27"
+      },
+      "pool-beta": {
+        "profile": {
+          "pool_id": "pool-beta",
+          "hashrate_pct": 14.0,
+          "fork_preference": "v27",
+          "ideology_strength": 0.5,
+          "profitability_threshold": 0.16,
+          "max_loss_usd": null,
+          "max_loss_pct": 0.26,
+          "initial_fork": "v27",
+          "current_fork": "v27"
+        },
+        "costs": {
+          "actual_revenue_usd": 0.0,
+          "optimal_revenue_usd": 0.0,
+          "cumulative_opportunity_cost_usd": 95447.97796495073,
+          "forced_switch_count": 0,
+          "ideology_override_count": 2
+        },
+        "current_allocation": "v27"
+      },
+      "pool-gamma": {
+        "profile": {
+          "pool_id": "pool-gamma",
+          "hashrate_pct": 8.0,
+          "fork_preference": "v27",
+          "ideology_strength": 0.5,
+          "profitability_threshold": 0.16,
+          "max_loss_usd": null,
+          "max_loss_pct": 0.26,
+          "initial_fork": "v27",
+          "current_fork": "v27"
+        },
+        "costs": {
+          "actual_revenue_usd": 0.0,
+          "optimal_revenue_usd": 0.0,
+          "cumulative_opportunity_cost_usd": 54541.70169425756,
+          "forced_switch_count": 0,
+          "ideology_override_count": 2
+        },
+        "current_allocation": "v27"
+      },
+      "pool-delta": {
+        "profile": {
+          "pool_id": "pool-delta",
+          "hashrate_pct": 5.0,
+          "fork_preference": "v27",
+          "ideology_strength": 0.5,
+          "profitability_threshold": 0.16,
+          "max_loss_usd": null,
+          "max_loss_pct": 0.26,
+          "initial_fork": "v27",
+          "current_fork": "v27"
+        },
+        "costs": {
+          "actual_revenue_usd": 0.0,
+          "optimal_revenue_usd": 0.0,
+          "cumulative_opportunity_cost_usd": 34088.56355891097,
+          "forced_switch_count": 0,
+          "ideology_override_count": 2
+        },
+        "current_allocation": "v27"
+      },
+      "pool-epsilon": {
+        "profile": {
+          "pool_id": "pool-epsilon",
+          "hashrate_pct": 20.0,
+          "fork_preference": "v26",
+          "ideology_strength": 0.5,
+          "profitability_threshold": 0.16,
+          "max_loss_usd": null,
+          "max_loss_pct": 0.26,
+          "initial_fork": "v26",
+          "current_fork": "v26"
+        },
+        "costs": {
+          "actual_revenue_usd": 0.0,
+          "optimal_revenue_usd": 0.0,
+          "cumulative_opportunity_cost_usd": 0.0,
+          "forced_switch_count": 0,
+          "ideology_override_count": 0
+        },
+        "current_allocation": "v26"
+      },
+      "pool-zeta": {
+        "profile": {
+          "pool_id": "pool-zeta",
+          "hashrate_pct": 14.0,
+          "fork_preference": "v26",
+          "ideology_strength": 0.5,
+          "profitability_threshold": 0.16,
+          "max_loss_usd": null,
+          "max_loss_pct": 0.26,
+          "initial_fork": "v26",
+          "current_fork": "v26"
+        },
+        "costs": {
+          "actual_revenue_usd": 0.0,
+          "optimal_revenue_usd": 0.0,
+          "cumulative_opportunity_cost_usd": 0.0,
+          "forced_switch_count": 0,
+          "ideology_override_count": 0
+        },
+        "current_allocation": "v26"
+      },
+      "pool-eta": {
+        "profile": {
+          "pool_id": "pool-eta",
+          "hashrate_pct": 8.0,
+          "fork_preference": "v26",
+          "ideology_strength": 0.5,
+          "profitability_threshold": 0.16,
+          "max_loss_usd": null,
+          "max_loss_pct": 0.26,
+          "initial_fork": "v26",
+          "current_fork": "v26"
+        },
+        "costs": {
+          "actual_revenue_usd": 0.0,
+          "optimal_revenue_usd": 0.0,
+          "cumulative_opportunity_cost_usd": 0.0,
+          "forced_switch_count": 0,
+          "ideology_override_count": 0
+        },
+        "current_allocation": "v26"
+      },
+      "pool-theta": {
+        "profile": {
+          "pool_id": "pool-theta",
+          "hashrate_pct": 5.0,
+          "fork_preference": "v26",
+          "ideology_strength": 0.5,
+          "profitability_threshold": 0.16,
+          "max_loss_usd": null,
+          "max_loss_pct": 0.26,
+          "initial_fork": "v26",
+          "current_fork": "v26"
+        },
+        "costs": {
+          "actual_revenue_usd": 0.0,
+          "optimal_revenue_usd": 0.0,
+          "cumulative_opportunity_cost_usd": 0.0,
+          "forced_switch_count": 0,
+          "ideology_override_count": 0
+        },
+        "current_allocation": "v26"
+      }
+    },
+    "decision_history": [
+      {
+        "timestamp": 1772378462.7451591,
+        "pool_id": "pool-alpha",
+        "chosen_fork": "v27",
+        "v27_profitability_usd": 6209853.220134925,
+        "v26_profitability_usd": 6328403.256460819,
+        "rational_choice": "v26",
+        "ideology_override": true,
+        "opportunity_cost_usd": 118550.0363258943,
+        "cumulative_cost_usd": 118550.0363258943,
+        "reason": "Ideology: supporting v27 (loss 1.9% < tolerance 13.0%)"
+      },
+      {
+        "timestamp": 1772378462.7451591,
+        "pool_id": "pool-beta",
+        "chosen_fork": "v27",
+        "v27_profitability_usd": 4346897.254094447,
+        "v26_profitability_usd": 4429882.2795225745,
+        "rational_choice": "v26",
+        "ideology_override": true,
+        "opportunity_cost_usd": 82985.0254281275,
+        "cumulative_cost_usd": 82985.0254281275,
+        "reason": "Ideology: supporting v27 (loss 1.9% < tolerance 13.0%)"
+      },
+      {
+        "timestamp": 1772378462.7451591,
+        "pool_id": "pool-gamma",
+        "chosen_fork": "v27",
+        "v27_profitability_usd": 2483941.28805397,
+        "v26_profitability_usd": 2531361.3025843278,
+        "rational_choice": "v26",
+        "ideology_override": true,
+        "opportunity_cost_usd": 47420.014530357905,
+        "cumulative_cost_usd": 47420.014530357905,
+        "reason": "Ideology: supporting v27 (loss 1.9% < tolerance 13.0%)"
+      },
+      {
+        "timestamp": 1772378462.7451591,
+        "pool_id": "pool-delta",
+        "chosen_fork": "v27",
+        "v27_profitability_usd": 1552463.3050337313,
+        "v26_profitability_usd": 1582100.8141152048,
+        "rational_choice": "v26",
+        "ideology_override": true,
+        "opportunity_cost_usd": 29637.509081473574,
+        "cumulative_cost_usd": 29637.509081473574,
+        "reason": "Ideology: supporting v27 (loss 1.9% < tolerance 13.0%)"
+      },
+      {
+        "timestamp": 1772378462.7451591,
+        "pool_id": "pool-epsilon",
+        "chosen_fork": "v26",
+        "v27_profitability_usd": 6209853.220134925,
+        "v26_profitability_usd": 6328403.256460819,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "opportunity_cost_usd": 0,
+        "cumulative_cost_usd": 0.0,
+        "reason": "Ideology and profit aligned"
+      },
+      {
+        "timestamp": 1772378462.7451591,
+        "pool_id": "pool-zeta",
+        "chosen_fork": "v26",
+        "v27_profitability_usd": 4346897.254094447,
+        "v26_profitability_usd": 4429882.2795225745,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "opportunity_cost_usd": 0,
+        "cumulative_cost_usd": 0.0,
+        "reason": "Ideology and profit aligned"
+      },
+      {
+        "timestamp": 1772378462.7451591,
+        "pool_id": "pool-eta",
+        "chosen_fork": "v26",
+        "v27_profitability_usd": 2483941.28805397,
+        "v26_profitability_usd": 2531361.3025843278,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "opportunity_cost_usd": 0,
+        "cumulative_cost_usd": 0.0,
+        "reason": "Ideology and profit aligned"
+      },
+      {
+        "timestamp": 1772378462.7451591,
+        "pool_id": "pool-theta",
+        "chosen_fork": "v26",
+        "v27_profitability_usd": 1552463.3050337313,
+        "v26_profitability_usd": 1582100.8141152048,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "opportunity_cost_usd": 0,
+        "cumulative_cost_usd": 0.0,
+        "reason": "Ideology and profit aligned"
+      },
+      {
+        "timestamp": 1772379063.267487,
+        "pool_id": "pool-alpha",
+        "chosen_fork": "v27",
+        "v27_profitability_usd": 6260226.129342999,
+        "v26_profitability_usd": 6278030.347252749,
+        "rational_choice": "v26",
+        "ideology_override": true,
+        "opportunity_cost_usd": 17804.217909749597,
+        "cumulative_cost_usd": 136354.2542356439,
+        "reason": "Ideology: supporting v27 (loss 0.3% < tolerance 13.0%)"
+      },
+      {
+        "timestamp": 1772379063.267487,
+        "pool_id": "pool-beta",
+        "chosen_fork": "v27",
+        "v27_profitability_usd": 4382158.2905401,
+        "v26_profitability_usd": 4394621.243076923,
+        "rational_choice": "v26",
+        "ideology_override": true,
+        "opportunity_cost_usd": 12462.952536823228,
+        "cumulative_cost_usd": 95447.97796495073,
+        "reason": "Ideology: supporting v27 (loss 0.3% < tolerance 13.0%)"
+      },
+      {
+        "timestamp": 1772379063.267487,
+        "pool_id": "pool-gamma",
+        "chosen_fork": "v27",
+        "v27_profitability_usd": 2504090.4517372,
+        "v26_profitability_usd": 2511212.1389010996,
+        "rational_choice": "v26",
+        "ideology_override": true,
+        "opportunity_cost_usd": 7121.687163899653,
+        "cumulative_cost_usd": 54541.70169425756,
+        "reason": "Ideology: supporting v27 (loss 0.3% < tolerance 13.0%)"
+      },
+      {
+        "timestamp": 1772379063.267487,
+        "pool_id": "pool-delta",
+        "chosen_fork": "v27",
+        "v27_profitability_usd": 1565056.5323357498,
+        "v26_profitability_usd": 1569507.5868131872,
+        "rational_choice": "v26",
+        "ideology_override": true,
+        "opportunity_cost_usd": 4451.054477437399,
+        "cumulative_cost_usd": 34088.56355891097,
+        "reason": "Ideology: supporting v27 (loss 0.3% < tolerance 13.0%)"
+      },
+      {
+        "timestamp": 1772379063.267487,
+        "pool_id": "pool-epsilon",
+        "chosen_fork": "v26",
+        "v27_profitability_usd": 6260226.129342999,
+        "v26_profitability_usd": 6278030.347252749,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "opportunity_cost_usd": 0,
+        "cumulative_cost_usd": 0.0,
+        "reason": "Ideology and profit aligned"
+      },
+      {
+        "timestamp": 1772379063.267487,
+        "pool_id": "pool-zeta",
+        "chosen_fork": "v26",
+        "v27_profitability_usd": 4382158.2905401,
+        "v26_profitability_usd": 4394621.243076923,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "opportunity_cost_usd": 0,
+        "cumulative_cost_usd": 0.0,
+        "reason": "Ideology and profit aligned"
+      },
+      {
+        "timestamp": 1772379063.267487,
+        "pool_id": "pool-eta",
+        "chosen_fork": "v26",
+        "v27_profitability_usd": 2504090.4517372,
+        "v26_profitability_usd": 2511212.1389010996,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "opportunity_cost_usd": 0,
+        "cumulative_cost_usd": 0.0,
+        "reason": "Ideology and profit aligned"
+      },
+      {
+        "timestamp": 1772379063.267487,
+        "pool_id": "pool-theta",
+        "chosen_fork": "v26",
+        "v27_profitability_usd": 1565056.5323357498,
+        "v26_profitability_usd": 1569507.5868131872,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "opportunity_cost_usd": 0,
+        "cumulative_cost_usd": 0.0,
+        "reason": "Ideology and profit aligned"
+      }
+    ]
+  },
+  "economic": {
+    "nodes": {
+      "node-0004": {
+        "profile": {
+          "node_id": "node-0004",
+          "node_type": "economic",
+          "activity_type": "mixed",
+          "transaction_velocity": 0.635,
+          "fork_preference": "neutral",
+          "ideology_strength": 0.4,
+          "switching_threshold": 0.135,
+          "custody_btc": 1800000,
+          "daily_volume_btc": 200000,
+          "consensus_weight": 0.0,
+          "hashrate_pct": 0.0,
+          "inertia": 0.175,
+          "role": "economic_aggregate"
+        },
+        "current_allocation": "v27",
+        "stats": {
+          "switches": 0,
+          "ideology_overrides": 0,
+          "inertia_holds": 4
+        }
+      },
+      "node-0005": {
+        "profile": {
+          "node_id": "node-0005",
+          "node_type": "economic",
+          "activity_type": "mixed",
+          "transaction_velocity": 0.635,
+          "fork_preference": "neutral",
+          "ideology_strength": 0.4,
+          "switching_threshold": 0.135,
+          "custody_btc": 200000,
+          "daily_volume_btc": 20000,
+          "consensus_weight": 0.0,
+          "hashrate_pct": 0.0,
+          "inertia": 0.175,
+          "role": "economic_aggregate"
+        },
+        "current_allocation": "v27",
+        "stats": {
+          "switches": 0,
+          "ideology_overrides": 0,
+          "inertia_holds": 4
+        }
+      },
+      "node-0016": {
+        "profile": {
+          "node_id": "node-0016",
+          "node_type": "economic",
+          "activity_type": "mixed",
+          "transaction_velocity": 0.635,
+          "fork_preference": "neutral",
+          "ideology_strength": 0.4,
+          "switching_threshold": 0.135,
+          "custody_btc": 1800000,
+          "daily_volume_btc": 200000,
+          "consensus_weight": 0.0,
+          "hashrate_pct": 0.0,
+          "inertia": 0.175,
+          "role": "economic_aggregate"
+        },
+        "current_allocation": "v26",
+        "stats": {
+          "switches": 0,
+          "ideology_overrides": 0,
+          "inertia_holds": 2
+        }
+      },
+      "node-0017": {
+        "profile": {
+          "node_id": "node-0017",
+          "node_type": "economic",
+          "activity_type": "mixed",
+          "transaction_velocity": 0.635,
+          "fork_preference": "neutral",
+          "ideology_strength": 0.4,
+          "switching_threshold": 0.135,
+          "custody_btc": 200000,
+          "daily_volume_btc": 20000,
+          "consensus_weight": 0.0,
+          "hashrate_pct": 0.0,
+          "inertia": 0.175,
+          "role": "economic_aggregate"
+        },
+        "current_allocation": "v26",
+        "stats": {
+          "switches": 0,
+          "ideology_overrides": 0,
+          "inertia_holds": 2
+        }
+      },
+      "node-0006": {
+        "profile": {
+          "node_id": "node-0006",
+          "node_type": "user",
+          "activity_type": "mixed",
+          "transaction_velocity": 0.3,
+          "fork_preference": "neutral",
+          "ideology_strength": 0.5,
+          "switching_threshold": 0.125,
+          "custody_btc": 150,
+          "daily_volume_btc": 10,
+          "consensus_weight": 0.0,
+          "hashrate_pct": 1.5,
+          "inertia": 0.05,
+          "role": null
+        },
+        "current_allocation": "v27",
+        "stats": {
+          "switches": 0,
+          "ideology_overrides": 0,
+          "inertia_holds": 2
+        }
+      },
+      "node-0007": {
+        "profile": {
+          "node_id": "node-0007",
+          "node_type": "user",
+          "activity_type": "mixed",
+          "transaction_velocity": 0.3,
+          "fork_preference": "neutral",
+          "ideology_strength": 0.5,
+          "switching_threshold": 0.125,
+          "custody_btc": 100,
+          "daily_volume_btc": 5,
+          "consensus_weight": 0.0,
+          "hashrate_pct": 1.5,
+          "inertia": 0.05,
+          "role": null
+        },
+        "current_allocation": "v27",
+        "stats": {
+          "switches": 0,
+          "ideology_overrides": 0,
+          "inertia_holds": 2
+        }
+      },
+      "node-0008": {
+        "profile": {
+          "node_id": "node-0008",
+          "node_type": "user",
+          "activity_type": "mixed",
+          "transaction_velocity": 0.3,
+          "fork_preference": "neutral",
+          "ideology_strength": 0.5,
+          "switching_threshold": 0.125,
+          "custody_btc": 200,
+          "daily_volume_btc": 50,
+          "consensus_weight": 0.0,
+          "hashrate_pct": 0.0,
+          "inertia": 0.05,
+          "role": null
+        },
+        "current_allocation": "v27",
+        "stats": {
+          "switches": 0,
+          "ideology_overrides": 0,
+          "inertia_holds": 2
+        }
+      },
+      "node-0009": {
+        "profile": {
+          "node_id": "node-0009",
+          "node_type": "user",
+          "activity_type": "mixed",
+          "transaction_velocity": 0.3,
+          "fork_preference": "neutral",
+          "ideology_strength": 0.5,
+          "switching_threshold": 0.125,
+          "custody_btc": 15,
+          "daily_volume_btc": 0.05,
+          "consensus_weight": 0.0,
+          "hashrate_pct": 0.0,
+          "inertia": 0.05,
+          "role": null
+        },
+        "current_allocation": "v27",
+        "stats": {
+          "switches": 0,
+          "ideology_overrides": 0,
+          "inertia_holds": 2
+        }
+      },
+      "node-0010": {
+        "profile": {
+          "node_id": "node-0010",
+          "node_type": "user",
+          "activity_type": "mixed",
+          "transaction_velocity": 0.3,
+          "fork_preference": "neutral",
+          "ideology_strength": 0.5,
+          "switching_threshold": 0.125,
+          "custody_btc": 2,
+          "daily_volume_btc": 0.5,
+          "consensus_weight": 0.0,
+          "hashrate_pct": 0.0,
+          "inertia": 0.05,
+          "role": null
+        },
+        "current_allocation": "v27",
+        "stats": {
+          "switches": 0,
+          "ideology_overrides": 0,
+          "inertia_holds": 2
+        }
+      },
+      "node-0011": {
+        "profile": {
+          "node_id": "node-0011",
+          "node_type": "user",
+          "activity_type": "mixed",
+          "transaction_velocity": 0.3,
+          "fork_preference": "neutral",
+          "ideology_strength": 0.5,
+          "switching_threshold": 0.125,
+          "custody_btc": 0.5,
+          "daily_volume_btc": 0.02,
+          "consensus_weight": 0.0,
+          "hashrate_pct": 0.0,
+          "inertia": 0.05,
+          "role": null
+        },
+        "current_allocation": "v27",
+        "stats": {
+          "switches": 0,
+          "ideology_overrides": 0,
+          "inertia_holds": 2
+        }
+      },
+      "node-0018": {
+        "profile": {
+          "node_id": "node-0018",
+          "node_type": "user",
+          "activity_type": "mixed",
+          "transaction_velocity": 0.3,
+          "fork_preference": "neutral",
+          "ideology_strength": 0.5,
+          "switching_threshold": 0.125,
+          "custody_btc": 150,
+          "daily_volume_btc": 10,
+          "consensus_weight": 0.0,
+          "hashrate_pct": 1.5,
+          "inertia": 0.05,
+          "role": null
+        },
+        "current_allocation": "v26",
+        "stats": {
+          "switches": 0,
+          "ideology_overrides": 0,
+          "inertia_holds": 1
+        }
+      },
+      "node-0019": {
+        "profile": {
+          "node_id": "node-0019",
+          "node_type": "user",
+          "activity_type": "mixed",
+          "transaction_velocity": 0.3,
+          "fork_preference": "neutral",
+          "ideology_strength": 0.5,
+          "switching_threshold": 0.125,
+          "custody_btc": 100,
+          "daily_volume_btc": 5,
+          "consensus_weight": 0.0,
+          "hashrate_pct": 1.5,
+          "inertia": 0.05,
+          "role": null
+        },
+        "current_allocation": "v26",
+        "stats": {
+          "switches": 0,
+          "ideology_overrides": 0,
+          "inertia_holds": 1
+        }
+      },
+      "node-0020": {
+        "profile": {
+          "node_id": "node-0020",
+          "node_type": "user",
+          "activity_type": "mixed",
+          "transaction_velocity": 0.3,
+          "fork_preference": "neutral",
+          "ideology_strength": 0.5,
+          "switching_threshold": 0.125,
+          "custody_btc": 200,
+          "daily_volume_btc": 50,
+          "consensus_weight": 0.0,
+          "hashrate_pct": 0.0,
+          "inertia": 0.05,
+          "role": null
+        },
+        "current_allocation": "v26",
+        "stats": {
+          "switches": 0,
+          "ideology_overrides": 0,
+          "inertia_holds": 1
+        }
+      },
+      "node-0021": {
+        "profile": {
+          "node_id": "node-0021",
+          "node_type": "user",
+          "activity_type": "mixed",
+          "transaction_velocity": 0.3,
+          "fork_preference": "neutral",
+          "ideology_strength": 0.5,
+          "switching_threshold": 0.125,
+          "custody_btc": 15,
+          "daily_volume_btc": 0.05,
+          "consensus_weight": 0.0,
+          "hashrate_pct": 0.0,
+          "inertia": 0.05,
+          "role": null
+        },
+        "current_allocation": "v26",
+        "stats": {
+          "switches": 0,
+          "ideology_overrides": 0,
+          "inertia_holds": 1
+        }
+      },
+      "node-0022": {
+        "profile": {
+          "node_id": "node-0022",
+          "node_type": "user",
+          "activity_type": "mixed",
+          "transaction_velocity": 0.3,
+          "fork_preference": "neutral",
+          "ideology_strength": 0.5,
+          "switching_threshold": 0.125,
+          "custody_btc": 2,
+          "daily_volume_btc": 0.5,
+          "consensus_weight": 0.0,
+          "hashrate_pct": 0.0,
+          "inertia": 0.05,
+          "role": null
+        },
+        "current_allocation": "v26",
+        "stats": {
+          "switches": 0,
+          "ideology_overrides": 0,
+          "inertia_holds": 1
+        }
+      },
+      "node-0023": {
+        "profile": {
+          "node_id": "node-0023",
+          "node_type": "user",
+          "activity_type": "mixed",
+          "transaction_velocity": 0.3,
+          "fork_preference": "neutral",
+          "ideology_strength": 0.5,
+          "switching_threshold": 0.125,
+          "custody_btc": 0.5,
+          "daily_volume_btc": 0.02,
+          "consensus_weight": 0.0,
+          "hashrate_pct": 0.0,
+          "inertia": 0.05,
+          "role": null
+        },
+        "current_allocation": "v26",
+        "stats": {
+          "switches": 0,
+          "ideology_overrides": 0,
+          "inertia_holds": 1
+        }
+      }
+    },
+    "solo_mining": {
+      "total_hashrate_pct": 6.0,
+      "v27_hashrate_pct": 3.0,
+      "v26_hashrate_pct": 3.0,
+      "miners": [
+        {
+          "node_id": "node-0006",
+          "fork": "v27",
+          "hashrate_pct": 1.5
+        },
+        {
+          "node_id": "node-0007",
+          "fork": "v27",
+          "hashrate_pct": 1.5
+        },
+        {
+          "node_id": "node-0018",
+          "fork": "v26",
+          "hashrate_pct": 1.5
+        },
+        {
+          "node_id": "node-0019",
+          "fork": "v26",
+          "hashrate_pct": 1.5
+        }
+      ]
+    },
+    "allocation_breakdown": {
+      "economic": {
+        "v27_weight": 2000000.0,
+        "v26_weight": 2000000.0,
+        "v27_count": 2,
+        "v26_count": 2
+      },
+      "user": {
+        "v27_weight": 467.5,
+        "v26_weight": 467.5,
+        "v27_count": 6,
+        "v26_count": 6
+      }
+    },
+    "transactional_breakdown": {
+      "v27_transactional_pct": 50.0,
+      "v26_transactional_pct": 50.0,
+      "v27_custodial_pct": 50.0,
+      "v26_custodial_pct": 50.0
+    },
+    "decision_history": [
+      {
+        "timestamp": 1772377862.2811108,
+        "node_id": "node-0004",
+        "node_type": "economic",
+        "chosen_fork": "v27",
+        "v27_price_usd": 60000,
+        "v26_price_usd": 60000,
+        "price_ratio": 1.0,
+        "rational_choice": "v27",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      },
+      {
+        "timestamp": 1772377862.2811108,
+        "node_id": "node-0005",
+        "node_type": "economic",
+        "chosen_fork": "v27",
+        "v27_price_usd": 60000,
+        "v26_price_usd": 60000,
+        "price_ratio": 1.0,
+        "rational_choice": "v27",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      },
+      {
+        "timestamp": 1772377862.2811108,
+        "node_id": "node-0016",
+        "node_type": "economic",
+        "chosen_fork": "v26",
+        "v27_price_usd": 60000,
+        "v26_price_usd": 60000,
+        "price_ratio": 1.0,
+        "rational_choice": "v27",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v26 (advantage 0.0% < threshold 31.0%)"
+      },
+      {
+        "timestamp": 1772377862.2811108,
+        "node_id": "node-0017",
+        "node_type": "economic",
+        "chosen_fork": "v26",
+        "v27_price_usd": 60000,
+        "v26_price_usd": 60000,
+        "price_ratio": 1.0,
+        "rational_choice": "v27",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v26 (advantage 0.0% < threshold 31.0%)"
+      },
+      {
+        "timestamp": 1772377862.2811108,
+        "node_id": "node-0006",
+        "node_type": "user",
+        "chosen_fork": "v27",
+        "v27_price_usd": 60000,
+        "v26_price_usd": 60000,
+        "price_ratio": 1.0,
+        "rational_choice": "v27",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      },
+      {
+        "timestamp": 1772377862.2811108,
+        "node_id": "node-0007",
+        "node_type": "user",
+        "chosen_fork": "v27",
+        "v27_price_usd": 60000,
+        "v26_price_usd": 60000,
+        "price_ratio": 1.0,
+        "rational_choice": "v27",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      },
+      {
+        "timestamp": 1772377862.2811108,
+        "node_id": "node-0008",
+        "node_type": "user",
+        "chosen_fork": "v27",
+        "v27_price_usd": 60000,
+        "v26_price_usd": 60000,
+        "price_ratio": 1.0,
+        "rational_choice": "v27",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      },
+      {
+        "timestamp": 1772377862.2811108,
+        "node_id": "node-0009",
+        "node_type": "user",
+        "chosen_fork": "v27",
+        "v27_price_usd": 60000,
+        "v26_price_usd": 60000,
+        "price_ratio": 1.0,
+        "rational_choice": "v27",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      },
+      {
+        "timestamp": 1772377862.2811108,
+        "node_id": "node-0010",
+        "node_type": "user",
+        "chosen_fork": "v27",
+        "v27_price_usd": 60000,
+        "v26_price_usd": 60000,
+        "price_ratio": 1.0,
+        "rational_choice": "v27",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      },
+      {
+        "timestamp": 1772377862.2811108,
+        "node_id": "node-0011",
+        "node_type": "user",
+        "chosen_fork": "v27",
+        "v27_price_usd": 60000,
+        "v26_price_usd": 60000,
+        "price_ratio": 1.0,
+        "rational_choice": "v27",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      },
+      {
+        "timestamp": 1772377862.2811108,
+        "node_id": "node-0018",
+        "node_type": "user",
+        "chosen_fork": "v26",
+        "v27_price_usd": 60000,
+        "v26_price_usd": 60000,
+        "price_ratio": 1.0,
+        "rational_choice": "v27",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v26 (advantage 0.0% < threshold 17.5%)"
+      },
+      {
+        "timestamp": 1772377862.2811108,
+        "node_id": "node-0019",
+        "node_type": "user",
+        "chosen_fork": "v26",
+        "v27_price_usd": 60000,
+        "v26_price_usd": 60000,
+        "price_ratio": 1.0,
+        "rational_choice": "v27",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v26 (advantage 0.0% < threshold 17.5%)"
+      },
+      {
+        "timestamp": 1772377862.2811108,
+        "node_id": "node-0020",
+        "node_type": "user",
+        "chosen_fork": "v26",
+        "v27_price_usd": 60000,
+        "v26_price_usd": 60000,
+        "price_ratio": 1.0,
+        "rational_choice": "v27",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v26 (advantage 0.0% < threshold 17.5%)"
+      },
+      {
+        "timestamp": 1772377862.2811108,
+        "node_id": "node-0021",
+        "node_type": "user",
+        "chosen_fork": "v26",
+        "v27_price_usd": 60000,
+        "v26_price_usd": 60000,
+        "price_ratio": 1.0,
+        "rational_choice": "v27",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v26 (advantage 0.0% < threshold 17.5%)"
+      },
+      {
+        "timestamp": 1772377862.2811108,
+        "node_id": "node-0022",
+        "node_type": "user",
+        "chosen_fork": "v26",
+        "v27_price_usd": 60000,
+        "v26_price_usd": 60000,
+        "price_ratio": 1.0,
+        "rational_choice": "v27",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v26 (advantage 0.0% < threshold 17.5%)"
+      },
+      {
+        "timestamp": 1772377862.2811108,
+        "node_id": "node-0023",
+        "node_type": "user",
+        "chosen_fork": "v26",
+        "v27_price_usd": 60000,
+        "v26_price_usd": 60000,
+        "price_ratio": 1.0,
+        "rational_choice": "v27",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v26 (advantage 0.0% < threshold 17.5%)"
+      },
+      {
+        "timestamp": 1772378162.3465657,
+        "node_id": "node-0004",
+        "node_type": "economic",
+        "chosen_fork": "v27",
+        "v27_price_usd": 60370.285714285725,
+        "v26_price_usd": 59341.71428571428,
+        "price_ratio": 1.0173330251906636,
+        "rational_choice": "v27",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      },
+      {
+        "timestamp": 1772378162.3465657,
+        "node_id": "node-0005",
+        "node_type": "economic",
+        "chosen_fork": "v27",
+        "v27_price_usd": 60370.285714285725,
+        "v26_price_usd": 59341.71428571428,
+        "price_ratio": 1.0173330251906636,
+        "rational_choice": "v27",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      },
+      {
+        "timestamp": 1772378162.3465657,
+        "node_id": "node-0016",
+        "node_type": "economic",
+        "chosen_fork": "v26",
+        "v27_price_usd": 60370.285714285725,
+        "v26_price_usd": 59341.71428571428,
+        "price_ratio": 1.0173330251906636,
+        "rational_choice": "v27",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v26 (advantage 1.7% < threshold 31.0%)"
+      },
+      {
+        "timestamp": 1772378162.3465657,
+        "node_id": "node-0017",
+        "node_type": "economic",
+        "chosen_fork": "v26",
+        "v27_price_usd": 60370.285714285725,
+        "v26_price_usd": 59341.71428571428,
+        "price_ratio": 1.0173330251906636,
+        "rational_choice": "v27",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v26 (advantage 1.7% < threshold 31.0%)"
+      },
+      {
+        "timestamp": 1772378462.7451591,
+        "node_id": "node-0004",
+        "node_type": "economic",
+        "chosen_fork": "v27",
+        "v27_price_usd": 59592.58536585366,
+        "v26_price_usd": 60119.41463414634,
+        "price_ratio": 0.9912369527963857,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v27 (advantage 0.9% < threshold 31.0%)"
+      },
+      {
+        "timestamp": 1772378462.7451591,
+        "node_id": "node-0005",
+        "node_type": "economic",
+        "chosen_fork": "v27",
+        "v27_price_usd": 59592.58536585366,
+        "v26_price_usd": 60119.41463414634,
+        "price_ratio": 0.9912369527963857,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v27 (advantage 0.9% < threshold 31.0%)"
+      },
+      {
+        "timestamp": 1772378462.7451591,
+        "node_id": "node-0016",
+        "node_type": "economic",
+        "chosen_fork": "v26",
+        "v27_price_usd": 59592.58536585366,
+        "v26_price_usd": 60119.41463414634,
+        "price_ratio": 0.9912369527963857,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      },
+      {
+        "timestamp": 1772378462.7451591,
+        "node_id": "node-0017",
+        "node_type": "economic",
+        "chosen_fork": "v26",
+        "v27_price_usd": 59592.58536585366,
+        "v26_price_usd": 60119.41463414634,
+        "price_ratio": 0.9912369527963857,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      },
+      {
+        "timestamp": 1772378462.7451591,
+        "node_id": "node-0006",
+        "node_type": "user",
+        "chosen_fork": "v27",
+        "v27_price_usd": 59592.58536585366,
+        "v26_price_usd": 60119.41463414634,
+        "price_ratio": 0.9912369527963857,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v27 (advantage 0.9% < threshold 17.5%)"
+      },
+      {
+        "timestamp": 1772378462.7451591,
+        "node_id": "node-0007",
+        "node_type": "user",
+        "chosen_fork": "v27",
+        "v27_price_usd": 59592.58536585366,
+        "v26_price_usd": 60119.41463414634,
+        "price_ratio": 0.9912369527963857,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v27 (advantage 0.9% < threshold 17.5%)"
+      },
+      {
+        "timestamp": 1772378462.7451591,
+        "node_id": "node-0008",
+        "node_type": "user",
+        "chosen_fork": "v27",
+        "v27_price_usd": 59592.58536585366,
+        "v26_price_usd": 60119.41463414634,
+        "price_ratio": 0.9912369527963857,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v27 (advantage 0.9% < threshold 17.5%)"
+      },
+      {
+        "timestamp": 1772378462.7451591,
+        "node_id": "node-0009",
+        "node_type": "user",
+        "chosen_fork": "v27",
+        "v27_price_usd": 59592.58536585366,
+        "v26_price_usd": 60119.41463414634,
+        "price_ratio": 0.9912369527963857,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v27 (advantage 0.9% < threshold 17.5%)"
+      },
+      {
+        "timestamp": 1772378462.7451591,
+        "node_id": "node-0010",
+        "node_type": "user",
+        "chosen_fork": "v27",
+        "v27_price_usd": 59592.58536585366,
+        "v26_price_usd": 60119.41463414634,
+        "price_ratio": 0.9912369527963857,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v27 (advantage 0.9% < threshold 17.5%)"
+      },
+      {
+        "timestamp": 1772378462.7451591,
+        "node_id": "node-0011",
+        "node_type": "user",
+        "chosen_fork": "v27",
+        "v27_price_usd": 59592.58536585366,
+        "v26_price_usd": 60119.41463414634,
+        "price_ratio": 0.9912369527963857,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v27 (advantage 0.9% < threshold 17.5%)"
+      },
+      {
+        "timestamp": 1772378462.7451591,
+        "node_id": "node-0018",
+        "node_type": "user",
+        "chosen_fork": "v26",
+        "v27_price_usd": 59592.58536585366,
+        "v26_price_usd": 60119.41463414634,
+        "price_ratio": 0.9912369527963857,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      },
+      {
+        "timestamp": 1772378462.7451591,
+        "node_id": "node-0019",
+        "node_type": "user",
+        "chosen_fork": "v26",
+        "v27_price_usd": 59592.58536585366,
+        "v26_price_usd": 60119.41463414634,
+        "price_ratio": 0.9912369527963857,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      },
+      {
+        "timestamp": 1772378462.7451591,
+        "node_id": "node-0020",
+        "node_type": "user",
+        "chosen_fork": "v26",
+        "v27_price_usd": 59592.58536585366,
+        "v26_price_usd": 60119.41463414634,
+        "price_ratio": 0.9912369527963857,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      },
+      {
+        "timestamp": 1772378462.7451591,
+        "node_id": "node-0021",
+        "node_type": "user",
+        "chosen_fork": "v26",
+        "v27_price_usd": 59592.58536585366,
+        "v26_price_usd": 60119.41463414634,
+        "price_ratio": 0.9912369527963857,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      },
+      {
+        "timestamp": 1772378462.7451591,
+        "node_id": "node-0022",
+        "node_type": "user",
+        "chosen_fork": "v26",
+        "v27_price_usd": 59592.58536585366,
+        "v26_price_usd": 60119.41463414634,
+        "price_ratio": 0.9912369527963857,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      },
+      {
+        "timestamp": 1772378462.7451591,
+        "node_id": "node-0023",
+        "node_type": "user",
+        "chosen_fork": "v26",
+        "v27_price_usd": 59592.58536585366,
+        "v26_price_usd": 60119.41463414634,
+        "price_ratio": 0.9912369527963857,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      },
+      {
+        "timestamp": 1772378763.2442515,
+        "node_id": "node-0004",
+        "node_type": "economic",
+        "chosen_fork": "v27",
+        "v27_price_usd": 59684.57142857143,
+        "v26_price_usd": 60027.42857142857,
+        "price_ratio": 0.9942883253369887,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v27 (advantage 0.6% < threshold 31.0%)"
+      },
+      {
+        "timestamp": 1772378763.2442515,
+        "node_id": "node-0005",
+        "node_type": "economic",
+        "chosen_fork": "v27",
+        "v27_price_usd": 59684.57142857143,
+        "v26_price_usd": 60027.42857142857,
+        "price_ratio": 0.9942883253369887,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v27 (advantage 0.6% < threshold 31.0%)"
+      },
+      {
+        "timestamp": 1772378763.2442515,
+        "node_id": "node-0016",
+        "node_type": "economic",
+        "chosen_fork": "v26",
+        "v27_price_usd": 59684.57142857143,
+        "v26_price_usd": 60027.42857142857,
+        "price_ratio": 0.9942883253369887,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      },
+      {
+        "timestamp": 1772378763.2442515,
+        "node_id": "node-0017",
+        "node_type": "economic",
+        "chosen_fork": "v26",
+        "v27_price_usd": 59684.57142857143,
+        "v26_price_usd": 60027.42857142857,
+        "price_ratio": 0.9942883253369887,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      },
+      {
+        "timestamp": 1772379063.267487,
+        "node_id": "node-0004",
+        "node_type": "economic",
+        "chosen_fork": "v27",
+        "v27_price_usd": 59816.43956043956,
+        "v26_price_usd": 59895.56043956044,
+        "price_ratio": 0.9986790193039312,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v27 (advantage 0.1% < threshold 31.0%)"
+      },
+      {
+        "timestamp": 1772379063.267487,
+        "node_id": "node-0005",
+        "node_type": "economic",
+        "chosen_fork": "v27",
+        "v27_price_usd": 59816.43956043956,
+        "v26_price_usd": 59895.56043956044,
+        "price_ratio": 0.9986790193039312,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v27 (advantage 0.1% < threshold 31.0%)"
+      },
+      {
+        "timestamp": 1772379063.267487,
+        "node_id": "node-0016",
+        "node_type": "economic",
+        "chosen_fork": "v26",
+        "v27_price_usd": 59816.43956043956,
+        "v26_price_usd": 59895.56043956044,
+        "price_ratio": 0.9986790193039312,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      },
+      {
+        "timestamp": 1772379063.267487,
+        "node_id": "node-0017",
+        "node_type": "economic",
+        "chosen_fork": "v26",
+        "v27_price_usd": 59816.43956043956,
+        "v26_price_usd": 59895.56043956044,
+        "price_ratio": 0.9986790193039312,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      },
+      {
+        "timestamp": 1772379063.267487,
+        "node_id": "node-0006",
+        "node_type": "user",
+        "chosen_fork": "v27",
+        "v27_price_usd": 59816.43956043956,
+        "v26_price_usd": 59895.56043956044,
+        "price_ratio": 0.9986790193039312,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v27 (advantage 0.1% < threshold 17.5%)"
+      },
+      {
+        "timestamp": 1772379063.267487,
+        "node_id": "node-0007",
+        "node_type": "user",
+        "chosen_fork": "v27",
+        "v27_price_usd": 59816.43956043956,
+        "v26_price_usd": 59895.56043956044,
+        "price_ratio": 0.9986790193039312,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v27 (advantage 0.1% < threshold 17.5%)"
+      },
+      {
+        "timestamp": 1772379063.267487,
+        "node_id": "node-0008",
+        "node_type": "user",
+        "chosen_fork": "v27",
+        "v27_price_usd": 59816.43956043956,
+        "v26_price_usd": 59895.56043956044,
+        "price_ratio": 0.9986790193039312,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v27 (advantage 0.1% < threshold 17.5%)"
+      },
+      {
+        "timestamp": 1772379063.267487,
+        "node_id": "node-0009",
+        "node_type": "user",
+        "chosen_fork": "v27",
+        "v27_price_usd": 59816.43956043956,
+        "v26_price_usd": 59895.56043956044,
+        "price_ratio": 0.9986790193039312,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v27 (advantage 0.1% < threshold 17.5%)"
+      },
+      {
+        "timestamp": 1772379063.267487,
+        "node_id": "node-0010",
+        "node_type": "user",
+        "chosen_fork": "v27",
+        "v27_price_usd": 59816.43956043956,
+        "v26_price_usd": 59895.56043956044,
+        "price_ratio": 0.9986790193039312,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v27 (advantage 0.1% < threshold 17.5%)"
+      },
+      {
+        "timestamp": 1772379063.267487,
+        "node_id": "node-0011",
+        "node_type": "user",
+        "chosen_fork": "v27",
+        "v27_price_usd": 59816.43956043956,
+        "v26_price_usd": 59895.56043956044,
+        "price_ratio": 0.9986790193039312,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v27 (advantage 0.1% < threshold 17.5%)"
+      },
+      {
+        "timestamp": 1772379063.267487,
+        "node_id": "node-0018",
+        "node_type": "user",
+        "chosen_fork": "v26",
+        "v27_price_usd": 59816.43956043956,
+        "v26_price_usd": 59895.56043956044,
+        "price_ratio": 0.9986790193039312,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      },
+      {
+        "timestamp": 1772379063.267487,
+        "node_id": "node-0019",
+        "node_type": "user",
+        "chosen_fork": "v26",
+        "v27_price_usd": 59816.43956043956,
+        "v26_price_usd": 59895.56043956044,
+        "price_ratio": 0.9986790193039312,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      },
+      {
+        "timestamp": 1772379063.267487,
+        "node_id": "node-0020",
+        "node_type": "user",
+        "chosen_fork": "v26",
+        "v27_price_usd": 59816.43956043956,
+        "v26_price_usd": 59895.56043956044,
+        "price_ratio": 0.9986790193039312,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      },
+      {
+        "timestamp": 1772379063.267487,
+        "node_id": "node-0021",
+        "node_type": "user",
+        "chosen_fork": "v26",
+        "v27_price_usd": 59816.43956043956,
+        "v26_price_usd": 59895.56043956044,
+        "price_ratio": 0.9986790193039312,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      },
+      {
+        "timestamp": 1772379063.267487,
+        "node_id": "node-0022",
+        "node_type": "user",
+        "chosen_fork": "v26",
+        "v27_price_usd": 59816.43956043956,
+        "v26_price_usd": 59895.56043956044,
+        "price_ratio": 0.9986790193039312,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      },
+      {
+        "timestamp": 1772379063.267487,
+        "node_id": "node-0023",
+        "node_type": "user",
+        "chosen_fork": "v26",
+        "v27_price_usd": 59816.43956043956,
+        "v26_price_usd": 59895.56043956044,
+        "price_ratio": 0.9986790193039312,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      },
+      {
+        "timestamp": 1772379363.5715773,
+        "node_id": "node-0004",
+        "node_type": "economic",
+        "chosen_fork": "v27",
+        "v27_price_usd": 59765.24369747899,
+        "v26_price_usd": 59946.756302521004,
+        "price_ratio": 0.9969721029754135,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v27 (advantage 0.3% < threshold 31.0%)"
+      },
+      {
+        "timestamp": 1772379363.5715773,
+        "node_id": "node-0005",
+        "node_type": "economic",
+        "chosen_fork": "v27",
+        "v27_price_usd": 59765.24369747899,
+        "v26_price_usd": 59946.756302521004,
+        "price_ratio": 0.9969721029754135,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": true,
+        "economic_weight": 0.0,
+        "reason": "Inertia: staying on v27 (advantage 0.3% < threshold 31.0%)"
+      },
+      {
+        "timestamp": 1772379363.5715773,
+        "node_id": "node-0016",
+        "node_type": "economic",
+        "chosen_fork": "v26",
+        "v27_price_usd": 59765.24369747899,
+        "v26_price_usd": 59946.756302521004,
+        "price_ratio": 0.9969721029754135,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      },
+      {
+        "timestamp": 1772379363.5715773,
+        "node_id": "node-0017",
+        "node_type": "economic",
+        "chosen_fork": "v26",
+        "v27_price_usd": 59765.24369747899,
+        "v26_price_usd": 59946.756302521004,
+        "price_ratio": 0.9969721029754135,
+        "rational_choice": "v26",
+        "ideology_override": false,
+        "inertia_held": false,
+        "economic_weight": 0.0,
+        "reason": "Rational: following higher-priced fork"
+      }
+    ]
+  },
+  "prices": {
+    "config": {
+      "base_price": 60000,
+      "max_divergence": 0.2,
+      "coefficients": {
+        "chain_weight": 0.3,
+        "economic_weight": 0.5,
+        "hashrate_weight": 0.2
+      }
+    },
+    "current_prices": {
+      "v27": 59757.3698630137,
+      "v26": 59954.6301369863
+    },
+    "timeline": {
+      "timestamps": [
+        1772377860.9100327,
+        1772377923.2431827,
+        1772377923.2431953,
+        1772377983.6563323,
+        1772377983.6563432,
+        1772378043.7843316,
+        1772378043.7843475,
+        1772378104.2064052,
+        1772378104.2064416,
+        1772378164.355763,
+        1772378164.3557737,
+        1772378224.5059116,
+        1772378224.5059283,
+        1772378284.858992,
+        1772378284.8590162,
+        1772378345.2728343,
+        1772378345.2728562,
+        1772378405.4688902,
+        1772378405.4689007,
+        1772378465.7463186,
+        1772378465.74635,
+        1772378525.778017,
+        1772378525.778051,
+        1772378586.2946622,
+        1772378586.294677,
+        1772378646.6365654,
+        1772378646.6365893,
+        1772378706.8241408,
+        1772378706.824155,
+        1772378767.2472723,
+        1772378767.2472868,
+        1772378827.4860065,
+        1772378827.4860394,
+        1772378887.6572182,
+        1772378887.6572442,
+        1772378948.3018663,
+        1772378948.3018863,
+        1772379008.6886363,
+        1772379008.6886709,
+        1772379069.2809267,
+        1772379069.280935,
+        1772379129.5323017,
+        1772379129.5323231,
+        1772379189.9831233,
+        1772379189.9831574,
+        1772379250.2027602,
+        1772379250.2027712,
+        1772379310.4249666,
+        1772379310.425001,
+        1772379370.6229486,
+        1772379370.6229646,
+        1772379431.0780537,
+        1772379431.0780904,
+        1772379491.6320293,
+        1772379491.6320627,
+        1772379551.8166552,
+        1772379551.8166676,
+        1772379612.366049,
+        1772379612.3660605
+      ],
+      "v27_prices": [
+        60000,
+        60000,
+        60000,
+        58313.142857142855,
+        58313.142857142855,
+        60686.769230769234,
+        60686.769230769234,
+        60370.285714285725,
+        60370.285714285725,
+        59856.0,
+        59856.0,
+        59579.07692307692,
+        59579.07692307692,
+        59739.87096774194,
+        59739.87096774194,
+        59856.0,
+        59856.0,
+        59592.58536585366,
+        59592.58536585366,
+        59473.02127659575,
+        59473.02127659575,
+        59473.02127659575,
+        59473.02127659575,
+        59727.42857142857,
+        59727.42857142857,
+        59736.0,
+        59736.0,
+        59684.57142857143,
+        59684.57142857143,
+        60012.52173913043,
+        60012.52173913043,
+        59905.31506849315,
+        59905.31506849315,
+        59856.0,
+        59856.0,
+        59856.0,
+        59856.0,
+        59816.43956043956,
+        59816.43956043956,
+        59927.99999999999,
+        59927.99999999999,
+        59925.230769230766,
+        59925.230769230766,
+        59823.567567567574,
+        59823.567567567574,
+        59856.0,
+        59856.0,
+        59765.24369747899,
+        59765.24369747899,
+        59737.96721311475,
+        59737.96721311475,
+        59743.5,
+        59743.5,
+        59803.05882352941,
+        59803.05882352941,
+        59803.82608695652,
+        59803.82608695652,
+        59757.3698630137,
+        59757.3698630137
+      ],
+      "v26_prices": [
+        60000,
+        60000,
+        60000,
+        60000,
+        61398.85714285714,
+        61398.85714285714,
+        59025.23076923077,
+        59025.23076923077,
+        59341.71428571428,
+        59341.71428571428,
+        59856.0,
+        59856.0,
+        60132.92307692307,
+        60132.92307692307,
+        59972.12903225807,
+        59972.12903225807,
+        59856.0,
+        59856.0,
+        60119.41463414634,
+        60119.41463414634,
+        60238.97872340425,
+        60238.97872340425,
+        60238.97872340425,
+        60238.97872340425,
+        59984.57142857142,
+        59984.57142857142,
+        59976.0,
+        59976.0,
+        60027.42857142857,
+        60027.42857142857,
+        59699.47826086956,
+        59699.47826086956,
+        59806.684931506854,
+        59806.684931506854,
+        59856.0,
+        59856.0,
+        59856.0,
+        59856.0,
+        59895.56043956044,
+        59895.56043956044,
+        59784.0,
+        59784.0,
+        59786.76923076923,
+        59786.76923076923,
+        59888.43243243243,
+        59888.43243243243,
+        59856.0,
+        59856.0,
+        59946.756302521004,
+        59946.756302521004,
+        59974.03278688525,
+        59974.03278688525,
+        59968.5,
+        59968.5,
+        59908.94117647058,
+        59908.94117647058,
+        59908.17391304348,
+        59908.17391304348,
+        59954.6301369863
+      ]
+    },
+    "history": [
+      {
+        "timestamp": 1772377860.9100327,
+        "chain_id": "v27",
+        "price": 60000,
+        "metadata": {
+          "initial": true
+        }
+      },
+      {
+        "timestamp": 1772377860.9100327,
+        "chain_id": "v26",
+        "price": 60000,
+        "metadata": {
+          "initial": true
+        }
+      },
+      {
+        "timestamp": 1772377923.2431827,
+        "chain_id": "v27",
+        "price": 60000,
+        "metadata": {}
+      },
+      {
+        "timestamp": 1772377923.2431953,
+        "chain_id": "v26",
+        "price": 60000,
+        "metadata": {}
+      },
+      {
+        "timestamp": 1772377983.6563323,
+        "chain_id": "v27",
+        "price": 58313.142857142855,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 7
+        }
+      },
+      {
+        "timestamp": 1772377983.6563432,
+        "chain_id": "v26",
+        "price": 61398.85714285714,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 7
+        }
+      },
+      {
+        "timestamp": 1772378043.7843316,
+        "chain_id": "v27",
+        "price": 60686.769230769234,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 13
+        }
+      },
+      {
+        "timestamp": 1772378043.7843475,
+        "chain_id": "v26",
+        "price": 59025.23076923077,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 13
+        }
+      },
+      {
+        "timestamp": 1772378104.2064052,
+        "chain_id": "v27",
+        "price": 60370.285714285725,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 21
+        }
+      },
+      {
+        "timestamp": 1772378104.2064416,
+        "chain_id": "v26",
+        "price": 59341.71428571428,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 21
+        }
+      },
+      {
+        "timestamp": 1772378164.355763,
+        "chain_id": "v27",
+        "price": 59856.0,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 24
+        }
+      },
+      {
+        "timestamp": 1772378164.3557737,
+        "chain_id": "v26",
+        "price": 59856.0,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 24
+        }
+      },
+      {
+        "timestamp": 1772378224.5059116,
+        "chain_id": "v27",
+        "price": 59579.07692307692,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 26
+        }
+      },
+      {
+        "timestamp": 1772378224.5059283,
+        "chain_id": "v26",
+        "price": 60132.92307692307,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 26
+        }
+      },
+      {
+        "timestamp": 1772378284.858992,
+        "chain_id": "v27",
+        "price": 59739.87096774194,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 31
+        }
+      },
+      {
+        "timestamp": 1772378284.8590162,
+        "chain_id": "v26",
+        "price": 59972.12903225807,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 31
+        }
+      },
+      {
+        "timestamp": 1772378345.2728343,
+        "chain_id": "v27",
+        "price": 59856.0,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 38
+        }
+      },
+      {
+        "timestamp": 1772378345.2728562,
+        "chain_id": "v26",
+        "price": 59856.0,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 38
+        }
+      },
+      {
+        "timestamp": 1772378405.4688902,
+        "chain_id": "v27",
+        "price": 59592.58536585366,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 41
+        }
+      },
+      {
+        "timestamp": 1772378405.4689007,
+        "chain_id": "v26",
+        "price": 60119.41463414634,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 41
+        }
+      },
+      {
+        "timestamp": 1772378465.7463186,
+        "chain_id": "v27",
+        "price": 59473.02127659575,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 47
+        }
+      },
+      {
+        "timestamp": 1772378465.74635,
+        "chain_id": "v26",
+        "price": 60238.97872340425,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 47
+        }
+      },
+      {
+        "timestamp": 1772378525.778017,
+        "chain_id": "v27",
+        "price": 59473.02127659575,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 47
+        }
+      },
+      {
+        "timestamp": 1772378525.778051,
+        "chain_id": "v26",
+        "price": 60238.97872340425,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 47
+        }
+      },
+      {
+        "timestamp": 1772378586.2946622,
+        "chain_id": "v27",
+        "price": 59727.42857142857,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 56
+        }
+      },
+      {
+        "timestamp": 1772378586.294677,
+        "chain_id": "v26",
+        "price": 59984.57142857142,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 56
+        }
+      },
+      {
+        "timestamp": 1772378646.6365654,
+        "chain_id": "v27",
+        "price": 59736.0,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 60
+        }
+      },
+      {
+        "timestamp": 1772378646.6365893,
+        "chain_id": "v26",
+        "price": 59976.0,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 60
+        }
+      },
+      {
+        "timestamp": 1772378706.8241408,
+        "chain_id": "v27",
+        "price": 59684.57142857143,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 63
+        }
+      },
+      {
+        "timestamp": 1772378706.824155,
+        "chain_id": "v26",
+        "price": 60027.42857142857,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 63
+        }
+      },
+      {
+        "timestamp": 1772378767.2472723,
+        "chain_id": "v27",
+        "price": 60012.52173913043,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 69
+        }
+      },
+      {
+        "timestamp": 1772378767.2472868,
+        "chain_id": "v26",
+        "price": 59699.47826086956,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 69
+        }
+      },
+      {
+        "timestamp": 1772378827.4860065,
+        "chain_id": "v27",
+        "price": 59905.31506849315,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 73
+        }
+      },
+      {
+        "timestamp": 1772378827.4860394,
+        "chain_id": "v26",
+        "price": 59806.684931506854,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 73
+        }
+      },
+      {
+        "timestamp": 1772378887.6572182,
+        "chain_id": "v27",
+        "price": 59856.0,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 76
+        }
+      },
+      {
+        "timestamp": 1772378887.6572442,
+        "chain_id": "v26",
+        "price": 59856.0,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 76
+        }
+      },
+      {
+        "timestamp": 1772378948.3018663,
+        "chain_id": "v27",
+        "price": 59856.0,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 86
+        }
+      },
+      {
+        "timestamp": 1772378948.3018863,
+        "chain_id": "v26",
+        "price": 59856.0,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 86
+        }
+      },
+      {
+        "timestamp": 1772379008.6886363,
+        "chain_id": "v27",
+        "price": 59816.43956043956,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 91
+        }
+      },
+      {
+        "timestamp": 1772379008.6886709,
+        "chain_id": "v26",
+        "price": 59895.56043956044,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 91
+        }
+      },
+      {
+        "timestamp": 1772379069.2809267,
+        "chain_id": "v27",
+        "price": 59927.99999999999,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 100
+        }
+      },
+      {
+        "timestamp": 1772379069.280935,
+        "chain_id": "v26",
+        "price": 59784.0,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 100
+        }
+      },
+      {
+        "timestamp": 1772379129.5323017,
+        "chain_id": "v27",
+        "price": 59925.230769230766,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 104
+        }
+      },
+      {
+        "timestamp": 1772379129.5323231,
+        "chain_id": "v26",
+        "price": 59786.76923076923,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 104
+        }
+      },
+      {
+        "timestamp": 1772379189.9831233,
+        "chain_id": "v27",
+        "price": 59823.567567567574,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 111
+        }
+      },
+      {
+        "timestamp": 1772379189.9831574,
+        "chain_id": "v26",
+        "price": 59888.43243243243,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 111
+        }
+      },
+      {
+        "timestamp": 1772379250.2027602,
+        "chain_id": "v27",
+        "price": 59856.0,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 114
+        }
+      },
+      {
+        "timestamp": 1772379250.2027712,
+        "chain_id": "v26",
+        "price": 59856.0,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 114
+        }
+      },
+      {
+        "timestamp": 1772379310.4249666,
+        "chain_id": "v27",
+        "price": 59765.24369747899,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 119
+        }
+      },
+      {
+        "timestamp": 1772379310.425001,
+        "chain_id": "v26",
+        "price": 59946.756302521004,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 119
+        }
+      },
+      {
+        "timestamp": 1772379370.6229486,
+        "chain_id": "v27",
+        "price": 59737.96721311475,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 122
+        }
+      },
+      {
+        "timestamp": 1772379370.6229646,
+        "chain_id": "v26",
+        "price": 59974.03278688525,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 122
+        }
+      },
+      {
+        "timestamp": 1772379431.0780537,
+        "chain_id": "v27",
+        "price": 59743.5,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 128
+        }
+      },
+      {
+        "timestamp": 1772379431.0780904,
+        "chain_id": "v26",
+        "price": 59968.5,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 128
+        }
+      },
+      {
+        "timestamp": 1772379491.6320293,
+        "chain_id": "v27",
+        "price": 59803.05882352941,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 136
+        }
+      },
+      {
+        "timestamp": 1772379491.6320627,
+        "chain_id": "v26",
+        "price": 59908.94117647058,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 136
+        }
+      },
+      {
+        "timestamp": 1772379551.8166552,
+        "chain_id": "v27",
+        "price": 59803.82608695652,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 138
+        }
+      },
+      {
+        "timestamp": 1772379551.8166676,
+        "chain_id": "v26",
+        "price": 59908.17391304348,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 138
+        }
+      },
+      {
+        "timestamp": 1772379612.366049,
+        "chain_id": "v27",
+        "price": 59757.3698630137,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 146
+        }
+      },
+      {
+        "timestamp": 1772379612.3660605,
+        "chain_id": "v26",
+        "price": 59954.6301369863,
+        "metadata": {
+          "fork_sustained": true,
+          "fork_depth": 146
+        }
+      }
+    ]
+  },
+  "fees": {
+    "config": {
+      "base_fee_rate": 1.0,
+      "manipulation_detection": true,
+      "sustainability_tracking": true
+    },
+    "current_fees": {
+      "v27": {
+        "total": 0.035460992907801414,
+        "organic": 0.035460992907801414,
+        "manipulation": 0.0
+      },
+      "v26": {
+        "total": 0.035460992907801414,
+        "organic": 0.035460992907801414,
+        "manipulation": 0.0
+      }
+    },
+    "manipulation_status": {
+      "v27_active": false,
+      "v26_active": false,
+      "v27_cost_btc": 0.0,
+      "v26_cost_btc": 0.0,
+      "v27_cost_usd": 0.0,
+      "v26_cost_usd": 0.0
+    },
+    "actors": {},
+    "fee_history": [
+      {
+        "timestamp": 1772377860.910125,
+        "chain_id": "v27",
+        "organic_fee": 1.0,
+        "manipulation_premium": 0.0,
+        "total_fee": 1.0,
+        "metadata": {
+          "initial": true
+        }
+      },
+      {
+        "timestamp": 1772377860.910125,
+        "chain_id": "v26",
+        "organic_fee": 1.0,
+        "manipulation_premium": 0.0,
+        "total_fee": 1.0,
+        "metadata": {
+          "initial": true
+        }
+      },
+      {
+        "timestamp": 1772377923.2432256,
+        "chain_id": "v27",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772377923.2432256,
+        "chain_id": "v26",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772377983.6563623,
+        "chain_id": "v27",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772377983.6563623,
+        "chain_id": "v26",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378043.7843797,
+        "chain_id": "v27",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378043.7843797,
+        "chain_id": "v26",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378104.2064996,
+        "chain_id": "v27",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378104.2064996,
+        "chain_id": "v26",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378164.3557901,
+        "chain_id": "v27",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378164.3557901,
+        "chain_id": "v26",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378224.50595,
+        "chain_id": "v27",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378224.50595,
+        "chain_id": "v26",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378284.8590493,
+        "chain_id": "v27",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378284.8590493,
+        "chain_id": "v26",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378345.27289,
+        "chain_id": "v27",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378345.27289,
+        "chain_id": "v26",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378405.4689171,
+        "chain_id": "v27",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378405.4689171,
+        "chain_id": "v26",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378465.7464306,
+        "chain_id": "v27",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378465.7464306,
+        "chain_id": "v26",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378525.7781205,
+        "chain_id": "v27",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378525.7781205,
+        "chain_id": "v26",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378586.2947006,
+        "chain_id": "v27",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378586.2947006,
+        "chain_id": "v26",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378646.6366096,
+        "chain_id": "v27",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378646.6366096,
+        "chain_id": "v26",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378706.8241718,
+        "chain_id": "v27",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378706.8241718,
+        "chain_id": "v26",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378767.2473123,
+        "chain_id": "v27",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378767.2473123,
+        "chain_id": "v26",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378827.48611,
+        "chain_id": "v27",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378827.48611,
+        "chain_id": "v26",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378887.6572816,
+        "chain_id": "v27",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378887.6572816,
+        "chain_id": "v26",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378948.301917,
+        "chain_id": "v27",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772378948.301917,
+        "chain_id": "v26",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772379008.6887364,
+        "chain_id": "v27",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772379008.6887364,
+        "chain_id": "v26",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772379069.2809458,
+        "chain_id": "v27",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772379069.2809458,
+        "chain_id": "v26",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772379129.5323546,
+        "chain_id": "v27",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772379129.5323546,
+        "chain_id": "v26",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772379189.9832091,
+        "chain_id": "v27",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772379189.9832091,
+        "chain_id": "v26",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772379250.2027879,
+        "chain_id": "v27",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772379250.2027879,
+        "chain_id": "v26",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772379310.4250598,
+        "chain_id": "v27",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772379310.4250598,
+        "chain_id": "v26",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772379370.6229966,
+        "chain_id": "v27",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772379370.6229966,
+        "chain_id": "v26",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772379431.0781443,
+        "chain_id": "v27",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772379431.0781443,
+        "chain_id": "v26",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772379491.6322298,
+        "chain_id": "v27",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772379491.6322298,
+        "chain_id": "v26",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772379551.8166866,
+        "chain_id": "v27",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772379551.8166866,
+        "chain_id": "v26",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772379612.3660777,
+        "chain_id": "v27",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      },
+      {
+        "timestamp": 1772379612.3660777,
+        "chain_id": "v26",
+        "organic_fee": 0.035460992907801414,
+        "manipulation_premium": 0.0,
+        "total_fee": 0.035460992907801414,
+        "metadata": null
+      }
+    ],
+    "portfolio_history": []
+  },
+  "difficulty": {
+    "config": {
+      "target_block_interval": 10.0,
+      "retarget_interval": 144,
+      "pre_fork_difficulty": 1.0,
+      "max_adjustment_factor": 4.0,
+      "min_difficulty": 0.0625,
+      "enable_eda": false,
+      "eda_threshold": 6.0,
+      "eda_reduction": 0.2
+    },
+    "forks": {
+      "v27": {
+        "fork_id": "v27",
+        "current_difficulty": 1.0,
+        "blocks_since_retarget": 75,
+        "cumulative_chainwork": 75.0,
+        "last_block_sim_time": 1782,
+        "last_retarget_sim_time": 0.0,
+        "expected_block_interval": 21.27659574468085,
+        "initial_height": 101,
+        "blocks_mined": 75
+      },
+      "v26": {
+        "fork_id": "v26",
+        "current_difficulty": 1.0,
+        "blocks_since_retarget": 79,
+        "cumulative_chainwork": 79.0,
+        "last_block_sim_time": 1784,
+        "last_retarget_sim_time": 0.0,
+        "expected_block_interval": 21.27659574468085,
+        "initial_height": 101,
+        "blocks_mined": 79
+      }
+    },
+    "winning_fork": "v26",
+    "adjustment_history": []
+  },
+  "reorg": {
+    "config": {
+      "lca_height": 0,
+      "lca_hash": "fork-point",
+      "propagation_window": 30.0,
+      "total_nodes": 8
+    },
+    "fork_heights": {
+      "v27": 75,
+      "v26": 79
+    },
+    "network_summary": {
+      "lca_height": 0,
+      "lca_hash": "fork-point",
+      "v27_final_height": 75,
+      "v26_final_height": 79,
+      "total_nodes_tracked": 8,
+      "total_blocks_mined": 0,
+      "total_blocks_orphaned": 0,
+      "total_reorg_events": 0,
+      "total_fork_incidents": 0,
+      "total_reorg_mass": 0,
+      "normalized_reorg_mass": 0.0,
+      "consensus_stress_score": 0.0
+    },
+    "node_summaries": {
+      "pool-alpha": {
+        "node_id": "pool-alpha",
+        "current_fork": "v27",
+        "blocks_mined": 0,
+        "blocks_mined_per_fork": {},
+        "blocks_orphaned": 0,
+        "orphan_rate": 0.0,
+        "reorg_count": 0,
+        "total_exposure": 0
+      },
+      "pool-beta": {
+        "node_id": "pool-beta",
+        "current_fork": "v27",
+        "blocks_mined": 0,
+        "blocks_mined_per_fork": {},
+        "blocks_orphaned": 0,
+        "orphan_rate": 0.0,
+        "reorg_count": 0,
+        "total_exposure": 0
+      },
+      "pool-gamma": {
+        "node_id": "pool-gamma",
+        "current_fork": "v27",
+        "blocks_mined": 0,
+        "blocks_mined_per_fork": {},
+        "blocks_orphaned": 0,
+        "orphan_rate": 0.0,
+        "reorg_count": 0,
+        "total_exposure": 0
+      },
+      "pool-delta": {
+        "node_id": "pool-delta",
+        "current_fork": "v27",
+        "blocks_mined": 0,
+        "blocks_mined_per_fork": {},
+        "blocks_orphaned": 0,
+        "orphan_rate": 0.0,
+        "reorg_count": 0,
+        "total_exposure": 0
+      },
+      "pool-epsilon": {
+        "node_id": "pool-epsilon",
+        "current_fork": "v26",
+        "blocks_mined": 0,
+        "blocks_mined_per_fork": {},
+        "blocks_orphaned": 0,
+        "orphan_rate": 0.0,
+        "reorg_count": 0,
+        "total_exposure": 0
+      },
+      "pool-zeta": {
+        "node_id": "pool-zeta",
+        "current_fork": "v26",
+        "blocks_mined": 0,
+        "blocks_mined_per_fork": {},
+        "blocks_orphaned": 0,
+        "orphan_rate": 0.0,
+        "reorg_count": 0,
+        "total_exposure": 0
+      },
+      "pool-eta": {
+        "node_id": "pool-eta",
+        "current_fork": "v26",
+        "blocks_mined": 0,
+        "blocks_mined_per_fork": {},
+        "blocks_orphaned": 0,
+        "orphan_rate": 0.0,
+        "reorg_count": 0,
+        "total_exposure": 0
+      },
+      "pool-theta": {
+        "node_id": "pool-theta",
+        "current_fork": "v26",
+        "blocks_mined": 0,
+        "blocks_mined_per_fork": {},
+        "blocks_orphaned": 0,
+        "orphan_rate": 0.0,
+        "reorg_count": 0,
+        "total_exposure": 0
+      }
+    },
+    "reorg_events": [],
+    "fork_incidents": [],
+    "reunion_analysis": {
+      "winning_fork": "v26",
+      "losing_fork": "v27",
+      "losing_fork_depth": 75,
+      "nodes_on_losing_fork": [
+        "pool-alpha",
+        "pool-beta",
+        "pool-gamma",
+        "pool-delta"
+      ],
+      "num_nodes_on_losing_fork": 4,
+      "reunion_reorg_mass": 300,
+      "additional_orphans": 0,
+      "v27_chainwork": 75.0,
+      "v26_chainwork": 79.0
+    }
+  },
+  "reunion": {
+    "enabled": false
+  }
+}

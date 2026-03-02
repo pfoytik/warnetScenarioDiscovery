@@ -41,8 +41,9 @@ This document summarizes findings from four parameter sweeps exploring Bitcoin f
 | exploratory_sweep_lite | 50 | 25 nodes | 42 min | 144 blocks (~5 min) | Bug (not applied) | Complete |
 | realistic_sweep3 | 8 | 60 nodes | 134 min | **2016 blocks (~67 min)** | Fixed | Partial |
 | realistic_sweep3_rapid | 50 | 60 nodes | 30 min | 144 blocks (~5 min) | **Fixed** | Complete |
+| **balanced_baseline** | 27 | 24 nodes | 30 min | 144 blocks (~5 min) | N/A (50/50) | **Complete** |
 
-**Total: 158 scenarios** (150 with full analysis)
+**Total: 185 scenarios** (177 with full analysis)
 
 ### Sweep Configuration Notes
 
@@ -54,6 +55,79 @@ This document summarizes findings from four parameter sweeps exploring Bitcoin f
 ### Critical Discovery
 
 The `realistic_sweep3_rapid` sweep used **corrected code** where `economic_split` was properly applied to the network. This revealed that **economic distribution is as important as hashrate** when the parameter actually varies.
+
+---
+
+## Baseline Measurements
+
+### Balanced Baseline Sweep
+
+To establish ground truth for stochastic variance, we created a **perfectly balanced network** where neither v27 nor v26 has any structural advantage.
+
+#### Network Design
+
+| Component | V27 | V26 |
+|-----------|:---:|:---:|
+| Mining Pools | 4 | 4 |
+| Pool Hashrate | 47% | 47% |
+| User Hashrate | 3% | 3% |
+| **Total Hashrate** | **50%** | **50%** |
+| Economic Nodes | 2 | 2 |
+| User Nodes | 6 | 6 |
+
+Pool naming: Alpha/Beta/Gamma/Delta (v27) vs Epsilon/Zeta/Eta/Theta (v26), each side with 20% + 14% + 8% + 5% = 47% hashrate.
+
+#### Results (n=27 valid runs)
+
+| Metric | Value |
+|--------|:------|
+| Starting Hashrate | 47% / 47% |
+| Final Hashrate | 47% / 47% (unchanged) |
+| Economic Cascades | **0** |
+| Reorgs | **0** |
+
+#### Block Share Distribution
+
+| Statistic | Value |
+|-----------|:-----:|
+| Mean | 48.5% v27 |
+| **Std Dev** | **3.3%** |
+| Min | 43.6% |
+| Max | 55.5% |
+
+#### Win Distribution
+
+| Winner | Count | Percentage |
+|--------|:-----:|:----------:|
+| v27 | 10 | 37% |
+| v26 | 15 | 56% |
+| Tie | 2 | 7% |
+
+#### Key Findings
+
+1. **Perfect Stability**: With balanced starting hashrate, the economic cascade mechanism **never triggers**. All 27 runs maintained exactly 47/47 hashrate throughout.
+
+2. **Stochastic Variance Measured**: σ(block_share) = **3.3%** — this is pure mining randomness.
+
+3. **No Economic Dynamics**: Zero reorgs, zero cascades — the balanced network produces static equilibrium.
+
+4. **Cascade Trigger Requires Imbalance**: The first 3 runs used a broken config with 46/52 starting hashrate. These showed cascades (2/3 runs), while all 27 balanced runs showed none. Even a ~6% initial imbalance is enough to trigger cascade dynamics.
+
+#### Implications for Parameter Sweeps
+
+| Observation | Threshold |
+|-------------|-----------|
+| Block share variance > 3.3% | Parameter influence detected |
+| Any reorg events | Economic dynamics active |
+| Hashrate shift from starting values | Cascade mechanism triggered |
+| Outcome rate deviating from ~50/50 | Structural bias present |
+
+#### Data Location
+
+| File | Description |
+|------|-------------|
+| `balanced_baseline_sweep/results/analysis/` | Analysis outputs |
+| `networks/balanced-baseline/network.yaml` | Symmetric network definition |
 
 ---
 
@@ -313,8 +387,17 @@ When analyzing new sweep results, watch for these indicators of potential bugs:
 | exploratory_sweep_lite | `exploratory_sweep_lite/results/analysis/` | 50 | economic_split bug |
 | realistic_sweep3 | `realistic_sweep3/results/` | 8 | Long duration, 2016-block difficulty, incomplete |
 | realistic_sweep3_rapid | `realistic_sweep3_rapid/results/analysis/` | 50 | **Fixed code** |
+| balanced_baseline | `balanced_baseline_sweep/results/analysis/` | 27 | **Stochastic variance baseline** |
 
 ### Network Versions
+
+**balanced-baseline** (used in balanced_baseline_sweep):
+- 24 nodes, perfectly symmetric (12 per partition)
+- 4 pools per side: 20% + 14% + 8% + 5% = 47% each
+- 2 economic nodes per side with equal custody
+- 6 user nodes per side with 3% hashrate each
+- No structural advantage for either fork
+- Purpose: Measure stochastic variance baseline
 
 **realistic-economy-v2** (used in sweep3, sweep3_rapid):
 - Power user hashrates now meaningful (e.g., node-0048: 0.05% → 7.8%)
@@ -348,4 +431,4 @@ When analyzing new sweep results, watch for these indicators of potential bugs:
 
 ---
 
-*Analysis compiled February 2026*
+*Analysis compiled February-March 2026*

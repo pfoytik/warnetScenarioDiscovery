@@ -3,7 +3,7 @@
     "type": "targeted_grid",
     "name": "targeted_sweep1_committed_threshold",
     "description": "Map the 2D decision boundary between economic_split and pool_committed_split at a fixed low hashrate (hash=0.25, clearly v26-dominant). Any v27 win here requires the economic cascade mechanism to succeed, making this a clean probe of the cascade gatekeeper threshold identified in the exploratory sweep.\nFrom the exploratory sweep (n=50, seed=42):\n  - committed_split < ~0.43 blocked cascade even with 88-93% v27 economic majority\n  - committed_split > ~0.53 enabled cascade with as little as 58% v27 economic\nThis sweep maps that boundary at 5 economic levels and 9 committed_split steps.\n",
-    "spec_file": "specs/targeted_sweep1_committed_threshold.yaml",
+    "spec_file": "tools/sweep/specs/targeted_sweep1_committed_threshold.yaml",
     "n_samples": 45,
     "n_parameters": 16,
     "grid_axes": {

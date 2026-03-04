@@ -1,0 +1,64 @@
+======================================================================
+PARAMETER SWEEP ANALYSIS REPORT
+======================================================================
+
+Total scenarios analyzed: 45
+
+OUTCOME DISTRIBUTION:
+  v26_dominant: 26 (57.8%)
+  v27_dominant: 19 (42.2%)
+
+MOST DISCRIMINATING PARAMETERS:
+(Parameters with largest difference between v27/v26 dominant outcomes)
+
+  1. economic_split
+     Separation: 0.127
+     v27 favored when: higher
+     Estimated threshold: 0.604
+     v27_dominant mean: 0.667
+     v26_dominant mean: 0.54
+
+  2. pool_committed_split
+     Separation: 0.025
+     v27 favored when: lower
+     Estimated threshold: 0.474
+     v27_dominant mean: 0.461
+     v26_dominant mean: 0.486
+
+  3. hashrate_split
+     Separation: 0.0
+     v27 favored when: lower
+     Estimated threshold: 0.25
+     v27_dominant mean: 0.25
+     v26_dominant mean: 0.25
+
+  4. pool_ideology_strength
+     Separation: 0.0
+     v27 favored when: lower
+     Estimated threshold: 0.51
+     v27_dominant mean: 0.51
+     v26_dominant mean: 0.51
+
+  5. pool_profitability_threshold
+     Separation: 0.0
+     v27 favored when: lower
+     Estimated threshold: 0.16
+     v27_dominant mean: 0.16
+     v26_dominant mean: 0.16
+
+STRONG CORRELATIONS:
+(Parameters most correlated with v27 hashrate share)
+
+  economic_split: +0.459
+  pool_ideology_strength: -0.000
+  pool_profitability_threshold: -0.000
+  pool_max_loss_pct: -0.000
+  user_ideology_strength: -0.000
+
+KEY INSIGHTS:
+
+  * economic_split is the strongest predictor of fork outcome
+    Threshold around 0.604
+    v27 dominant when higher
+
+======================================================================

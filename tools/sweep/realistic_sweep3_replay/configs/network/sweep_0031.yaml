@@ -1,0 +1,31 @@
+name: sweep_0031
+description: Parameter sweep scenario sweep_0031
+v27_economic_pct: 55.00000000000001
+v27_hashrate_pct: 0.7000000000000001
+economic_nodes_per_partition: 1
+user_nodes_per_partition: 4
+v27_economic:
+  fork_preference: v27
+  ideology_strength: 0.725
+  switching_threshold: 0.113
+  inertia: 0.131
+  activity_type: transactional
+  transaction_velocity: 0.21
+v26_economic:
+  fork_preference: v26
+  ideology_strength: 0.725
+  switching_threshold: 0.113
+  inertia: 0.131
+  activity_type: transactional
+  transaction_velocity: 0.21
+user_config:
+  fork_preference: neutral
+  ideology_strength: 0.612
+  switching_threshold: 0.179
+  inertia: 0.05
+  activity_type: mixed
+  transaction_velocity: 0.21
+  is_solo_miner: true
+  hashrate_pct: 0.049
+partition_mode: static
+fork_observer_enabled: false

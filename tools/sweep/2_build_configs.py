@@ -103,17 +103,35 @@ def create_pool_scenario(scenario: Dict[str, Any], pools: List[tuple] = None) ->
     pool_configs = []
 
     if pools is not None:
-        # Use pools from base network - preserve network structure
+        # Use pools from base network.
+        # initial_fork is preserved from the network (correctly set by hashrate_split
+        # via apply_scenario_to_base_network). fork_preference is computed dynamically
+        # from pool_committed_split and pool_neutral_pct so those parameters are live.
+        neutral_pct = scenario["pool_neutral_pct"] / 100
+        committed_pct = 1.0 - neutral_pct
+        split = scenario["pool_committed_split"]
+        v27_pct = committed_pct * split
+        v26_pct = committed_pct * (1.0 - split)
+
+        total_hashrate = sum(p[2] for p in pools) or 100.0
+        cumulative_hashrate = 0
+
         for pool_tuple in pools:
             if len(pool_tuple) == 5:
-                pool_id, pool_name, hashrate, fork_pref, initial_fork = pool_tuple
+                pool_id, pool_name, hashrate, _net_pref, initial_fork = pool_tuple
             else:
-                # Fallback for old format
                 pool_id, pool_name, hashrate = pool_tuple[:3]
-                fork_pref = "neutral"
                 initial_fork = "v27"
 
-            # Determine ideology based on fork_preference from network
+            # Dynamic fork_preference assignment using cumulative hashrate position
+            midpoint = (cumulative_hashrate + hashrate / 2) / total_hashrate
+            if midpoint < v27_pct:
+                fork_pref = "v27"
+            elif midpoint < v27_pct + v26_pct:
+                fork_pref = "v26"
+            else:
+                fork_pref = "neutral"
+
             if fork_pref == "neutral":
                 ideology = 0.1
                 max_loss = 0.02
@@ -131,6 +149,7 @@ def create_pool_scenario(scenario: Dict[str, Any], pools: List[tuple] = None) ->
                 "profitability_threshold": scenario["pool_profitability_threshold"],
                 "max_loss_pct": round(max_loss, 3),
             })
+            cumulative_hashrate += hashrate
     else:
         # Use DEFAULT_POOLS with dynamic assignment based on scenario parameters
         # --- Ideology / preference assignment (pool_committed_split, pool_neutral_pct) ---

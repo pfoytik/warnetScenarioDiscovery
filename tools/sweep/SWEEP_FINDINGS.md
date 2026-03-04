@@ -14,7 +14,7 @@ The **realistic_sweep3_rapid** sweep with fixed code reveals a dramatically diff
 **The economic cascade mechanism is real and powerful.** When economic_split is properly applied:
 
 1. **Economic majority can overcome hashrate minority** through price signals
-2. **pool_committed_split ~0.50** acts as a gatekeeper for the cascade
+2. **pool_committed_split has a non-monotonic effect** — it inverts at moderate economic levels due to pool-specific flip-points (see Targeted Sweep findings)
 3. High reorg counts (5+) correlate with v27 victory (86% of cascade scenarios)
 4. When both hashrate AND economics align → deterministic outcomes (100% win rate)
 
@@ -31,14 +31,16 @@ Neither factor alone guarantees victory, but together they're deterministic.
 
 ### Targeted Threshold Discovery
 
-The targeted sweep (economic × committed grid with fixed 25% hashrate) revealed:
+The targeted sweep (economic × committed grid with fixed 25% hashrate) revealed a **non-monotonic** relationship between pool commitment and v27 outcomes:
 
 | Economic Level | pool_committed_split Effect |
 |:---------------|:----------------------------|
-| ≤0.50 | Higher committed → v27 wins (ideological cascade) |
-| ≥0.60 | **Committed irrelevant** → v27 wins (profit cascade) |
+| 0.35 | No cascade possible — v26 wins all |
+| 0.50 | Higher committed → v27 wins (threshold at commit ≈ 0.20–0.30) |
+| 0.60–0.70 | **INVERTED** — v27 wins only at commit=0.20; v26 wins at commit≥0.30 |
+| 0.82 | Economic signal dominates — v27 wins all |
 
-**Two cascade mechanisms exist:** Ideological (at economic parity) vs Profit-driven (at economic majority). The ~60% economic threshold unlocks the robust profit cascade that works regardless of pool ideology.
+**The inversion is caused by a pool flip-point:** Foundry (30% of pool hashrate) switches from v26-preferring to v27-preferring at pool_committed_split ≈ 0.21. At commit=0.20 with strong economics, Foundry stays on v27 (economically trapped there). At commit≥0.30, Foundry is v27-committed but the remaining v26 bloc (AntPool+F2Pool+ViaBTC ≈ 40% hashrate) is large enough to resist the cascade at 60–70% economic strength.
 
 ---
 
@@ -154,79 +156,106 @@ Following the recommendations from earlier sweeps, this targeted sweep maps the 
 | Parameter | Values |
 |-----------|--------|
 | **economic_split** | 0.35, 0.50, 0.60, 0.70, 0.82 (5 levels) |
-| **pool_committed_split** | 0.20, 0.35, 0.45, 0.55, 0.65, 0.75 (6 levels per economic level, varies slightly) |
+| **pool_committed_split** | 0.20, 0.30, 0.38, 0.43, 0.47, 0.52, 0.58, 0.65, 0.75 (9 levels) |
 | **hashrate_split** | **Fixed at 0.25** (v26 starts with 75% hashrate advantage) |
-| Scenarios | 45 total |
+| Scenarios | 45 total (5 × 9 grid) |
 
 This isolates the cascade mechanism: can economic majority + committed pool support overcome a 3:1 hashrate disadvantage?
 
 #### Results Grid
 
 ```
-                    pool_committed_split
-economic_split   0.20   0.35   0.45   0.55   0.65   0.75
-     0.35         26     26     26     26     26     26    ← v26 wins all
-     0.50         26     26     26     27     27     27    ← transition zone
-     0.60         27     27     27     27     27     27    ← v27 wins all
-     0.70         27     27     27     27     27     27    ← v27 wins all
-     0.82         27     27     27     27     27     27    ← v27 wins all
+                              pool_committed_split
+economic_split   0.20  0.30  0.38  0.43  0.47  0.52  0.58  0.65  0.75
+     0.35         26    26    26    26    26    26    26    26    26    ← v26 wins all
+     0.50         26    27    27    27    27    27    27    27    27    ← threshold ~0.20–0.30
+     0.60         27    26    26    26    26    26    26    26    26    ← INVERTED
+     0.70         27    26*   26*   26*   26*   26*   26    26    26    ← INVERTED
+     0.82         27    27    27    27    27    27    27    27    27    ← v27 wins all
 ```
 
 Legend: `26` = v26_dominant, `27` = v27_dominant
+`*` = v26_dominant but with partial hashrate switching (v27 retains ~34.7% final hashrate)
 
 #### Overall Outcome Distribution
 
 | Outcome | Count | Percentage |
 |---------|:-----:|:----------:|
-| v27_dominant | 26 | 57.8% |
-| v26_dominant | 19 | 42.2% |
+| v27_dominant | 20 | 44.4% |
+| v26_dominant | 25 | 55.6% |
 
-#### Key Finding: Relationship Reversal
+#### Key Finding: Non-Monotonic Relationship and Inversion
 
-**The effect of `pool_committed_split` REVERSES depending on economic majority level:**
+**The effect of `pool_committed_split` is non-monotonic and INVERTS between econ=0.50 and econ=0.60:**
 
 | Economic Level | Committed Effect | Interpretation |
 |----------------|------------------|----------------|
-| econ=0.50 (parity) | Higher committed → v27 wins | Ideology cascade |
-| econ=0.60-0.70 (majority) | **Any committed level → v27 wins** | Profit cascade dominates |
-| econ=0.35 (minority) | No cascade possible | Economics too weak |
+| econ=0.35 (minority) | No cascade possible | Economics too weak; v26 wins all |
+| econ=0.50 (parity) | Higher committed → v27 wins | Threshold at commit ~0.20–0.30 |
+| econ=0.60–0.70 (majority) | **Lower committed → v27 wins** | **Inverted: only commit=0.20 produces v27 win** |
+| econ=0.82 (strong majority) | Committed irrelevant → v27 wins | Economic signal dominates; v27 wins all |
 
-**Two distinct cascade mechanisms discovered:**
+#### Mechanism: The Foundry Flip-Point
 
-1. **Ideological Cascade** (at economic parity, econ≈0.50):
-   - Requires high `pool_committed_split` (≥0.55)
-   - Committed pools hold chain on ideology alone
-   - Marginal, depends on pool loyalty
+The inversion is caused by how pools are assigned based on cumulative hashrate position. With pool_neutral_pct=30%, the committed pool hashrate (70%) is split into v27-preferring and v26-preferring zones. The largest pool, Foundry (30% of total hashrate), crosses from v26-preferring to v27-preferring at:
 
-2. **Profit Cascade** (at economic majority, econ≥0.60):
-   - Works at ANY `pool_committed_split` level
-   - Economic price signal is strong enough to flip even uncommitted pools
-   - Robust, doesn't depend on ideology
+```
+pool_committed_split × 0.70 > 0.15  →  commit > 0.214
+```
+
+**At commit=0.20 (below flip-point):**
+- Foundry is assigned v26-preferring ideology
+- With 60–70% economic support for v27, the v27 price premium exceeds Foundry's max_loss tolerance
+- Foundry cannot profitably abandon v27 → effectively locked on v27 chain
+- Result: v27 wins via economic pressure cascade
+
+**At commit=0.30–0.75 (above flip-point):**
+- Foundry is assigned v27-preferring ideology → holds v27 chain
+- BUT: the remaining v26-committed bloc (AntPool 18% + F2Pool 15% + ViaBTC 7% = **40% of total hashrate**) now has full ideological commitment to v26
+- This 40% committed bloc is too large to break at 60–70% economic signal (max_loss=0.26 not exceeded)
+- Result: v26 maintains dominance despite economic minority
+
+**At econ=0.82:** Economic signal strong enough to break even a 40% committed v26 bloc → v27 wins regardless.
+
+**At econ=0.50:** Lower price pressure but Foundry's v27-preferring commitment (at commit≥0.30) is sufficient for cascade with neutral pools.
+
+#### econ=0.70 Detail: Partial Cascade Zone
+
+At commit=0.30–0.52, econ=0.70, the outcome is v26_dominant but with **partial hashrate switching**:
+- v27 retains ~34.7% final hashrate (AntPool defects from v26 partially)
+- 7 reorgs occur (active but incomplete cascade)
+- Still resolves to v26_dominant due to v26's remaining bloc strength
+
+This is the transition zone at 70% economics — sufficient to cause significant instability but not enough to fully flip.
 
 #### Threshold Analysis
 
 | Dimension | Threshold | Notes |
 |-----------|:---------:|-------|
-| **economic_split** | ~0.55-0.60 | Below this, v27 cannot overcome 75% hashrate disadvantage |
-| **pool_committed_split** | ~0.50 (at econ=0.50 only) | Only matters at economic parity |
+| **economic_split** | ~0.35–0.50 (lower bound) | Below 0.50, v27 cannot overcome 75% hashrate disadvantage |
+| **economic_split** | ~0.70–0.82 (upper bound) | Above 0.82, v27 wins regardless of pool commitment |
+| **pool_committed_split flip** | ~0.214 | Foundry assignment boundary; crossing this inverts outcomes at econ=0.60–0.70 |
 
 #### Reorg Patterns
 
 | Scenario Type | Avg Reorgs | Pattern |
 |---------------|:----------:|---------|
-| v27 cascade wins | 3-5 | Clean flip to v27 |
-| v26 holds | 0 | No cascade attempt |
-| Transition zone | 1-2 | Partial cascade |
+| v27 wins (econ=0.82) | 4 | Clean economic dominance |
+| v27 wins (econ=0.60/0.70, commit=0.20) | 12 | Full cascade, economic lock-in |
+| v27 wins (econ=0.50, commit≥0.30) | 4–10 | Ideological cascade, many reorgs at low commit |
+| v26 wins at econ=0.70, commit=0.30–0.52 | 7 | Partial cascade, unstable but v26 holds |
+| v26 wins at econ=0.60, commit=0.30–0.75 | 8 | Active resistance cascade |
+| v26 wins at econ=0.35 | 4 | Economic signal too weak, no cascade |
 
 #### Implications
 
-1. **Economic majority is sufficient** — With ≥60% economic support, v27 can overcome a 75% hashrate disadvantage regardless of pool ideology distribution.
+1. **Pool_committed_split is not a simple gatekeeper** — Its effect depends on the specific pool it causes to flip. The Foundry threshold (~0.214) is the critical structural boundary.
 
-2. **Pool commitment only matters at the margin** — When economic support is borderline (~50%), committed pools become the deciding factor. With clear economic majority, pool ideology is irrelevant.
+2. **High economic support with wrong committed levels can hurt v27** — At econ=0.60–0.70, increasing committed from 0.20 to 0.30 converts Foundry from "economically trapped on v27" to "ideologically committed to v27 but surrounded by a now-stronger v26 bloc."
 
-3. **The 60% economic threshold** — This appears to be the critical point where economic signals become strong enough to flip profit-driven pools away from the hashrate majority.
+3. **The 82% economic threshold overrides pool mechanics** — When economic support reaches ~82%, the price signal is strong enough to break even a 40% committed v26 bloc (max_loss constraint exceeded).
 
-4. **Confirms earlier findings** — The economic cascade mechanism works as theorized, but the `pool_committed_split` threshold from earlier sweeps (~0.50) only applies in the narrow band around economic parity.
+4. **Three distinct regimes exist:** (a) economics too weak → v26 always wins; (b) moderate economics → pool commitment inverts outcomes; (c) economics dominant → v27 always wins.
 
 #### Data Location
 
@@ -266,9 +295,11 @@ Legend: `26` = v26_dominant, `27` = v27_dominant
 |-----------|-------------|----------------|
 | **economic_split** | **+0.666** | **Now dominant!** |
 | hashrate_split | +0.554 | Still important |
-| pool_committed_split | +0.360 | Cascade gatekeeper |
+| pool_committed_split | +0.360 | **⚠️ SPURIOUS** — parameter was dead in this sweep (see note below) |
 | econ_switching_threshold | +0.330 | Cascade speed |
 | econ_inertia | -0.324 | Switching friction |
+
+> **⚠️ Spurious Correlation Note:** The `pool_committed_split` +0.360 correlation in realistic_sweep3_rapid is an artifact. A bug in `2_build_configs.py` caused pool configs to be generated identically regardless of the `pool_committed_split` value when using `--base-network`. The parameter appeared to correlate due to LHS sampling coincidence. This was confirmed by the targeted sweep showing a **non-monotonic** (inverted) relationship — not the simple positive correlation suggested here. The bug has since been fixed.
 
 **The economic cascade mechanism is real.** When properly implemented, economic majority can overcome hashrate minority.
 
@@ -280,7 +311,7 @@ Legend: `26` = v26_dominant, `27` = v27_dominant
 |-----------|:------:|:----:|:-------------:|:-----------------:|-------|
 | **hashrate_split** | +0.81 | +0.85 | +0.55 | ~+0.55 | Less dominant when economics work |
 | **economic_split** | +0.03 | +0.09 | **+0.67** | **+0.67** | Only works when fixed |
-| **pool_committed_split** | +0.27* | +0.09 | +0.36 | ~+0.36 | Cascade gatekeeper |
+| **pool_committed_split** | +0.27* | +0.09 | ~~+0.36~~ ⚠️ | TBD | ⚠️ rapid value spurious (dead param bug) |
 | user_ideology_strength | +0.17 | +0.23 | +0.16 | ~+0.16 | Consistent |
 | econ_ideology_strength | -0.14 | -0.15 | - | ~-0.14 | Consistent |
 | pool_max_loss_pct | +0.11 | +0.16 | - | - | Moderate effect |
@@ -316,21 +347,25 @@ The `realistic_sweep3_rapid` sweep revealed a crucial mechanism: **economic majo
 
 ---
 
-## The pool_committed_split Threshold
+## The pool_committed_split Mechanism
 
-The most precise finding from realistic_sweep3_rapid:
+> **⚠️ Revision:** Earlier analysis estimated a simple +0.50 threshold for pool_committed_split from realistic_sweep3_rapid. This was based on a **dead parameter** (pool configs were identical regardless of committed_split value due to a bug). The targeted sweep with the fixed parameter reveals a **non-monotonic** relationship.
 
-**In scenarios where v27 had economic majority but v26 had hashrate majority:**
+**From targeted_sweep1 (45 scenarios, fixed hashrate_split=0.25):**
 
-| pool_committed_split | Outcome | Cascade? |
-|:--------------------:|---------|:--------:|
-| < 0.43 | v26 wins | No |
-| 0.43 - 0.53 | Contested | Partial |
-| > 0.53 | v27 wins | Yes |
+The pool_committed_split threshold is **not monotonic** — its effect depends on economic level:
 
-**Even with 88-93% economic majority, v27 cannot win without ~50% of committed pool hashrate preferring v27.**
+| Economic Level | commit=0.20 | commit=0.30–0.75 | Interpretation |
+|:--------------|:-----------:|:----------------:|----------------|
+| econ=0.35 | v26 wins | v26 wins | Too weak for any cascade |
+| econ=0.50 | v26 wins | **v27 wins** | Normal positive relationship |
+| econ=0.60 | **v27 wins** | v26 wins | **INVERTED** |
+| econ=0.70 | **v27 wins** | v26 wins | **INVERTED** |
+| econ=0.82 | v27 wins | v27 wins | Strong enough for any config |
 
-The committed pools act as a bridge: they hold the chain during price divergence, allowing the economic signal to translate into hashrate control.
+The critical structural point is at commit ≈ 0.21 where **Foundry (30% hashrate)** switches assignment from v26-preferring to v27-preferring. Crossing this boundary reorganizes which faction has the "committed anchor pool" and produces opposite outcomes at moderate economic levels (60–70%).
+
+**The real gatekeeper is not a simple threshold but the pool-specific flip-point.**
 
 ---
 
@@ -339,8 +374,10 @@ The committed pools act as a bridge: they hold the chain during price divergence
 | Parameter | Threshold | v27 Favored When | Confidence |
 |-----------|:---------:|------------------|------------|
 | **hashrate_split** | ~0.47-0.50 | Higher | Very High |
-| **economic_split** | ~0.48-0.50 | Higher | High (fixed sweeps only) |
-| **pool_committed_split** | ~0.49-0.53 | Higher | High |
+| **economic_split** | ~0.50–0.60 (lower) | Higher | High (fixed sweeps only) |
+| **economic_split** | ~0.70–0.82 (upper, cascade-proof) | Higher | High |
+| **pool_committed_split** | Non-monotonic — depends on economic level | See Mechanism section | High (targeted sweep) |
+| **pool_committed_split Foundry flip** | ~0.214 | Depends on economic level | High (structural) |
 | **pool_neutral_pct** | ~30% | Higher | High |
 | econ_inertia | ~0.18 | Lower | Medium |
 | econ_switching_threshold | ~0.13 | Higher | Medium |
@@ -359,30 +396,44 @@ SCENARIO 1: HASHRATE + ECONOMICS ALIGNED
 │  → Minimal reorgs, clean victory                          │
 └────────────────────────────────────────────────────────────┘
 
-SCENARIO 2: HASHRATE VS ECONOMICS (The Cascade Zone)
+SCENARIO 2: ECONOMICS DOMINANT (econ ≥ 0.82)
 ┌────────────────────────────────────────────────────────────┐
-│  hashrate_split < 50% BUT economic_split > 50%            │
-│                                                            │
-│  IF pool_committed_split > 0.53:                          │
-│    → Economic cascade triggers                            │
-│    → Pools switch to follow price signal                  │
-│    → v27 wins (5+ reorgs typical)                         │
-│                                                            │
-│  IF pool_committed_split < 0.43:                          │
-│    → Cascade blocked                                      │
-│    → Economic signal cannot translate to hashrate         │
-│    → v26 wins (0 reorgs typical)                          │
-│                                                            │
-│  IF pool_committed_split ≈ 0.43-0.53:                     │
-│    → Contested outcome                                    │
-│    → Prolonged instability, many reorgs                   │
+│  economic_split ≥ 0.82 (even with 75% hashrate deficit)   │
+│  → v27 wins regardless of pool commitment level           │
+│  → Economic signal breaks even committed v26 blocs        │
+│  → ~4 reorgs, clean economic cascade                      │
 └────────────────────────────────────────────────────────────┘
 
-SCENARIO 3: HASHRATE DOMINANCE
+SCENARIO 3: MODERATE ECONOMICS (econ 0.60–0.70) — Non-Monotonic Zone
 ┌────────────────────────────────────────────────────────────┐
-│  hashrate_split > 80% (overwhelming)                      │
-│  → Wins regardless of economics                           │
-│  → Economic cascade cannot overcome this margin           │
+│  economic_split = 0.60–0.70, hashrate_split = 0.25        │
+│  → Outcome INVERTS around pool_committed_split ≈ 0.214    │
+│                                                            │
+│  IF committed < 0.214 (e.g., commit=0.20):                │
+│    → Largest pool (Foundry, 30%) is trapped on v27        │
+│      by economic incentives                                │
+│    → Cascade succeeds, v27 wins (12 reorgs)               │
+│                                                            │
+│  IF committed > 0.214 (e.g., commit=0.30–0.75):           │
+│    → Foundry now v27-committed; v26 bloc = 40% hashrate   │
+│    → 40% committed v26 (AntPool+F2Pool+ViaBTC) resists    │
+│    → Cascade fails, v26 wins (7–8 reorgs)                 │
+└────────────────────────────────────────────────────────────┘
+
+SCENARIO 4: ECONOMIC PARITY (econ ≈ 0.50)
+┌────────────────────────────────────────────────────────────┐
+│  economic_split = 0.50, hashrate_split = 0.25             │
+│  → Normal positive relationship with pool_committed_split  │
+│  → Threshold: commit must be ≥ ~0.30 for v27 to win       │
+│  → At commit ≥ 0.30: Foundry holds v27, cascade starts    │
+│  → At commit = 0.20: economic signal too weak, v26 wins   │
+└────────────────────────────────────────────────────────────┘
+
+SCENARIO 5: WEAK ECONOMICS (econ ≤ 0.35)
+┌────────────────────────────────────────────────────────────┐
+│  economic_split ≤ 0.35 (with 75% hashrate deficit)        │
+│  → v26 wins regardless of pool commitment                  │
+│  → Economic signal too weak for any cascade                │
 └────────────────────────────────────────────────────────────┘
 ```
 

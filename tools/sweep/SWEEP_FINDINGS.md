@@ -29,6 +29,17 @@ The **realistic_sweep3_rapid** sweep with fixed code reveals a dramatically diff
 
 Neither factor alone guarantees victory, but together they're deterministic.
 
+### Targeted Threshold Discovery
+
+The targeted sweep (economic × committed grid with fixed 25% hashrate) revealed:
+
+| Economic Level | pool_committed_split Effect |
+|:---------------|:----------------------------|
+| ≤0.50 | Higher committed → v27 wins (ideological cascade) |
+| ≥0.60 | **Committed irrelevant** → v27 wins (profit cascade) |
+
+**Two cascade mechanisms exist:** Ideological (at economic parity) vs Profit-driven (at economic majority). The ~60% economic threshold unlocks the robust profit cascade that works regardless of pool ideology.
+
 ---
 
 ## Overview
@@ -42,8 +53,9 @@ This document summarizes findings from four parameter sweeps exploring Bitcoin f
 | realistic_sweep3 | 8 | 60 nodes | 134 min | **2016 blocks (~67 min)** | Fixed | Partial |
 | realistic_sweep3_rapid | 50 | 60 nodes | 30 min | 144 blocks (~5 min) | **Fixed** | Complete |
 | **balanced_baseline** | 27 | 24 nodes | 30 min | 144 blocks (~5 min) | N/A (50/50) | **Complete** |
+| **targeted_sweep1** | 45 | 60 nodes | 30 min | 144 blocks (~5 min) | Fixed | **Complete** |
 
-**Total: 185 scenarios** (177 with full analysis)
+**Total: 230 scenarios** (222 with full analysis)
 
 ### Sweep Configuration Notes
 
@@ -128,6 +140,101 @@ Pool naming: Alpha/Beta/Gamma/Delta (v27) vs Epsilon/Zeta/Eta/Theta (v26), each 
 |------|-------------|
 | `balanced_baseline_sweep/results/analysis/` | Analysis outputs |
 | `networks/balanced-baseline/network.yaml` | Symmetric network definition |
+
+---
+
+## Targeted Threshold Mapping
+
+### Targeted Sweep 1: Economic × Committed Split Grid
+
+Following the recommendations from earlier sweeps, this targeted sweep maps the interaction between `economic_split` and `pool_committed_split` with fixed hashrate disadvantage for v27.
+
+#### Sweep Design
+
+| Parameter | Values |
+|-----------|--------|
+| **economic_split** | 0.35, 0.50, 0.60, 0.70, 0.82 (5 levels) |
+| **pool_committed_split** | 0.20, 0.35, 0.45, 0.55, 0.65, 0.75 (6 levels per economic level, varies slightly) |
+| **hashrate_split** | **Fixed at 0.25** (v26 starts with 75% hashrate advantage) |
+| Scenarios | 45 total |
+
+This isolates the cascade mechanism: can economic majority + committed pool support overcome a 3:1 hashrate disadvantage?
+
+#### Results Grid
+
+```
+                    pool_committed_split
+economic_split   0.20   0.35   0.45   0.55   0.65   0.75
+     0.35         26     26     26     26     26     26    ← v26 wins all
+     0.50         26     26     26     27     27     27    ← transition zone
+     0.60         27     27     27     27     27     27    ← v27 wins all
+     0.70         27     27     27     27     27     27    ← v27 wins all
+     0.82         27     27     27     27     27     27    ← v27 wins all
+```
+
+Legend: `26` = v26_dominant, `27` = v27_dominant
+
+#### Overall Outcome Distribution
+
+| Outcome | Count | Percentage |
+|---------|:-----:|:----------:|
+| v27_dominant | 26 | 57.8% |
+| v26_dominant | 19 | 42.2% |
+
+#### Key Finding: Relationship Reversal
+
+**The effect of `pool_committed_split` REVERSES depending on economic majority level:**
+
+| Economic Level | Committed Effect | Interpretation |
+|----------------|------------------|----------------|
+| econ=0.50 (parity) | Higher committed → v27 wins | Ideology cascade |
+| econ=0.60-0.70 (majority) | **Any committed level → v27 wins** | Profit cascade dominates |
+| econ=0.35 (minority) | No cascade possible | Economics too weak |
+
+**Two distinct cascade mechanisms discovered:**
+
+1. **Ideological Cascade** (at economic parity, econ≈0.50):
+   - Requires high `pool_committed_split` (≥0.55)
+   - Committed pools hold chain on ideology alone
+   - Marginal, depends on pool loyalty
+
+2. **Profit Cascade** (at economic majority, econ≥0.60):
+   - Works at ANY `pool_committed_split` level
+   - Economic price signal is strong enough to flip even uncommitted pools
+   - Robust, doesn't depend on ideology
+
+#### Threshold Analysis
+
+| Dimension | Threshold | Notes |
+|-----------|:---------:|-------|
+| **economic_split** | ~0.55-0.60 | Below this, v27 cannot overcome 75% hashrate disadvantage |
+| **pool_committed_split** | ~0.50 (at econ=0.50 only) | Only matters at economic parity |
+
+#### Reorg Patterns
+
+| Scenario Type | Avg Reorgs | Pattern |
+|---------------|:----------:|---------|
+| v27 cascade wins | 3-5 | Clean flip to v27 |
+| v26 holds | 0 | No cascade attempt |
+| Transition zone | 1-2 | Partial cascade |
+
+#### Implications
+
+1. **Economic majority is sufficient** — With ≥60% economic support, v27 can overcome a 75% hashrate disadvantage regardless of pool ideology distribution.
+
+2. **Pool commitment only matters at the margin** — When economic support is borderline (~50%), committed pools become the deciding factor. With clear economic majority, pool ideology is irrelevant.
+
+3. **The 60% economic threshold** — This appears to be the critical point where economic signals become strong enough to flip profit-driven pools away from the hashrate majority.
+
+4. **Confirms earlier findings** — The economic cascade mechanism works as theorized, but the `pool_committed_split` threshold from earlier sweeps (~0.50) only applies in the narrow band around economic parity.
+
+#### Data Location
+
+| File | Description |
+|------|-------------|
+| `targeted_sweep1_committed_threshold/results/analysis/` | Analysis outputs |
+| `targeted_sweep1_committed_threshold/scenarios.json` | Full scenario configurations |
+| `targeted_sweep1_committed_threshold/results/analysis/sweep_data.csv` | Per-scenario metrics |
 
 ---
 
@@ -343,9 +450,10 @@ From realistic_sweep3_rapid:
 
 ## Recommendations for Future Work
 
-### 1. Targeted Threshold Mapping
-- Grid sweep around pool_committed_split [0.20–0.75] × economic_split [0.35–0.82]
-- Fixed hashrate_split=0.25 to isolate cascade dynamics
+### 1. ~~Targeted Threshold Mapping~~ ✓ COMPLETE
+- ~~Grid sweep around pool_committed_split [0.20–0.75] × economic_split [0.35–0.82]~~
+- ~~Fixed hashrate_split=0.25 to isolate cascade dynamics~~
+- **See "Targeted Threshold Mapping" section above for results**
 
 ### 2. Longer Duration Verification (realistic_sweep3)
 - Same parameters but with 2016-block difficulty (realistic Bitcoin timing)
@@ -388,6 +496,7 @@ When analyzing new sweep results, watch for these indicators of potential bugs:
 | realistic_sweep3 | `realistic_sweep3/results/` | 8 | Long duration, 2016-block difficulty, incomplete |
 | realistic_sweep3_rapid | `realistic_sweep3_rapid/results/analysis/` | 50 | **Fixed code** |
 | balanced_baseline | `balanced_baseline_sweep/results/analysis/` | 27 | **Stochastic variance baseline** |
+| **targeted_sweep1** | `targeted_sweep1_committed_threshold/results/analysis/` | 45 | **Economic × committed grid** |
 
 ### Network Versions
 

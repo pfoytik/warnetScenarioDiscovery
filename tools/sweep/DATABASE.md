@@ -138,6 +138,15 @@ The script is idempotent — running it multiple times is safe and will update e
 | final_v26_economic | REAL | Final v26 economic value |
 | final_v27_price | REAL | Final v27 price (USD) |
 | final_v26_price | REAL | Final v26 price (USD) |
+| v27_fork_valuation | REAL | Total USD value of BTC held on v27 (custody_btc × price, summed across economic nodes) |
+| v26_fork_valuation | REAL | Total USD value of BTC held on v26 (custody_btc × price, summed across economic nodes) |
+
+**Pool Commitment Costs:**
+
+| Column | Type | Description |
+|--------|------|-------------|
+| v27_pool_opportunity_cost | REAL | Total USD opportunity cost paid by pools committed to v27 (sum of cumulative_opportunity_cost_usd for pools ending on v27) |
+| v26_pool_opportunity_cost | REAL | Total USD opportunity cost paid by pools committed to v26 (sum of cumulative_opportunity_cost_usd for pools ending on v26) |
 
 **Reorg Metrics (Cascade Indicators):**
 

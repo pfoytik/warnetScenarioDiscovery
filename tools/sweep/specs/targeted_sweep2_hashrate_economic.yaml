@@ -1,0 +1,46 @@
+name: targeted_sweep2_hashrate_economic
+description: >
+  Map the 2D decision boundary between hashrate_split and economic_split —
+  the two dominant parameters from the exploratory sweep (correlations +0.554
+  and +0.666 respectively). This produces the fundamental "decision surface"
+  separating v26-dominant from v27-dominant outcomes across the core parameter
+  space.
+
+  From targeted_sweep1 (economic × committed grid at hash=0.25):
+    - econ >= 0.82: v27 wins regardless of pool commitment
+    - econ <= 0.35: v26 wins regardless of pool commitment
+    - econ 0.50–0.70: pool commitment inversion around Foundry flip-point ~0.214
+  This sweep maps how those thresholds shift as hashrate_split varies.
+
+  pool_committed_split is fixed at 0.50 (above the Foundry flip-point at ~0.214)
+  so the non-monotonic inversion from targeted_sweep1 does not contaminate the
+  surface. All other parameters at medians from the exploratory sweep.
+
+  Grid: 6 hashrate levels × 7 economic levels = 42 scenarios
+  Duration: ~22h at 32 min/scenario
+
+# All parameters NOT listed under 'grid' must appear here.
+# Values are medians from realistic_sweep3_rapid (seed=42).
+fixed:
+  pool_committed_split: 0.50         # Above Foundry flip-point (~0.214); normal operation regime
+  pool_neutral_pct: 30.0             # median=30.0
+  pool_ideology_strength: 0.51       # median=0.51
+  pool_profitability_threshold: 0.16 # median=0.16
+  pool_max_loss_pct: 0.26            # median=0.26
+  econ_ideology_strength: 0.40       # median=0.40
+  econ_switching_threshold: 0.14     # median=0.14
+  econ_inertia: 0.17                 # median=0.17
+  user_ideology_strength: 0.49       # median=0.49
+  user_switching_threshold: 0.12     # median=0.12
+  transaction_velocity: 0.50         # median=0.50
+  user_nodes_per_partition: 6        # median=6
+  economic_nodes_per_partition: 2    # median=2
+  solo_miner_hashrate: 0.085         # median=0.085
+
+# The two axes being mapped.
+# hashrate_split: 6 levels spanning from heavy v26 advantage to v27 advantage.
+# economic_split: 7 levels with dense sampling in the 0.45-0.65 transition zone
+#                 identified in targeted_sweep1.
+grid:
+  hashrate_split:  [0.15, 0.25, 0.35, 0.45, 0.55, 0.65]
+  economic_split:  [0.35, 0.45, 0.50, 0.55, 0.60, 0.70, 0.82]

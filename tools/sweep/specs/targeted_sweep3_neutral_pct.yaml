@@ -1,0 +1,63 @@
+name: targeted_sweep3_neutral_pct
+description: >
+  Map how pool_neutral_pct reshapes the economic zone boundaries found in
+  targeted_sweep1 and targeted_sweep2. pool_neutral_pct controls what fraction
+  of pool hashrate follows price signals rather than ideology. It has been
+  fixed at 30% across all 93 prior targeted scenarios.
+
+  Structural effect of neutral_pct on pool assignment (commit=0.50):
+    neutral=10%: v27-committed=38.1% (Foundry+MARA+Luxor+Ocean)
+                 v26-committed=39.0% (AntPool+F2Pool+ViaBTC)
+                 neutral=9.3% (SpiderPool only)
+    neutral=20%: v27-committed=34.6% (Foundry+MARA)
+                 v26-committed=31.3% (Luxor+Ocean+AntPool+F2Pool)
+                 neutral=20.5% (ViaBTC+Spider)
+    neutral=30%: v27-committed=30.0% (Foundry only)      [baseline]
+                 v26-committed=35.9% (MARA+Luxor+Ocean+AntPool+F2Pool)
+                 neutral=20.5% (ViaBTC+Spider)
+    neutral=40%: v27-committed=30.0% (Foundry only)
+                 v26-committed=25.0% (MARA+Luxor+Ocean+AntPool)
+                 neutral=31.4% (F2Pool+ViaBTC+Spider)
+    neutral=50%: v27-committed=30.0% (Foundry only)
+                 v26-committed=8.1%  (MARA+Luxor+Ocean only)
+                 neutral=48.3% (AntPool+F2Pool+ViaBTC+Spider)
+
+  Key hypothesis: the inversion zone (v26 wins at econ=0.60-0.70 despite v27
+  economic majority) is driven by the committed v26 bloc being large enough to
+  resist economic pressure. As neutral_pct increases from 30% to 50%, the v26
+  bloc shrinks from 35.9% to 8.1% — the inversion should weaken and eventually
+  disappear. Conversely, at neutral_pct=10% the blocs are nearly balanced and
+  dynamics may be more contested.
+
+  Cross-check: neutral_pct=30 row should exactly replicate the hash=0.25 column
+  from targeted_sweep2 (commit=0.50, all other params identical).
+
+  Grid: 5 neutral levels × 7 economic levels = 35 scenarios
+  Duration: ~18h 40m at 32 min/scenario
+
+# All parameters NOT listed under 'grid' must appear here.
+# Values are medians from realistic_sweep3_rapid (seed=42).
+fixed:
+  hashrate_split: 0.25              # Same as targeted_sweep1 baseline; hashrate shown non-causal
+  pool_committed_split: 0.50        # Above Foundry flip-point (~0.214); normal operation regime
+  pool_ideology_strength: 0.51      # median=0.51
+  pool_profitability_threshold: 0.16 # median=0.16
+  pool_max_loss_pct: 0.26           # median=0.26
+  econ_ideology_strength: 0.40      # median=0.40
+  econ_switching_threshold: 0.14    # median=0.14
+  econ_inertia: 0.17                # median=0.17
+  user_ideology_strength: 0.49      # median=0.49
+  user_switching_threshold: 0.12    # median=0.12
+  transaction_velocity: 0.50        # median=0.50
+  user_nodes_per_partition: 6       # median=6
+  economic_nodes_per_partition: 2   # median=2
+  solo_miner_hashrate: 0.085        # median=0.085
+
+# Grid axes.
+# pool_neutral_pct: 5 levels spanning 10%-50%, covering the full structural
+#                   range from near-all-committed to half-neutral.
+# economic_split:   same 7 levels as targeted_sweep2, covering all zones
+#                   including the inversion zone (0.60, 0.70).
+grid:
+  pool_neutral_pct: [10, 20, 30, 40, 50]
+  economic_split:   [0.35, 0.45, 0.50, 0.55, 0.60, 0.70, 0.82]

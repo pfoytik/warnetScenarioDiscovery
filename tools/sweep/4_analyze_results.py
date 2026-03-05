@@ -103,6 +103,36 @@ def load_scenario_results(results_dir: Path) -> List[Dict]:
             else:
                 row["outcome"] = "contested"
 
+            # Fork valuation: sum custody_btc per fork × final price
+            v27_custody = 0
+            v26_custody = 0
+            economic_nodes = data.get("economic", {}).get("nodes", {})
+            for node_data in economic_nodes.values():
+                profile = node_data.get("profile", {})
+                allocation = node_data.get("current_allocation", "")
+                custody = profile.get("custody_btc", 0)
+                if allocation == "v27":
+                    v27_custody += custody
+                elif allocation == "v26":
+                    v26_custody += custody
+            row["v27_fork_valuation"] = v27_custody * row["final_v27_price"]
+            row["v26_fork_valuation"] = v26_custody * row["final_v26_price"]
+
+            # Total pool opportunity cost per fork
+            v27_pool_cost = 0
+            v26_pool_cost = 0
+            pool_nodes = data.get("pools", {}).get("pools", {})
+            for pool_data in pool_nodes.values():
+                costs = pool_data.get("costs", {})
+                allocation = pool_data.get("current_allocation", "")
+                opp_cost = costs.get("cumulative_opportunity_cost_usd", 0) or 0
+                if allocation == "v27":
+                    v27_pool_cost += opp_cost
+                elif allocation == "v26":
+                    v26_pool_cost += opp_cost
+            row["v27_pool_opportunity_cost"] = v27_pool_cost
+            row["v26_pool_opportunity_cost"] = v26_pool_cost
+
             results.append(row)
 
         except Exception as e:

@@ -93,6 +93,14 @@ CREATE TABLE IF NOT EXISTS scenarios (
     -- Simulation metadata
     duration INTEGER,
 
+    -- Fork valuation (custody_btc summed per fork × final price)
+    v27_fork_valuation REAL,  -- total USD value of BTC on v27 fork
+    v26_fork_valuation REAL,  -- total USD value of BTC on v26 fork
+
+    -- Pool opportunity costs per fork
+    v27_pool_opportunity_cost REAL,  -- total USD cost paid by pools committed to v27
+    v26_pool_opportunity_cost REAL,  -- total USD cost paid by pools committed to v26
+
     -- Derived metrics (computed on insert)
     cascade_occurred INTEGER,  -- 1 if reorgs > 0
     hashrate_flipped INTEGER,  -- 1 if final hashrate differs from initial by >10%
@@ -296,11 +304,13 @@ def import_sweep(conn: sqlite3.Connection, sweep_name: str, csv_path: Path,
                     final_v27_price, final_v26_price,
                     total_reorgs, total_orphans, reorg_mass,
                     duration,
+                    v27_fork_valuation, v26_fork_valuation,
+                    v27_pool_opportunity_cost, v26_pool_opportunity_cost,
                     cascade_occurred, hashrate_flipped, profitability_gap
                 ) VALUES (
                     ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
                     ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-                    ?, ?, ?
+                    ?, ?, ?, ?, ?, ?, ?
                 )
             """, (
                 sweep_id, row.get('scenario_id', ''),
@@ -338,6 +348,10 @@ def import_sweep(conn: sqlite3.Connection, sweep_name: str, csv_path: Path,
                 int(row.get('total_orphans') or 0),
                 int(row.get('reorg_mass') or 0),
                 int(row.get('duration') or 0),
+                float(row.get('v27_fork_valuation') or 0),
+                float(row.get('v26_fork_valuation') or 0),
+                float(row.get('v27_pool_opportunity_cost') or 0),
+                float(row.get('v26_pool_opportunity_cost') or 0),
                 cascade_occurred,
                 hashrate_flipped,
                 profitability_gap

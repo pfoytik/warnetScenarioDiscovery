@@ -9,25 +9,27 @@ The **realistic_sweep3_rapid** sweep with fixed code reveals a dramatically diff
 | Before Fix | After Fix |
 |------------|-----------|
 | hashrate_split: **+0.83** (dominant) | economic_split: **+0.67** (now dominant!) |
-| economic_split: ~0.06 (no effect) | hashrate_split: +0.55 (still important) |
+| economic_split: ~0.06 (no effect) | hashrate_split: +0.55 (⚠️ confounded — see below) |
 
 **The economic cascade mechanism is real and powerful.** When economic_split is properly applied:
 
 1. **Economic majority can overcome hashrate minority** through price signals
-2. **pool_committed_split has a non-monotonic effect** — it inverts at moderate economic levels due to pool-specific flip-points (see Targeted Sweep findings)
-3. High reorg counts (5+) correlate with v27 victory (86% of cascade scenarios)
-4. When both hashrate AND economics align → deterministic outcomes (100% win rate)
+2. **pool_committed_split has a non-monotonic effect** — it inverts at moderate economic levels due to pool-specific flip-points (see Targeted Sweep 1 findings)
+3. **hashrate_split has no independent causal effect** — targeted grid sweep across 0.15–0.65 produced identical outcomes at every economic level (see Targeted Sweep 2 findings)
+4. High reorg counts (5+) correlate with v27 victory (86% of cascade scenarios in exploratory sweep)
 
-### Zone Analysis Summary
+### Zone Analysis Caveat
 
-| Economic | Hashrate | v27 Win Rate |
+The exploratory sweep zone analysis suggested hashrate matters alongside economics:
+
+| Economic | Hashrate | v27 Win Rate (exploratory) |
 |:--------:|:--------:|:------------:|
 | Low | Low | 0% |
 | **High** | Low | **50%** |
 | Low | **High** | 50% |
 | **High** | **High** | **100%** |
 
-Neither factor alone guarantees victory, but together they're deterministic.
+**⚠️ Targeted sweep 2 contradicts this.** The apparent hashrate effect in the exploratory sweep was likely a confound — in the LHS design, higher hashrate_split scenarios happened to co-occur with pool configurations more favorable to v27. When hashrate_split is varied independently (all other params fixed), it has no effect. The "100%" in the bottom-right was driven by economics, not hashrate.
 
 ### Targeted Threshold Discovery
 
@@ -56,8 +58,9 @@ This document summarizes findings from four parameter sweeps exploring Bitcoin f
 | realistic_sweep3_rapid | 50 | 60 nodes | 30 min | 144 blocks (~5 min) | **Fixed** | Complete |
 | **balanced_baseline** | 27 | 24 nodes | 30 min | 144 blocks (~5 min) | N/A (50/50) | **Complete** |
 | **targeted_sweep1** | 45 | 60 nodes | 30 min | 144 blocks (~5 min) | Fixed | **Complete** |
+| **targeted_sweep2** | 42 | 60 nodes | 30 min | 144 blocks (~5 min) | Fixed | **Complete** |
 
-**Total: 230 scenarios** (222 with full analysis)
+**Total: 272 scenarios** (264 with full analysis)
 
 ### Sweep Configuration Notes
 
@@ -267,6 +270,92 @@ This is the transition zone at 70% economics — sufficient to cause significant
 
 ---
 
+### Targeted Sweep 2: Hashrate × Economic Decision Surface
+
+Following the targeted_sweep1 findings, this sweep maps the two most correlated parameters from the exploratory sweep — `hashrate_split` and `economic_split` — across a clean 6×7 grid with all other parameters fixed at medians.
+
+#### Sweep Design
+
+| Parameter | Values |
+|-----------|--------|
+| **hashrate_split** | 0.15, 0.25, 0.35, 0.45, 0.55, 0.65 (6 levels) |
+| **economic_split** | 0.35, 0.45, 0.50, 0.55, 0.60, 0.70, 0.82 (7 levels) |
+| **pool_committed_split** | **Fixed at 0.50** (above Foundry flip-point ~0.214; normal operation regime) |
+| Scenarios | 42 total (6 × 7 grid) |
+
+`pool_committed_split=0.50` was chosen to sit above the Foundry flip-point (~0.214), keeping the system in the normal cascade regime and avoiding the inversion found in targeted_sweep1.
+
+#### Results Grid
+
+```
+                                    economic_split
+hashrate_split  0.35  0.45  0.50  0.55  0.60  0.70  0.82
+  0.15           26    27    27    27    26*   26†   27
+  0.25           26    27    27    27    26*   26†   27
+  0.35           26    27    27    27    26*   26†   27
+  0.45           26    27    27    27    26*   26†   27
+  0.55           26    27    27    27    26*   26†   27
+  0.65           26    27    27    27    26*   26†   27
+```
+
+Legend: `26` = v26_dominant, `27` = v27_dominant
+`*` = v26 wins with 8 reorgs; v26 captures all hashrate (inversion zone)
+`†` = v26 wins with 7 reorgs; v27 retains ~30% final hashrate (partial cascade)
+
+#### The Headline Finding: hashrate_split Has No Causal Effect
+
+**Outcomes are identical across all 6 hashrate levels at every economic level.** Not just the winner — the reorg counts, block shares, and final hashrate distributions are statistically identical (differences of ≤0.001 in block share, ≤7 in reorg_mass across a range of 1400–3600):
+
+| economic_split | Reorg range | Block share range | Distinct outcomes |
+|:--------------:|:-----------:|:-----------------:|:-----------------:|
+| 0.35 | 4–4 | 0.126–0.126 | **1** |
+| 0.45 | 10–10 | 0.613–0.613 | **1** |
+| 0.50 | 10–10 | 0.613–0.614 | **1** |
+| 0.55 | 10–10 | 0.612–0.614 | **1** |
+| 0.60 | 8–8 | 0.344–0.347 | **1** |
+| 0.70 | 7–7 | 0.457–0.460 | **1** |
+| 0.82 | 4–4 | 0.848–0.849 | **1** |
+
+This includes hash=0.65 where v27 starts with a significant hashrate advantage — it still produces identical outcomes to hash=0.15 where v27 starts at a 5.7:1 disadvantage.
+
+**Implication:** The pool ideology structure (committed v26 bloc at ~36% of pool hashrate vs Foundry at 30% v27-committed) completely determines the outcome. Once the cascade dynamics engage, they run to the same conclusion regardless of starting hashrate.
+
+#### Cross-Sweep Consistency Check
+
+targeted_sweep2 at `hashrate_split=0.25` matches targeted_sweep1 at `pool_committed_split=0.52` exactly at every shared economic level:
+
+| economic_split | targeted_sweep1 (commit=0.52) | targeted_sweep2 (hash=0.25) |
+|:--------------:|:-----------------------------:|:----------------------------:|
+| 0.35 | v26, 4 reorgs | v26, 4 reorgs |
+| 0.50 | v27, 10 reorgs | v27, 10 reorgs |
+| 0.60 | v26, 8 reorgs | v26, 8 reorgs |
+| 0.70 | v26, 7 reorgs | v26, 7 reorgs |
+| 0.82 | v27, 4 reorgs | v27, 4 reorgs |
+
+#### Refined Economic Thresholds (at commit=0.50)
+
+targeted_sweep2 adds `econ=0.45` and `econ=0.55` which targeted_sweep1 did not have, narrowing the transition bands:
+
+| Transition | Previous estimate | Refined estimate |
+|------------|:-----------------:|:----------------:|
+| v26→v27 (lower win zone) | 0.35–0.50 | **0.35–0.45** |
+| v27→v26 (inversion onset) | 0.55–0.60 | **0.55–0.60** (confirmed tight) |
+| v26→v27 (upper win zone) | 0.70–0.82 | 0.70–0.82 (unchanged) |
+
+#### Why hashrate_split Appeared Significant in the Exploratory Sweep
+
+The +0.554 correlation from realistic_sweep3_rapid was almost certainly a confound from the LHS design. In Latin Hypercube Sampling, all parameters are drawn jointly from the full space. High hashrate_split scenarios in that sample also tended to have pool configurations (pool_committed_split, pool_ideology_strength) that independently favored v27. When hashrate_split is varied in isolation with all other parameters fixed, its effect is zero.
+
+#### Data Location
+
+| File | Description |
+|------|-------------|
+| `targeted_sweep2_hashrate_economic/results/analysis/` | Analysis outputs |
+| `targeted_sweep2_hashrate_economic/scenarios.json` | Full scenario configurations |
+| `targeted_sweep2_hashrate_economic/specs/targeted_sweep2_hashrate_economic.yaml` | Sweep spec |
+
+---
+
 ## Outcome Distribution
 
 | Sweep | v27 Wins | v26 Wins | Contested |
@@ -293,13 +382,15 @@ This is the transition zone at 70% economics — sufficient to cause significant
 
 | Parameter | Correlation | Interpretation |
 |-----------|-------------|----------------|
-| **economic_split** | **+0.666** | **Now dominant!** |
-| hashrate_split | +0.554 | Still important |
+| **economic_split** | **+0.666** | **Dominant — confirmed causal by targeted sweeps** |
+| hashrate_split | +0.554 | **⚠️ CONFOUNDED** — targeted sweep shows no independent causal effect |
 | pool_committed_split | +0.360 | **⚠️ SPURIOUS** — parameter was dead in this sweep (see note below) |
 | econ_switching_threshold | +0.330 | Cascade speed |
 | econ_inertia | -0.324 | Switching friction |
 
-> **⚠️ Spurious Correlation Note:** The `pool_committed_split` +0.360 correlation in realistic_sweep3_rapid is an artifact. A bug in `2_build_configs.py` caused pool configs to be generated identically regardless of the `pool_committed_split` value when using `--base-network`. The parameter appeared to correlate due to LHS sampling coincidence. This was confirmed by the targeted sweep showing a **non-monotonic** (inverted) relationship — not the simple positive correlation suggested here. The bug has since been fixed.
+> **⚠️ Two confounded correlations in this sweep:**
+> - `pool_committed_split` +0.360: Artifact of the dead-parameter bug in `2_build_configs.py`. Pool configs were identical regardless of the value. Corrected in targeted_sweep1.
+> - `hashrate_split` +0.554: Likely a confound from LHS co-sampling. In the LHS design, higher hashrate scenarios happened to co-occur with pool configurations more favorable to v27. targeted_sweep2 varied hashrate_split from 0.15–0.65 in isolation and found **zero effect** on outcomes. The economic cascade mechanism, once triggered, runs to the same conclusion regardless of starting hashrate.
 
 **The economic cascade mechanism is real.** When properly implemented, economic majority can overcome hashrate minority.
 
@@ -309,9 +400,9 @@ This is the transition zone at 70% economics — sufficient to cause significant
 
 | Parameter | sweep2 | lite | rapid (fixed) | sweep3 (expected) | Notes |
 |-----------|:------:|:----:|:-------------:|:-----------------:|-------|
-| **hashrate_split** | +0.81 | +0.85 | +0.55 | ~+0.55 | Less dominant when economics work |
-| **economic_split** | +0.03 | +0.09 | **+0.67** | **+0.67** | Only works when fixed |
-| **pool_committed_split** | +0.27* | +0.09 | ~~+0.36~~ ⚠️ | TBD | ⚠️ rapid value spurious (dead param bug) |
+| **hashrate_split** | +0.81 | +0.85 | ~~+0.55~~ ⚠️ | TBD | ⚠️ confounded in LHS; targeted sweep shows zero causal effect |
+| **economic_split** | +0.03 | +0.09 | **+0.67** | **+0.67** | Only works when fixed; confirmed causal |
+| **pool_committed_split** | +0.27* | +0.09 | ~~+0.36~~ ⚠️ | TBD | ⚠️ rapid value spurious (dead param bug); non-monotonic in targeted sweeps |
 | user_ideology_strength | +0.17 | +0.23 | +0.16 | ~+0.16 | Consistent |
 | econ_ideology_strength | -0.14 | -0.15 | - | ~-0.14 | Consistent |
 | pool_max_loss_pct | +0.11 | +0.16 | - | - | Moderate effect |
@@ -373,11 +464,11 @@ The critical structural point is at commit ≈ 0.21 where **Foundry (30% hashrat
 
 | Parameter | Threshold | v27 Favored When | Confidence |
 |-----------|:---------:|------------------|------------|
-| **hashrate_split** | ~0.47-0.50 | Higher | Very High |
-| **economic_split** | ~0.50–0.60 (lower) | Higher | High (fixed sweeps only) |
-| **economic_split** | ~0.70–0.82 (upper, cascade-proof) | Higher | High |
-| **pool_committed_split** | Non-monotonic — depends on economic level | See Mechanism section | High (targeted sweep) |
-| **pool_committed_split Foundry flip** | ~0.214 | Depends on economic level | High (structural) |
+| **hashrate_split** | ⚠️ No independent effect detected | N/A — confounded in LHS | Low (confounded) |
+| **economic_split** | ~0.35–0.45 (lower win zone entry) | Higher | High (targeted sweep, n=42) |
+| **economic_split** | ~0.55–0.60 (inversion onset) | — | High (confirmed by two sweeps) |
+| **economic_split** | ~0.70–0.82 (upper win zone entry) | Higher | High (targeted sweep, n=45) |
+| **pool_committed_split** | Non-monotonic — Foundry flip-point at ~0.214 | Depends on economic level | High (targeted sweep) |
 | **pool_neutral_pct** | ~30% | Higher | High |
 | econ_inertia | ~0.18 | Lower | Medium |
 | econ_switching_threshold | ~0.13 | Higher | Medium |
@@ -388,52 +479,61 @@ The critical structural point is at commit ≈ 0.21 where **Foundry (30% hashrat
 
 ## Fork Dynamics Model (Updated)
 
+The model has three primary axes: economic_split (dominant), pool_committed_split (non-monotonic, structural), and hashrate_split (no independent causal effect detected).
+
 ```
-SCENARIO 1: HASHRATE + ECONOMICS ALIGNED
+PRIMARY DRIVER: economic_split
+═══════════════════════════════════════════════════════════════
+
+ZONE A: WEAK ECONOMICS (econ ≤ ~0.40)
 ┌────────────────────────────────────────────────────────────┐
-│  hashrate_split > 50% AND economic_split > 50%            │
-│  → v27 wins ~100% of the time                             │
-│  → Minimal reorgs, clean victory                          │
+│  economic_split ≤ ~0.40                                    │
+│  → v26 wins regardless of hashrate or pool commitment      │
+│  → 4 reorgs, v27 block share ~12.6%, no cascade           │
+│  → Economic signal too weak to move any pools              │
 └────────────────────────────────────────────────────────────┘
 
-SCENARIO 2: ECONOMICS DOMINANT (econ ≥ 0.82)
+ZONE B: LOWER v27 WIN ZONE (econ ~0.45–0.55)
 ┌────────────────────────────────────────────────────────────┐
-│  economic_split ≥ 0.82 (even with 75% hashrate deficit)   │
-│  → v27 wins regardless of pool commitment level           │
-│  → Economic signal breaks even committed v26 blocs        │
-│  → ~4 reorgs, clean economic cascade                      │
-└────────────────────────────────────────────────────────────┘
-
-SCENARIO 3: MODERATE ECONOMICS (econ 0.60–0.70) — Non-Monotonic Zone
-┌────────────────────────────────────────────────────────────┐
-│  economic_split = 0.60–0.70, hashrate_split = 0.25        │
-│  → Outcome INVERTS around pool_committed_split ≈ 0.214    │
+│  economic_split ~0.45–0.55 (at commit=0.50)               │
+│  → v27 wins regardless of hashrate (tested 0.15–0.65)     │
+│  → 10 reorgs, full cascade (v26 ends at 0% hashrate)      │
+│  → Threshold exact: between econ=0.35 and econ=0.45        │
 │                                                            │
-│  IF committed < 0.214 (e.g., commit=0.20):                │
-│    → Largest pool (Foundry, 30%) is trapped on v27        │
-│      by economic incentives                                │
+│  pool_committed_split modifies this:                       │
+│    commit < 0.30 → threshold rises; v27 may not win        │
+│    commit ≥ 0.30 → full cascade at econ≥0.45              │
+└────────────────────────────────────────────────────────────┘
+
+ZONE C: INVERSION ZONE (econ ~0.60–0.70)
+┌────────────────────────────────────────────────────────────┐
+│  economic_split ~0.60–0.70, pool_committed_split ≥ 0.30   │
+│  → COUNTER-INTUITIVE: v26 wins despite v27 economic lead   │
+│  → Committed v26 bloc (AntPool+F2Pool ≈ 36% hashrate)     │
+│    holds firm; 60–70% economic signal insufficient         │
+│  → 7–8 reorgs, active but incomplete cascade              │
+│  → hashrate_split still irrelevant (0.15–0.65 tested)     │
+│                                                            │
+│  Exception: pool_committed_split < 0.214                  │
+│    → Foundry economically trapped on v27                  │
 │    → Cascade succeeds, v27 wins (12 reorgs)               │
-│                                                            │
-│  IF committed > 0.214 (e.g., commit=0.30–0.75):           │
-│    → Foundry now v27-committed; v26 bloc = 40% hashrate   │
-│    → 40% committed v26 (AntPool+F2Pool+ViaBTC) resists    │
-│    → Cascade fails, v26 wins (7–8 reorgs)                 │
 └────────────────────────────────────────────────────────────┘
 
-SCENARIO 4: ECONOMIC PARITY (econ ≈ 0.50)
+ZONE D: UPPER v27 WIN ZONE (econ ≥ ~0.82)
 ┌────────────────────────────────────────────────────────────┐
-│  economic_split = 0.50, hashrate_split = 0.25             │
-│  → Normal positive relationship with pool_committed_split  │
-│  → Threshold: commit must be ≥ ~0.30 for v27 to win       │
-│  → At commit ≥ 0.30: Foundry holds v27, cascade starts    │
-│  → At commit = 0.20: economic signal too weak, v26 wins   │
+│  economic_split ≥ ~0.82                                    │
+│  → v27 wins regardless of hashrate or pool commitment      │
+│  → 4 reorgs, clean cascade (price signal breaks all blocs) │
+│  → Threshold exact: between econ=0.70 and econ=0.82        │
 └────────────────────────────────────────────────────────────┘
 
-SCENARIO 5: WEAK ECONOMICS (econ ≤ 0.35)
+HASHRATE EFFECT (across all zones):
 ┌────────────────────────────────────────────────────────────┐
-│  economic_split ≤ 0.35 (with 75% hashrate deficit)        │
-│  → v26 wins regardless of pool commitment                  │
-│  → Economic signal too weak for any cascade                │
+│  hashrate_split tested: 0.15 → 0.65 (4.3:1 range)        │
+│  → Zero effect on outcome, reorg count, or final state     │
+│  → Pool ideology overrides initial hashrate distribution   │
+│  → Once cascade engages, it runs to ideologically-         │
+│    determined endpoint regardless of starting conditions   │
 └────────────────────────────────────────────────────────────┘
 ```
 
@@ -504,18 +604,23 @@ From realistic_sweep3_rapid:
 ### 1. ~~Targeted Threshold Mapping~~ ✓ COMPLETE
 - ~~Grid sweep around pool_committed_split [0.20–0.75] × economic_split [0.35–0.82]~~
 - ~~Fixed hashrate_split=0.25 to isolate cascade dynamics~~
-- **See "Targeted Threshold Mapping" section above for results**
+- **See targeted_sweep1 section above for results**
 
-### 2. Longer Duration Verification (realistic_sweep3)
+### 2. ~~Hashrate × Economic Decision Surface~~ ✓ COMPLETE
+- ~~Grid sweep: hashrate_split [0.15–0.65] × economic_split [0.35–0.82]~~
+- **Key finding: hashrate_split has no independent causal effect — pool ideology dominates**
+- **See targeted_sweep2 section above for results**
+
+### 3. Longer Duration Verification (realistic_sweep3)
 - Same parameters but with 2016-block difficulty (realistic Bitcoin timing)
 - Confirm findings hold at equilibrium, not just short-run dynamics
 - Currently 8/50 scenarios complete; full results pending
 
-### 3. Dynamic Scenarios
+### 4. Dynamic Scenarios
 - Test scenarios where economic distribution shifts mid-simulation
 - Model exchange announcements, institutional pivots
 
-### 4. Difficulty Dynamics Analysis
+### 5. Difficulty Dynamics Analysis
 When realistic_sweep3 completes, examine:
 - Whether `hashrate_split` threshold shifts from ~0.46 (sweep2 baseline)
 - EDA events in `partition_difficulty.json` for extreme hashrate scenarios
@@ -548,6 +653,7 @@ When analyzing new sweep results, watch for these indicators of potential bugs:
 | realistic_sweep3_rapid | `realistic_sweep3_rapid/results/analysis/` | 50 | **Fixed code** |
 | balanced_baseline | `balanced_baseline_sweep/results/analysis/` | 27 | **Stochastic variance baseline** |
 | **targeted_sweep1** | `targeted_sweep1_committed_threshold/results/analysis/` | 45 | **Economic × committed grid** |
+| **targeted_sweep2** | `targeted_sweep2_hashrate_economic/results/analysis/` | 42 | **Hashrate × economic grid — hashrate shown to be non-causal** |
 
 ### Network Versions
 

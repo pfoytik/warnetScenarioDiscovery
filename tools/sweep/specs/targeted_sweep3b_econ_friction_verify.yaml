@@ -1,0 +1,39 @@
+name: targeted_sweep3b_econ_friction_verify
+description: >
+  Verification run of economic friction parameters on the FULL 60-node network.
+
+  targeted_sweep3 on the lite network showed v27 winning all 16 scenarios at
+  econ=0.65, commit=0.35. However, targeted_sweep1 on the full network showed
+  v26 winning at similar parameters. This 4-scenario verification tests the
+  corner cases on the full network to determine:
+
+    1. Does the full network produce different outcomes? (likely v26 wins)
+    2. Do friction parameters matter on the full network? (probably not)
+
+  If all 4 corners show v26_dominant, it confirms:
+    - Network size matters for outcome thresholds
+    - Friction still doesn't affect outcomes
+
+  If outcomes vary, a full 16-scenario re-run may be needed.
+
+# Fixed parameters — same as targeted_sweep3 for direct comparison
+fixed:
+  economic_split: 0.65              # Same as sweep3
+  hashrate_split: 0.25              # Same as sweep3
+  pool_committed_split: 0.35        # Same as sweep3
+  pool_neutral_pct: 30.0
+  pool_ideology_strength: 0.51
+  pool_profitability_threshold: 0.16
+  pool_max_loss_pct: 0.26
+  econ_ideology_strength: 0.40
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  transaction_velocity: 0.50
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  solo_miner_hashrate: 0.085
+
+# 4 corner scenarios only
+grid:
+  econ_inertia:             [0.05, 0.35]
+  econ_switching_threshold: [0.05, 0.28]

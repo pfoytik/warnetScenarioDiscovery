@@ -1,0 +1,42 @@
+name: targeted_sweep2b_pool_ideology
+description: >
+  REDESIGNED: Map the effect of pool ideology parameters on cascade dynamics.
+
+  The original sweep (targeted_sweep2) used economic_split=0.65, but at that
+  level v26 is 10-45% more profitable than v27 — far exceeding any max_loss_pct
+  we tested. Ideology parameters had no effect because the gap was too large.
+
+  This redesign uses economic_split=0.78 (closer to the v27 win threshold of
+  ~0.82 from targeted_sweep1). At this level, the profitability gap should be
+  small enough (5-15%) that ideology and loss tolerance can plausibly matter.
+
+  Key questions:
+    - At high ideology (0.8) + high loss tolerance (0.40), can pools hold v27
+      even when v26 is slightly more profitable?
+    - At low ideology (0.2) + low loss tolerance (0.10), do pools flip
+      immediately to v26?
+    - Is there a threshold combination where the outcome flips from v26 to v27?
+
+# Fixed parameters — same as targeted_sweep1 for comparability, except economic_split
+fixed:
+  economic_split: 0.78              # Higher than 0.65 — closer to v27 win threshold
+  hashrate_split: 0.25              # Fixed low — v26 hash dominant
+  pool_committed_split: 0.35        # Above Foundry flip-point
+  pool_neutral_pct: 30.0            # median
+  pool_profitability_threshold: 0.16 # median
+  econ_ideology_strength: 0.40      # median
+  econ_switching_threshold: 0.14    # median
+  econ_inertia: 0.17                # median
+  user_ideology_strength: 0.49      # median
+  user_switching_threshold: 0.12    # median
+  transaction_velocity: 0.50        # median
+  user_nodes_per_partition: 6       # median
+  economic_nodes_per_partition: 2   # median
+  solo_miner_hashrate: 0.085        # median
+
+# Grid axes — same as original but with wider max_loss range
+# pool_ideology_strength: ranges from nearly rational (0.2) to highly ideological (0.8)
+# pool_max_loss_pct: ranges from very low tolerance (0.05) to high tolerance (0.45)
+grid:
+  pool_ideology_strength: [0.2, 0.4, 0.6, 0.8]
+  pool_max_loss_pct:      [0.05, 0.15, 0.25, 0.35, 0.45]

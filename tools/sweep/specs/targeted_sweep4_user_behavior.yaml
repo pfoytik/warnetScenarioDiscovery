@@ -1,0 +1,42 @@
+name: targeted_sweep4_user_behavior
+description: >
+  Comprehensive sweep of user node parameters to understand their effect
+  on fork outcomes.
+
+  User nodes affect the simulation through:
+    - Transaction fee generation (which fork gets tx volume)
+    - Network sentiment (indirect price signal)
+    - Solo mining hashrate (~8.5% in aggregate)
+
+  From exploratory sweeps, user_ideology_strength showed modest but
+  consistent correlation (+0.16 to +0.23). This sweep isolates user
+  parameters in a 3D grid to determine:
+    1. Does user ideology matter, or are pools/economics the only real actors?
+    2. Does user switching threshold affect cascade dynamics?
+    3. Does having more user nodes amplify their collective effect?
+    4. Are there interaction effects between these parameters?
+
+  Uses the full 60-node network for realistic pool dynamics.
+
+# Fixed parameters — same economic/pool context as other targeted sweeps
+fixed:
+  economic_split: 0.65              # Zone where cascades are possible but not certain
+  hashrate_split: 0.25              # Fixed low — v26 hash dominant
+  pool_committed_split: 0.35        # Above Foundry flip-point
+  pool_neutral_pct: 30.0            # median
+  pool_ideology_strength: 0.51      # median
+  pool_profitability_threshold: 0.16 # median
+  pool_max_loss_pct: 0.26           # median
+  econ_ideology_strength: 0.40      # median
+  econ_switching_threshold: 0.14    # median
+  econ_inertia: 0.17                # median
+  transaction_velocity: 0.50        # median
+  economic_nodes_per_partition: 2   # median
+  solo_miner_hashrate: 0.085        # median
+
+# 3D Grid: user_ideology_strength × user_switching_threshold × user_nodes_per_partition
+# 4 × 3 × 3 = 36 scenarios
+grid:
+  user_ideology_strength:     [0.2, 0.4, 0.6, 0.8]
+  user_switching_threshold:   [0.06, 0.12, 0.18]
+  user_nodes_per_partition:   [2, 6, 10]

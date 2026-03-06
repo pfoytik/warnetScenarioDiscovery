@@ -44,6 +44,19 @@ The targeted sweep (economic × committed grid with fixed 25% hashrate) revealed
 
 **The inversion is caused by a pool flip-point:** Foundry (30% of pool hashrate) switches from v26-preferring to v27-preferring at pool_committed_split ≈ 0.21. At commit=0.20 with strong economics, Foundry stays on v27 (economically trapped there). At commit≥0.30, Foundry is v27-committed but the remaining v26 bloc (AntPool+F2Pool+ViaBTC ≈ 40% hashrate) is large enough to resist the cascade at 60–70% economic strength.
 
+### Pool Ideology Discovery
+
+Targeted sweep 2b tested pool ideology parameters near the economic threshold (econ=0.78):
+
+| Ideology Strength | Required max_loss_pct for v27 win |
+|:-----------------:|:---------------------------------:|
+| 0.2 | Never wins |
+| 0.4 | ≥ 0.35 |
+| 0.6 | ≥ 0.25 |
+| 0.8 | ≥ 0.15 |
+
+**Ideology and loss tolerance follow a diagonal threshold:** approximately `ideology × max_loss ≳ 0.12`. Both parameters show +0.58 correlation with v27 hashrate — they are jointly necessary near the economic threshold.
+
 ---
 
 ## Overview
@@ -59,8 +72,10 @@ This document summarizes findings from four parameter sweeps exploring Bitcoin f
 | **balanced_baseline** | 27 | 24 nodes | 30 min | 144 blocks (~5 min) | N/A (50/50) | **Complete** |
 | **targeted_sweep1** | 45 | 60 nodes | 30 min | 144 blocks (~5 min) | Fixed | **Complete** |
 | **targeted_sweep2** | 42 | 60 nodes | 30 min | 144 blocks (~5 min) | Fixed | **Complete** |
+| **targeted_sweep2b** | 20 | 25 nodes | 30 min | 144 blocks (~5 min) | Fixed | **Complete** |
+| **targeted_sweep3** | 16 | 25 nodes | 30 min | 144 blocks (~5 min) | Fixed | **Complete** |
 
-**Total: 272 scenarios** (264 with full analysis)
+**Total: 308 scenarios** (284 with full analysis)
 
 ### Sweep Configuration Notes
 
@@ -353,6 +368,165 @@ The +0.554 correlation from realistic_sweep3_rapid was almost certainly a confou
 | `targeted_sweep2_hashrate_economic/results/analysis/` | Analysis outputs |
 | `targeted_sweep2_hashrate_economic/scenarios.json` | Full scenario configurations |
 | `targeted_sweep2_hashrate_economic/specs/targeted_sweep2_hashrate_economic.yaml` | Sweep spec |
+
+---
+
+### Targeted Sweep 2b: Pool Ideology Parameters
+
+This sweep tests whether pool ideology parameters (`pool_ideology_strength` and `pool_max_loss_pct`) can influence outcomes when economic support is near the cascade threshold.
+
+#### Background
+
+An initial attempt (targeted_sweep2a at econ=0.65) showed no effect — the profitability gap was 10-45%, far exceeding any max_loss_pct tested. This redesign uses econ=0.78, closer to the v27 win threshold (~0.82), where the gap is small enough for ideology to matter.
+
+#### Sweep Design
+
+| Parameter | Values |
+|-----------|--------|
+| **pool_ideology_strength** | 0.2, 0.4, 0.6, 0.8 (4 levels) |
+| **pool_max_loss_pct** | 0.05, 0.15, 0.25, 0.35, 0.45 (5 levels) |
+| **economic_split** | Fixed at 0.78 (near threshold) |
+| **hashrate_split** | Fixed at 0.25 (v26 has 75% advantage) |
+| **pool_committed_split** | Fixed at 0.35 |
+| Network | lite (25 nodes) |
+| Scenarios | 20 total (4 × 5 grid) |
+
+#### Results Grid
+
+```
+                         pool_max_loss_pct
+ideology_strength   0.05   0.15   0.25   0.35   0.45
+       0.2           26     26     26     26     26    ← v26 wins ALL
+       0.4           26     26     26     27     27    ← threshold at 0.35
+       0.6           26     26     27     27     27    ← threshold at 0.25
+       0.8           26     27     27     27     27    ← threshold at 0.15
+```
+
+Legend: `26` = v26_dominant, `27` = v27_dominant
+
+#### Overall Outcome Distribution
+
+| Outcome | Count | Percentage |
+|---------|:-----:|:----------:|
+| v27_dominant | 9 | 45% |
+| v26_dominant | 11 | 55% |
+
+#### Key Finding: Diagonal Decision Boundary
+
+**Ideology and loss tolerance work together** — higher ideology strength lowers the required loss tolerance for v27 to win:
+
+| Ideology Strength | Required max_loss_pct for v27 win |
+|:-----------------:|:---------------------------------:|
+| 0.2 | Never wins (even at 0.45) |
+| 0.4 | ≥ 0.35 |
+| 0.6 | ≥ 0.25 |
+| 0.8 | ≥ 0.15 |
+
+The threshold appears to follow approximately: **ideology × max_loss ≳ 0.12**
+
+#### Correlations
+
+| Parameter | Correlation with v27 hashrate |
+|-----------|:-----------------------------:|
+| pool_ideology_strength | **+0.584** |
+| pool_max_loss_pct | **+0.569** |
+
+Both are significant and roughly equal — they are **jointly necessary** for v27 to overcome the hashrate disadvantage at this economic level.
+
+#### Cascade Signatures
+
+| Outcome | Reorgs | v27 Final Hashrate | v27 Block Share |
+|---------|:------:|:------------------:|:---------------:|
+| v26_dominant | 4 | 0% | ~12.7% |
+| v27_dominant | 10 | 86.4% (full flip) | ~61% |
+
+When v27 wins, it's a complete cascade — all pool hashrate flips to v27.
+
+#### Implications
+
+1. **Ideology matters, but only near the economic threshold** — At econ=0.65, the profitability gap was too large for any ideology level to overcome. At econ=0.78, ideology becomes decisive.
+
+2. **Both parameters are necessary** — High ideology (0.8) alone isn't enough if loss tolerance is too low (0.05). High loss tolerance (0.45) alone isn't enough if ideology is too low (0.2).
+
+3. **The diagonal threshold** — The relationship suggests a multiplicative interaction: pools need both the willingness to sacrifice (ideology) AND the capacity to absorb losses (tolerance).
+
+4. **Refines the economic threshold** — At econ=0.78 with favorable ideology (≥0.6) and loss tolerance (≥0.25), v27 can win. Without favorable ideology, the threshold remains at ~0.82.
+
+#### Data Location
+
+| File | Description |
+|------|-------------|
+| `targeted_sweep2b_pool_ideology/results/analysis/` | Analysis outputs |
+| `targeted_sweep2b_pool_ideology/scenarios.json` | Full scenario configurations |
+| `specs/targeted_sweep2b_pool_ideology.yaml` | Sweep spec |
+
+---
+
+### Targeted Sweep 3: Economic Friction Parameters
+
+This sweep tests whether economic node friction parameters (`econ_inertia` and `econ_switching_threshold`) affect cascade dynamics.
+
+#### Sweep Design
+
+| Parameter | Values |
+|-----------|--------|
+| **econ_inertia** | 0.05, 0.15, 0.25, 0.35 (4 levels) |
+| **econ_switching_threshold** | 0.05, 0.12, 0.20, 0.28 (4 levels) |
+| **economic_split** | Fixed at 0.65 |
+| **hashrate_split** | Fixed at 0.25 |
+| **pool_committed_split** | Fixed at 0.35 |
+| Network | lite (25 nodes) |
+| Scenarios | 16 total (4 × 4 grid) |
+
+#### Results Grid
+
+```
+                    econ_switching_threshold
+econ_inertia    0.05   0.12   0.20   0.28
+    0.05         27     27     27     27
+    0.15         27     27     27     27
+    0.25         27     27     27     27
+    0.35         27     27     27     27
+```
+
+**All 16 scenarios: v27_dominant (100%)**
+
+#### Key Finding: Friction Has No Effect
+
+| Metric | Value (all scenarios) |
+|--------|:---------------------:|
+| Outcome | v27_dominant |
+| Reorgs | 10 |
+| Final v27 hashrate | 100% |
+| v27 block share | ~61% |
+
+**Economic friction parameters do not affect cascade outcomes.** Whether economic nodes switch quickly (inertia=0.05, threshold=0.05) or slowly (inertia=0.35, threshold=0.28), the cascade runs to the same conclusion.
+
+#### ⚠️ Network Size Discrepancy
+
+At similar parameters (econ=0.65, commit=0.35), targeted_sweep1 on the **60-node network** showed **v26 wins**, while this sweep on the **25-node lite network** shows **v27 wins**.
+
+| Sweep | Network | Result at econ=0.65 |
+|-------|---------|:-------------------:|
+| targeted_sweep1 | 60 nodes | v26_dominant |
+| targeted_sweep3 | 25 nodes | v27_dominant |
+
+This suggests the lite network may behave differently. A verification run on the full network is recommended to confirm findings.
+
+#### Implications
+
+1. **Economic friction can be deprioritized** — these parameters don't affect outcomes on the lite network
+2. **Pool behavior dominates** — economic nodes generate price signals, but pools make the hashrate decisions
+3. **Cascade is self-reinforcing** — once triggered, it completes regardless of economic node switching speed
+4. **Network size may matter** — results should be verified on full network
+
+#### Data Location
+
+| File | Description |
+|------|-------------|
+| `targeted_sweep3_econ_friction/results/analysis/` | Analysis outputs |
+| `targeted_sweep3_econ_friction/scenarios.json` | Full scenario configurations |
+| `specs/targeted_sweep3_econ_friction.yaml` | Sweep spec |
 
 ---
 
@@ -654,6 +828,8 @@ When analyzing new sweep results, watch for these indicators of potential bugs:
 | balanced_baseline | `balanced_baseline_sweep/results/analysis/` | 27 | **Stochastic variance baseline** |
 | **targeted_sweep1** | `targeted_sweep1_committed_threshold/results/analysis/` | 45 | **Economic × committed grid** |
 | **targeted_sweep2** | `targeted_sweep2_hashrate_economic/results/analysis/` | 42 | **Hashrate × economic grid — hashrate shown to be non-causal** |
+| **targeted_sweep2b** | `targeted_sweep2b_pool_ideology/results/analysis/` | 20 | **Pool ideology × loss tolerance grid (lite network)** |
+| **targeted_sweep3** | `targeted_sweep3_econ_friction/results/analysis/` | 16 | **Economic friction grid (lite network) — friction has no effect** |
 
 ### Network Versions
 
@@ -664,6 +840,12 @@ When analyzing new sweep results, watch for these indicators of potential bugs:
 - 6 user nodes per side with 3% hashrate each
 - No structural advantage for either fork
 - Purpose: Measure stochastic variance baseline
+
+**realistic-economy-lite** (used in targeted_sweep2b, exploratory_sweep_lite):
+- 25 nodes, 8 mining pools
+- Smaller network for faster iteration
+- Same pool behavior model as full network
+- 86.4% total pool hashrate
 
 **realistic-economy-v2** (used in sweep3, sweep3_rapid):
 - Power user hashrates now meaningful (e.g., node-0048: 0.05% → 7.8%)

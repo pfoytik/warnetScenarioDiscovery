@@ -1,0 +1,43 @@
+name: targeted_sweep2_pool_ideology
+description: >
+  Map the effect of pool ideology parameters on cascade dynamics.
+
+  Tests pool_ideology_strength (how much pools sacrifice for ideology)
+  against pool_max_loss_pct (the breaking point where ideology gives way).
+
+  Fixed at economic_split=0.65 and pool_committed_split=0.35 — this is
+  the "inverted" zone from targeted_sweep1 where v26 won despite 65%
+  economic support for v27. The question: can stronger pool ideology
+  or higher loss tolerance flip this outcome back to v27?
+
+  Key questions:
+    - At high ideology (0.8) + high loss tolerance (0.40), does the v26
+      bloc become unbreakable?
+    - At low ideology (0.2) + low loss tolerance (0.10), do pools flip
+      immediately regardless of commitment?
+    - Is there a threshold combination where cascade behavior changes?
+
+# All parameters NOT listed under 'grid' must appear here.
+# Values set to match targeted_sweep1 for comparability, except the grid axes.
+fixed:
+  economic_split: 0.65              # Fixed in the "inverted" zone
+  hashrate_split: 0.25              # Fixed low — v26 hash dominant
+  pool_committed_split: 0.35        # Above Foundry flip-point (above 0.214)
+  pool_neutral_pct: 30.0            # median from exploratory sweep
+  pool_profitability_threshold: 0.16 # median
+  econ_ideology_strength: 0.40      # median
+  econ_switching_threshold: 0.14    # median
+  econ_inertia: 0.17                # median
+  user_ideology_strength: 0.49      # median
+  user_switching_threshold: 0.12    # median
+  transaction_velocity: 0.50        # median
+  user_nodes_per_partition: 6       # median
+  economic_nodes_per_partition: 2   # median
+  solo_miner_hashrate: 0.085        # median
+
+# The two axes being mapped.
+# pool_ideology_strength: ranges from nearly rational (0.2) to highly ideological (0.8)
+# pool_max_loss_pct: ranges from low tolerance (0.10) to high tolerance (0.40)
+grid:
+  pool_ideology_strength: [0.2, 0.4, 0.6, 0.8]
+  pool_max_loss_pct:      [0.10, 0.20, 0.30, 0.40]

@@ -1,0 +1,43 @@
+name: targeted_sweep3_econ_friction
+description: >
+  Map the effect of economic friction parameters on cascade dynamics.
+
+  Tests econ_inertia (switching friction/infrastructure costs) against
+  econ_switching_threshold (minimum price advantage needed to switch).
+
+  These parameters showed medium correlation in exploratory sweeps:
+    - econ_inertia: -0.324 (higher = slower switching)
+    - econ_switching_threshold: +0.330 (higher = needs bigger gap)
+
+  Fixed at economic_split=0.65 — in the zone where cascades are possible
+  but not guaranteed. The question: can high friction block a cascade,
+  or does the economic signal eventually break through regardless?
+
+  Key questions:
+    - At high friction (inertia=0.35, threshold=0.28), is the cascade blocked?
+    - At low friction (inertia=0.05, threshold=0.05), does cascade happen faster?
+    - Is there a threshold combination where outcome changes?
+
+# Fixed parameters — matched to targeted_sweep1/2 for comparability
+fixed:
+  economic_split: 0.65              # Zone where cascades are possible but not certain
+  hashrate_split: 0.25              # Fixed low — v26 hash dominant
+  pool_committed_split: 0.35        # Above Foundry flip-point
+  pool_neutral_pct: 30.0            # median
+  pool_ideology_strength: 0.51      # median
+  pool_profitability_threshold: 0.16 # median
+  pool_max_loss_pct: 0.26           # median
+  econ_ideology_strength: 0.40      # median
+  user_ideology_strength: 0.49      # median
+  user_switching_threshold: 0.12    # median
+  transaction_velocity: 0.50        # median
+  user_nodes_per_partition: 6       # median
+  economic_nodes_per_partition: 2   # median
+  solo_miner_hashrate: 0.085        # median
+
+# Grid axes — economic node friction parameters
+# econ_inertia: switching friction (infrastructure costs, 5-35%)
+# econ_switching_threshold: minimum price advantage to consider switching (5-28%)
+grid:
+  econ_inertia:             [0.05, 0.15, 0.25, 0.35]
+  econ_switching_threshold: [0.05, 0.12, 0.20, 0.28]

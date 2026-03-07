@@ -1,0 +1,53 @@
+name: targeted_sweep6_pool_ideology_full
+description: >
+  Full-network validation of targeted_sweep2b pool ideology findings.
+
+  targeted_sweep2b ran on the lite network with the role-name bug — economic and
+  user node parameters were never applied, so the actual economic context was the
+  baked-in YAML default (~43% v27 custody) rather than the intended 0.78. The
+  pool ideology and max_loss parameters were correctly applied, so the diagonal
+  threshold finding (ideology × max_loss ≳ 0.12) is directionally plausible but
+  unverified.
+
+  This sweep is an exact replica of targeted_sweep2b's grid and fixed parameters
+  on the full 60-node network with the fixed build script. Results will directly
+  answer:
+    1. Does the diagonal threshold (ideology × max_loss ≳ 0.12) hold on the
+       full network, or was it an artifact of the lite network's wrong economic
+       conditions?
+    2. Is the executive summary's pool ideology finding trustworthy?
+
+  Expected outcome if finding holds:
+                       pool_max_loss_pct
+  ideology_strength   0.05  0.15  0.25  0.35  0.45
+         0.2           26    26    26    26    26
+         0.4           26    26    26    27    27
+         0.6           26    26    27    27    27
+         0.8           26    27    27    27    27
+
+  Any deviation from this pattern reveals a network-size effect on pool ideology
+  dynamics that was previously invisible.
+
+network: full
+
+# Fixed parameters — identical to targeted_sweep2b for direct comparison
+fixed:
+  economic_split: 0.78
+  hashrate_split: 0.25
+  pool_committed_split: 0.35
+  pool_neutral_pct: 30.0
+  pool_profitability_threshold: 0.16
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.14
+  econ_inertia: 0.17
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  transaction_velocity: 0.50
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  solo_miner_hashrate: 0.085
+
+# Grid axes — identical to targeted_sweep2b
+grid:
+  pool_ideology_strength: [0.2, 0.4, 0.6, 0.8]
+  pool_max_loss_pct:      [0.05, 0.15, 0.25, 0.35, 0.45]

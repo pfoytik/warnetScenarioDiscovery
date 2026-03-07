@@ -1,43 +1,29 @@
-# Warnet Scenario Discovery - Bitcoin Fork Research
+# Warnet Scenario Discovery — Bitcoin Fork Research
 
-Independent research repository for testing Bitcoin protocol forks using Warnet.
-
-**Status**: ✅ Production Ready | **Last Updated**: 2026-01-26
-
----
-
-## Quick Start
-
-### Run a Complete Fork Test
-
-```bash
-# One command runs everything (generate → deploy → mine → analyze):
-./run_fork_test.sh test-001 70 30 1800
-```
-
-That's it! See results in ~35 minutes.
+Independent research repository for studying Bitcoin soft fork governance using
+realistic network simulations built on [Warnet](https://github.com/bitcoin-dev-tools/warnet).
 
 ---
 
-## What This Does
+## What This Is
 
-Tests Bitcoin forks with:
-- ✅ **Hashrate tracking** (which pools mine which fork)
-- ✅ **Economic analysis** (custody, volume, consensus weight)
-- ✅ **Mining pool dynamics** (profitability + ideology)
-- ✅ **Price & fee evolution**
-- ✅ **Paired-node architecture** (realistic simulation)
+This repository models a contested Bitcoin soft fork scenario — v27 (new rules,
+strict) versus v26 (legacy, permissive) — and explores the conditions under which
+neither side wins cleanly. Simulations run real `bitcoind` nodes on Kubernetes,
+with agents representing mining pools, exchanges, institutions, and users making
+independent, economically-motivated decisions.
 
 ---
 
-## Documentation
+## Key Documents
 
 | Document | Purpose |
 |----------|---------|
-| **README_RESEARCH.md** | Complete repository guide |
-| **MIGRATION_TO_RESEARCH_REPO.md** | Migration notes & new commands |
-| **docs/COMPLETE_TESTING_WORKFLOW.md** | Step-by-step testing guide |
-| **docs/QUICK_REFERENCE.md** | One-page cheat sheet |
+| **[Methodology.md](Methodology.md)** | How the simulation works: network design, entity models, decision processes, price oracle |
+| **[tools/sweep/SCENARIO_DISCOVERY.md](tools/sweep/SCENARIO_DISCOVERY.md)** | Research plan: boundary mapping, boundary fitting, targeted LHS sampling |
+| **[tools/sweep/SWEEP_FINDINGS.md](tools/sweep/SWEEP_FINDINGS.md)** | Results from completed parameter sweeps; decision boundary structure |
+| **[docs/realistic_economy_model.md](docs/realistic_economy_model.md)** | Network calibration methodology and entity composition |
+| **[docs/softfork_models.md](docs/softfork_models.md)** | Soft fork topology and asymmetric block propagation design |
 
 ---
 
@@ -45,222 +31,121 @@ Tests Bitcoin forks with:
 
 ```
 warnetScenarioDiscovery/
-├── scenarios/          # Warnet scenario scripts
-│   ├── lib/            # Supporting modules
-│   ├── config/         # Configuration files
-│   └── *.py            # Scenario scripts
+├── Methodology.md                      # How the simulation works
+├── scenarios/
+│   ├── partition_miner_with_pools.py   # Main scenario script
+│   ├── lib/                            # Oracles and strategy modules
+│   │   ├── price_oracle.py
+│   │   ├── fee_oracle.py
+│   │   ├── mining_pool_strategy.py
+│   │   ├── economic_node_strategy.py
+│   │   ├── difficulty_oracle.py
+│   │   └── reorg_oracle.py
+│   └── config/
+│       ├── mining_pools_config.yaml    # Pool scenarios
+│       └── economic_nodes_config.yaml  # Economic/user node scenarios
 │
-├── networkGen/         # Network generation
-├── monitoring/         # Fork analysis tools
-├── tests/              # Test suite
-├── docs/               # Documentation
+├── networks/
+│   ├── realistic-economy-v2/           # Full 60-node network (primary)
+│   └── realistic-economy-lite/         # Lite 25-node network (faster runs)
 │
-├── run_scenario.sh     # Helper: Run any scenario
-└── run_fork_test.sh    # Helper: Complete test
+├── networkGen/
+│   └── scenario_network_generator.py   # Network YAML generator
+│
+├── tools/sweep/                        # Parameter sweep infrastructure
+│   ├── SCENARIO_DISCOVERY.md           # Research plan (phases 1-4)
+│   ├── SWEEP_FINDINGS.md               # Results and findings
+│   ├── 1_generate_targeted.py          # Cartesian grid scenario generator
+│   ├── 2_build_configs.py              # Build per-scenario configs
+│   ├── 3_run_sweep.py                  # Execute sweep runs
+│   ├── 4_analyze_results.py            # Analyze and summarize results
+│   ├── 5_build_database.py             # Aggregate into SQLite database
+│   └── specs/                          # Sweep specification files
+│
+└── docs/                               # Supporting documentation
 ```
 
 ---
 
-## Helper Scripts
-
-### `run_fork_test.sh` - Complete Test (Recommended)
+## Running a Single Scenario
 
 ```bash
-./run_fork_test.sh TEST_NAME V27_ECONOMIC V27_HASHRATE DURATION
-
-# Example: 30-minute test with 70% economic on v27, 30% hashrate
-./run_fork_test.sh test-001 70 30 1800
-```
-
-Runs all 4 steps automatically:
-1. Generate network
-2. Deploy to warnet
-3. Run mining scenario
-4. Analyze fork with all metrics
-
-### `run_scenario.sh` - Run Scenario Only
-
-```bash
-./run_scenario.sh SCENARIO_FILE [ARGS...]
-
-# Example:
-./run_scenario.sh partition_miner_with_pools.py \
-    --network-yaml /path/to/network.yaml \
+./run_scenario.sh scenarios/partition_miner_with_pools.py \
+    --network-yaml networks/realistic-economy-v2/network.yaml \
     --pool-scenario realistic_current \
-    --v27-economic 70.0
+    --economic-scenario realistic_current \
+    --duration 1800 \
+    --enable-difficulty \
+    --retarget-interval 20 \
+    --results-id my-run-001
 ```
 
 ---
 
-## Example Output
-
-```
-FORK_0:
-  Hashrate: 67.3%        ← Which pools mine this fork
-  Custody: 70.0%         ← BTC held by entities
-  Volume: 68.5%          ← Daily transaction volume
-  Consensus Weight: 70.1%
-  Mining Pools: foundryusa, antpool, f2pool, ...
-
-FORK_1:
-  Hashrate: 32.7%
-  Custody: 30.0%
-  Volume: 31.5%
-  Consensus Weight: 29.9%
-  Mining Pools: viabtc, luxor, ocean, ...
-```
-
----
-
-## Testing Scenarios
-
-| Scenario | v27-economic | v27-hashrate | Purpose |
-|----------|--------------|--------------|---------|
-| Aligned | 70 | 70 | Both favor same fork |
-| Conflict | 70 | 30 | Test pool reallocation |
-| Balanced | 50 | 50 | Contested fork |
-| Extreme | 95 | 10 | Overwhelming dominance |
-
----
-
-## Manual Workflow
-
-If you prefer step-by-step control:
+## Running a Parameter Sweep
 
 ```bash
-# 1. Generate network
-cd networkGen/
-python3 partition_network_generator.py --test-id test-001 --v27-economic 70 --v27-hashrate 30
+# 1. Generate scenarios from a spec file
+python3 tools/sweep/1_generate_targeted.py --spec tools/sweep/specs/<name>.yaml
 
-# 2. Deploy
-warnet deploy ../test-networks/test-test-001-economic-70-hashrate-30/
+# 2. Build per-scenario config files
+python3 tools/sweep/2_build_configs.py \
+    --input tools/sweep/<name>/scenarios.json \
+    --output-dir tools/sweep/<name>
 
-# 3. Run scenario
-cd ..
-./run_scenario.sh partition_miner_with_pools.py \
-    --network-yaml ../test-networks/test-test-001-economic-70-hashrate-30/network.yaml \
-    --pool-scenario realistic_current \
-    --v27-economic 70.0 \
-    --duration 1800
+# 3. Run all scenarios sequentially
+python3 tools/sweep/3_run_sweep.py \
+    --input tools/sweep/<name>/build_manifest.json \
+    --duration 1800 --interval 2
 
-# 4. Analyze
-cd monitoring/
-python3 enhanced_fork_analysis.py \
-    --network-config ../test-networks/test-test-001-economic-70-hashrate-30/ \
-    --pool-decisions /tmp/partition_pools.json \
-    --live-query
+# 4. Analyze results
+python3 tools/sweep/4_analyze_results.py \
+    --input tools/sweep/<name>/results \
+    --manifest tools/sweep/<name>/build_manifest.json
+
+# 5. Add to database
+python3 tools/sweep/5_build_database.py
 ```
 
 ---
 
-## All Implemented Features ✅
+## Current Research Status
 
-1. Network generation with paired pool nodes
-2. Partition-based fork simulation
-3. Dynamic mining pool decisions (profitability + ideology)
-4. Price oracle (fork value evolution)
-5. Fee oracle (transaction fee dynamics)
-6. **Hashrate tracking per fork** (NEW!)
-7. Economic weight analysis (custody, volume)
-8. Consensus weight calculation
-9. Pool-to-node mapping
-10. Complete fork analysis with all metrics
+See [tools/sweep/SCENARIO_DISCOVERY.md](tools/sweep/SCENARIO_DISCOVERY.md) for
+the full three-phase research plan and current status.
 
----
+| Phase | Status |
+|-------|--------|
+| Phase 1: Boundary mapping (targeted grid sweeps) | In progress |
+| Phase 2: Boundary fitting (logistic, RF, PRIM) | Planned |
+| Phase 3: Targeted LHS within transition zone | Planned |
+| Phase 4: Analysis and reporting | Planned |
 
-## Timeline
+### Key findings so far
 
-| Step | Duration |
-|------|----------|
-| Generate | 10s |
-| Deploy | 90s |
-| Sync | 90s |
-| Mine (30min) | 1800s |
-| Analyze | 10s |
-| **Total** | **~35 min** |
+- **Primary driver**: `economic_split` (v27 custody fraction); threshold ~0.82 for clean v27 win
+- **Gatekeeper**: `pool_committed_split`; non-monotonic interaction with `economic_split`
+- **Non-causal**: `hashrate_split`, `pool_neutral_pct`, all user parameters — zero effect on outcomes
+- **Inversion zone**: At `economic_split` = 0.60–0.70, v26 wins despite apparent v27 economic majority
+- **Pool ideology**: Jointly determined by `ideology_strength × max_loss_pct`; diagonal threshold ~0.12
 
 ---
 
-## Output Files
+## Networks
 
-After running a test:
+Two networks are maintained. Both use identical mining pool configurations;
+the lite network consolidates economic and user nodes into aggregate cohorts.
 
-- `/tmp/partition_pools.json` - Pool decisions
-- `/tmp/partition_prices.json` - Price history
-- `/tmp/partition_fees.json` - Fee history
-
----
-
-## Testing
-
-```bash
-cd tests/
-python3 test_paired_node_architecture.py  # Test paired nodes
-python3 test_pool_decisions.py            # Test pool strategy
-python3 test_import_paths.py              # Validate paths
-```
-
-All tests should pass ✅
+| Network | Nodes | Use case |
+|---------|-------|----------|
+| `realistic-economy-v2` | 60 | Primary; all sweeps |
+| `realistic-economy-lite` | 25 | Faster iteration; equivalence validation |
 
 ---
 
 ## Requirements
 
-- Warnet (Kubernetes-based Bitcoin testing)
+- Warnet (Kubernetes-based Bitcoin testing framework)
 - Python 3.8+
-- kubectl (for warnet)
-- Bitcoin Core (v27.0, v26.0)
-
----
-
-## Development Philosophy
-
-This is your **independent research repository**:
-
-1. **Develop** - Test implementations here
-2. **Validate** - Prove the approach works
-3. **Document** - Record findings
-4. **Contribute** - Submit proven features to main warnet repo
-
----
-
-## Getting Help
-
-- **Quick commands**: `docs/QUICK_REFERENCE.md`
-- **Full workflow**: `docs/COMPLETE_TESTING_WORKFLOW.md`
-- **Migration notes**: `MIGRATION_TO_RESEARCH_REPO.md`
-- **Repository guide**: `README_RESEARCH.md`
-
----
-
-## Common Commands
-
-```bash
-# Complete test (easiest)
-./run_fork_test.sh test-001 70 30 1800
-
-# Run scenario only
-./run_scenario.sh partition_miner_with_pools.py [args...]
-
-# Generate network only
-cd networkGen/
-python3 partition_network_generator.py --test-id test-001 --v27-economic 70 --v27-hashrate 30
-
-# Analyze only
-cd monitoring/
-python3 enhanced_fork_analysis.py --network-config /path/to/network/ --pool-decisions /tmp/partition_pools.json --live-query
-
-# Stop network
-warnet stop
-
-# View docs
-cat docs/QUICK_REFERENCE.md
-```
-
----
-
-**Status**: Production Ready 🚀
-**All Core Metrics**: Implemented and Tested ✅
-**Ready For**: Research, Testing, Validation
-
-**Start here**: `./run_fork_test.sh test-001 70 30 1800`
+- `kubectl` with cluster access
+- Bitcoin Core images: `27.0`, `26.0`

@@ -62,6 +62,68 @@ targeted_sweep2b tested pool ideology parameters near the economic threshold (ec
 
 ---
 
+### Input Potential Assessment
+
+**Input potential** measures a parameter's capacity to determine fork outcomes — combining
+its causal influence, sensitivity near threshold values, and the nature of its
+nonlinearity. High-potential inputs are the parameters that real-world actors should
+watch and that Phase 3 sampling should concentrate on.
+
+| Parameter | Input Potential | Rationale |
+|-----------|:--------------:|-----------|
+| `economic_split` | **Very High** | Primary driver; two distinct high-sensitivity regions (sharp threshold ~0.78–0.82 AND inversion zone 0.60–0.70 where it reverses the effect of committed_split) |
+| `pool_committed_split` | **High (conditional)** | Non-monotonic and maximally sensitive in interaction with economic_split; in the inversion zone a shift from 0.20→0.30 flips the outcome direction entirely |
+| `pool_ideology_strength × pool_max_loss_pct` | **High (near diagonal)** | Their product gates the committed pool mechanism; below ~0.12 committed pools eventually capitulate, above it they hold indefinitely — small changes near the diagonal flip pool behavior |
+| `hashrate_split` | **Zero** | Empirically confirmed non-causal (targeted_sweep2, n=42) |
+| `pool_neutral_pct` | **Zero** | Controls cascade speed only, not outcome (targeted_sweep3_neutral_pct) |
+| `econ_inertia`, `econ_switching_threshold` | **Zero** | Irrelevant on full network (targeted_sweep3b) |
+| All user parameters | **Zero** | No correlation with outcomes (targeted_sweep4, n=36) |
+
+#### Why `economic_split` ranks highest
+
+`economic_split` exhibits two qualitatively different instability mechanisms:
+
+1. **Knife-edge threshold (econ ≈ 0.78–0.82):** A 4-point shift in BTC custody
+   concentration flips the entire network from v26-dominant to v27-dominant. Near
+   this threshold, the outcome is maximally sensitive to small changes.
+
+2. **Causal inversion (econ ≈ 0.60–0.70):** In this range, increasing committed pool
+   support *hurts* v27 rather than helping it. This means `economic_split` does not
+   merely scale outcomes — at certain levels it reverses the sign of another
+   parameter's effect. This is the strongest form of nonlinearity observed in the
+   sweep data.
+
+A single parameter that controls both a sharp threshold and a causal inversion is the
+defining characteristic of high input potential.
+
+#### Why `pool_committed_split` is conditional
+
+`pool_committed_split` has high potential only when `economic_split` is in the
+transition zone (0.50–0.82). Outside that zone it is inert: v26 wins regardless at
+econ=0.35, v27 wins regardless at econ=0.82. Its potential is therefore conditional on
+co-location with a high-potential `economic_split` value — which is precisely the
+region Phase 3 will target.
+
+#### Why the ideology product matters
+
+`pool_ideology_strength` and `pool_max_loss_pct` individually have moderate correlation
+with outcomes (+0.58 each in sweep2b), but neither is sufficient alone. Their *product*
+determines whether the committed pool mechanism is operative at all. Near the diagonal
+threshold (~0.12), small changes in either parameter cross the line from "pools
+eventually capitulate" to "pools hold indefinitely." This makes the product a
+binary switch governing the entire cascade pathway.
+
+#### Implications for Phase 3 sampling
+
+The input potential ranking directly informs Phase 3 Latin hypercube bounds:
+- Sample `economic_split` densely in [0.50, 0.82] — both instability mechanisms live here
+- Sample `pool_committed_split` in [0.20, 0.65] — captures both sides of the inversion
+- Sample `ideology_strength` and `max_loss_pct` such that their product spans [0.05, 0.30],
+  crossing the ~0.12 diagonal threshold
+- Fix all zero-potential parameters at their median values
+
+---
+
 ### ⚠️ Critical Bug: Lite Network Sweep Parameter Override Failure
 
 **Discovered:** March 2026 during sweep5/sweep4 post-analysis.

@@ -21,11 +21,7 @@ description: >
   Any divergence indicates a structural difference between the two networks
   beyond just node count.
 
-  Build command:
-    python 2_build_configs.py \
-      --input targeted_sweep5_lite_econ_threshold/scenarios.json \
-      --output-dir targeted_sweep5_lite_econ_threshold \
-      --base-network ../../networks/realistic-economy-lite/network.yaml
+network: lite
 
 # Fixed parameters — identical to targeted_sweep1_committed_threshold
 fixed:

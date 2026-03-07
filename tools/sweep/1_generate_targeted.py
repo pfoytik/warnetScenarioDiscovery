@@ -17,6 +17,7 @@ Output:
 Spec file format (YAML):
     name: my_targeted_sweep
     description: "What this sweep is testing"
+    network: lite  # 'lite', 'full', or explicit path — used by 2_build_configs.py automatically
 
     fixed:
       hashrate_split: 0.25
@@ -37,6 +38,13 @@ from typing import Any, Dict, List
 
 import yaml
 
+
+
+# Known network aliases → paths relative to the sweep tool directory
+NETWORK_ALIASES = {
+    'lite': '../../networks/realistic-economy-lite/network.yaml',
+    'full': '../../networks/realistic-economy-v2/network.yaml',
+}
 
 # All parameters required by 2_build_configs.py, with their valid ranges
 # (used for validation warnings only — not enforced as hard errors)
@@ -104,6 +112,10 @@ def validate_spec(spec: Dict) -> List[str]:
             if not (lo <= float(v) <= hi):
                 warnings.append(f"  {param}={v} is outside valid range [{lo}, {hi}]")
 
+    # Warn if network not specified
+    if 'network' not in spec:
+        warnings.append("'network' field not set — 2_build_configs.py will require --base-network explicitly")
+
     return warnings
 
 
@@ -142,6 +154,9 @@ def print_preview(spec: Dict, scenarios: List[Dict]):
     grid_keys = list(grid.keys())
 
     print(f"\nName:        {spec.get('name', '(unnamed)')}")
+    if spec.get('network'):
+        network_display = NETWORK_ALIASES.get(spec['network'], spec['network'])
+        print(f"Network:     {spec['network']}  ({network_display})")
     print(f"Description: {spec.get('description', '')}")
     print(f"Scenarios:   {len(scenarios)} ({' × '.join(str(len(grid[k])) for k in grid_keys)})")
     print(f"Duration:    ~{len(scenarios) * 32 // 60}h {len(scenarios) * 32 % 60}m at 32 min/scenario")
@@ -238,6 +253,7 @@ def main():
             "name": spec.get("name", spec_path.stem),
             "description": spec.get("description", ""),
             "spec_file": str(spec_path),
+            "base_network": spec.get("network", ""),  # alias or path from spec
             "n_samples": len(scenarios),
             "n_parameters": len(REQUIRED_PARAMETERS),
             "grid_axes": {k: list(v) for k, v in spec.get("grid", {}).items()},
@@ -256,7 +272,14 @@ def main():
     print(f"\nSaved {len(scenarios)} scenarios to: {output_path}")
     sweep_dir = output_path.parent
     print(f"\nNext steps:")
-    print(f"  python 2_build_configs.py --input {output_path} --output-dir {sweep_dir} --base-network <network.yaml>")
+    network_hint = spec.get("network", "")
+    if network_hint in NETWORK_ALIASES:
+        resolved = NETWORK_ALIASES[network_hint]
+    elif network_hint:
+        resolved = network_hint
+    else:
+        resolved = "<network.yaml>"
+    print(f"  python 2_build_configs.py --input {output_path} --output-dir {sweep_dir} --base-network {resolved}")
     print(f"  python 3_run_sweep.py --input {sweep_dir}/build_manifest.json --duration 1800 --interval 2")
 
 

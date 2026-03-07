@@ -47,6 +47,13 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional
 
 
+
+# Known network aliases → paths relative to the sweep tool directory
+NETWORK_ALIASES = {
+    'lite': '../../networks/realistic-economy-lite/network.yaml',
+    'full': '../../networks/realistic-economy-v2/network.yaml',
+}
+
 # Real-world pool distribution (used when no base network specified)
 DEFAULT_POOLS = [
     ("foundryusa", "Foundry USA", 26.89),
@@ -527,6 +534,28 @@ Examples:
 
     for d in [output_dir, networks_dir, configs_dir, network_configs_dir, pools_dir, economic_dir]:
         d.mkdir(parents=True, exist_ok=True)
+
+    # Resolve base network: --base-network flag > spec metadata > error
+    script_dir = Path(__file__).parent
+    spec_network = metadata.get("base_network", "")
+
+    if args.base_network:
+        # Explicit flag — resolve alias if needed
+        base_network_arg = NETWORK_ALIASES.get(args.base_network, args.base_network)
+        if spec_network and spec_network != args.base_network:
+            spec_resolved = NETWORK_ALIASES.get(spec_network, spec_network)
+            if base_network_arg != spec_resolved:
+                print(f"  ⚠️  WARNING: --base-network '{args.base_network}' overrides spec network '{spec_network}'")
+    elif spec_network:
+        # Use network from spec metadata
+        base_network_arg = NETWORK_ALIASES.get(spec_network, spec_network)
+        print(f"  Using network from spec: {spec_network}  ({base_network_arg})")
+        args.base_network = base_network_arg
+    else:
+        base_network_arg = None
+
+    if base_network_arg:
+        args.base_network = base_network_arg
 
     # Determine network generation mode
     use_base_network = args.base_network is not None

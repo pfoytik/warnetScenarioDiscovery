@@ -1,0 +1,43 @@
+# Targeted Sweep 6: Lite Network User Node Behavior
+#
+# Purpose: Test if user node parameters affect fork outcomes
+# We've tested pools extensively but never isolated user behavior
+#
+# Network: lite (25 nodes)
+# Scenarios: 9 (3x3 grid)
+
+name: targeted_sweep6_lite_user_behavior
+description: "Test user node ideology and switching behavior on lite network"
+
+network: realistic-economy-lite
+duration: 1800  # 30 minutes
+
+# 3x3 grid of user parameters
+grid:
+  user_ideology_strength: [0.2, 0.5, 0.8]
+  user_switching_threshold: [0.05, 0.12, 0.20]
+
+# Fixed at economic level where outcome can swing
+# Using econ=0.70 - in the "inversion zone" on full network
+# On lite network this should favor v27 but may be sensitive
+fixed:
+  economic_split: 0.70
+  hashrate_split: 0.30
+  pool_committed_split: 0.35
+  pool_neutral_pct: 30.0
+  pool_ideology_strength: 0.50
+  pool_max_loss_pct: 0.26
+  pool_profitability_threshold: 0.05
+  econ_ideology_strength: 0.40
+  econ_inertia: 0.15
+  econ_switching_threshold: 0.12
+  economic_nodes_per_partition: 2
+  user_nodes_per_partition: 4
+  solo_miner_hashrate: 0.03
+  transaction_velocity: 0.50
+
+# Expected scenarios: 9
+# Expected insights:
+#   - Do user nodes affect outcomes at all?
+#   - If yes, which parameter matters more (ideology vs threshold)?
+#   - Compare to pool behavior findings

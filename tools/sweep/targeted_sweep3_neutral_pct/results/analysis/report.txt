@@ -2,59 +2,64 @@
 PARAMETER SWEEP ANALYSIS REPORT
 ======================================================================
 
-Total scenarios analyzed: 4
+Total scenarios analyzed: 35
 
 OUTCOME DISTRIBUTION:
-  v26_dominant: 1 (25.0%)
-  v27_dominant: 3 (75.0%)
+  contested: 1 (2.9%)
+  v26_dominant: 14 (40.0%)
+  v27_dominant: 20 (57.1%)
 
 MOST DISCRIMINATING PARAMETERS:
 (Parameters with largest difference between v27/v26 dominant outcomes)
 
-  1. economic_split
-     Separation: 0.15
-     v27 favored when: higher
-     Estimated threshold: 0.425
-     v27_dominant mean: 0.5
-     v26_dominant mean: 0.35
+  1. pool_neutral_pct
+     Separation: 1.429
+     v27 favored when: lower
+     Estimated threshold: 30.715
+     v27_dominant mean: 30.0
+     v26_dominant mean: 31.429
 
-  2. hashrate_split
+  2. economic_split
+     Separation: 0.041
+     v27 favored when: higher
+     Estimated threshold: 0.559
+     v27_dominant mean: 0.58
+     v26_dominant mean: 0.539
+
+  3. hashrate_split
      Separation: 0.0
      v27 favored when: lower
      Estimated threshold: 0.25
      v27_dominant mean: 0.25
      v26_dominant mean: 0.25
 
-  3. pool_ideology_strength
+  4. pool_ideology_strength
      Separation: 0.0
      v27 favored when: lower
      Estimated threshold: 0.51
      v27_dominant mean: 0.51
      v26_dominant mean: 0.51
 
-  4. pool_profitability_threshold
+  5. pool_profitability_threshold
      Separation: 0.0
      v27 favored when: lower
      Estimated threshold: 0.16
      v27_dominant mean: 0.16
      v26_dominant mean: 0.16
 
-  5. pool_max_loss_pct
-     Separation: 0.0
-     v27 favored when: lower
-     Estimated threshold: 0.26
-     v27_dominant mean: 0.26
-     v26_dominant mean: 0.26
-
 STRONG CORRELATIONS:
 (Parameters most correlated with v27 hashrate share)
 
-  economic_split: +0.878
+  economic_split: +0.149
+  pool_profitability_threshold: -0.000
+  pool_max_loss_pct: -0.000
+  econ_ideology_strength: -0.000
+  user_ideology_strength: -0.000
 
 KEY INSIGHTS:
 
-  * economic_split is the strongest predictor of fork outcome
-    Threshold around 0.425
-    v27 dominant when higher
+  * pool_neutral_pct is the strongest predictor of fork outcome
+    Threshold around 30.715
+    v27 dominant when lower
 
 ======================================================================

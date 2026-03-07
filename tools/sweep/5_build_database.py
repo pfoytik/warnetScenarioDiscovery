@@ -177,6 +177,21 @@ SWEEP_METADATA = {
         'network_type': 'lite',
         'description': 'V26 baseline on lite network'
     },
+    'targeted_sweep3_neutral_pct': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'full',
+        'description': 'Pool neutral_pct × economic grid — neutral_pct has no effect on outcome, controls cascade intensity only'
+    },
+    'targeted_sweep3b_econ_friction_verify': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'full',
+        'description': 'Verification of econ friction parameters on full 60-node network (4 corner scenarios vs lite network results)'
+    },
+    'targeted_sweep4_user_behavior': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'full',
+        'description': 'User behavior 3D grid: user_ideology_strength × user_switching_threshold × user_nodes_per_partition (36 scenarios)'
+    },
 }
 
 

@@ -17,6 +17,7 @@ The **realistic_sweep3_rapid** sweep with fixed code reveals a dramatically diff
 2. **pool_committed_split has a non-monotonic effect** — it inverts at moderate economic levels due to pool-specific flip-points (see Targeted Sweep 1 findings)
 3. **hashrate_split has no independent causal effect** — targeted grid sweep across 0.15–0.65 produced identical outcomes at every economic level (see Targeted Sweep 2 findings)
 4. High reorg counts (5+) correlate with v27 victory (86% of cascade scenarios in exploratory sweep)
+5. **pool_neutral_pct controls cascade intensity, not outcome** — varying neutral pools from 10–50% changes how long the cascade takes but not who wins; the inversion zone persists even when the v26-committed block collapses from 36% to 8% of total hashrate (see Targeted Sweep 4 findings)
 
 ### Zone Analysis Caveat
 
@@ -42,7 +43,7 @@ The targeted sweep (economic × committed grid with fixed 25% hashrate) revealed
 | 0.60–0.70 | **INVERTED** — v27 wins only at commit=0.20; v26 wins at commit≥0.30 |
 | 0.82 | Economic signal dominates — v27 wins all |
 
-**The inversion is caused by a pool flip-point:** Foundry (30% of pool hashrate) switches from v26-preferring to v27-preferring at pool_committed_split ≈ 0.21. At commit=0.20 with strong economics, Foundry stays on v27 (economically trapped there). At commit≥0.30, Foundry is v27-committed but the remaining v26 bloc (AntPool+F2Pool+ViaBTC ≈ 40% hashrate) is large enough to resist the cascade at 60–70% economic strength.
+**The inversion is caused by a pool flip-point:** Foundry (30% of pool hashrate) switches from v26-preferring to v27-preferring at pool_committed_split ≈ 0.21. At commit=0.20 with strong economics, Foundry stays on v27 (economically trapped there). At commit≥0.30, Foundry is v27-committed but the remaining v26 block (AntPool+F2Pool+ViaBTC ≈ 40% hashrate) is large enough to resist the cascade at 60–70% economic strength.
 
 ### Pool Ideology Discovery
 
@@ -74,8 +75,9 @@ This document summarizes findings from four parameter sweeps exploring Bitcoin f
 | **targeted_sweep2** | 42 | 60 nodes | 30 min | 144 blocks (~5 min) | Fixed | **Complete** |
 | **targeted_sweep2b** | 20 | 25 nodes | 30 min | 144 blocks (~5 min) | Fixed | **Complete** |
 | **targeted_sweep3** | 16 | 25 nodes | 30 min | 144 blocks (~5 min) | Fixed | **Complete** |
+| **targeted_sweep4** | 35 | 60 nodes | 30 min | 144 blocks (~5 min) | Fixed | **Complete** |
 
-**Total: 308 scenarios** (284 with full analysis)
+**Total: 343 scenarios** (319 with full analysis)
 
 ### Sweep Configuration Notes
 
@@ -229,11 +231,11 @@ pool_committed_split × 0.70 > 0.15  →  commit > 0.214
 
 **At commit=0.30–0.75 (above flip-point):**
 - Foundry is assigned v27-preferring ideology → holds v27 chain
-- BUT: the remaining v26-committed bloc (AntPool 18% + F2Pool 15% + ViaBTC 7% = **40% of total hashrate**) now has full ideological commitment to v26
-- This 40% committed bloc is too large to break at 60–70% economic signal (max_loss=0.26 not exceeded)
+- BUT: the remaining v26-committed block (AntPool 18% + F2Pool 15% + ViaBTC 7% = **40% of total hashrate**) now has full ideological commitment to v26
+- This 40% committed block is too large to break at 60–70% economic signal (max_loss=0.26 not exceeded)
 - Result: v26 maintains dominance despite economic minority
 
-**At econ=0.82:** Economic signal strong enough to break even a 40% committed v26 bloc → v27 wins regardless.
+**At econ=0.82:** Economic signal strong enough to break even a 40% committed v26 block → v27 wins regardless.
 
 **At econ=0.50:** Lower price pressure but Foundry's v27-preferring commitment (at commit≥0.30) is sufficient for cascade with neutral pools.
 
@@ -242,7 +244,7 @@ pool_committed_split × 0.70 > 0.15  →  commit > 0.214
 At commit=0.30–0.52, econ=0.70, the outcome is v26_dominant but with **partial hashrate switching**:
 - v27 retains ~34.7% final hashrate (AntPool defects from v26 partially)
 - 7 reorgs occur (active but incomplete cascade)
-- Still resolves to v26_dominant due to v26's remaining bloc strength
+- Still resolves to v26_dominant due to v26's remaining block strength
 
 This is the transition zone at 70% economics — sufficient to cause significant instability but not enough to fully flip.
 
@@ -269,9 +271,9 @@ This is the transition zone at 70% economics — sufficient to cause significant
 
 1. **Pool_committed_split is not a simple gatekeeper** — Its effect depends on the specific pool it causes to flip. The Foundry threshold (~0.214) is the critical structural boundary.
 
-2. **High economic support with wrong committed levels can hurt v27** — At econ=0.60–0.70, increasing committed from 0.20 to 0.30 converts Foundry from "economically trapped on v27" to "ideologically committed to v27 but surrounded by a now-stronger v26 bloc."
+2. **High economic support with wrong committed levels can hurt v27** — At econ=0.60–0.70, increasing committed from 0.20 to 0.30 converts Foundry from "economically trapped on v27" to "ideologically committed to v27 but surrounded by a now-stronger v26 block."
 
-3. **The 82% economic threshold overrides pool mechanics** — When economic support reaches ~82%, the price signal is strong enough to break even a 40% committed v26 bloc (max_loss constraint exceeded).
+3. **The 82% economic threshold overrides pool mechanics** — When economic support reaches ~82%, the price signal is strong enough to break even a 40% committed v26 block (max_loss constraint exceeded).
 
 4. **Three distinct regimes exist:** (a) economics too weak → v26 always wins; (b) moderate economics → pool commitment inverts outcomes; (c) economics dominant → v27 always wins.
 
@@ -333,7 +335,7 @@ Legend: `26` = v26_dominant, `27` = v27_dominant
 
 This includes hash=0.65 where v27 starts with a significant hashrate advantage — it still produces identical outcomes to hash=0.15 where v27 starts at a 5.7:1 disadvantage.
 
-**Implication:** The pool ideology structure (committed v26 bloc at ~36% of pool hashrate vs Foundry at 30% v27-committed) completely determines the outcome. Once the cascade dynamics engage, they run to the same conclusion regardless of starting hashrate.
+**Implication:** The pool ideology structure (committed v26 block at ~36% of pool hashrate vs Foundry at 30% v27-committed) completely determines the outcome. Once the cascade dynamics engage, they run to the same conclusion regardless of starting hashrate.
 
 #### Cross-Sweep Consistency Check
 
@@ -530,6 +532,117 @@ This suggests the lite network may behave differently. A verification run on the
 
 ---
 
+### Targeted Sweep 4: Pool Neutral Percentage
+
+This sweep tests whether changing `pool_neutral_pct` (the fraction of pool hashrate assigned to profit-maximizing neutral pools) affects fork outcomes, particularly in the inversion zone (econ=0.60–0.70).
+
+#### Background
+
+At the baseline of neutral=30%, the pool structure is:
+- v27-committed block: Foundry 30% = **30%**
+- v26-committed block: AntPool 16.9% + F2Pool 10.9% = **35.9% (with ViaBTC+SpiderPool neutral)**
+- Neutral block: ViaBTC 11.2% + SpiderPool 9.3% = **20.5%**
+
+The hypothesis was that increasing neutral_pct moves AntPool and F2Pool from committed to neutral, collapsing the v26-committed block from 35.9% to 8.1% at neutral=50%. This should weaken the inversion zone resistance.
+
+#### Sweep Design
+
+| Parameter | Values |
+|-----------|--------|
+| **pool_neutral_pct** | 10, 20, 30, 40, 50 (5 levels) |
+| **economic_split** | 0.35, 0.45, 0.50, 0.55, 0.60, 0.70, 0.82 (7 levels) |
+| **pool_committed_split** | Fixed at 0.50 (above Foundry flip-point) |
+| Scenarios | 35 total (5 × 7 grid) |
+
+#### Results Grid
+
+```
+                              economic_split
+pool_neutral_pct  0.35  0.45  0.50  0.55  0.60  0.70  0.82
+      10%          26    27    27    27    26    CON   27
+      20%          26    27    27    27    26    26    27
+      30%          26    27    27    27    26    26    27   ← baseline
+      40%          26    27    27    27    26    26    27
+      50%          26    27    27    27    26    26    27
+```
+
+Legend: `26` = v26_dominant, `27` = v27_dominant, `CON` = contested
+
+#### Overall Outcome Distribution
+
+| Outcome | Count | Percentage |
+|---------|:-----:|:----------:|
+| v27_dominant | 20 | 57.1% |
+| v26_dominant | 14 | 40.0% |
+| contested | 1 | 2.9% |
+
+#### Finding 1: pool_neutral_pct Has No Effect on Outcomes
+
+**Outcomes at neutral=20%, 30%, 40%, and 50% are completely identical** — 4 v27 wins and 3 v26 wins per row. Moving AntPool+F2Pool from committed to neutral (collapsing the v26-committed block from 35.9% to 8.1% of total hashrate) did not shift a single outcome.
+
+This directly refutes the structural hypothesis. Neutral pools are profit-maximizers who follow price signals — at econ=0.60–0.70, v26's economic backing is sufficient to maintain a price premium that keeps neutral pools on v26 without any ideological commitment required.
+
+#### Finding 2: The Inversion Zone Is Price-Signal Driven, Not Ideology Driven
+
+The inversion zone (v26 wins at econ=0.60–0.70) persists at **all five neutral_pct levels** including neutral=50% where the v26-committed block is only 8.1%. This establishes that the inversion is a property of the economic price signal, not of the committed pool block structure.
+
+The causal chain: v26 economic nodes (~40% weight at econ=0.60) → v26 coin price premium → neutral profit-maximizing pools follow v26 price → v26 maintains hashrate majority → cascade stalls.
+
+#### Finding 3: pool_neutral_pct Controls Cascade Intensity
+
+Increasing neutral_pct extends the cascade without changing its conclusion:
+
+| pool_neutral_pct | Avg reorgs | Avg reorg_mass | Interpretation |
+|:----------------:|:----------:|:--------------:|----------------|
+| 10% | 4.0 | 1,300 | Large committed blocks resolve quickly |
+| 20% | 6.9 | 2,074 | More swing voters → more oscillation |
+| 30% | 7.6 | 2,166 | Baseline |
+| 40% | 8.3 | 2,405 | More neutral = longer contested period |
+| 50% | 8.9 | 2,602 | Most contested, slowest resolution |
+
+More neutral pools means more hashrate available to switch back and forth during the cascade, extending the fight — but the same side wins each time.
+
+#### Finding 4: neutral=10% at econ=0.70 Is Uniquely Contested
+
+The sole deviation: at neutral=10%, econ=0.70, the result is `contested` (2 reorgs, reorg_mass=552). With a very large v27-committed block (Foundry alone = 38.1% of total hashrate at neutral=10%), Foundry has enough committed allies to resist the v26 economic signal at econ=0.70 — but not enough to fully win. Both sides pay significant opportunity costs: v27_pool_opportunity_cost=$12.3M, v26_pool_opportunity_cost=$8.0M. At neutral=20%+, the v27-committed block shrinks and v26 takes a clean win.
+
+#### Inversion Zone Detail (econ=0.60 and 0.70)
+
+| pool_neutral_pct | econ | outcome | reorgs | reorg_mass | v27 opp_cost | v26 opp_cost |
+|:----------------:|:----:|:-------:|:------:|:----------:|:------------:|:------------:|
+| 10% | 0.60 | v26 | 6 | 2,206 | $0 | $3.77M |
+| 20% | 0.60 | v26 | 8 | 2,264 | $0 | $3.02M |
+| 30% | 0.60 | v26 | 8 | 1,887 | $0 | $3.54M |
+| 40% | 0.60 | v26 | 10 | 2,522 | $0 | $2.46M |
+| 50% | 0.60 | v26 | 12 | 3,205 | $0 | $0.80M |
+| 10% | 0.70 | contested | 2 | 552 | $12.29M | $7.99M |
+| 20% | 0.70 | v26 | 8 | 2,292 | $0 | $6.47M |
+| 30% | 0.70 | v26 | 7 | 1,469 | $0 | $7.42M |
+| 40% | 0.70 | v26 | 10 | 2,522 | $0 | $5.17M |
+| 50% | 0.70 | v26 | 12 | 3,205 | $0 | $1.67M |
+
+Note: v26 opportunity costs decline as neutral_pct increases because there are fewer committed v26 pools remaining to absorb ideology-driven losses.
+
+#### Implications
+
+1. **pool_neutral_pct can be deprioritized as a threshold parameter** — it does not affect which fork wins at any tested economic level.
+
+2. **Breaking the inversion zone requires economic means, not structural ones** — only `economic_split > ~0.82` or `pool_committed_split < 0.214` (Foundry flip-point) can resolve the inversion. Adjusting pool composition does not.
+
+3. **Cascade duration scales with neutral_pct** — in a real fork scenario, a network with more profit-maximizing pools would experience longer, more chaotic transition periods even though the eventual winner is the same.
+
+4. **The $12M+ combined opportunity cost at neutral=10%, econ=0.70** shows the contested zone is economically costly for both sides — this is the boundary condition where neither committed block is strong enough to win cleanly.
+
+#### Data Location
+
+| File | Description |
+|------|-------------|
+| `targeted_sweep3_neutral_pct/results/analysis/` | Analysis outputs |
+| `targeted_sweep3_neutral_pct/scenarios.json` | Full scenario configurations |
+| `specs/targeted_sweep3_neutral_pct.yaml` | Sweep spec |
+
+---
+
 ## Outcome Distribution
 
 | Sweep | v27 Wins | v26 Wins | Contested |
@@ -643,7 +756,7 @@ The critical structural point is at commit ≈ 0.21 where **Foundry (30% hashrat
 | **economic_split** | ~0.55–0.60 (inversion onset) | — | High (confirmed by two sweeps) |
 | **economic_split** | ~0.70–0.82 (upper win zone entry) | Higher | High (targeted sweep, n=45) |
 | **pool_committed_split** | Non-monotonic — Foundry flip-point at ~0.214 | Depends on economic level | High (targeted sweep) |
-| **pool_neutral_pct** | ~30% | Higher | High |
+| **pool_neutral_pct** | ⚠️ No independent effect on outcome | N/A — controls cascade intensity only | High (targeted sweep 4, n=35) |
 | econ_inertia | ~0.18 | Lower | Medium |
 | econ_switching_threshold | ~0.13 | Higher | Medium |
 | user_ideology_strength | ~0.50 | Higher | Medium |
@@ -683,10 +796,12 @@ ZONE C: INVERSION ZONE (econ ~0.60–0.70)
 ┌────────────────────────────────────────────────────────────┐
 │  economic_split ~0.60–0.70, pool_committed_split ≥ 0.30   │
 │  → COUNTER-INTUITIVE: v26 wins despite v27 economic lead   │
-│  → Committed v26 bloc (AntPool+F2Pool ≈ 36% hashrate)     │
+│  → Committed v26 block (AntPool+F2Pool ≈ 36% hashrate)    │
 │    holds firm; 60–70% economic signal insufficient         │
 │  → 7–8 reorgs, active but incomplete cascade              │
 │  → hashrate_split still irrelevant (0.15–0.65 tested)     │
+│  → pool_neutral_pct has no effect on outcome              │
+│    (tested 10–50%; inversion zone persists at all levels) │
 │                                                            │
 │  Exception: pool_committed_split < 0.214                  │
 │    → Foundry economically trapped on v27                  │
@@ -697,7 +812,7 @@ ZONE D: UPPER v27 WIN ZONE (econ ≥ ~0.82)
 ┌────────────────────────────────────────────────────────────┐
 │  economic_split ≥ ~0.82                                    │
 │  → v27 wins regardless of hashrate or pool commitment      │
-│  → 4 reorgs, clean cascade (price signal breaks all blocs) │
+│  → 4 reorgs, clean cascade (price signal breaks all blocks) │
 │  → Threshold exact: between econ=0.70 and econ=0.82        │
 └────────────────────────────────────────────────────────────┘
 
@@ -785,7 +900,12 @@ From realistic_sweep3_rapid:
 - **Key finding: hashrate_split has no independent causal effect — pool ideology dominates**
 - **See targeted_sweep2 section above for results**
 
-### 3. Longer Duration Verification (realistic_sweep3)
+### 3. ~~Pool Neutral Percentage~~ ✓ COMPLETE
+- ~~Grid sweep: pool_neutral_pct [10–50] × economic_split [0.35–0.82]~~
+- **Key finding: pool_neutral_pct has no effect on outcome — controls cascade intensity only; inversion zone persists at all levels**
+- **See targeted_sweep4 section above for results**
+
+### 4. Longer Duration Verification (realistic_sweep3)
 - Same parameters but with 2016-block difficulty (realistic Bitcoin timing)
 - Confirm findings hold at equilibrium, not just short-run dynamics
 - Currently 8/50 scenarios complete; full results pending
@@ -830,6 +950,7 @@ When analyzing new sweep results, watch for these indicators of potential bugs:
 | **targeted_sweep2** | `targeted_sweep2_hashrate_economic/results/analysis/` | 42 | **Hashrate × economic grid — hashrate shown to be non-causal** |
 | **targeted_sweep2b** | `targeted_sweep2b_pool_ideology/results/analysis/` | 20 | **Pool ideology × loss tolerance grid (lite network)** |
 | **targeted_sweep3** | `targeted_sweep3_econ_friction/results/analysis/` | 16 | **Economic friction grid (lite network) — friction has no effect** |
+| **targeted_sweep4** | `targeted_sweep3_neutral_pct/results/analysis/` | 35 | **Pool neutral_pct × economic grid — neutral_pct has no effect on outcome** |
 
 ### Network Versions
 

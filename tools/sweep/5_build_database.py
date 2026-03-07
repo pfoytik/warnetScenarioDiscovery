@@ -192,6 +192,11 @@ SWEEP_METADATA = {
         'network_type': 'full',
         'description': 'User behavior 3D grid: user_ideology_strength × user_switching_threshold × user_nodes_per_partition (36 scenarios)'
     },
+    'targeted_sweep5_lite_econ_threshold': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'lite',
+        'description': 'Economic split threshold sweep on lite network (econ 0.5→0.85) — comparison baseline for full network thresholds'
+    },
 }
 
 

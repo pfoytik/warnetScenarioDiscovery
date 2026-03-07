@@ -58,6 +58,38 @@ Targeted sweep 2b tested pool ideology parameters near the economic threshold (e
 
 **Ideology and loss tolerance follow a diagonal threshold:** approximately `ideology × max_loss ≳ 0.12`. Both parameters show +0.58 correlation with v27 hashrate — they are jointly necessary near the economic threshold.
 
+> ⚠️ **Partial caveat:** Sweep 2b ran on the lite network with a role-name bug (see below) that prevented economic and user node parameters from being overridden. Pool ideology/loss parameters were correctly applied. However, the actual economic split was the lite YAML default (~43% v27 custody), not the intended 0.78. The diagonal threshold finding for pool parameters is likely directionally valid but the economic context was not as designed. Needs re-verification after fix.
+
+---
+
+### ⚠️ Critical Bug: Lite Network Sweep Parameter Override Failure
+
+**Discovered:** March 2026 during sweep5/sweep4 post-analysis.
+
+**Root cause:** `apply_scenario_to_base_network()` in `2_build_configs.py` matched role names from the full network (`major_exchange`, `exchange`, `institutional`, `payment_processor`, `merchant`, `power_user`, `casual_user`) but the lite network uses aggregate role names (`economic_aggregate`, `power_user_aggregate`, `casual_user_aggregate`). No handler existed for these roles.
+
+**Effect on all lite network sweeps:**
+
+| Parameter | Status on lite network (before fix) |
+|-----------|--------------------------------------|
+| `hashrate_split` | ✅ Worked — pool image tags reassigned correctly |
+| `pool_profitability_threshold`, `pool_ideology_strength`, `pool_max_loss_pct` | ✅ Worked — `mining_pool` role matched |
+| `economic_split` | ❌ **DEAD** — custody sorting filtered on full-network roles; lite econ nodes never reassigned |
+| `econ_ideology_strength`, `econ_switching_threshold`, `econ_inertia` | ❌ **DEAD** — no handler for `economic_aggregate` |
+| `user_ideology_strength`, `user_switching_threshold`, `solo_miner_hashrate` | ❌ **DEAD** — no handler for `power_user_aggregate` / `casual_user_aggregate` |
+
+**Fix applied:** `2_build_configs.py` updated to include `economic_aggregate` in `econ_roles` and to handle all three aggregate role types identically to their non-aggregate counterparts. Full network behavior is unchanged.
+
+**Affected sweeps and their validity:**
+
+| Sweep | Network | Validity |
+|-------|---------|----------|
+| `exploratory_sweep_lite` | lite | ❌ Invalid — also had economic_split code bug; doubly broken |
+| `targeted_sweep2b_pool_ideology` | lite | ⚠️ Partially valid — pool params correct; economic context wrong |
+| `targeted_sweep3_econ_friction` | lite | ❌ **Fully invalidated** — the parameters under test (econ_inertia, econ_switching_threshold) were never applied; conclusions cannot be drawn |
+| `targeted_sweep5_lite_econ_threshold` | lite | ❌ **Fully invalidated** — economic_split was never varying; all 8 scenarios ran identical economic conditions |
+| All full-network sweeps | full | ✅ Valid — role names matched throughout |
+
 ---
 
 ## Overview
@@ -73,10 +105,12 @@ This document summarizes findings from four parameter sweeps exploring Bitcoin f
 | **balanced_baseline** | 27 | 24 nodes | 30 min | 144 blocks (~5 min) | N/A (50/50) | **Complete** |
 | **targeted_sweep1** | 45 | 60 nodes | 30 min | 144 blocks (~5 min) | Fixed | **Complete** |
 | **targeted_sweep2** | 42 | 60 nodes | 30 min | 144 blocks (~5 min) | Fixed | **Complete** |
-| **targeted_sweep2b** | 20 | 25 nodes | 30 min | 144 blocks (~5 min) | Fixed | **Complete** |
-| **targeted_sweep3** | 16 | 25 nodes | 30 min | 144 blocks (~5 min) | Fixed | **Complete** |
-| **targeted_sweep3b** | 4 | 60 nodes | 30 min | 144 blocks (~5 min) | Fixed | **Complete** |
+| **targeted_sweep2b** | 20 | 25 nodes | 30 min | 144 blocks (~5 min) | Fixed | ⚠️ Partial — pool params valid; econ context wrong (role-name bug) |
+| **targeted_sweep3** | 16 | 25 nodes | 30 min | 144 blocks (~5 min) | Fixed | ❌ **INVALIDATED** — econ friction params not applied (role-name bug) |
+| **targeted_sweep3b** | 4 | 60 nodes | 30 min | 144 blocks (~5 min) | Fixed | **Complete (valid)** |
 | **targeted_sweep4** | 35 | 60 nodes | 30 min | 144 blocks (~5 min) | Fixed | **Complete** |
+| **targeted_sweep5** | 36 | 60 nodes | 30 min | 144 blocks (~5 min) | Fixed | **Complete** |
+| **targeted_sweep6** | 8 | 25 nodes | 30 min | 144 blocks (~5 min) | Fixed | ❌ **INVALIDATED** — economic_split not applied (role-name bug) |
 
 **Total: 347 scenarios** (323 with full analysis)
 
@@ -467,7 +501,9 @@ When v27 wins, it's a complete cascade — all pool hashrate flips to v27.
 
 ### Targeted Sweep 3: Economic Friction Parameters
 
-This sweep tests whether economic node friction parameters (`econ_inertia` and `econ_switching_threshold`) affect cascade dynamics.
+> ❌ **THIS SWEEP IS FULLY INVALIDATED** — See bug description in Executive Summary. The parameters under test (`econ_inertia` and `econ_switching_threshold`) were never applied to lite network economic nodes due to the role-name mismatch. All 16 scenarios ran with identical baked-in YAML values. No conclusions about economic friction can be drawn from this data. The finding "friction has no effect" is not supported — it is an artifact of the parameters literally not varying. See Targeted Sweep 3b for valid friction results on the full network.
+
+This sweep was intended to test whether economic node friction parameters (`econ_inertia` and `econ_switching_threshold`) affect cascade dynamics.
 
 #### Sweep Design
 
@@ -475,13 +511,13 @@ This sweep tests whether economic node friction parameters (`econ_inertia` and `
 |-----------|--------|
 | **econ_inertia** | 0.05, 0.15, 0.25, 0.35 (4 levels) |
 | **econ_switching_threshold** | 0.05, 0.12, 0.20, 0.28 (4 levels) |
-| **economic_split** | Fixed at 0.65 |
+| **economic_split** | Fixed at 0.65 (also not applied — baked-in ~43% v27 custody) |
 | **hashrate_split** | Fixed at 0.25 |
 | **pool_committed_split** | Fixed at 0.35 |
 | Network | lite (25 nodes) |
-| Scenarios | 16 total (4 × 4 grid) |
+| Scenarios | 16 total (4 × 4 grid) — all invalid |
 
-#### Results Grid
+#### Observed Results (invalid — do not use)
 
 ```
                     econ_switching_threshold
@@ -492,36 +528,11 @@ econ_inertia    0.05   0.12   0.20   0.28
     0.35         27     27     27     27
 ```
 
-**All 16 scenarios: v27_dominant (100%)**
+All 16 ran the same effective conditions: baked-in lite YAML economic distribution (~43% v27 custody), `pool_profitability_threshold=0.16` correctly applied to pools. The uniform v27_dominant result reflects those fixed pool conditions, not friction variation.
 
-#### Key Finding: Friction Has No Effect
+#### Actual Explanation of Lite vs. Full Discrepancy
 
-| Metric | Value (all scenarios) |
-|--------|:---------------------:|
-| Outcome | v27_dominant |
-| Reorgs | 10 |
-| Final v27 hashrate | 100% |
-| v27 block share | ~61% |
-
-**Economic friction parameters do not affect cascade outcomes.** Whether economic nodes switch quickly (inertia=0.05, threshold=0.05) or slowly (inertia=0.35, threshold=0.28), the cascade runs to the same conclusion.
-
-#### ⚠️ Network Size Discrepancy
-
-At similar parameters (econ=0.65, commit=0.35), targeted_sweep1 on the **60-node network** showed **v26 wins**, while this sweep on the **25-node lite network** shows **v27 wins**.
-
-| Sweep | Network | Result at econ=0.65 |
-|-------|---------|:-------------------:|
-| targeted_sweep1 | 60 nodes | v26_dominant |
-| targeted_sweep3 | 25 nodes | v27_dominant |
-
-This suggests the lite network may behave differently. A verification run on the full network is recommended to confirm findings.
-
-#### Implications
-
-1. **Economic friction can be deprioritized** — these parameters don't affect outcomes on the lite network
-2. **Pool behavior dominates** — economic nodes generate price signals, but pools make the hashrate decisions
-3. **Cascade is self-reinforcing** — once triggered, it completes regardless of economic node switching speed
-4. **Network size may matter** — results should be verified on full network
+The previously noted "network size discrepancy" (lite → v27 wins at econ=0.65, full → v26 wins) was **not a network size effect**. It was caused by the role-name bug: the lite network's economic and user nodes were never reassigned by the sweep, so the effective economic conditions differed from what the scenario parameters specified. Sweep 3b (full network, 4 corners) remains valid and shows v26_dominant at these parameters regardless of friction values.
 
 #### Data Location
 
@@ -590,13 +601,11 @@ All four corners (fast/slow switching × low/high threshold) produce identical r
 
 #### Implications
 
-1. **Network size affects threshold estimates** — findings from lite network sweeps should be verified on full network before generalizing
+1. **Economic friction confirmed irrelevant on the full network** — all 4 corners produce identical v26_dominant outcomes regardless of inertia or switching threshold values. This is a valid finding.
 
-2. **Economic friction confirmed irrelevant** — both networks show friction has no effect on cascade outcomes
+2. **Lite/full discrepancy now explained** — the difference between sweep3 (lite, v27 wins) and sweep3b (full, v26 wins) at econ=0.65 was NOT a network size effect. It was the role-name bug: lite economic nodes kept their baked-in YAML values (~43% v27 custody) rather than 65%. The full network correctly applied economic_split=0.65. The "threshold is network-dependent" conclusion was incorrect.
 
-3. **Cascade dynamics may differ** — the full network has more economic nodes and pools, potentially creating different price signal propagation
-
-4. **Threshold is somewhere between lite and full** — at econ=0.65, lite wins for v27, full wins for v26; the actual threshold is network-dependent
+3. **Lite network sweeps require re-run** with the fixed `2_build_configs.py` before any lite/full comparison is meaningful.
 
 #### Data Location
 
@@ -746,9 +755,9 @@ This asymmetry reflects how soft forks actually work: the new stricter rules rej
 | Network | 60-node full network |
 | Scenarios | 36 total (4 × 3 × 3 grid) |
 
-#### Results (14 analyzed of 36, sweep in progress)
+#### Results (36 of 36 — complete)
 
-**All 14 analyzed scenarios → v26_dominant (100%)**
+**All 36 scenarios → v26_dominant (100%)**
 
 | Metric | Value (all scenarios) |
 |--------|:---------------------:|
@@ -806,6 +815,46 @@ A prominent narrative in Bitcoin governance holds that **economic full nodes are
 | `targeted_sweep4_user_behavior/results/analysis/` | Analysis outputs |
 | `targeted_sweep4_user_behavior/results/sweep_data.csv` | Per-scenario metrics |
 | `specs/targeted_sweep4_user_behavior.yaml` | Sweep spec |
+
+---
+
+### Targeted Sweep 6: Lite Economic Threshold (INVALIDATED)
+
+> ❌ **THIS SWEEP IS FULLY INVALIDATED** — `economic_split` was never applied to lite network economic nodes due to the role-name bug. All 8 scenarios ran with the same baked-in YAML economic distribution (~43% v27 custody). The parameter being varied had no effect. Results cannot be used for any threshold comparison.
+
+This sweep was intended to map the economic threshold on the lite network for comparison with the full network threshold (~0.82 from targeted_sweep1).
+
+#### Sweep Design
+
+| Parameter | Values |
+|-----------|--------|
+| **economic_split** | 0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85 (8 levels) |
+| **hashrate_split** | Fixed at 0.30 |
+| **pool_profitability_threshold** | Fixed at 0.05 (low — pools switch at small profit edge) |
+| **pool_committed_split** | Fixed at 0.35 |
+| Network | lite (25 nodes) |
+| Scenarios | 8 total — all invalid |
+
+#### Observed Results (invalid — do not use)
+
+**All 8 scenarios: v27_dominant (100%)**
+
+The uniform v27_dominant result across the full 0.50–0.85 range appeared to suggest the lite network has no economic threshold. In reality:
+- `economic_split` was never applied — all scenarios used ~43% v27 custody (baked-in YAML)
+- `pool_profitability_threshold=0.05` WAS correctly applied to pools, causing pools to flip at any tiny price signal
+- `hashrate_split=0.30` (v27 starts with more hashrate) WAS correctly applied
+- The cascade completed due to pool dynamics alone, independent of economic conditions
+
+#### What This Sweep Will Show After Fix
+
+Once re-run with the corrected `2_build_configs.py`, this sweep will produce a valid economic threshold curve for the lite network. The threshold is expected to be lower than the full network's ~0.82, but the magnitude of that difference is currently unknown.
+
+#### Data Location
+
+| File | Description |
+|------|-------------|
+| `targeted_sweep5_lite_econ_threshold/results/analysis/` | Analysis outputs (invalid) |
+| `targeted_sweep5_lite_econ_threshold/build_manifest.json` | Sweep configuration |
 
 ---
 
@@ -1118,7 +1167,8 @@ When analyzing new sweep results, watch for these indicators of potential bugs:
 | **targeted_sweep3** | `targeted_sweep3_econ_friction/results/analysis/` | 16 | **Economic friction grid (lite network) — friction has no effect** |
 | **targeted_sweep3b** | `targeted_sweep3b_econ_friction_verify/results/analysis/` | 4 | **Friction verification (full network) — confirms network size effect** |
 | **targeted_sweep4** | `targeted_sweep3_neutral_pct/results/analysis/` | 35 | **Pool neutral_pct × economic grid — neutral_pct has no effect on outcome** |
-| **targeted_sweep5** | `targeted_sweep4_user_behavior/results/analysis/` | 36 (in progress) | **User behavior 3D grid — user nodes have zero causal effect on fork outcomes** |
+| **targeted_sweep5** | `targeted_sweep4_user_behavior/results/analysis/` | 36 | **User behavior 3D grid — user nodes have zero causal effect on fork outcomes** |
+| **targeted_sweep6** | `targeted_sweep5_lite_econ_threshold/results/analysis/` | 8 | ❌ **INVALIDATED** — lite network role-name bug; economic_split was dead |
 
 ### Network Versions
 
@@ -1130,11 +1180,12 @@ When analyzing new sweep results, watch for these indicators of potential bugs:
 - No structural advantage for either fork
 - Purpose: Measure stochastic variance baseline
 
-**realistic-economy-lite** (used in targeted_sweep2b, exploratory_sweep_lite):
-- 25 nodes, 8 mining pools
-- Smaller network for faster iteration
-- Same pool behavior model as full network
-- 86.4% total pool hashrate
+**realistic-economy-lite** (used in targeted_sweep2b, targeted_sweep3, targeted_sweep6, exploratory_sweep_lite):
+- 25 nodes, 8 mining pools (all 8 pools identical to full network)
+- 4 economic nodes (consolidated from 24 in full network) using role `economic_aggregate`
+- 13 user nodes (consolidated from 28) using roles `power_user_aggregate`, `casual_user_aggregate`
+- 86.4% total pool hashrate preserved
+- ⚠️ **Role-name mismatch bug (fixed March 2026):** The lite network's aggregate roles (`economic_aggregate`, `power_user_aggregate`, `casual_user_aggregate`) were not handled by `2_build_configs.py`. All lite sweeps prior to the fix ran with baked-in YAML values for economic and user nodes. Only pool parameters and hashrate_split were correctly overridden. Fix applied: these role types now map to the same handlers as their non-aggregate counterparts.
 
 **realistic-economy-v2** (used in sweep3, sweep3_rapid):
 - Power user hashrates now meaningful (e.g., node-0048: 0.05% → 7.8%)

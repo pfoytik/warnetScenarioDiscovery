@@ -326,7 +326,8 @@ def apply_scenario_to_base_network(base_network: Dict, scenario: Dict) -> Dict:
     # --- Assign economic node image tags based on economic_split ---
     # Sort economic nodes by custody descending, assign the top ones to v27
     # until cumulative custody reaches v27_econ_target % of total.
-    econ_roles = {'major_exchange', 'exchange', 'institutional', 'payment_processor', 'merchant'}
+    econ_roles = {'major_exchange', 'exchange', 'institutional', 'payment_processor', 'merchant',
+                  'economic_aggregate'}
     econ_nodes = [n for n in nodes if n.get('metadata', {}).get('role') in econ_roles]
     total_econ_custody = sum(n['metadata'].get('custody_btc', 0) for n in econ_nodes)
 
@@ -385,7 +386,7 @@ def apply_scenario_to_base_network(base_network: Dict, scenario: Dict) -> Dict:
 
             metadata['profitability_threshold'] = round(pool_prof_threshold, 3)
 
-        elif role in ['major_exchange', 'exchange']:
+        elif role in ['major_exchange', 'exchange', 'economic_aggregate']:
             metadata['ideology_strength'] = round(econ_ideology, 3)
             metadata['switching_threshold'] = round(econ_switching, 3)
             metadata['inertia'] = round(econ_inertia, 3)
@@ -408,14 +409,14 @@ def apply_scenario_to_base_network(base_network: Dict, scenario: Dict) -> Dict:
             metadata['ideology_strength'] = round(user_ideology * 0.6, 3)
             metadata['switching_threshold'] = round(user_switching, 3)
 
-        elif role == 'power_user':
+        elif role in ['power_user', 'power_user_aggregate']:
             metadata['ideology_strength'] = round(user_ideology, 3)
             metadata['switching_threshold'] = round(user_switching * 1.5, 3)
             # Scale solo mining hashrate
             if metadata.get('hashrate_pct', 0) > 0:
                 metadata['hashrate_pct'] = round(metadata['hashrate_pct'] * (solo_hashrate_mult / 0.05), 4)
 
-        elif role == 'casual_user':
+        elif role in ['casual_user', 'casual_user_aggregate']:
             metadata['ideology_strength'] = round(user_ideology * 0.5, 3)
             metadata['switching_threshold'] = round(user_switching * 0.8, 3)
             if metadata.get('hashrate_pct', 0) > 0:

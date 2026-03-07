@@ -124,6 +124,147 @@ The input potential ranking directly informs Phase 3 Latin hypercube bounds:
 
 ---
 
+### Difficulty Adjustment Survival Window
+
+A key emergent phenomenon observed across multiple sweeps: a minority fork can win not
+by having superior hashrate, but by surviving long enough to receive a large difficulty
+adjustment that temporarily makes its blocks dramatically cheaper to mine, attracting
+a wave of opportunistic hashrate before the majority chain can respond.
+
+#### Mechanism
+
+```
+t=0   Fork splits. Minority fork (e.g. v27 at 25% hashrate) inherits full pre-fork difficulty.
+      Blocks arrive at 1/4 the target rate — 4x slower than normal.
+
+t=1   Price begins to diverge (capped at ±20% in model). Minority fork becomes
+      less profitable, but not enough to trigger forced pool switches yet.
+
+t=2   After 144 minority-chain blocks (which took ~4x longer wall-clock time),
+      difficulty retargets DOWN ~75%. Minority fork now has 25% hashrate at 25%
+      difficulty — target block rate restored.
+
+t=3   PROFIT SPIKE: Any majority-chain pools that switch to the minority fork now
+      mine at low difficulty with additional hashrate. Blocks arrive far faster
+      than target, chainwork accumulates rapidly.
+
+t=4   If the chainwork spike is large enough before the majority chain's next
+      retarget, the minority fork overtakes cumulative chainwork and wins reunion.
+```
+
+#### The survival window
+
+The minority fork wins if and only if it reaches its difficulty adjustment *before*
+price falls below the profitability threshold that would discourage switchers. This
+defines a **survival window** — the period between fork initiation and minority-chain
+difficulty adjustment during which economic conditions must remain viable:
+
+```
+Survival window width  ≈  retarget_interval / minority_hashrate_fraction
+                                  (in minority-chain blocks × actual block time)
+```
+
+A fork with 25% hashrate and 144-block retarget has a survival window of
+~576 target-interval seconds of wall-clock time. If price collapses within that
+window (dropping the minority fork below profitability), the adjustment arrives
+too late to matter. If price stays viable (aided by the ±20% price cap and
+economic node inertia), the adjustment triggers a cascade.
+
+#### Why this likely explains `hashrate_split` being non-causal
+
+`targeted_sweep2` showed zero causal effect of `hashrate_split` across 0.15–0.65.
+The difficulty adjustment mechanism is the probable explanation: at 15% hashrate
+the difficulty drop is ~85% (massive opportunity spike); at 65% hashrate the drop
+is ~35% (modest spike). In both cases the difficulty oracle eventually equalizes
+block production rates before the economic cascade resolves. The outcome is then
+determined by price and economics, not starting hashrate — consistent with what
+the targeted sweeps show. `hashrate_split` may only become causal at extreme
+values (< 10%) where the survival window becomes long enough for price to collapse.
+
+#### Interaction with `retarget_interval`
+
+`retarget_interval` directly controls the survival window width. A shorter retarget
+interval (e.g. 20 blocks as used in some runs) narrows the window — the minority
+chain adjusts difficulty faster, reducing the penalty period but also reducing the
+size of the adjustment. A longer interval (144 or 2016 blocks) widens the window —
+more time for price to collapse, but a larger difficulty drop if the chain survives.
+This parameter has not yet been swept and is a candidate for future exploration.
+
+---
+
+### Fog of War: Pool Information Uncertainty
+
+Mining pools in the model — and in the real world — operate under significant
+information uncertainty about competitor behavior. This is analogous to the
+**fog of war** concept in military simulations: entities act on assumed or
+estimated conditions rather than ground truth.
+
+#### The assumption in the model
+
+Pool profitability decisions use `assumed_fork_hashrate=50.0`, treating competition
+as if hashrate were always split evenly between forks regardless of actual allocation:
+
+```python
+# From mining_pool_strategy.py — make_decision()
+v27_profit = calculate_pool_profitability(..., assumed_fork_hashrate=50.0)
+v26_profit = calculate_pool_profitability(..., assumed_fork_hashrate=50.0)
+```
+
+This means a pool deciding whether to mine v27 asks: *"If hashrate were balanced,
+which fork is more profitable for me?"* — not *"Given the actual current hashrate
+distribution, which fork pays more right now?"*
+
+#### Why the assumption exists
+
+Without this assumption, profitability calculations create a circular feedback loop:
+
+```
+Low v27 hashrate → low v27 profitability → pools leave v27 → even lower hashrate → ...
+```
+
+The 50/50 assumption breaks this circularity and models the real-world behavior of
+pools that cannot instantaneously observe competitor allocations. It is the neutral
+prior a rational pool would use in the absence of better information.
+
+#### Real-world parallel
+
+In practice, mining pools *can* observe block production rates with a lag (visible on
+mempool.space, hashrateindex.com, etc.) and infer approximate hashrate distribution.
+However:
+- Inference lags by hours or days
+- Pools cannot distinguish temporary variance from structural shifts
+- Switching decisions involve operational costs that further delay response
+
+The 50/50 assumption captures the essence of this uncertainty: pools respond to price
+signals (which they can observe directly) rather than hashrate signals (which they
+must infer indirectly with delay).
+
+#### Consequence for the Difficulty Adjustment Survival Window
+
+The fog of war interacts directly with the survival window mechanism: pools do **not**
+explicitly exploit the difficulty adjustment opportunity spike. They do not observe that
+the minority chain's difficulty has dropped and rush to take advantage. Instead, they
+respond only to the price oracle — which indirectly reflects the faster block production
+through the chain weight factor. This means the model likely **understates** the
+hashrate cascade that would occur in reality when a large difficulty drop becomes
+publicly visible, since real pools would explicitly target the opportunity.
+
+#### Modeling implications
+
+| Scenario | Model behavior | Real-world expectation |
+|----------|---------------|------------------------|
+| Large minority-chain difficulty drop | Pools respond to price only; gradual shift | Pools would explicitly target easy blocks; faster, larger spike |
+| Actual hashrate heavily imbalanced | Pool decisions unaffected (always assumes 50/50) | Pools on winning fork would observe dominance and feel more secure |
+| Cascade in progress | Pools respond to rising price, not falling competitor hashrate | Pools would observe competitor withdrawal and accelerate switching |
+
+A future model enhancement could replace `assumed_fork_hashrate=50.0` with an
+observed-hashrate-with-lag model, making the fog of war explicit and tunable
+(e.g., an `information_lag` parameter controlling how stale a pool's hashrate
+estimate is). This would make the difficulty adjustment cascade more realistic
+and add a new input potential dimension to the parameter space.
+
+---
+
 ### ⚠️ Critical Bug: Lite Network Sweep Parameter Override Failure
 
 **Discovered:** March 2026 during sweep5/sweep4 post-analysis.

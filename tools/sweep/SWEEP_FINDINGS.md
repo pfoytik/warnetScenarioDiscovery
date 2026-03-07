@@ -290,7 +290,7 @@ and add a new input potential dimension to the parameter space.
 | `exploratory_sweep_lite` | lite | ❌ Invalid — also had economic_split code bug; doubly broken |
 | `targeted_sweep2b_pool_ideology` | lite | ⚠️ Partially valid — pool params correct; economic context wrong |
 | `targeted_sweep3_econ_friction` | lite | ❌ **Fully invalidated** — the parameters under test (econ_inertia, econ_switching_threshold) were never applied; conclusions cannot be drawn |
-| `targeted_sweep5_lite_econ_threshold` | lite | ❌ **Fully invalidated** — economic_split was never varying; all 8 scenarios ran identical economic conditions |
+| `targeted_sweep5_lite_econ_threshold` | lite | ✅ **Valid (re-run)** — fixed build script applied correctly; outcomes match full network exactly |
 | All full-network sweeps | full | ✅ Valid — role names matched throughout |
 
 ---
@@ -312,10 +312,12 @@ This document summarizes findings from four parameter sweeps exploring Bitcoin f
 | **targeted_sweep3** | 16 | 25 nodes | 30 min | 144 blocks (~5 min) | Fixed | ❌ **INVALIDATED** — econ friction params not applied (role-name bug) |
 | **targeted_sweep3b** | 4 | 60 nodes | 30 min | 144 blocks (~5 min) | Fixed | **Complete (valid)** |
 | **targeted_sweep4** | 35 | 60 nodes | 30 min | 144 blocks (~5 min) | Fixed | **Complete** |
-| **targeted_sweep5** | 36 | 60 nodes | 30 min | 144 blocks (~5 min) | Fixed | **Complete** |
-| **targeted_sweep6** | 8 | 25 nodes | 30 min | 144 blocks (~5 min) | Fixed | ❌ **INVALIDATED** — economic_split not applied (role-name bug) |
+| **targeted_sweep5 (orig)** | 36 | 60 nodes | 30 min | 144 blocks (~5 min) | Fixed | **Complete (user behavior — see targeted_sweep4)** |
+| **targeted_sweep5_lite** | 5 | 25 nodes | 30 min | 144 blocks (~5 min) | Fixed | ✅ **Complete — network equivalence confirmed** |
+| **targeted_sweep6 (orig)** | 8 | 25 nodes | 30 min | 144 blocks (~5 min) | Fixed | ❌ **INVALIDATED** — economic_split not applied (role-name bug) |
+| **targeted_sweep6_full** | 20 | 60 nodes | 30 min | 144 blocks (~5 min) | Fixed | In progress (7/20) |
 
-**Total: 347 scenarios** (323 with full analysis)
+**Total: 357 scenarios** (328 with full analysis)
 
 ### Sweep Configuration Notes
 
@@ -1021,43 +1023,57 @@ A prominent narrative in Bitcoin governance holds that **economic full nodes are
 
 ---
 
-### targeted_sweep5: Lite Economic Threshold (INVALIDATED)
+### targeted_sweep5: Lite Network Equivalence Validation
 
-> ❌ **THIS SWEEP IS FULLY INVALIDATED** — `economic_split` was never applied to lite network economic nodes due to the role-name bug. All 8 scenarios ran with the same baked-in YAML economic distribution (~43% v27 custody). The parameter being varied had no effect. Results cannot be used for any threshold comparison.
+> ✅ **Valid** — re-run with corrected `2_build_configs.py` after the role-name bug fix. This is the corrected replacement for the original invalidated sweep5.
 
-This sweep was intended to map the economic threshold on the lite network for comparison with the full network threshold (~0.82 from targeted_sweep1).
+This sweep maps the economic threshold on the lite network (25 nodes) for direct comparison with targeted_sweep1 on the full network (60 nodes), using identical fixed parameters to enable an apples-to-apples comparison.
 
 #### Sweep Design
 
 | Parameter | Values |
 |-----------|--------|
-| **economic_split** | 0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85 (8 levels) |
-| **hashrate_split** | Fixed at 0.30 |
-| **pool_profitability_threshold** | Fixed at 0.05 (low — pools switch at small profit edge) |
+| **economic_split** | 0.35, 0.50, 0.60, 0.70, 0.82 (5 levels — identical to targeted_sweep1) |
+| **hashrate_split** | Fixed at 0.25 |
 | **pool_committed_split** | Fixed at 0.35 |
+| **pool_profitability_threshold** | Fixed at 0.16 |
+| **pool_max_loss_pct** | Fixed at 0.26 |
 | Network | lite (25 nodes) |
-| Scenarios | 8 total — all invalid |
+| Scenarios | 5 total |
 
-#### Observed Results (invalid — do not use)
+#### Results Grid
 
-**All 8 scenarios: v27_dominant (100%)**
+```
+economic_split   lite network (sweep5)   full network (sweep1, commit=0.35)
+     0.35              v26_dominant             v26_dominant       ✓ match
+     0.50              v26_dominant             v26_dominant       ✓ match
+     0.60              v26_dominant             v26_dominant       ✓ match
+     0.70              v26_dominant             v26_dominant       ✓ match
+     0.82              v27_dominant             v27_dominant       ✓ match
+```
 
-The uniform v27_dominant result across the full 0.50–0.85 range appeared to suggest the lite network has no economic threshold. In reality:
-- `economic_split` was never applied — all scenarios used ~43% v27 custody (baked-in YAML)
-- `pool_profitability_threshold=0.05` WAS correctly applied to pools, causing pools to flip at any tiny price signal
-- `hashrate_split=0.30` (v27 starts with more hashrate) WAS correctly applied
-- The cascade completed due to pool dynamics alone, independent of economic conditions
+**Perfect match across all 5 scenarios.** The threshold behavior is identical — v26 wins below 0.82, v27 wins at 0.82 — on both network sizes.
 
-#### What This Sweep Will Show After Fix
+#### Key Finding: Lite Network is a Valid Proxy (144-block retarget)
 
-Once re-run with the corrected `2_build_configs.py`, this sweep will produce a valid economic threshold curve for the lite network. The threshold is expected to be lower than the full network's ~0.82, but the magnitude of that difference is currently unknown.
+The lite network (25 nodes, aggregate economic cohorts) produces outcomes equivalent to the full network (60 nodes, individual entity representation) for `economic_split` dynamics with `pool_committed_split=0.35` and 144-block difficulty retarget intervals.
+
+**Caveat — 2016-block retarget not yet validated:** Equivalence is confirmed only for the accelerated 144-block retarget used in all targeted sweeps. The 2016-block realistic retarget (used in `realistic_sweep3`) creates more pronounced difficulty divergence during the minority chain's survival window. Whether the lite network replicates this behavior identically is an open question that warrants a dedicated equivalence sweep at realistic retarget intervals before using the lite network for 2016-block studies.
+
+#### Implications for Phase 3
+
+- Lite network is cleared for use in Phase 3 Latin hypercube sampling (144-block retarget)
+- Parallel execution is now possible: full and lite networks can run simultaneously with equivalent results
+- Per-scenario runtime on lite: ~30 min (vs ~32 min on full) — modest time savings, but meaningful at n=100+ scenarios
+- A 2016-block equivalence validation sweep should be run before using the lite network for realistic-retarget studies
 
 #### Data Location
 
 | File | Description |
 |------|-------------|
-| `targeted_sweep5_lite_econ_threshold/results/analysis/` | Analysis outputs (invalid) |
+| `targeted_sweep5_lite_econ_threshold/results/` | Per-scenario results |
 | `targeted_sweep5_lite_econ_threshold/build_manifest.json` | Sweep configuration |
+| `specs/targeted_sweep5_lite_econ_threshold.yaml` | Sweep spec |
 
 ---
 

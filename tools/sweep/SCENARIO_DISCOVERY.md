@@ -42,13 +42,19 @@ grid showing where outcomes flip between v26_dominant and v27_dominant.
 | `targeted_sweep3_neutral_pct` | pool_neutral_pct × economic_split | neutral_pct has no effect on outcome; controls cascade intensity only |
 | `targeted_sweep3b` | econ_inertia × econ_switching_threshold (corners) | Economic friction irrelevant on full network |
 | `targeted_sweep4` | user_ideology × user_switching_threshold × user_nodes | User parameters have zero causal effect |
+| `targeted_sweep5` (lite) | economic_split | Network equivalence confirmed — lite matches full exactly at 144-block retarget |
 
 ### In progress
 
 | Sweep | Grid | Purpose |
 |-------|------|---------|
-| `targeted_sweep5` (lite) | economic_split | Network equivalence validation — lite vs full comparison |
-| `targeted_sweep6` (full) | pool_ideology_strength × pool_max_loss_pct | Full-network validation of diagonal threshold finding |
+| `targeted_sweep6` (full) | pool_ideology_strength × pool_max_loss_pct | Full-network validation of diagonal threshold finding (7/20 complete) |
+
+### Planned
+
+| Sweep | Grid | Purpose |
+|-------|------|---------|
+| `targeted_sweep5_2016` (lite) | economic_split | Equivalence validation at 2016-block retarget — required before using lite network for realistic-retarget studies |
 
 ### Parameters eliminated as non-causal
 
@@ -283,17 +289,21 @@ Phase 3 (planned)
 
 | Phase | Status | Blocking on |
 |-------|--------|------------|
-| Phase 1 — boundary mapping | 🟡 In progress | targeted_sweep6 (full, ~10h) + targeted_sweep5 (lite, ~2.5h) |
+| Phase 1 — boundary mapping | 🟡 In progress | targeted_sweep6 (full, 7/20 complete, ~7.5h remaining) |
 | Phase 2 — boundary fitting | ⬜ Planned | Phase 1 complete |
 | Phase 3 — targeted LHS | ⬜ Planned | Phase 2 complete |
 | Phase 4 — analysis | ⬜ Planned | Phase 3 complete |
 
 **Remaining Phase 1 work:**
 - `targeted_sweep6_pool_ideology_full` — validates pool ideology diagonal threshold
-  on full network (most important gap)
-- `targeted_sweep5_lite_econ_threshold` — validates lite network equivalence
-- Consider: full economic friction grid on full network (sweep3b covered 4 corners
-  only; friction is likely irrelevant but a full 16-scenario grid would confirm)
+  on full network; currently running (7/20 complete)
+- `targeted_sweep5_2016` (planned) — lite network equivalence validation at 2016-block
+  retarget; required before using the lite network for realistic-difficulty studies
+
+**Completed Phase 1 milestones:**
+- `targeted_sweep5_lite_econ_threshold` ✅ — lite network confirmed as valid proxy for
+  full network at 144-block retarget; outcomes match exactly across all 5 economic_split
+  levels. Phase 3 can use either network interchangeably for 144-block retarget runs.
 
 ---
 
@@ -303,6 +313,8 @@ Phase 3 (planned)
 |------|----------|-----------|
 | Mar 2026 | Fix role-name bug in `2_build_configs.py` | Lite network aggregate roles (`economic_aggregate`, `power_user_aggregate`, `casual_user_aggregate`) were not handled; all lite sweep parameters for econ/user nodes were dead |
 | Mar 2026 | Add `network:` field to spec files | Prevents wrong network being used at build time; auto-detected by `2_build_configs.py` |
+| Mar 2026 | Validate lite network equivalence (targeted_sweep5) | Lite network confirmed as valid proxy for full network at 144-block retarget; Phase 3 LHS can run on either network interchangeably for standard sweeps |
+| Mar 2026 | Defer 2016-block retarget equivalence validation | 144-block equivalence confirmed but 2016-block retarget creates different difficulty dynamics (wider survival window, larger drops); separate validation sweep planned before using lite network for realistic-retarget studies |
 | Mar 2026 | Invalidate targeted_sweep3, targeted_sweep5_lite, targeted_sweep6_lite | Results from all lite sweeps prior to role-name fix are invalid for econ/user parameters |
 | Mar 2026 | Use PRIM + RF + logistic regression for boundary fitting | Complementary methods: PRIM gives interpretable box bounds, RF gives best predictive accuracy, logistic gives smooth boundary equation |
 | Mar 2026 | Use contentiousness score as second PRIM response | Binary win/loss misses cascade intensity; high-chaos scenarios may be more policy-relevant than close-outcome scenarios |

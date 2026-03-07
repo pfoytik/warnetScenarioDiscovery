@@ -1,9 +1,192 @@
-# Running Two Parallel Sweeps
+# Running Parallel Sweeps
+
+---
+
+## Part 1: Production Servers (PRIM/CART Dataset)
+
+Guide for running large-scale parallel sweeps across two dedicated Ubuntu servers for
+scenario discovery using PRIM and CART methods.
+
+### Server Specs
+
+- **2 × servers**: 64 cores, 250 GiB RAM each
+- **OS**: Ubuntu (bare metal)
+- **Cluster**: k3s (one independent k3s instance per server — not minikube)
+
+### Why k3s, Not Minikube
+
+Minikube is a development tool designed for laptops. For bare metal Ubuntu servers,
+k3s is the correct choice: single-command install, production-grade, same kubectl/namespace
+interface, no VM overhead.
+
+```bash
+# Install k3s on each server
+curl -sfL https://get.k3s.io | sh -
+
+# Set maxPods (default 110 is too low for parallel scenarios)
+# Add to /etc/rancher/k3s/config.yaml:
+kubelet-arg:
+  - "max-pods=600"
+
+# Restart k3s
+sudo systemctl restart k3s
+
+# Verify
+kubectl get nodes
+```
+
+### Resource Budget Per Server
+
+Each scenario uses approximately:
+- ~49 pods (48 Bitcoin nodes + 1 commander)
+- ~24 GiB RAM
+- ~3.5 CPU cores at peak
+
+| Resource | Per scenario | 5 parallel | Server budget | Headroom |
+|---|---|---|---|---|
+| RAM | 24 GiB | 120 GiB | 250 GiB | ~130 GiB ✓ |
+| Pods | 49 | 245 | 600 (maxPods) | ~355 ✓ |
+| CPU | 3.5 cores | 17.5 | 64 cores | ~46 cores ✓ |
+
+**5 parallel scenarios per server is the safe target.** RAM headroom is generous; could
+push to 8 if needed but 5 is conservative and reliable.
+
+### Warnet Installation on Bare Metal
+
+```bash
+# Clone repos on each server
+git clone <warnet-repo> ~/warnet
+git clone <warnetScenarioDiscovery-repo> ~/bitcoin/warnetScenarioDiscovery
+
+# Install warnet (follow warnet's own install docs for k3s target)
+cd ~/warnet
+# ... warnet helm/kubectl deployment steps ...
+
+# Verify warnet is running
+warnet status
+```
+
+### Namespace Support in `3_run_sweep.py` (NOT YET IMPLEMENTED)
+
+The sweep runner currently has no `--namespace` flag. Before running parallel sweeps
+on the production servers, two changes are required:
+
+**Change 1 — Namespace flag and worker pool**
+
+Add `--namespace` and `--parallel` flags to `3_run_sweep.py`. Replace the sequential
+scenario loop with a `concurrent.futures.ThreadPoolExecutor` worker pool. Each worker:
+1. Acquires the config injection file lock
+2. Writes scenario configs to `scenarios/config/`
+3. Calls `warnet deploy --namespace <ns>` and `warnet run --namespace <ns>`
+4. Releases the lock (rest of the ~90 min scenario runs fully in parallel)
+5. Collects results and writes to the results directory
+
+```python
+# Sketch of the parallel runner pattern
+from concurrent.futures import ThreadPoolExecutor
+import fcntl
+
+LOCK_FILE = "scenarios/config/.sweep_inject.lock"
+
+def run_scenario(scenario, namespace, results_dir):
+    # Critical section: inject configs and deploy
+    with open(LOCK_FILE, 'w') as lf:
+        fcntl.flock(lf, fcntl.LOCK_EX)
+        inject_configs(scenario)
+        deploy(namespace)
+    # Non-critical: wait for completion and collect results (~90 min)
+    wait_for_completion(namespace)
+    collect_results(namespace, results_dir)
+
+with ThreadPoolExecutor(max_workers=5) as pool:
+    for i, scenario in enumerate(scenarios):
+        ns = f"sweep-worker-{i % 5}"
+        pool.submit(run_scenario, scenario, ns, results_dir)
+```
+
+**Change 2 — Namespace-aware teardown**
+
+`warnet down` has no namespace flag. Use kubectl directly for teardown:
+
+```bash
+kubectl -n <namespace> delete pods --all --force --grace-period=0
+```
+
+### Distributing Work Across Two Servers
+
+Each server runs its own independent sweep runner against its own half of the scenario
+batch. No coordination between servers is needed during the run.
+
+```bash
+# On server 1 — first half of scenarios
+python 3_run_sweep.py \
+    --input prim_cart_sweep/build_manifest.json \
+    --results-dir prim_cart_sweep/results \
+    --namespace-prefix sweep \
+    --parallel 5 \
+    --duration 5400
+
+# On server 2 — second half of scenarios (use --offset flag or separate manifest)
+python 3_run_sweep.py \
+    --input prim_cart_sweep/build_manifest_server2.json \
+    --results-dir prim_cart_sweep/results \
+    --namespace-prefix sweep \
+    --parallel 5 \
+    --duration 5400
+```
+
+Splitting the manifest into two halves is done at build time — generate two separate
+`build_manifest.json` files (scenarios 0–149 and 150–299) or add an `--offset` and
+`--count` flag to the runner.
+
+### Collecting Results
+
+After both servers finish, rsync results back to the development machine:
+
+```bash
+rsync -av server1:~/bitcoin/warnetScenarioDiscovery/tools/sweep/prim_cart_sweep/results/ \
+    tools/sweep/prim_cart_sweep/results/
+
+rsync -av server2:~/bitcoin/warnetScenarioDiscovery/tools/sweep/prim_cart_sweep/results/ \
+    tools/sweep/prim_cart_sweep/results/
+
+# Then run combined analysis
+python 4_analyze_results.py \
+    --input tools/sweep/prim_cart_sweep/results \
+    --manifest tools/sweep/prim_cart_sweep/build_manifest_combined.json
+```
+
+### Time Estimates (300 scenarios, 5 parallel per server)
+
+| Scenario duration | Wall-clock time | Notes |
+|---|---|---|
+| 1800s (current rapid) | ~15 hours | No 2016-block retarget |
+| 5400s (~90 min) | ~45 hours | 1 full 2016-block retarget cycle |
+| 7200s (120 min) | ~60 hours | ~1.5 retarget cycles |
+
+**Recommended duration for PRIM/CART dataset: 5400s** — enough for one full 2016-block
+retarget cycle (4032 seconds at 2s/block) with buffer for cascade dynamics to resolve.
+
+### Checklist Before Starting (Production Servers)
+
+- [ ] k3s installed on both servers with `maxPods=600`
+- [ ] Warnet deployed and verified on both servers
+- [ ] Repos cloned and symlinks set up on both servers
+- [ ] `--namespace` and `--parallel` flags implemented in `3_run_sweep.py`
+- [ ] Config injection file lock (`fcntl.flock`) implemented
+- [ ] PRIM/CART LHS generated (`scenarios.json`, 300 scenarios, 4–5 parameters)
+- [ ] Manifests built and split into server1/server2 halves
+- [ ] Tested with `--dry-run` on both servers before committing to full run
+- [ ] rsync target directory prepared on dev machine
+
+---
+
+## Part 2: Development Machine (Two Parallel Sweeps)
 
 Guide for running two simultaneous parameter sweeps on the development machine using
 Kubernetes namespace isolation.
 
-## Machine Specs
+### Machine Specs
 
 - **RAM**: 64 GiB total
 - **CPU**: 16 cores (minikube currently allocated 12)

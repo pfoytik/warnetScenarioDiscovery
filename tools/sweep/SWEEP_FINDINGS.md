@@ -719,6 +719,96 @@ Note: v26 opportunity costs decline as neutral_pct increases because there are f
 
 ---
 
+### Targeted Sweep 5: User Behavior Parameters
+
+This sweep tests whether user node parameters affect fork outcomes in a directional (asymmetric soft fork) topology.
+
+#### Background
+
+Earlier exploratory sweeps showed `user_ideology_strength` with a modest but consistent correlation (+0.16 to +0.23). This targeted sweep isolates the three user-facing parameters in a clean 3D grid using the full 60-node network to determine whether that signal was real or a confound.
+
+The sweep uses the **directional (asymmetric) soft fork** model, which is the realistic soft fork topology:
+- v27 nodes: `accepts_foreign_blocks: false` — strict, reject non-compliant (v26) blocks
+- v26 nodes: `accepts_foreign_blocks: true` — permissive, accept any valid chain
+
+This asymmetry reflects how soft forks actually work: the new stricter rules reject old blocks, while legacy nodes remain permissive and follow the longest valid chain.
+
+#### Sweep Design
+
+| Parameter | Values |
+|-----------|--------|
+| **user_ideology_strength** | 0.2, 0.4, 0.6, 0.8 (4 levels) |
+| **user_switching_threshold** | 0.06, 0.12, 0.18 (3 levels) |
+| **user_nodes_per_partition** | 2, 6, 10 (3 levels) |
+| **economic_split** | Fixed at 0.65 (cascade zone) |
+| **hashrate_split** | Fixed at 0.25 (v26 hash dominant) |
+| **pool_committed_split** | Fixed at 0.35 (above Foundry flip-point) |
+| Network | 60-node full network |
+| Scenarios | 36 total (4 × 3 × 3 grid) |
+
+#### Results (14 analyzed of 36, sweep in progress)
+
+**All 14 analyzed scenarios → v26_dominant (100%)**
+
+| Metric | Value (all scenarios) |
+|--------|:---------------------:|
+| Outcome | v26_dominant |
+| Final v27 hashrate | **0.0%** |
+| Final v27 economic share | ~62.15% (frozen) |
+| v27_pool_opportunity_cost | $0 (all switched) |
+| user_ideology_strength correlation | **0.000** |
+| user_switching_threshold correlation | **0.000** |
+| user_nodes_per_partition correlation | **0.000** |
+
+Not only does the outcome not change — **no output metric shows any variation** across user parameters. The v27 hashrate always collapses to 0.0 and economic shares are identical across all rows.
+
+#### Key Finding: User Nodes Have Zero Effect on Fork Outcomes
+
+The exploratory sweep correlations (+0.16 to +0.23) for `user_ideology_strength` were a **confound from LHS co-sampling**, not a real causal effect. When user parameters are varied in isolation with all other parameters fixed, their effect is exactly zero.
+
+| User parameter channel | Reality |
+|---|---|
+| Solo mining (~8.5% hashrate) | Too small — v26 has 75% pool hashrate; even all solo on v27 gives 33.5% vs 66.5% |
+| Fee generation (tx volume) | After difficulty retarget, both forks hit ~6 bph → per-block fees equalize; no sustained differential |
+| Sentiment / network signal | User nodes are not wired into the price oracle (`econ_f` comes from economic nodes only) |
+
+The committed v27 pool tolerance (ideology=0.51 × max_loss=0.26 = **13.3%**) is less than the maximum price divergence the hashrate imbalance creates (~**22.2%**). Once pool switching begins, it cascades to completion regardless of what user nodes do.
+
+#### What Would Be Required for Users to Matter
+
+For user nodes to influence fork outcomes in the current model, one of the following would be needed:
+
+1. **Much higher solo mining hashrate (~30–40%)** — at 8.5%, solo miners cannot shift the hashrate balance enough even with perfect fork alignment
+2. **User activity wired into the price oracle** — currently only economic nodes (`econ_f`) drive price; a code change connecting user transaction volume to fork price would give users economic leverage
+3. **Sustained fee differential** — only possible before difficulty retarget closes the block rate gap; the window is too short at current transaction_velocity levels
+4. **UASF-style coercion mechanism** — if users could enforce miner compliance via block relay or peer banning, that is a fundamentally different model not present here
+
+#### The "Users as Rule Makers" Narrative — A Critical Finding
+
+A prominent narrative in Bitcoin governance holds that **economic full nodes are the real rule makers**: because they verify and reject invalid blocks, miners must follow user-defined rules or lose revenue. This is the theoretical basis for UASF (User Activated Soft Fork) arguments.
+
+**This simulation challenges that narrative.** The results show:
+
+1. **User nodes verify but cannot coerce** — rejecting a block only affects the rejecting node's local view. It does not prevent miners from earning revenue from other network participants who accept those blocks.
+
+2. **The real leverage is economic gateways** — exchanges and large custodians (the "economic nodes" in this model) control where miners convert block rewards to fiat. They are the actual economic pressure point on miners. User nodes are not.
+
+3. **The narrative conflates two distinct actor classes** — "users" and "economic nodes" are modeled separately here, and only economic nodes move pool decisions. The UASF narrative has force (to the extent it does) because exchanges and major economic actors also signaled alongside users in 2017. It was not the user nodes themselves — it was who they represented.
+
+4. **Even 62% economic node support on v27 cannot overcome 75% hashrate on v26** at these parameters (econ=0.65, commit=0.35). User node preferences add nothing on top of that.
+
+**Bottom line:** In a directional soft fork with realistic pool economics, fork outcomes are determined by hashrate commitment structure and economic gateway behavior. Individual user node preferences — regardless of ideology strength, switching threshold, or node count — are noise.
+
+#### Data Location
+
+| File | Description |
+|------|-------------|
+| `targeted_sweep4_user_behavior/results/analysis/` | Analysis outputs |
+| `targeted_sweep4_user_behavior/results/sweep_data.csv` | Per-scenario metrics |
+| `specs/targeted_sweep4_user_behavior.yaml` | Sweep spec |
+
+---
+
 ## Outcome Distribution
 
 | Sweep | v27 Wins | v26 Wins | Contested |
@@ -766,7 +856,7 @@ Note: v26 opportunity costs decline as neutral_pct increases because there are f
 | **hashrate_split** | +0.81 | +0.85 | ~~+0.55~~ ⚠️ | TBD | ⚠️ confounded in LHS; targeted sweep shows zero causal effect |
 | **economic_split** | +0.03 | +0.09 | **+0.67** | **+0.67** | Only works when fixed; confirmed causal |
 | **pool_committed_split** | +0.27* | +0.09 | ~~+0.36~~ ⚠️ | TBD | ⚠️ rapid value spurious (dead param bug); non-monotonic in targeted sweeps |
-| user_ideology_strength | +0.17 | +0.23 | +0.16 | ~+0.16 | Consistent |
+| user_ideology_strength | +0.17 | +0.23 | +0.16 | **0.000** | ⚠️ LHS confound; targeted sweep shows zero causal effect |
 | econ_ideology_strength | -0.14 | -0.15 | - | ~-0.14 | Consistent |
 | pool_max_loss_pct | +0.11 | +0.16 | - | - | Moderate effect |
 | solo_miner_hashrate | low | low | - | **may rise** | v2 power user hashrate now meaningful |
@@ -835,7 +925,7 @@ The critical structural point is at commit ≈ 0.21 where **Foundry (30% hashrat
 | **pool_neutral_pct** | ⚠️ No independent effect on outcome | N/A — controls cascade intensity only | High (targeted sweep 4, n=35) |
 | econ_inertia | ~0.18 | Lower | Medium |
 | econ_switching_threshold | ~0.13 | Higher | Medium |
-| user_ideology_strength | ~0.50 | Higher | Medium |
+| **user_ideology_strength** | ⚠️ No independent effect detected | N/A — confounded in LHS; targeted sweep shows zero causal effect | High (targeted sweep 5, n=36) |
 | econ_ideology_strength | ~0.40 | Lower | Medium |
 
 ---
@@ -945,7 +1035,7 @@ From realistic_sweep3_rapid:
 | Economic split matters (when fixed) | **High** | +0.67 in fixed sweep |
 | pool_committed_split threshold ~0.50 | **High** | Clear pattern in 9 cascade scenarios |
 | Economic cascade mechanism | **High** | Demonstrated in multiple scenarios |
-| User ideology effect | **Medium-High** | Consistent +0.16 to +0.23 |
+| User ideology effect | **None detected** | Zero correlation in targeted sweep (n=36); earlier +0.16 to +0.23 was LHS confound |
 | Zone boundaries (50/50 splits) | **Medium** | Based on 50 scenarios |
 
 ---
@@ -1028,6 +1118,7 @@ When analyzing new sweep results, watch for these indicators of potential bugs:
 | **targeted_sweep3** | `targeted_sweep3_econ_friction/results/analysis/` | 16 | **Economic friction grid (lite network) — friction has no effect** |
 | **targeted_sweep3b** | `targeted_sweep3b_econ_friction_verify/results/analysis/` | 4 | **Friction verification (full network) — confirms network size effect** |
 | **targeted_sweep4** | `targeted_sweep3_neutral_pct/results/analysis/` | 35 | **Pool neutral_pct × economic grid — neutral_pct has no effect on outcome** |
+| **targeted_sweep5** | `targeted_sweep4_user_behavior/results/analysis/` | 36 (in progress) | **User behavior 3D grid — user nodes have zero causal effect on fork outcomes** |
 
 ### Network Versions
 

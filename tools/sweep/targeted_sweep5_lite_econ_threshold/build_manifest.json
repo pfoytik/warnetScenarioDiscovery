@@ -1,0 +1,349 @@
+{
+  "metadata": {
+    "type": "targeted_grid",
+    "name": "targeted_sweep5_lite_econ_threshold",
+    "description": "Map economic threshold on lite network for comparison with full network",
+    "spec_file": "specs/targeted_sweep5_lite_econ_threshold.yaml",
+    "n_samples": 8,
+    "n_parameters": 16,
+    "grid_axes": {
+      "economic_split": [
+        0.5,
+        0.55,
+        0.6,
+        0.65,
+        0.7,
+        0.75,
+        0.8,
+        0.85
+      ]
+    },
+    "fixed_parameters": {
+      "hashrate_split": 0.3,
+      "pool_committed_split": 0.35,
+      "pool_neutral_pct": 30.0,
+      "pool_ideology_strength": 0.5,
+      "pool_max_loss_pct": 0.26,
+      "pool_profitability_threshold": 0.05,
+      "econ_ideology_strength": 0.4,
+      "econ_inertia": 0.15,
+      "econ_switching_threshold": 0.12,
+      "economic_nodes_per_partition": 2,
+      "user_ideology_strength": 0.5,
+      "user_switching_threshold": 0.1,
+      "user_nodes_per_partition": 4,
+      "solo_miner_hashrate": 0.03,
+      "transaction_velocity": 0.5
+    },
+    "parameters": [
+      {
+        "name": "economic_split",
+        "min": 0.0,
+        "max": 1.0,
+        "type": "continuous",
+        "role": "grid"
+      },
+      {
+        "name": "hashrate_split",
+        "min": 0.0,
+        "max": 1.0,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_ideology_strength",
+        "min": 0.1,
+        "max": 0.9,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_profitability_threshold",
+        "min": 0.02,
+        "max": 0.3,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_max_loss_pct",
+        "min": 0.02,
+        "max": 0.5,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_committed_split",
+        "min": 0.0,
+        "max": 1.0,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_neutral_pct",
+        "min": 10.0,
+        "max": 50.0,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "econ_ideology_strength",
+        "min": 0.0,
+        "max": 0.8,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "econ_switching_threshold",
+        "min": 0.02,
+        "max": 0.25,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "econ_inertia",
+        "min": 0.05,
+        "max": 0.3,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "user_ideology_strength",
+        "min": 0.1,
+        "max": 0.9,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "user_switching_threshold",
+        "min": 0.05,
+        "max": 0.2,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "transaction_velocity",
+        "min": 0.1,
+        "max": 0.9,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "user_nodes_per_partition",
+        "min": 2,
+        "max": 10,
+        "type": "discrete",
+        "role": "fixed"
+      },
+      {
+        "name": "economic_nodes_per_partition",
+        "min": 1,
+        "max": 3,
+        "type": "discrete",
+        "role": "fixed"
+      },
+      {
+        "name": "solo_miner_hashrate",
+        "min": 0.02,
+        "max": 0.15,
+        "type": "continuous",
+        "role": "fixed"
+      }
+    ]
+  },
+  "scenarios": [
+    {
+      "scenario_id": "sweep_0000",
+      "parameters": {
+        "scenario_id": "sweep_0000",
+        "hashrate_split": 0.3,
+        "pool_committed_split": 0.35,
+        "pool_neutral_pct": 30.0,
+        "pool_ideology_strength": 0.5,
+        "pool_max_loss_pct": 0.26,
+        "pool_profitability_threshold": 0.05,
+        "econ_ideology_strength": 0.4,
+        "econ_inertia": 0.15,
+        "econ_switching_threshold": 0.12,
+        "economic_nodes_per_partition": 2,
+        "user_ideology_strength": 0.5,
+        "user_switching_threshold": 0.1,
+        "user_nodes_per_partition": 4,
+        "solo_miner_hashrate": 0.03,
+        "transaction_velocity": 0.5,
+        "economic_split": 0.5
+      },
+      "network_config": "targeted_sweep5_lite_econ_threshold/configs/network/sweep_0000.yaml",
+      "network_path": "targeted_sweep5_lite_econ_threshold/networks/sweep_0000/network.yaml"
+    },
+    {
+      "scenario_id": "sweep_0001",
+      "parameters": {
+        "scenario_id": "sweep_0001",
+        "hashrate_split": 0.3,
+        "pool_committed_split": 0.35,
+        "pool_neutral_pct": 30.0,
+        "pool_ideology_strength": 0.5,
+        "pool_max_loss_pct": 0.26,
+        "pool_profitability_threshold": 0.05,
+        "econ_ideology_strength": 0.4,
+        "econ_inertia": 0.15,
+        "econ_switching_threshold": 0.12,
+        "economic_nodes_per_partition": 2,
+        "user_ideology_strength": 0.5,
+        "user_switching_threshold": 0.1,
+        "user_nodes_per_partition": 4,
+        "solo_miner_hashrate": 0.03,
+        "transaction_velocity": 0.5,
+        "economic_split": 0.55
+      },
+      "network_config": "targeted_sweep5_lite_econ_threshold/configs/network/sweep_0001.yaml",
+      "network_path": "targeted_sweep5_lite_econ_threshold/networks/sweep_0001/network.yaml"
+    },
+    {
+      "scenario_id": "sweep_0002",
+      "parameters": {
+        "scenario_id": "sweep_0002",
+        "hashrate_split": 0.3,
+        "pool_committed_split": 0.35,
+        "pool_neutral_pct": 30.0,
+        "pool_ideology_strength": 0.5,
+        "pool_max_loss_pct": 0.26,
+        "pool_profitability_threshold": 0.05,
+        "econ_ideology_strength": 0.4,
+        "econ_inertia": 0.15,
+        "econ_switching_threshold": 0.12,
+        "economic_nodes_per_partition": 2,
+        "user_ideology_strength": 0.5,
+        "user_switching_threshold": 0.1,
+        "user_nodes_per_partition": 4,
+        "solo_miner_hashrate": 0.03,
+        "transaction_velocity": 0.5,
+        "economic_split": 0.6
+      },
+      "network_config": "targeted_sweep5_lite_econ_threshold/configs/network/sweep_0002.yaml",
+      "network_path": "targeted_sweep5_lite_econ_threshold/networks/sweep_0002/network.yaml"
+    },
+    {
+      "scenario_id": "sweep_0003",
+      "parameters": {
+        "scenario_id": "sweep_0003",
+        "hashrate_split": 0.3,
+        "pool_committed_split": 0.35,
+        "pool_neutral_pct": 30.0,
+        "pool_ideology_strength": 0.5,
+        "pool_max_loss_pct": 0.26,
+        "pool_profitability_threshold": 0.05,
+        "econ_ideology_strength": 0.4,
+        "econ_inertia": 0.15,
+        "econ_switching_threshold": 0.12,
+        "economic_nodes_per_partition": 2,
+        "user_ideology_strength": 0.5,
+        "user_switching_threshold": 0.1,
+        "user_nodes_per_partition": 4,
+        "solo_miner_hashrate": 0.03,
+        "transaction_velocity": 0.5,
+        "economic_split": 0.65
+      },
+      "network_config": "targeted_sweep5_lite_econ_threshold/configs/network/sweep_0003.yaml",
+      "network_path": "targeted_sweep5_lite_econ_threshold/networks/sweep_0003/network.yaml"
+    },
+    {
+      "scenario_id": "sweep_0004",
+      "parameters": {
+        "scenario_id": "sweep_0004",
+        "hashrate_split": 0.3,
+        "pool_committed_split": 0.35,
+        "pool_neutral_pct": 30.0,
+        "pool_ideology_strength": 0.5,
+        "pool_max_loss_pct": 0.26,
+        "pool_profitability_threshold": 0.05,
+        "econ_ideology_strength": 0.4,
+        "econ_inertia": 0.15,
+        "econ_switching_threshold": 0.12,
+        "economic_nodes_per_partition": 2,
+        "user_ideology_strength": 0.5,
+        "user_switching_threshold": 0.1,
+        "user_nodes_per_partition": 4,
+        "solo_miner_hashrate": 0.03,
+        "transaction_velocity": 0.5,
+        "economic_split": 0.7
+      },
+      "network_config": "targeted_sweep5_lite_econ_threshold/configs/network/sweep_0004.yaml",
+      "network_path": "targeted_sweep5_lite_econ_threshold/networks/sweep_0004/network.yaml"
+    },
+    {
+      "scenario_id": "sweep_0005",
+      "parameters": {
+        "scenario_id": "sweep_0005",
+        "hashrate_split": 0.3,
+        "pool_committed_split": 0.35,
+        "pool_neutral_pct": 30.0,
+        "pool_ideology_strength": 0.5,
+        "pool_max_loss_pct": 0.26,
+        "pool_profitability_threshold": 0.05,
+        "econ_ideology_strength": 0.4,
+        "econ_inertia": 0.15,
+        "econ_switching_threshold": 0.12,
+        "economic_nodes_per_partition": 2,
+        "user_ideology_strength": 0.5,
+        "user_switching_threshold": 0.1,
+        "user_nodes_per_partition": 4,
+        "solo_miner_hashrate": 0.03,
+        "transaction_velocity": 0.5,
+        "economic_split": 0.75
+      },
+      "network_config": "targeted_sweep5_lite_econ_threshold/configs/network/sweep_0005.yaml",
+      "network_path": "targeted_sweep5_lite_econ_threshold/networks/sweep_0005/network.yaml"
+    },
+    {
+      "scenario_id": "sweep_0006",
+      "parameters": {
+        "scenario_id": "sweep_0006",
+        "hashrate_split": 0.3,
+        "pool_committed_split": 0.35,
+        "pool_neutral_pct": 30.0,
+        "pool_ideology_strength": 0.5,
+        "pool_max_loss_pct": 0.26,
+        "pool_profitability_threshold": 0.05,
+        "econ_ideology_strength": 0.4,
+        "econ_inertia": 0.15,
+        "econ_switching_threshold": 0.12,
+        "economic_nodes_per_partition": 2,
+        "user_ideology_strength": 0.5,
+        "user_switching_threshold": 0.1,
+        "user_nodes_per_partition": 4,
+        "solo_miner_hashrate": 0.03,
+        "transaction_velocity": 0.5,
+        "economic_split": 0.8
+      },
+      "network_config": "targeted_sweep5_lite_econ_threshold/configs/network/sweep_0006.yaml",
+      "network_path": "targeted_sweep5_lite_econ_threshold/networks/sweep_0006/network.yaml"
+    },
+    {
+      "scenario_id": "sweep_0007",
+      "parameters": {
+        "scenario_id": "sweep_0007",
+        "hashrate_split": 0.3,
+        "pool_committed_split": 0.35,
+        "pool_neutral_pct": 30.0,
+        "pool_ideology_strength": 0.5,
+        "pool_max_loss_pct": 0.26,
+        "pool_profitability_threshold": 0.05,
+        "econ_ideology_strength": 0.4,
+        "econ_inertia": 0.15,
+        "econ_switching_threshold": 0.12,
+        "economic_nodes_per_partition": 2,
+        "user_ideology_strength": 0.5,
+        "user_switching_threshold": 0.1,
+        "user_nodes_per_partition": 4,
+        "solo_miner_hashrate": 0.03,
+        "transaction_velocity": 0.5,
+        "economic_split": 0.85
+      },
+      "network_config": "targeted_sweep5_lite_econ_threshold/configs/network/sweep_0007.yaml",
+      "network_path": "targeted_sweep5_lite_econ_threshold/networks/sweep_0007/network.yaml"
+    }
+  ],
+  "generated_networks": 8,
+  "failed_networks": 0
+}

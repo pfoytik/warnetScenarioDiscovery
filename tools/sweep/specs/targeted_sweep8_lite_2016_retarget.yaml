@@ -1,0 +1,80 @@
+name: targeted_sweep8_lite_2016_retarget
+description: >
+  Lite network equivalence validation at realistic 2016-block difficulty retarget
+  intervals. Companion to targeted_sweep5 (which validated equivalence at 144-block
+  retarget).
+
+  All prior targeted sweeps use an accelerated 144-block retarget (~5 min per
+  adjustment at 2-second block intervals). The 2016-block retarget (~67 min) creates
+  qualitatively different dynamics:
+
+    - Minority chain difficulty adjustment takes ~14x longer wall-clock time
+    - The survival window is much wider — more time for price to collapse before the
+      adjustment arrives, but also a larger difficulty drop when it does
+    - Fee counter-pressure is sustained much longer, partially compensating miners
+      on the minority chain during the extended penalty period
+    - The difficulty adjustment profit spike (see "Difficulty Adjustment Survival
+      Window" in SWEEP_FINDINGS.md) is larger and more abrupt
+
+  These dynamics may interact differently with the lite network's consolidated
+  economic cohorts vs the full network's individual entity representation. Specifically,
+  the longer window gives economic nodes more decision cycles before the adjustment,
+  potentially amplifying or dampening the cascade differently at each network size.
+
+  This sweep uses the same economic_split grid as targeted_sweep5 and the same fixed
+  parameters as targeted_sweep1, enabling a three-way comparison:
+    targeted_sweep1  (full, 144-block):  v26, v26, v26, v26, v27
+    targeted_sweep5  (lite, 144-block):  v26, v26, v26, v26, v27  [confirmed match]
+    targeted_sweep8  (lite, 2016-block): run to find out
+
+  If the outcomes match across all three, the lite network is cleared for use in any
+  2016-block retarget studies and Phase 3 can proceed on either network at either
+  retarget interval. If they diverge, the divergence will reveal which retarget regime
+  is sensitive to network size.
+
+  IMPORTANT — Runtime parameter: This sweep requires a non-default retarget interval.
+  Pass --retarget-interval 2016 when running step 3:
+
+    python3 tools/sweep/3_run_sweep.py \
+      --input targeted_sweep8_lite_2016_retarget/build_manifest.json \
+      --duration 1800 --interval 2 \
+      --retarget-interval 2016
+
+  Note: At 2-second block intervals and 2016-block retarget, each adjustment occurs
+  every ~4,032 seconds (~67 min). With 1800-second runs, the minority chain (25%
+  hashrate) produces ~225 blocks per run — well short of a full retarget cycle. The
+  majority chain produces ~675 blocks. This means difficulty does NOT adjust during
+  the run, and all dynamics play out under the original inherited pre-fork difficulty.
+  This is actually the most realistic scenario: the fork is young and neither chain
+  has retargeted yet. Extend --duration to 7200 (2 hours) or more to capture the
+  first retarget event on the majority chain.
+
+  Recommended duration: 7200 seconds (2 hours) to capture at least one majority-chain
+  retarget and the beginning of the minority chain's extended struggle.
+
+  Runtime estimate: ~5 scenarios × ~60-120 min = ~5-10 hours on lite network
+  (longer per scenario due to extended duration).
+
+network: lite
+
+# Fixed parameters — identical to targeted_sweep1 and targeted_sweep5
+fixed:
+  hashrate_split: 0.25
+  pool_committed_split: 0.35
+  pool_neutral_pct: 30.0
+  pool_ideology_strength: 0.51
+  pool_profitability_threshold: 0.16
+  pool_max_loss_pct: 0.26
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.14
+  econ_inertia: 0.17
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  transaction_velocity: 0.50
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  solo_miner_hashrate: 0.085
+
+# Same economic_split values as targeted_sweep1 and targeted_sweep5
+grid:
+  economic_split: [0.35, 0.50, 0.60, 0.70, 0.82]

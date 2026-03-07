@@ -1,0 +1,65 @@
+name: targeted_sweep7_lite_inversion
+description: >
+  Lite network validation of the inversion zone and committed threshold structure
+  discovered in targeted_sweep1 on the full network.
+
+  targeted_sweep5 confirmed lite/full equivalence at pool_committed_split=0.35 (the
+  baseline column), but the most complex behavior — the non-monotonic inversion zone
+  at econ=0.60-0.70 where higher committed_split HURTS v27 — was never validated on
+  the lite network. That inversion is the defining feature of the decision boundary
+  and will be the primary target of Phase 3 LHS sampling. If the lite network
+  replicates it correctly, Phase 3 can run on either network with full confidence.
+
+  Grid design: 4 economic levels × 3 committed split values = 12 scenarios.
+  Economic levels chosen to bracket the full boundary structure:
+    econ=0.50 — low threshold region (v27 wins at low commit, loses at higher commit)
+    econ=0.60 — inversion zone (v27 LOSES as committed_split increases)
+    econ=0.70 — inversion zone (v26 wins everywhere in sweep1)
+    econ=0.82 — above threshold (v27 wins everywhere)
+
+  Committed split values chosen to bracket the inversion behavior:
+    commit=0.20 — below Foundry flip-point (v27 wins at econ=0.50, 0.60)
+    commit=0.38 — above flip-point, mid-range (v26 wins in inversion zone)
+    commit=0.65 — high committed (v26 wins in inversion zone; v27 wins at 0.82)
+
+  Expected outcomes if lite matches full (from targeted_sweep1):
+                     commit=0.20   commit=0.38   commit=0.65
+    econ=0.50           v27           v27           v27
+    econ=0.60           v27           v26           v26
+    econ=0.70           v27           v26           v26
+    econ=0.82           v27           v27           v27
+
+  Any deviation from this pattern indicates a structural difference between the
+  lite and full networks in the inversion zone dynamics — the most policy-relevant
+  region of the parameter space.
+
+  Fixed parameters are identical to targeted_sweep1 and targeted_sweep5 throughout
+  for direct apples-to-apples comparison.
+
+  Runtime: ~12 scenarios × ~30 min = ~6 hours on lite network.
+
+network: lite
+
+# Fixed parameters — identical to targeted_sweep1 and targeted_sweep5
+fixed:
+  hashrate_split: 0.25
+  pool_neutral_pct: 30.0
+  pool_ideology_strength: 0.51
+  pool_profitability_threshold: 0.16
+  pool_max_loss_pct: 0.26
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.14
+  econ_inertia: 0.17
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  transaction_velocity: 0.50
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  solo_miner_hashrate: 0.085
+
+# 4 × 3 = 12 scenarios
+# economic levels bracket the full boundary structure
+# committed split values bracket both sides of the inversion
+grid:
+  economic_split:       [0.50, 0.60, 0.70, 0.82]
+  pool_committed_split: [0.20, 0.38, 0.65]

@@ -1,0 +1,50 @@
+name: targeted_sweep5_lite_econ_threshold
+description: >
+  Map the economic threshold on the lite network (realistic-economy-lite, 25 nodes)
+  for direct comparison with targeted_sweep1 on the full network (60 nodes).
+
+  The original targeted_sweep5 run was fully invalidated by the role-name bug in
+  2_build_configs.py — economic_split was never applied to lite network nodes.
+  This is the corrected re-run using the fixed build script.
+
+  Fixed parameters are identical to targeted_sweep1 to enable apples-to-apples
+  comparison. pool_committed_split is fixed at 0.35 (the baseline value used
+  across most targeted sweeps) to produce a single comparable column from the
+  targeted_sweep1 2D grid.
+
+  Expected comparison:
+    targeted_sweep1 (full, commit=0.35): econ=0.35→v26, 0.50→v26, 0.60→v26,
+                                          0.70→v26, 0.82→v27
+    targeted_sweep5 (lite, commit=0.35): run to find out
+
+  If the lite network is a valid proxy, outcomes should match targeted_sweep1.
+  Any divergence indicates a structural difference between the two networks
+  beyond just node count.
+
+  Build command:
+    python 2_build_configs.py \
+      --input targeted_sweep5_lite_econ_threshold/scenarios.json \
+      --output-dir targeted_sweep5_lite_econ_threshold \
+      --base-network ../../networks/realistic-economy-lite/network.yaml
+
+# Fixed parameters — identical to targeted_sweep1_committed_threshold
+fixed:
+  hashrate_split: 0.25
+  pool_committed_split: 0.35
+  pool_neutral_pct: 30.0
+  pool_ideology_strength: 0.51
+  pool_profitability_threshold: 0.16
+  pool_max_loss_pct: 0.26
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.14
+  econ_inertia: 0.17
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  transaction_velocity: 0.50
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  solo_miner_hashrate: 0.085
+
+# Same economic_split values as targeted_sweep1 for direct row comparison
+grid:
+  economic_split: [0.35, 0.50, 0.60, 0.70, 0.82]

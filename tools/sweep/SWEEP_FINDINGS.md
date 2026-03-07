@@ -14,10 +14,10 @@ The **realistic_sweep3_rapid** sweep with fixed code reveals a dramatically diff
 **The economic cascade mechanism is real and powerful.** When economic_split is properly applied:
 
 1. **Economic majority can overcome hashrate minority** through price signals
-2. **pool_committed_split has a non-monotonic effect** — it inverts at moderate economic levels due to pool-specific flip-points (see Targeted Sweep 1 findings)
-3. **hashrate_split has no independent causal effect** — targeted grid sweep across 0.15–0.65 produced identical outcomes at every economic level (see Targeted Sweep 2 findings)
+2. **pool_committed_split has a non-monotonic effect** — it inverts at moderate economic levels due to pool-specific flip-points (see targeted_sweep1 findings)
+3. **hashrate_split has no independent causal effect** — targeted grid sweep across 0.15–0.65 produced identical outcomes at every economic level (see targeted_sweep2 findings)
 4. High reorg counts (5+) correlate with v27 victory (86% of cascade scenarios in exploratory sweep)
-5. **pool_neutral_pct controls cascade intensity, not outcome** — varying neutral pools from 10–50% changes how long the cascade takes but not who wins; the inversion zone persists even when the v26-committed block collapses from 36% to 8% of total hashrate (see Targeted Sweep 4 findings)
+5. **pool_neutral_pct controls cascade intensity, not outcome** — varying neutral pools from 10–50% changes how long the cascade takes but not who wins; the inversion zone persists even when the v26-committed block collapses from 36% to 8% of total hashrate (see targeted_sweep3_neutral_pct findings)
 
 ### Zone Analysis Caveat
 
@@ -47,7 +47,7 @@ The targeted sweep (economic × committed grid with fixed 25% hashrate) revealed
 
 ### Pool Ideology Discovery
 
-Targeted sweep 2b tested pool ideology parameters near the economic threshold (econ=0.78):
+targeted_sweep2b tested pool ideology parameters near the economic threshold (econ=0.78):
 
 | Ideology Strength | Required max_loss_pct for v27 win |
 |:-----------------:|:---------------------------------:|
@@ -202,7 +202,7 @@ Pool naming: Alpha/Beta/Gamma/Delta (v27) vs Epsilon/Zeta/Eta/Theta (v26), each 
 
 ## Targeted Threshold Mapping
 
-### Targeted Sweep 1: Economic × Committed Split Grid
+### targeted_sweep1: Economic × Committed Split Grid
 
 Following the recommendations from earlier sweeps, this targeted sweep maps the interaction between `economic_split` and `pool_committed_split` with fixed hashrate disadvantage for v27.
 
@@ -322,7 +322,7 @@ This is the transition zone at 70% economics — sufficient to cause significant
 
 ---
 
-### Targeted Sweep 2: Hashrate × Economic Decision Surface
+### targeted_sweep2: Hashrate × Economic Decision Surface
 
 Following the targeted_sweep1 findings, this sweep maps the two most correlated parameters from the exploratory sweep — `hashrate_split` and `economic_split` — across a clean 6×7 grid with all other parameters fixed at medians.
 
@@ -408,7 +408,7 @@ The +0.554 correlation from realistic_sweep3_rapid was almost certainly a confou
 
 ---
 
-### Targeted Sweep 2b: Pool Ideology Parameters
+### targeted_sweep2b: Pool Ideology Parameters
 
 This sweep tests whether pool ideology parameters (`pool_ideology_strength` and `pool_max_loss_pct`) can influence outcomes when economic support is near the cascade threshold.
 
@@ -499,9 +499,9 @@ When v27 wins, it's a complete cascade — all pool hashrate flips to v27.
 
 ---
 
-### Targeted Sweep 3: Economic Friction Parameters
+### targeted_sweep3: Economic Friction Parameters
 
-> ❌ **THIS SWEEP IS FULLY INVALIDATED** — See bug description in Executive Summary. The parameters under test (`econ_inertia` and `econ_switching_threshold`) were never applied to lite network economic nodes due to the role-name mismatch. All 16 scenarios ran with identical baked-in YAML values. No conclusions about economic friction can be drawn from this data. The finding "friction has no effect" is not supported — it is an artifact of the parameters literally not varying. See Targeted Sweep 3b for valid friction results on the full network.
+> ❌ **THIS SWEEP IS FULLY INVALIDATED** — See bug description in Executive Summary. The parameters under test (`econ_inertia` and `econ_switching_threshold`) were never applied to lite network economic nodes due to the role-name mismatch. All 16 scenarios ran with identical baked-in YAML values. No conclusions about economic friction can be drawn from this data. The finding "friction has no effect" is not supported — it is an artifact of the parameters literally not varying. See targeted_sweep3b for valid friction results on the full network.
 
 This sweep was intended to test whether economic node friction parameters (`econ_inertia` and `econ_switching_threshold`) affect cascade dynamics.
 
@@ -544,7 +544,7 @@ The previously noted "network size discrepancy" (lite → v27 wins at econ=0.65,
 
 ---
 
-### Targeted Sweep 3b: Economic Friction Verification (60-node Network)
+### targeted_sweep3b: Economic Friction Verification (Full Network)
 
 This verification sweep confirms the network size discrepancy discovered in targeted_sweep3.
 
@@ -617,7 +617,7 @@ All four corners (fast/slow switching × low/high threshold) produce identical r
 
 ---
 
-### Targeted Sweep 4: Pool Neutral Percentage
+### targeted_sweep3_neutral_pct: Pool Neutral Percentage
 
 This sweep tests whether changing `pool_neutral_pct` (the fraction of pool hashrate assigned to profit-maximizing neutral pools) affects fork outcomes, particularly in the inversion zone (econ=0.60–0.70).
 
@@ -728,7 +728,7 @@ Note: v26 opportunity costs decline as neutral_pct increases because there are f
 
 ---
 
-### Targeted Sweep 5: User Behavior Parameters
+### targeted_sweep4: User Behavior Parameters
 
 This sweep tests whether user node parameters affect fork outcomes in a directional (asymmetric soft fork) topology.
 
@@ -818,7 +818,7 @@ A prominent narrative in Bitcoin governance holds that **economic full nodes are
 
 ---
 
-### Targeted Sweep 6: Lite Economic Threshold (INVALIDATED)
+### targeted_sweep5: Lite Economic Threshold (INVALIDATED)
 
 > ❌ **THIS SWEEP IS FULLY INVALIDATED** — `economic_split` was never applied to lite network economic nodes due to the role-name bug. All 8 scenarios ran with the same baked-in YAML economic distribution (~43% v27 custody). The parameter being varied had no effect. Results cannot be used for any threshold comparison.
 

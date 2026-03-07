@@ -75,9 +75,10 @@ This document summarizes findings from four parameter sweeps exploring Bitcoin f
 | **targeted_sweep2** | 42 | 60 nodes | 30 min | 144 blocks (~5 min) | Fixed | **Complete** |
 | **targeted_sweep2b** | 20 | 25 nodes | 30 min | 144 blocks (~5 min) | Fixed | **Complete** |
 | **targeted_sweep3** | 16 | 25 nodes | 30 min | 144 blocks (~5 min) | Fixed | **Complete** |
+| **targeted_sweep3b** | 4 | 60 nodes | 30 min | 144 blocks (~5 min) | Fixed | **Complete** |
 | **targeted_sweep4** | 35 | 60 nodes | 30 min | 144 blocks (~5 min) | Fixed | **Complete** |
 
-**Total: 343 scenarios** (319 with full analysis)
+**Total: 347 scenarios** (323 with full analysis)
 
 ### Sweep Configuration Notes
 
@@ -532,6 +533,81 @@ This suggests the lite network may behave differently. A verification run on the
 
 ---
 
+### Targeted Sweep 3b: Economic Friction Verification (60-node Network)
+
+This verification sweep confirms the network size discrepancy discovered in targeted_sweep3.
+
+#### Background
+
+Targeted_sweep3 on the lite network (25 nodes) showed v27 winning at econ=0.65, commit=0.35. However, targeted_sweep1 on the full network (60 nodes) showed v26 winning at similar parameters. This verification sweep runs 4 corner scenarios on the full network to confirm the discrepancy.
+
+#### Sweep Design
+
+| Parameter | Values |
+|-----------|--------|
+| **econ_inertia** | 0.05, 0.35 (2 levels — corners only) |
+| **econ_switching_threshold** | 0.05, 0.28 (2 levels — corners only) |
+| **economic_split** | Fixed at 0.65 |
+| **hashrate_split** | Fixed at 0.30 |
+| **pool_committed_split** | Fixed at 0.35 |
+| Network | **60 nodes (full network)** |
+| Scenarios | 4 total (2 × 2 corners) |
+
+#### Results Grid
+
+```
+                    econ_switching_threshold
+econ_inertia       0.05       0.28
+    0.05            26         26
+    0.35            26         26
+```
+
+**All 4 scenarios: v26_dominant (100%)**
+
+#### Key Finding: Network Size Affects Threshold
+
+| Sweep | Network | Parameters | Result |
+|-------|---------|------------|:------:|
+| targeted_sweep3 | 25 nodes (lite) | econ=0.65, hash=0.25, commit=0.35 | **v27 wins** |
+| **targeted_sweep3b** | **60 nodes (full)** | econ=0.65, hash=0.30, commit=0.35 | **v26 wins** |
+
+The economic threshold for v27 to win is **higher on the full network** than on the lite network. At econ=0.65, commit=0.35:
+- Lite network: v27 wins (cascade completes)
+- Full network: v26 wins (cascade fails)
+
+#### Friction Confirmation
+
+Economic friction parameters still have no effect on outcomes:
+
+| Metric | Value (all 4 scenarios) |
+|--------|:-----------------------:|
+| Outcome | v26_dominant |
+| Reorgs | 8 |
+| Final v27 hashrate | 0% |
+| v27 block share | ~34.7% |
+
+All four corners (fast/slow switching × low/high threshold) produce identical results.
+
+#### Implications
+
+1. **Network size affects threshold estimates** — findings from lite network sweeps should be verified on full network before generalizing
+
+2. **Economic friction confirmed irrelevant** — both networks show friction has no effect on cascade outcomes
+
+3. **Cascade dynamics may differ** — the full network has more economic nodes and pools, potentially creating different price signal propagation
+
+4. **Threshold is somewhere between lite and full** — at econ=0.65, lite wins for v27, full wins for v26; the actual threshold is network-dependent
+
+#### Data Location
+
+| File | Description |
+|------|-------------|
+| `targeted_sweep3b_econ_friction_verify/results/analysis/` | Analysis outputs |
+| `targeted_sweep3b_econ_friction_verify/scenarios.json` | Full scenario configurations |
+| `specs/targeted_sweep3b_econ_friction_verify.yaml` | Sweep spec |
+
+---
+
 ### Targeted Sweep 4: Pool Neutral Percentage
 
 This sweep tests whether changing `pool_neutral_pct` (the fraction of pool hashrate assigned to profit-maximizing neutral pools) affects fork outcomes, particularly in the inversion zone (econ=0.60–0.70).
@@ -950,6 +1026,7 @@ When analyzing new sweep results, watch for these indicators of potential bugs:
 | **targeted_sweep2** | `targeted_sweep2_hashrate_economic/results/analysis/` | 42 | **Hashrate × economic grid — hashrate shown to be non-causal** |
 | **targeted_sweep2b** | `targeted_sweep2b_pool_ideology/results/analysis/` | 20 | **Pool ideology × loss tolerance grid (lite network)** |
 | **targeted_sweep3** | `targeted_sweep3_econ_friction/results/analysis/` | 16 | **Economic friction grid (lite network) — friction has no effect** |
+| **targeted_sweep3b** | `targeted_sweep3b_econ_friction_verify/results/analysis/` | 4 | **Friction verification (full network) — confirms network size effect** |
 | **targeted_sweep4** | `targeted_sweep3_neutral_pct/results/analysis/` | 35 | **Pool neutral_pct × economic grid — neutral_pct has no effect on outcome** |
 
 ### Network Versions

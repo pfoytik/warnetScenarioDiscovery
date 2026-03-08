@@ -1,0 +1,58 @@
+name: targeted_sweep9_long_duration_2016
+description: >
+  Long-duration 2016-block retarget run to observe what happens when the minority
+  chain (v27 at 25% hashrate) reaches its first difficulty adjustment.
+
+  This is a prerequisite to targeted_sweep10 (economic threshold at 2016-block).
+  The key question: does the "stuck contested" state found in sweep8 (v27 ~50%,
+  v26 ~36% hashrate at t=7200s) resolve into a decisive winner once v27's
+  difficulty drops ~75%? The answer determines what duration to use for all
+  subsequent 2016-block sweeps.
+
+  Timing estimate for first v27 retarget:
+    - v27 starts at 25% hashrate → 1 block per ~8s
+    - Neutral pools migrate to v27 early → hashrate rises to ~50.5% → 1 block per ~4s
+    - Phase 1 (~3000s at ~30% avg hashrate): ~450 v27 blocks
+    - Phase 2 (remaining at ~50.5% hashrate): ~1566 more blocks needed at ~4s each
+    - Estimated first v27 retarget: t ≈ 9,000–11,000s
+    - Running to 20,000s captures the retarget and ~9,000s of post-retarget dynamics
+
+  econ=0.70 chosen because:
+    - Clean contested result in sweep8 (no ambiguity)
+    - Well inside the contested zone — not near the threshold
+    - If the cascade completes post-retarget at econ=0.70, it likely completes
+      everywhere below 0.82; if it doesn't, the threshold sweep can use 7200s safely
+
+  Expected observations:
+    - t=0–7200s:    identical to sweep8 (neutral pools migrate, committed v26 holds)
+    - t≈9000–11000s: v27 difficulty drops ~50-60% (partial drop since hashrate only
+                    fell to ~50%, not 25%)
+    - t>11000s:     profit spike arrives — do committed v26 pools switch?
+                    YES → cascade completes, v27 dominant
+                    NO  → stuck contested persists, 7200s is valid for threshold sweep
+
+  IMPORTANT: Run with --retarget-interval 2016 and --duration 20000
+
+network: lite
+
+# Fixed parameters — identical to sweep8 (and sweep1/sweep5)
+fixed:
+  hashrate_split: 0.25
+  pool_committed_split: 0.35
+  pool_neutral_pct: 30.0
+  pool_ideology_strength: 0.51
+  pool_profitability_threshold: 0.16
+  pool_max_loss_pct: 0.26
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.14
+  econ_inertia: 0.17
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  transaction_velocity: 0.50
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  solo_miner_hashrate: 0.085
+
+# Single scenario — econ=0.70, the cleanest contested case from sweep8
+grid:
+  economic_split: [0.70]

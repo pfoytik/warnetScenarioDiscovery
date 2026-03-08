@@ -411,8 +411,9 @@ This document summarizes findings from four parameter sweeps exploring Bitcoin f
 | **targeted_sweep5_lite** | 5 | 25 nodes | 30 min | 144 blocks (~5 min) | Fixed | ✅ **Complete — network equivalence confirmed** |
 | **targeted_sweep6 (orig)** | 8 | 25 nodes | 30 min | 144 blocks (~5 min) | Fixed | ❌ **INVALIDATED** — economic_split not applied (role-name bug) |
 | **targeted_sweep6_pool_ideology_full** | 20 | 60 nodes | 30 min | 144 blocks (~5 min) | Fixed | ✅ **Complete** — full-network validation of pool ideology diagonal threshold |
+| **targeted_sweep7_lite_inversion** | 12 | 25 nodes | 30 min | 144 blocks (~5 min) | Fixed | ✅ **Complete** — lite network inversion zone validation (partial match) |
 
-**Total: 377 scenarios** (348 with full analysis)
+**Total: 389 scenarios** (360 with full analysis)
 
 ### Sweep Configuration Notes
 
@@ -1286,6 +1287,95 @@ When v27 wins, committed v26 pools fully capitulate and v27 captures all committ
 
 ---
 
+### targeted_sweep7_lite_inversion: Lite Network Inversion Zone Validation
+
+This sweep validates whether the lite network replicates the complex inversion zone behavior discovered in targeted_sweep1 on the full network.
+
+#### Background
+
+targeted_sweep5 confirmed lite/full equivalence at `pool_committed_split=0.35` (the baseline column), but the most complex behavior — the **non-monotonic inversion zone** at econ=0.60–0.70 where higher committed_split HURTS v27 — was never validated on the lite network. That inversion is the defining feature of the decision boundary.
+
+#### Sweep Design
+
+| Parameter | Values |
+|-----------|--------|
+| **economic_split** | 0.50, 0.60, 0.70, 0.82 (4 levels) |
+| **pool_committed_split** | 0.20, 0.38, 0.65 (3 levels) |
+| **hashrate_split** | Fixed at 0.25 |
+| Network | lite (25 nodes) |
+| Scenarios | 12 total (4 × 3 grid) |
+
+#### Results Grid
+
+```
+                     commit=0.20   commit=0.38   commit=0.65
+    econ=0.50           v27           v26           v26
+    econ=0.60           v27           v26           v26
+    econ=0.70           v27           v26           v26
+    econ=0.82           v27           v27           v27
+```
+
+#### Comparison with Full Network (targeted_sweep1)
+
+| econ | commit | Full Network | Lite Network | Match? |
+|:----:|:------:|:------------:|:------------:|:------:|
+| 0.50 | 0.20 | v26 | **v27** | ❌ |
+| 0.50 | 0.38 | v27 | **v26** | ❌ |
+| 0.50 | 0.65 | v27 | **v26** | ❌ |
+| 0.60 | 0.20 | v27 | v27 | ✅ |
+| 0.60 | 0.38 | v26 | v26 | ✅ |
+| 0.60 | 0.65 | v26 | v26 | ✅ |
+| 0.70 | 0.20 | v27 | v27 | ✅ |
+| 0.70 | 0.38 | v26 | v26 | ✅ |
+| 0.70 | 0.65 | v26 | v26 | ✅ |
+| 0.82 | 0.20 | v27 | v27 | ✅ |
+| 0.82 | 0.38 | v27 | v27 | ✅ |
+| 0.82 | 0.65 | v27 | v27 | ✅ |
+
+**9 of 12 scenarios match (75%)**
+
+#### Key Finding: Partial Match with Critical Divergence at econ=0.50
+
+The **inversion zone (econ=0.60–0.70) replicates correctly** — the lite network exhibits the same non-monotonic behavior where commit=0.20 produces v27 wins but commit≥0.38 produces v26 wins.
+
+However, at **econ=0.50** the pattern is completely **inverted** between networks:
+- Full network: commit=0.20 → v26, commit≥0.38 → v27
+- Lite network: commit=0.20 → v27, commit≥0.38 → v26
+
+#### Is econ=0.50 a Chaotic Transition Zone?
+
+Evidence from reorg counts:
+
+| commit | Full Network | Reorgs | Lite Network | Reorgs |
+|:------:|:------------:|:------:|:------------:|:------:|
+| 0.20 | v26 | **4** (clean) | v27 | **12** (contested) |
+| 0.38 | v27 | 10 (contested) | v26 | 8 (contested) |
+| 0.65 | v27 | 4 (clean) | v26 | 8 (contested) |
+
+The full network at commit=0.20 has only 4 reorgs (same as clean wins at econ=0.35 and 0.82), suggesting it's **not** a knife-edge point. But the lite network at the same point has 12 reorgs, indicating active cascade dynamics with a different resolution.
+
+**Verdict:** The divergence is likely a mix of:
+1. **Structural difference** — the transition boundary is located differently between networks
+2. **Marginal sensitivity** — econ=0.50 is near the boundary on both networks, so small structural differences get amplified
+
+#### Implications for Lite Network Usage
+
+1. **Lite network is valid for inversion zone studies** (econ ≥ 0.60) — all 9 scenarios match
+2. **Lite network is NOT reliable for low-economic threshold studies** (econ ~ 0.50) — pattern is inverted
+3. **Treat econ=0.50 as a transition zone** requiring full-network validation before drawing conclusions
+4. **Phase 3 sampling should focus on econ ≥ 0.60** when using the lite network
+
+#### Data Location
+
+| File | Description |
+|------|-------------|
+| `targeted_sweep7_lite_inversion/results/analysis/` | Analysis outputs |
+| `targeted_sweep7_lite_inversion/results/analysis/sweep_data.csv` | Per-scenario metrics |
+| `targeted_sweep7_lite_inversion/scenarios.json` | Full scenario configurations |
+| `specs/targeted_sweep7_lite_inversion.yaml` | Sweep spec |
+
+---
+
 ## Outcome Distribution
 
 | Sweep | v27 Wins | v26 Wins | Contested |
@@ -1599,6 +1689,7 @@ When analyzing new sweep results, watch for these indicators of potential bugs:
 | **targeted_sweep5** | `targeted_sweep4_user_behavior/results/analysis/` | 36 | **User behavior 3D grid — user nodes have zero causal effect on fork outcomes** |
 | **targeted_sweep6 (orig)** | `targeted_sweep6/results/analysis/` | 8 | ❌ **INVALIDATED** — lite network role-name bug; economic_split was dead |
 | **targeted_sweep6_pool_ideology_full** | `targeted_sweep6_pool_ideology_full/results/analysis/` | 20 | ✅ **Full-network pool ideology validation** — diagonal threshold confirmed; direction corrected |
+| **targeted_sweep7_lite_inversion** | `targeted_sweep7_lite_inversion/results/analysis/` | 12 | ✅ **Lite network inversion zone validation** — 75% match; econ=0.50 diverges |
 
 ### Network Versions
 
@@ -1610,7 +1701,7 @@ When analyzing new sweep results, watch for these indicators of potential bugs:
 - No structural advantage for either fork
 - Purpose: Measure stochastic variance baseline
 
-**realistic-economy-lite** (used in targeted_sweep2b, targeted_sweep3, targeted_sweep6, exploratory_sweep_lite):
+**realistic-economy-lite** (used in targeted_sweep2b, targeted_sweep3, targeted_sweep5_lite, targeted_sweep6, targeted_sweep7, exploratory_sweep_lite):
 - 25 nodes, 8 mining pools (all 8 pools identical to full network)
 - 4 economic nodes (consolidated from 24 in full network) using role `economic_aggregate`
 - 13 user nodes (consolidated from 28) using roles `power_user_aggregate`, `casual_user_aggregate`

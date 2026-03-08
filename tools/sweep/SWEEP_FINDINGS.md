@@ -19,6 +19,7 @@ The **realistic_sweep3_rapid** sweep with fixed code reveals a dramatically diff
 4. High reorg counts (5+) correlate with v27 victory (86% of cascade scenarios in exploratory sweep)
 5. **pool_neutral_pct controls cascade intensity, not outcome** — varying neutral pools from 10–50% changes how long the cascade takes but not who wins; the inversion zone persists even when the v26-committed block collapses from 36% to 8% of total hashrate (see targeted_sweep3_neutral_pct findings)
 6. **2016-block retarget is a qualitatively different regime** — without the difficulty adjustment profit spike arriving within the run window, cascades stall at partial equilibrium (neutral pool migration only); the "stuck contested" state at ~50/35 hashrate is the realistic baseline for most real-world forks (see targeted_sweep8 findings)
+7. **The stuck contested state DOES resolve — after ~8,100s when the first retarget arrives** — sweep9 (20,000s, econ=0.70) confirmed that the ~50% difficulty drop forces committed v26 pools off (loss 56% >> 13.3% tolerance), completing the cascade decisively; the sweep8 "stuck" result was purely a run-duration artifact (see targeted_sweep9 findings)
 
 ### Zone Analysis Caveat
 
@@ -197,14 +198,17 @@ chain adjusts difficulty faster, reducing the penalty period but also reducing t
 size of the adjustment. A longer interval (144 or 2016 blocks) widens the window —
 more time for price to collapse, but a larger difficulty drop if the chain survives.
 
-**targeted_sweep8 empirically confirmed the 2016-block regime (see targeted_sweep8 section):**
+**targeted_sweep8 + targeted_sweep9 empirically confirmed the 2016-block regime (see targeted_sweep8/9 sections):**
 
 At 2016-block retarget with v27 at 25% hashrate, the first minority-chain difficulty
-adjustment requires ~16,000s (~4.5 hours). In a 7200s run, the adjustment never arrives.
-The cascade stalls at partial equilibrium: neutral pools migrate on price signals alone,
-but committed pools hold firm without the profit spike. The outcome is a **stuck contested
-state** (v27: 50.5%, v26: 35.9%) that is insensitive to economic_split across 0.35–0.70.
-Only at econ=0.82 does the price signal alone break committed pools.
+adjustment arrives at t≈8,100s (faster than the ~16,000s estimate because neutral pool
+migration raises v27 hashrate to ~50%, accelerating block production). In a 7200s run
+(sweep8), the adjustment never arrives and the cascade stalls at partial equilibrium
+(**stuck contested state**: v27 50.5%, v26 35.9%). In a 20,000s run (sweep9, econ=0.70),
+the retarget fires at t=8,106s with a ~50% difficulty drop — losses for committed v26
+pools jump to 56%+, far exceeding the 13.3% tolerance, and the cascade completes
+decisively (v27 86.4% final hashrate). Only at econ=0.82 does the price signal alone
+break committed pools without needing the retarget.
 
 This makes `retarget_interval` one of the most impactful structural parameters in the
 model — it determines whether resolution is fast (minutes, 144-block) or effectively
@@ -427,8 +431,9 @@ This document summarizes findings from four parameter sweeps exploring Bitcoin f
 | **targeted_sweep6_pool_ideology_full** | 20 | 60 nodes | 30 min | 144 blocks (~5 min) | Fixed | ✅ **Complete** — full-network validation of pool ideology diagonal threshold |
 | **targeted_sweep7_lite_inversion** | 12 | 25 nodes | 30 min | 144 blocks (~5 min) | Fixed | ✅ **Complete** — lite network inversion zone validation (partial match) |
 | **targeted_sweep8_lite_2016_retarget** | 5 | 25 nodes | 120 min | **2016 blocks (~67 min)** | Fixed | ✅ **Complete** — 2016-block retarget creates qualitatively different "stuck contested" regime |
+| **targeted_sweep9_long_duration_2016** | 1 | 25 nodes | 333 min | **2016 blocks (~67 min)** | Fixed | ✅ **Complete** — stuck contested state resolves at t≈8,100s when first retarget fires; v27 dominant |
 
-**Total: 394 scenarios** (365 with full analysis)
+**Total: 395 scenarios** (366 with full analysis)
 
 ### Sweep Configuration Notes
 
@@ -1483,7 +1488,7 @@ Bitcoin's actual retarget interval is 2016 blocks (~2 weeks). Sweep8 is therefor
 Given the sweep findings, resolution pathways are:
 - **Economic escalation past ~0.82:** Large exchanges/custodians committing decisively to one fork; price gap exceeds committed pool loss tolerance
 - **Ideology collapse:** Committed pools' financial pain accumulating over weeks erodes their ideology × max_loss product below the diagonal threshold (~0.16–0.20)
-- **First difficulty adjustment:** After ~2 weeks on minority chain, the difficulty drop finally delivers the profit spike; cascade may complete if economic conditions still viable
+- **First difficulty adjustment:** After ~2 weeks on minority chain (t≈8,100s in simulation), the difficulty drop delivers the profit spike; **targeted_sweep9 confirmed this completes the cascade at econ=0.70** — losses jump from ~9% to 56%, breaking committed pool tolerance
 - **Capitulation:** One side loses business viability and shuts down voluntarily
 
 #### Data Location
@@ -1494,6 +1499,96 @@ Given the sweep findings, resolution pathways are:
 | `targeted_sweep8_lite_2016_retarget/results/analysis/sweep_data.csv` | Per-scenario metrics |
 | `targeted_sweep8_lite_2016_retarget/scenarios.json` | Full scenario configurations |
 | `specs/targeted_sweep8_lite_2016_retarget.yaml` | Sweep spec |
+
+---
+
+### targeted_sweep9_long_duration_2016: Resolving the Stuck Contested State
+
+> ✅ **Valid** — lite network, corrected `2_build_configs.py`, 20,000s duration with `--retarget-interval 2016`. Single scenario (econ=0.70).
+
+Sweep8 left an open question: is the stuck contested state permanent, or does it resolve once the first 2016-block retarget arrives? Sweep9 answers this definitively by running the identical econ=0.70 scenario for 333 minutes (~20,000s simulated), long past the estimated first retarget at t≈8,100–11,000s.
+
+#### Sweep Design
+
+| Parameter | Value |
+|-----------|-------|
+| **economic_split** | 0.70 (cleanest contested case from sweep8) |
+| **hashrate_split** | Fixed at 0.25 |
+| **pool_committed_split** | Fixed at 0.35 |
+| **pool_ideology_strength** | 0.51 → effective tolerance = 0.51 × 0.26 = **13.3%** |
+| **retarget_interval** | **2016 blocks** |
+| **duration** | **20,000s (333 min)** — well past first retarget |
+| Network | lite (25 nodes) |
+| Scenarios | 1 total |
+
+#### Timeline of Events
+
+| Sim Time | Event |
+|----------|-------|
+| t=0–8,106s | Neutral pools migrate to v27 on price signal; committed v26 pools hold (loss 1–9%, below 13.3% tolerance) |
+| **t=8,106s** | **First v27 retarget: difficulty 1.0 → 0.497 (~50% drop)**. Hashrate had risen to ~50% (neutral pools joined) so adjustment was ~50%, not the ~75% estimated for pure 25% hashrate. |
+| ~t=8,106s | Loss for committed v26 pools jumps to **56%+** — far exceeding the 13.3% tolerance. All committed pools forced to switch to v27. |
+| t=10,632s | Second v27 retarget: 0.497 → 0.794 (hashrate overshooting corrected upward) |
+| t=14,430s | Third v27 retarget: 0.794 → 0.843 |
+| t=18,639s | Fourth v27 retarget: 0.843 → 0.807 (stable) |
+| t=20,000s | v26 still at difficulty 1.0 — only mined 1,548 blocks, never hit its own 2016-block retarget |
+
+#### Final State
+
+| Metric | v27 | v26 |
+|--------|-----|-----|
+| Blocks mined | 8,760 | 1,548 |
+| Final hashrate | **86.4%** | **0%** |
+| Final price | $64,835 | $54,512 |
+| Difficulty | 0.807 (4 retargets) | 1.0 (0 retargets) |
+| Cumulative chainwork | 6,881 | 1,548 |
+
+- 10 reorg events, 8,338 total blocks of reorg mass
+- Outcome: **v27_dominant**
+
+#### Why the Cascade Triggered at t=8,106s
+
+The committed v26 pool tolerance was 13.3% (`ideology_strength=0.51 × max_loss_pct=0.26`). Before the retarget, the most v26 pools were losing was ~9% — below the threshold. The ~50% difficulty drop made v27 blocks dramatically cheaper to mine, causing v27 profitability to spike. Committed v26 pools suddenly faced **56%+ losses**, triggering forced switches across all of them simultaneously (pool-antpool 16.9%, pool-f2pool ~8%, pool-marapool 4.6%, pool-luxor 2.3%, pool-ocean 1.2%).
+
+**Key correction to sweep9 timing estimates:** The spec estimated first retarget at t≈9,000–11,000s, but it arrived at t=8,106s. The neutral pool migration to v27 happened earlier and more completely than estimated — raising v27 hashrate to ~50.5% faster, which paradoxically reduced the waiting time for 2016 v27 blocks.
+
+#### Updated RETARGET INTERVAL EFFECT Zone Diagram
+
+```
+RETARGET INTERVAL EFFECT (targeted_sweep8 + targeted_sweep9):
+┌────────────────────────────────────────────────────────────┐
+│  ⚠️  ALL ZONES ABOVE ASSUME 144-BLOCK RETARGET             │
+│                                                            │
+│  At 2016-block retarget (realistic Bitcoin):               │
+│  → At t<8100s: Zones A/B/C collapse into "stuck           │
+│    contested" (neutral pools migrate, committed hold)      │
+│  → At t≈8100s: First v27 difficulty retarget arrives      │
+│    (~50% drop). Loss for committed v26 pools spikes        │
+│    to 56% >> 13.3% tolerance → forced cascade             │
+│  → At t>8100s: v27 dominant at all econ levels tested     │
+│    (confirmed at econ=0.70; econ=0.82 resolves even       │
+│    faster via price alone)                                 │
+│  → Zone D (econ ≥ 0.82) unchanged — price signal alone    │
+│    breaks committed pools before the retarget arrives      │
+│  → KEY: "stuck contested" is a duration artifact at        │
+│    t<8100s; given enough time, cascade completes           │
+└────────────────────────────────────────────────────────────┘
+```
+
+#### Implications for Sweep10
+
+Sweep8 ran to 7,200s — before the first retarget at t=8,106s. Sweep9 confirms that extending to 12,000–15,000s is sufficient to capture the post-retarget resolution at econ=0.70. Sweep10 should use **duration=12,000s** and map the full economic_split grid (0.35–0.82) to determine whether the cascade completes at all economic levels once the retarget arrives, and what the minimum economic level is for resolution.
+
+#### Data Location
+
+| File | Description |
+|------|-------------|
+| `targeted_sweep9_long_duration_2016/results/sweep_0000/` | Full results for single scenario |
+| `targeted_sweep9_long_duration_2016/results/sweep_0000/summary.txt` | Final state summary |
+| `targeted_sweep9_long_duration_2016/results/sweep_0000/pool_decisions.csv` | Pool switching decisions over time |
+| `targeted_sweep9_long_duration_2016/results/sweep_0000/partition_difficulty.json` | All 4 retarget events |
+| `targeted_sweep9_long_duration_2016/scenarios.json` | Scenario configuration |
+| `specs/targeted_sweep9_long_duration_2016.yaml` | Sweep spec |
 
 ---
 
@@ -1680,21 +1775,24 @@ HASHRATE EFFECT (across all zones):
 │    determined endpoint regardless of starting conditions   │
 └────────────────────────────────────────────────────────────┘
 
-RETARGET INTERVAL EFFECT (targeted_sweep8):
+RETARGET INTERVAL EFFECT (targeted_sweep8 + targeted_sweep9):
 ┌────────────────────────────────────────────────────────────┐
 │  ⚠️  ALL ZONES ABOVE ASSUME 144-BLOCK RETARGET             │
 │                                                            │
 │  At 2016-block retarget (realistic Bitcoin):               │
-│  → Zones A/B/C collapse into a single "stuck contested"    │
-│    state at econ < ~0.82 (neutral pools migrate,           │
-│    committed pools hold, cascade never completes)          │
-│  → Zone D (econ ≥ 0.82) remains intact — price signal     │
-│    alone breaks committed pools regardless of retarget     │
-│  → The difficulty adjustment profit spike that drives      │
-│    cascade completion in zones B/C requires ~16,000s       │
-│    (~4.5 hours sim / ~2 weeks real) to arrive              │
-│  → Partial equilibrium: v27 ~50%, v26 ~36% hashrate,      │
+│  → At t<8100s: Zones A/B/C collapse into "stuck           │
+│    contested" (neutral pools migrate, committed hold)      │
+│    Partial equilibrium: v27 ~50%, v26 ~36% hashrate,      │
 │    insensitive to economic_split across 0.35–0.70          │
+│  → At t≈8100s: First v27 retarget fires (~50% difficulty  │
+│    drop). Committed pool losses spike 56% >> 13.3%         │
+│    tolerance → forced cascade completes                    │
+│  → Zone D (econ ≥ 0.82) unchanged — price signal alone    │
+│    breaks committed pools regardless of retarget timing    │
+│  → KEY: "Stuck contested" is a duration artifact;          │
+│    given ~12,000s, the cascade completes at econ=0.70.     │
+│    Whether it completes at econ=0.35–0.60 is OPEN.        │
+│    (targeted_sweep10 will answer this question)            │
 └────────────────────────────────────────────────────────────┘
 ```
 
@@ -1829,6 +1927,7 @@ When analyzing new sweep results, watch for these indicators of potential bugs:
 | **targeted_sweep6_pool_ideology_full** | `targeted_sweep6_pool_ideology_full/results/analysis/` | 20 | ✅ **Full-network pool ideology validation** — diagonal threshold confirmed; direction corrected |
 | **targeted_sweep7_lite_inversion** | `targeted_sweep7_lite_inversion/results/analysis/` | 12 | ✅ **Lite network inversion zone validation** — 75% match; econ=0.50 diverges |
 | **targeted_sweep8_lite_2016_retarget** | `targeted_sweep8_lite_2016_retarget/results/analysis/` | 5 | ✅ **2016-block retarget validation** — qualitatively different regime; stuck contested state at econ=0.35–0.70; econ=0.82 still decisive |
+| **targeted_sweep9_long_duration_2016** | `targeted_sweep9_long_duration_2016/results/sweep_0000/` | 1 | ✅ **Long-duration confirmation** — stuck contested state resolves at t=8,106s (first retarget); v27 dominant at econ=0.70; cascade mechanism confirmed |
 
 ### Network Versions
 
@@ -1879,4 +1978,4 @@ When analyzing new sweep results, watch for these indicators of potential bugs:
 
 ---
 
-*Analysis compiled February-March 2026*
+*Analysis compiled February–March 2026; targeted_sweep9 added March 2026*

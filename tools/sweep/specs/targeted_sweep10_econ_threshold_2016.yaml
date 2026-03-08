@@ -1,0 +1,58 @@
+name: targeted_sweep10_econ_threshold_2016
+description: >
+  Economic threshold sweep in the 2016-block retarget regime. Maps which economic_split
+  levels produce a decisive v27 win once sufficient run time is given for the first
+  difficulty retarget to fire.
+
+  Sweep9 confirmed that at econ=0.70, the cascade completes at t≈8,106s when the first
+  v27 difficulty retarget fires (~50% drop). Committed v26 pool losses jumped from ~9%
+  (pre-retarget) to ~56% (post-retarget), far exceeding the 13.3% tolerance. The open
+  question is: does the cascade complete at lower economic levels (econ=0.35–0.60)?
+
+  The key mechanism:
+    - Pre-retarget: committed v26 pools lose only ~1–9% (below 13.3% tolerance)
+    - Post-retarget: difficulty drops ~50% → profitability spike → loss spikes sharply
+    - Whether committed pools are forced to switch depends on how large the post-retarget
+      loss is, which is modulated by the price gap (i.e., economic_split)
+    - At econ=0.70, loss=56% >> tolerance; at lower econ the price gap is smaller →
+      loss spike may be smaller → may stay below tolerance
+
+  Expected hypotheses:
+    - econ=0.82: v27 wins via price signal alone (same as sweep8, no change)
+    - econ=0.70: v27 wins post-retarget (confirmed by sweep9)
+    - econ=0.60: uncertain — price gap is narrower; post-retarget loss may not exceed tolerance
+    - econ=0.50: likely stuck contested even post-retarget — price gap too small
+    - econ=0.35: stuck contested — economic minority cannot trigger forced switches
+
+  This determines the 2016-block economic threshold: the minimum economic_split at which
+  the difficulty adjustment cascade completes. This is the realistic Bitcoin fork resolution
+  condition (2-week retarget window).
+
+  IMPORTANT: Run with --retarget-interval 2016 and --duration 12000
+  (t=8106s retarget + ~4000s post-retarget dynamics = 12,106s sufficient)
+  Use 13000s to ensure margin regardless of timing variance.
+
+network: lite
+
+# Fixed parameters — identical to sweep8 and sweep9
+fixed:
+  hashrate_split: 0.25
+  pool_committed_split: 0.35
+  pool_neutral_pct: 30.0
+  pool_ideology_strength: 0.51
+  pool_profitability_threshold: 0.16
+  pool_max_loss_pct: 0.26
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.14
+  econ_inertia: 0.17
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  transaction_velocity: 0.50
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  solo_miner_hashrate: 0.085
+
+# Grid over economic_split — identical levels to sweep8 for direct comparison
+# econ=0.70 is already confirmed; others are the open question
+grid:
+  economic_split: [0.35, 0.50, 0.60, 0.70, 0.82]

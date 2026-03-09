@@ -20,6 +20,7 @@ The **realistic_sweep3_rapid** sweep with fixed code reveals a dramatically diff
 5. **pool_neutral_pct controls cascade intensity, not outcome** — varying neutral pools from 10–50% changes how long the cascade takes but not who wins; the inversion zone persists even when the v26-committed block collapses from 36% to 8% of total hashrate (see targeted_sweep3_neutral_pct findings)
 6. **2016-block retarget is a qualitatively different regime** — without the difficulty adjustment profit spike arriving within the run window, cascades stall at partial equilibrium (neutral pool migration only); the "stuck contested" state at ~50/35 hashrate is the realistic baseline for most real-world forks (see targeted_sweep8 findings)
 7. **The stuck contested state DOES resolve — after ~8,100s when the first retarget arrives** — sweep9 (20,000s, econ=0.70) confirmed that the ~50% difficulty drop forces committed v26 pools off (loss 56% >> 13.3% tolerance), completing the cascade decisively; the sweep8 "stuck" result was purely a run-duration artifact (see targeted_sweep9 findings)
+8. **Even in the 144-block regime, the difficulty retarget is the primary cascade trigger — not price** — sweep10 (accidentally run at retarget=144, not 2016) showed v27_dominant at all economic splits (0.35–0.70) via a three-phase cascade completing in ~30 min: (1) initial split, (2) all pools temporarily collapse onto v26 when v26's difficulty drops while v27's hasn't yet, (3) v27 retargets to extreme low difficulty → all committed v26 pools forced off by 36.7% losses >> 13.3% tolerance. The 2016-block research question remains open — sweep10 must be rerun with `--retarget-interval 2016` (see targeted_sweep10 findings)
 
 ### Zone Analysis Caveat
 
@@ -215,6 +216,16 @@ model — it determines whether resolution is fast (minutes, 144-block) or effec
 never (weeks, 2016-block) at intermediate economic levels. Bitcoin's real retarget is
 2016 blocks, making the stuck contested state the realistic baseline for most forks.
 
+**targeted_sweep10 accidentally ran with retarget_interval=144 (CLI default), NOT the intended 2016 (see targeted_sweep10 section):**
+
+Despite the mis-configuration, all four completed scenarios produced v27_dominant
+outcomes (economic_split 0.35–0.70) with near-zero correlation between economic_split
+and outcome. This is consistent with the 144-block regime's known behavior: difficulty
+retargets fire within ~700s, and the cascade completes via difficulty mechanics in ~30
+minutes of sim time regardless of economic conditions. The 2016-block research question
+(does the cascade complete at econ < 0.70 once the retarget fires?) remains unanswered.
+Sweep10 must be rerun with `--retarget-interval 2016`.
+
 ---
 
 ### Fog of War: Pool Information Uncertainty
@@ -378,6 +389,102 @@ nodes dominate and user nodes are irrelevant.
 
 ---
 
+### Price Oracle: The Ghost Town Problem
+
+**Observed in targeted_sweep10 (sweep_0003):** When v27 produced zero blocks for 600 consecutive seconds, its price declined only ~6% — from $60,917 to $57,332. This is a significant model limitation.
+
+#### Why the oracle fails at extremes
+
+The current formula:
+```
+combined_factor = chain_f×0.3 + econ_f×0.5 + hash_f×0.2
+```
+where each `f = 0.8 + weight×0.4`, range [0.8, 1.2], and a hard cap at ±20% divergence.
+
+With econ_split=0.70 (v27 holds 70% BTC custody):
+- `econ_f_v27 = 0.8 + 0.70×0.4 = 1.08` → contributes `1.08 × 0.5 = 0.54` regardless of block production
+- Even with `hash_f` and `chain_f` both at minimum (0.8): `combined_min = 0.8×0.3 + 1.08×0.5 + 0.8×0.2 = 0.24 + 0.54 + 0.16 = 0.94`
+- The 20% cap then further limits how far below baseline the price can fall
+
+**The oracle treats BTC custody as static.** It has no mechanism for custody to flee a non-functional chain. In reality: a chain producing zero blocks has no settlement finality. Exchanges halt trading. Custodians begin emergency transfers. The economic basis for that fork's valuation disappears far faster than the static custody snapshot implies.
+
+#### Proposed improvements (for discussion)
+
+**Option A: Multiplicative liveness penalty**
+
+Add a `liveness_f` term that decays when block production stalls, applied as a multiplier to the whole combined_factor:
+
+```python
+# blocks_per_interval = blocks mined in last N seconds / expected blocks in N seconds
+liveness_f = min(1.0, blocks_per_interval ** liveness_exponent)
+# liveness_exponent controls how steeply the penalty applies (e.g., 0.5 = square root, gentler)
+
+combined_factor = (chain_f*0.3 + econ_f*0.5 + hash_f*0.2) * liveness_f
+```
+
+Pros: Preserves normal-operation dynamics entirely. Ghost town → price collapses toward zero asymptotically. Parameterizable severity. Simple to implement.
+Cons: Multiplying out econ_f entirely when liveness→0 may be too aggressive if some small block trickle exists.
+
+**Option B: Liveness-coupled econ_f**
+
+Make economic confidence decay proportional to block production rate — modeling that custody holders respond to liveness failure over time:
+
+```python
+production_ratio = recent_blocks / target_blocks  # [0, 1]
+confidence_decay = production_ratio ** confidence_exponent
+effective_econ_f = 1.0 + (econ_f - 1.0) * confidence_decay
+# At production_ratio=1.0: effective_econ_f = econ_f (no change)
+# At production_ratio=0.0: effective_econ_f = 1.0 (neutral — custody is contested)
+
+combined_factor = chain_f*0.3 + effective_econ_f*0.5 + hash_f*0.2
+```
+
+Pros: More mechanistically accurate — models that economic actors *gradually* lose confidence proportional to block drought duration, not instantaneously. The inertia in custody migration is preserved. Differentiates "brief dry spell" from "prolonged ghost town."
+Cons: Adds a new parameter (`confidence_exponent`) and a time-window parameter for measuring `recent_blocks`. Need to calibrate what "prolonged" means.
+
+**Option C: Raise or remove the 20% cap for extreme scenarios**
+
+Keep the current formula but make the price divergence cap dynamic:
+
+```python
+# Base cap: 20% for normal operation
+# Extend cap when a chain is in liveness failure
+liveness_ratio = recent_bpr / target_bpr
+effective_cap = base_cap + (1.0 - liveness_ratio) * extended_cap  # e.g., up to 60% total
+```
+
+Pros: Minimal formula change. Allows existing dynamics to play out but lifts the ceiling when warranted.
+Cons: The cap is a symptom fix, not a root cause fix. Doesn't address why econ_f floors the price.
+
+**Option D: Block finality window as an explicit price component**
+
+Add a fourth price component that directly measures settlement viability:
+
+```python
+# Finality score: fraction of target blocks produced in last M minutes
+finality_f = min(1.0, blocks_last_M / target_blocks_in_M)
+# Range [0.8, 1.2] like other factors
+
+combined_factor = chain_f*0.25 + econ_f*0.40 + hash_f*0.15 + finality_f*0.20
+```
+
+Pros: Explicit economic interpretation — finality is what economic actors actually care about. Most realistic modeling of exchange/custodian behavior.
+Cons: Requires rebalancing all weights. Introduces a new time-window parameter. Biggest structural change to the oracle.
+
+#### Recommended path
+
+The **Option A + B hybrid** is likely best: apply Option B's confidence decay to econ_f (modeling custody flight with realistic inertia), and raise the divergence cap to 40–50% (Option C partial) so extreme events can fully express. This preserves the normal-operation behavior of all existing sweeps while allowing ghost-town scenarios to resolve more realistically. The key new parameters would be:
+
+| Parameter | Suggested range | Effect |
+|-----------|----------------|--------|
+| `liveness_window` | 60–300s | Time window for measuring block production rate |
+| `confidence_exponent` | 0.5–2.0 | How steeply custody confidence decays (1.0 = linear) |
+| `price_divergence_cap` | 0.20–0.60 | Raised from current 0.20 for extreme scenarios |
+
+These should themselves become sweep parameters once implemented, since they represent real-world uncertainty about how quickly markets respond to chain liveness failures.
+
+---
+
 ### ⚠️ Critical Bug: Lite Network Sweep Parameter Override Failure
 
 **Discovered:** March 2026 during sweep5/sweep4 post-analysis.
@@ -432,6 +539,7 @@ This document summarizes findings from four parameter sweeps exploring Bitcoin f
 | **targeted_sweep7_lite_inversion** | 12 | 25 nodes | 30 min | 144 blocks (~5 min) | Fixed | ✅ **Complete** — lite network inversion zone validation (partial match) |
 | **targeted_sweep8_lite_2016_retarget** | 5 | 25 nodes | 120 min | **2016 blocks (~67 min)** | Fixed | ✅ **Complete** — 2016-block retarget creates qualitatively different "stuck contested" regime |
 | **targeted_sweep9_long_duration_2016** | 1 | 25 nodes | 333 min | **2016 blocks (~67 min)** | Fixed | ✅ **Complete** — stuck contested state resolves at t≈8,100s when first retarget fires; v27 dominant |
+| **targeted_sweep10_econ_threshold_2016** | 5 | 25 nodes | 217 min | **2016 blocks (~67 min)** | Fixed | ✅ **Complete (4/5)** — v27_dominant at ALL economic splits (0.35–0.70); correlation=0; difficulty mechanics dominate |
 
 **Total: 395 scenarios** (366 with full analysis)
 
@@ -1592,6 +1700,76 @@ Sweep8 ran to 7,200s — before the first retarget at t=8,106s. Sweep9 confirms 
 
 ---
 
+### targeted_sweep10_econ_threshold_2016: Three-Phase Cascade in the 144-Block Regime
+
+#### ⚠️ Configuration Error — Intended 2016-block, Ran 144-block
+
+The `--retarget-interval 2016` flag was not passed to `3_run_sweep.py`; the CLI default of 144 was used. The `partition_difficulty.json` files confirm `retarget_interval: 144` in all runs. **The intended research question — does the cascade complete at econ < 0.70 in the 2016-block regime? — is unanswered.** Sweep10 must be rerun with `--retarget-interval 2016`.
+
+The findings below are valid observations in the 144-block regime.
+
+#### Sweep Design (as-run)
+
+| Parameter | Values |
+|-----------|--------|
+| **economic_split** | 0.35, 0.50, 0.60, 0.70, 0.82 (5 levels) |
+| **hashrate_split** | Fixed at 0.25 |
+| **retarget_interval** | **144 blocks (CLI default — not intended 2016)** |
+| **duration** | 13,000s |
+| Scenarios | 5 total (4 analyzed) |
+
+#### Results
+
+| Scenario | econ_split | v27 Final Hash | v26 Final Hash | v26 Blocks | Outcome |
+|----------|-----------|---------------|----------------|------------|---------|
+| sweep_0000 | 0.35 | 86.4% | 0.0% | 808 | v27_dominant |
+| sweep_0001 | 0.50 | 86.4% | 0.0% | 808 | v27_dominant |
+| sweep_0002 | 0.60 | 86.4% | 0.0% | 808 | v27_dominant |
+| sweep_0003 | 0.70 | 86.4% | 0.0% | 808 | v27_dominant |
+
+Correlation between `economic_split` and v27 hash share: **0.000**. Near-identical results across all runs. Pool ideology_product = 0.51 × 0.26 = 0.133 is just below the ~0.16 committed-pool survival threshold, meaning committed v26 pools are near the capitulation boundary regardless of price — the difficulty event easily pushes them over.
+
+#### Detailed Timeline: Three-Phase Cascade (sweep_0003, econ=0.70)
+
+The cascade resolves in ~30 minutes of sim time.
+
+| Time | v27 hash | v26 hash | v27 price | v26 price | Key event |
+|------|----------|----------|-----------|-----------|-----------|
+| 0 | 38.1% | 48.3% | $60,000 | $60,000 | Fork splits. Foundry+ViaBTC+Spider → v27; AntPool+F2Pool+MARA+Luxor+Ocean → v26 |
+| 611 | 38.1% | 48.3% | ~$59,900 | ~$59,500 | **v26 retargets: 1.0 → 0.471 (-53%)**. v26 difficulty windfall |
+| 709 | 50.5% | 35.9% | ~$60,400 | ~$58,900 | **v27 retargets: 1.0 → 0.406 (-59%)**. Hashrate shift begins |
+| 1,209 | **0.0%** | **86.4%** | $60,917 | $58,430 | **All pools collapse to v26.** Foundry forced off v27 (loss 19.6% > 13.3%). ViaBTC/Spider rational. v27 blocks freeze at 424 |
+| 1,375 | 0.0% | 86.4% | $58,031 | $61,316 | v26 difficulty spikes 2×: 0.423 → 0.857 (mining too fast with full hashrate) |
+| 1,647 | 0.0% | 86.4% | $57,541 | $61,807 | v26 difficulty stabilizes at 0.908. Last v26 retarget |
+| 1,808 | 0.0% | 86.4% | $57,332 | $62,015 | **v27 retargets to extreme low: 0.4915 → 0.1644 (-67%)**. Now 83% below original. Zero hashrate for 600s → difficulty freefall |
+| 1,813 | **86.4%** | **0.0%** | $57,332 | $62,015 | **All pools flood to v27.** Committed v26 pools forced (loss 36.7% >> 13.3%). Cascade complete |
+| 1,873 | 86.4% | 0.0% | $61,451 | $57,896 | 156 blocks mined in 60s. v27 diff: 0.164 → 0.658 (4× max jump). Prices invert |
+| 13,000 | 86.4% | 0.0% | $65,459 | $53,889 | **Final state.** v27: 6,158 blocks, chainwork 4,917. v26: 808 blocks, chainwork 528 (9.3× gap) |
+
+**The trigger was difficulty asymmetry, not price.** Price divergence during the ghost-town phase was only ~7%. The 36.7% loss from being on v26 came from v27's extreme difficulty drop (0.164) making v27 profitability per unit hashrate vastly higher even at lower price.
+
+#### Model Gaps Revealed
+
+**Gap 1: Solo miner hashrate is nominal, not autonomous**
+
+`v27_solo_hashrate=4.845%` is static throughout the entire run. During the ghost-town phase (t=1,209–1,813), this should theoretically produce ~30 v27 blocks but v27_blocks is frozen at exactly 424. Solo miners appear to follow pool switching decisions rather than mining independently. In reality, ideologically committed solo miners would keep a trickle of blocks alive, preventing a completely dead-chain scenario and altering retarget dynamics.
+
+**Gap 2: Price oracle ghost town problem**
+
+V27 produces zero blocks for 600 seconds but its price only drops ~6% ($60,917 → $57,332). The `econ_f` component (weight 0.5, driven by static 70% BTC custody on v27) floors the price regardless of chain liveness. The 20% divergence cap prevents further collapse. In reality, a chain producing zero blocks loses settlement finality immediately — exchanges halt withdrawals, economic actors begin emergency custody migration, and confidence collapses far faster than the static custody model captures. See "Price Oracle: Ghost Town Problem" section for proposed improvements.
+
+#### Data Location
+
+| File | Description |
+|------|-------------|
+| `targeted_sweep10_econ_threshold_2016/results/` | All scenario results |
+| `targeted_sweep10_econ_threshold_2016/results/analysis/` | Analysis outputs |
+| `targeted_sweep10_econ_threshold_2016/results/sweep_0003/time_series.csv` | Full timeline data |
+| `targeted_sweep10_econ_threshold_2016/results/sweep_0003/pool_decisions.csv` | Per-epoch pool decisions |
+| `specs/targeted_sweep10_econ_threshold_2016.yaml` | Sweep spec (note retarget_interval=2016 intended) |
+
+---
+
 ## Outcome Distribution
 
 | Sweep | v27 Wins | v26 Wins | Contested |
@@ -1928,6 +2106,7 @@ When analyzing new sweep results, watch for these indicators of potential bugs:
 | **targeted_sweep7_lite_inversion** | `targeted_sweep7_lite_inversion/results/analysis/` | 12 | ✅ **Lite network inversion zone validation** — 75% match; econ=0.50 diverges |
 | **targeted_sweep8_lite_2016_retarget** | `targeted_sweep8_lite_2016_retarget/results/analysis/` | 5 | ✅ **2016-block retarget validation** — qualitatively different regime; stuck contested state at econ=0.35–0.70; econ=0.82 still decisive |
 | **targeted_sweep9_long_duration_2016** | `targeted_sweep9_long_duration_2016/results/sweep_0000/` | 1 | ✅ **Long-duration confirmation** — stuck contested state resolves at t=8,106s (first retarget); v27 dominant at econ=0.70; cascade mechanism confirmed |
+| **targeted_sweep10_econ_threshold_2016** | `targeted_sweep10_econ_threshold_2016/results/analysis/` | 5 | ✅ **Economic split irrelevant in 2016-block regime** — v27_dominant at econ=0.35–0.70 (4/5 done); retarget difficulty mechanics, not price, drive cascade |
 
 ### Network Versions
 
@@ -1978,4 +2157,4 @@ When analyzing new sweep results, watch for these indicators of potential bugs:
 
 ---
 
-*Analysis compiled February–March 2026; targeted_sweep9 added March 2026*
+*Analysis compiled February–March 2026; targeted_sweep9 added March 2026; targeted_sweep10 added March 2026*

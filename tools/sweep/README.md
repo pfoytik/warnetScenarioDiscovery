@@ -1,16 +1,16 @@
 # Parameter Sweep Tools
 
-A modular system for systematically testing fork threshold parameters using Latin Hypercube Sampling (LHS).
+A modular system for systematically testing fork threshold parameters using Latin Hypercube Sampling (LHS) or targeted grid sweeps.
 
 ## Overview
 
-Instead of testing all possible parameter combinations exhaustively, LHS efficiently samples the parameter space with far fewer tests while maintaining good coverage across all dimensions.
+Instead of testing all possible parameter combinations exhaustively, LHS efficiently samples the parameter space with far fewer tests while maintaining good coverage across all dimensions. For targeted follow-up questions, the grid sweep generator creates Cartesian product designs over specific axes.
 
 ## Scripts
 
-### 1. Generate Scenarios (`1_generate_scenarios.py`)
+### 1a. Generate Scenarios — LHS (`1_generate_scenarios.py`)
 
-Generates LHS parameter combinations.
+Generates LHS parameter combinations for broad exploration.
 
 ```bash
 # Generate 50 scenarios with a fixed seed
@@ -24,23 +24,43 @@ python 1_generate_scenarios.py --samples 50 --preview
 
 **Output:** `scenarios.json` containing all parameter combinations
 
+### 1b. Generate Scenarios — Targeted Grid (`1_generate_targeted.py`)
+
+Generates a Cartesian product grid from a YAML spec file. Use this for focused follow-up
+sweeps where you want to vary one or two axes while holding everything else fixed.
+
+```bash
+# Preview the grid without saving
+python 1_generate_targeted.py --spec specs/my_sweep.yaml --preview
+
+# Generate and save
+python 1_generate_targeted.py --spec specs/my_sweep.yaml
+```
+
+Spec files live in `tools/sweep/specs/`. Each spec defines:
+- `name`: sweep identifier
+- `description`: research question and hypotheses
+- `network`: base network type (`lite` or `realistic-economy-v2`)
+- `fixed`: parameters held constant
+- `grid`: parameters varied (Cartesian product of all listed values)
+
+**Output:** `tools/sweep/<name>/scenarios.json` and printed next-step commands.
+
 ### 2. Build Configs (`2_build_configs.py`)
 
 Creates network and scenario configurations from the parameter combinations.
 
 ```bash
-# Build configs using realistic-economy as a base network template (recommended)
-python 2_build_configs.py --input scenarios.json \
-    --base-network ../../networks/realistic-economy/network.yaml \
-    --output-dir ./sweep_output
-
-# Build configs only (skip network generation)
-python 2_build_configs.py --input scenarios.json --configs-only
+# Build configs using realistic-economy-lite as a base network template (recommended)
+python 2_build_configs.py \
+    --input tools/sweep/<name>/scenarios.json \
+    --output-dir tools/sweep/<name> \
+    --base-network ../../networks/realistic-economy-lite/network.yaml
 ```
 
 **Output:**
 ```
-sweep_output/
+tools/sweep/<name>/
 ├── networks/           # Generated warnet networks (one per scenario)
 ├── configs/
 │   ├── network/        # Individual network configs
@@ -54,18 +74,50 @@ sweep_output/
 Executes each scenario and collects results. Supports resuming interrupted sweeps.
 
 ```bash
-# Run all scenarios (1 hour each)
-python 3_run_sweep.py --input sweep_output/build_manifest.json --duration 3600
+# Standard run (144-block retarget, 30 min duration)
+python 3_run_sweep.py \
+    --input tools/sweep/<name>/build_manifest.json \
+    --duration 1800 \
+    --interval 2
+
+# 2016-block retarget regime (realistic Bitcoin, ~3.6 hr/scenario)
+python 3_run_sweep.py \
+    --input tools/sweep/<name>/build_manifest.json \
+    --duration 13000 \
+    --interval 2 \
+    --retarget-interval 2016
+
+# With Option B liveness penalty enabled
+python 3_run_sweep.py \
+    --input tools/sweep/<name>/build_manifest.json \
+    --duration 13000 \
+    --interval 2 \
+    --retarget-interval 2016 \
+    --enable-liveness-penalty
 
 # Dry run (show what would execute)
-python 3_run_sweep.py --input sweep_output/build_manifest.json --dry-run
+python 3_run_sweep.py --input tools/sweep/<name>/build_manifest.json --dry-run
 
 # Run specific scenarios
-python 3_run_sweep.py --input sweep_output/build_manifest.json --scenarios sweep_0000 sweep_0001
+python 3_run_sweep.py --input tools/sweep/<name>/build_manifest.json \
+    --scenarios sweep_0000 sweep_0001
 
 # Resume an interrupted sweep (automatically skips completed scenarios)
-python 3_run_sweep.py --input sweep_output/build_manifest.json --duration 3600
+python 3_run_sweep.py --input tools/sweep/<name>/build_manifest.json --duration 13000
 ```
+
+**Key flags:**
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--duration` | 1800 | Scenario duration in seconds |
+| `--interval` | 10 | Block mining interval in seconds |
+| `--retarget-interval` | 144 | Blocks between difficulty adjustments. Use `2016` for realistic Bitcoin. **Always set this explicitly.** |
+| `--enable-liveness-penalty` | off | Enable Option B price oracle: decays economic factor by block production rate. Dead chains lose their economic premium. Raises price divergence cap from 20% → 50%. |
+
+> **Warning:** `--retarget-interval` defaults to 144. If your research question requires
+> the realistic 2016-block retarget regime, you **must** pass `--retarget-interval 2016`
+> explicitly — it will not be set automatically.
 
 > **Note:** `3_run_sweep.py` injects sweep configs into `scenarios/config/mining_pools_config.yaml`
 > and `scenarios/config/economic_nodes_config.yaml` at runtime. These files will show as
@@ -73,7 +125,7 @@ python 3_run_sweep.py --input sweep_output/build_manifest.json --duration 3600
 
 **Output:**
 ```
-sweep_output/results/
+tools/sweep/<name>/results/
 ├── sweep_0000/
 │   ├── results.json
 │   ├── warnet_logs.txt
@@ -91,15 +143,20 @@ is still in progress — it only reads completed result files and writes to a se
 
 ```bash
 # Analyze results
-python 4_analyze_results.py --input sweep_output/results
+python 4_analyze_results.py \
+    --input tools/sweep/<name>/results \
+    --manifest tools/sweep/<name>/build_manifest.json
 
 # With visualizations (requires matplotlib)
-python 4_analyze_results.py --input sweep_output/results --visualize
+python 4_analyze_results.py \
+    --input tools/sweep/<name>/results \
+    --manifest tools/sweep/<name>/build_manifest.json \
+    --visualize
 ```
 
 **Output:**
 ```
-sweep_output/results/analysis/
+tools/sweep/<name>/results/analysis/
 ├── report.txt          # Human-readable summary
 ├── summary.json        # Outcome statistics
 ├── thresholds.json     # Critical threshold analysis
@@ -110,23 +167,80 @@ sweep_output/results/analysis/
 
 ## Complete Workflow
 
+### Broad LHS exploration
+
 ```bash
 cd tools/sweep
 
 # Step 1: Generate parameter combinations
 python 1_generate_scenarios.py --samples 50 --seed 42
 
-# Step 2: Build networks and configs from the realistic-economy base network
+# Step 2: Build networks and configs
 python 2_build_configs.py --input scenarios.json \
-    --base-network ../../networks/realistic-economy/network.yaml \
+    --base-network ../../networks/realistic-economy-lite/network.yaml \
     --output-dir ./sweep_output
 
-# Step 3: Run all scenarios (this takes a while — ~1 hour per scenario)
-python 3_run_sweep.py --input sweep_output/build_manifest.json --duration 3600
+# Step 3: Run all scenarios
+python 3_run_sweep.py --input sweep_output/build_manifest.json \
+    --duration 1800 --interval 2
 
 # Step 4: Analyze results
-python 4_analyze_results.py --input sweep_output/results --visualize
+python 4_analyze_results.py --input sweep_output/results \
+    --manifest sweep_output/build_manifest.json --visualize
 ```
+
+### Targeted grid sweep (2016-block regime)
+
+```bash
+cd tools/sweep
+
+# Step 1: Preview and generate from spec
+python 1_generate_targeted.py --spec specs/my_sweep.yaml --preview
+python 1_generate_targeted.py --spec specs/my_sweep.yaml
+
+# Step 2: Build configs
+python 2_build_configs.py \
+    --input targeted_my_sweep/scenarios.json \
+    --output-dir targeted_my_sweep \
+    --base-network ../../networks/realistic-economy-lite/network.yaml
+
+# Step 3: Run with 2016-block retarget (MUST set --retarget-interval explicitly)
+python 3_run_sweep.py \
+    --input targeted_my_sweep/build_manifest.json \
+    --duration 13000 --interval 2 --retarget-interval 2016
+
+# Step 4: Analyze
+python 4_analyze_results.py \
+    --input targeted_my_sweep/results \
+    --manifest targeted_my_sweep/build_manifest.json
+```
+
+## Price Oracle Modes
+
+The price oracle supports two modes, controlled by a flag passed to `3_run_sweep.py`:
+
+### Default mode (no flag)
+`combined_factor = chain_f*0.3 + econ_f*0.5 + hash_f*0.2`
+
+Each factor `f = 0.8 + weight*0.4` (range 0.8–1.2). Price divergence capped at ±20%.
+Economic weight (`econ_f`) reflects custody concentration and is static — a chain with
+70% economic support gets a price floor even if it produces zero blocks.
+
+### Option B: Liveness penalty (`--enable-liveness-penalty`)
+```
+production_ratio = min(1.0, actual_blocks_per_hour / target_blocks_per_hour)
+effective_econ_f = 1.0 + (raw_econ_f - 1.0) * production_ratio^exponent
+```
+
+At full block production rate → `effective_econ_f` unchanged (same as default).
+At zero block production → `effective_econ_f = 1.0` (neutral; no economic premium or discount).
+Price divergence cap raised to ±50% to allow ghost-town chains to express their true value.
+
+**When to use:** Use `--enable-liveness-penalty` when you want market confidence to reflect
+chain usability, not just custody. Default=off preserves comparability with all prior sweeps.
+
+**Assumption (documented):** `liveness_exponent=1.0` means confidence decays linearly with
+block rate. This is an explicit modeling assumption that can be updated with empirical data.
 
 ## Parameters Tested
 
@@ -163,26 +277,35 @@ v26_committed = (1 - pool_neutral_pct) * (1 - pool_committed_split)
 ```
 
 This guarantees `v27_committed + v26_committed + neutral = 1.0` by construction, and
-both forks have equal opportunity to receive any level of committed hashrate. A previous
-design used `pool_v27_preference_pct` (10–70%) with v26 as a residual, which
-structurally biased outcomes toward v27.
+both forks have equal opportunity to receive any level of committed hashrate.
 
 ## Time Estimates
 
+### 144-block retarget (accelerated, default)
 | Samples | Duration/run | Total Time |
 |---------|-------------|------------|
 | 50 | 30 min | ~25 hours |
 | 50 | 60 min | ~50 hours |
-| 100 | 30 min | ~50 hours |
-| 100 | 60 min | ~100 hours |
+
+### 2016-block retarget (realistic Bitcoin)
+| Samples | Duration/run | Total Time |
+|---------|-------------|------------|
+| 5 | ~3.6 hr | ~18 hours |
+| 10 | ~3.6 hr | ~36 hours |
+
+> **Duration guidance for 2016-block sweeps:** At 50% initial v27 hashrate and `--interval 2`,
+> the first v27 difficulty retarget fires at ~8,100s. Allow ~4,000s post-retarget for cascade
+> to complete. Use `--duration 13000` (validated by sweep9).
 
 ## Tips
 
-- Start with `--samples 50` to validate the pipeline before a larger run
-- Use `--dry-run` to check commands before executing
+- Always set `--retarget-interval` explicitly — the default (144) is not suitable for
+  realistic Bitcoin fork dynamics research
+- Use `--dry-run` to verify commands before a long run
 - The runner automatically skips completed scenarios, so interrupted sweeps are safe to resume
-- Use `--duration 3600` (60 min) for more stable results — shorter runs may not reach equilibrium
 - `4_analyze_results.py` can be run mid-sweep to check progress on completed scenarios
+- New sweeps that change oracle mode (`--enable-liveness-penalty`) are not directly comparable
+  to prior sweeps run without it — treat them as a separate series
 
 ## Analysis Output
 

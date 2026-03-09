@@ -642,7 +642,7 @@ Examples:
             "scenario_id": scenario_id,
             "parameters": scenario,
             "network_config": str(network_config_path),
-            "network_path": str(networks_dir / scenario_id / "network.yaml"),
+            "network_path": str(Path("networks") / scenario_id / "network.yaml"),
         })
 
         if (i + 1) % 50 == 0:

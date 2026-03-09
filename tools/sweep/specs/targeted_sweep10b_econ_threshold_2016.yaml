@@ -1,0 +1,56 @@
+name: targeted_sweep10b_econ_threshold_2016
+description: >
+  Economic threshold sweep in the 2016-block retarget regime — corrected rerun of sweep10.
+
+  Sweep10 accidentally ran with the CLI-default retarget=144 instead of 2016, making its
+  results uninformative for the 2016-block research question.
+
+  Key configuration changes vs sweep10:
+    - hashrate_split: 0.25 → 0.50 (equal initial split, matching sweep9 which validated
+      the cascade mechanism and duration at this hashrate level)
+    - retarget_interval: 144 (accidental) → 2016 (intended)
+    - duration: 13,000s (sweep9 showed retarget at t≈8,106s + ~4,000s cascade = ~12,100s;
+      13,000s provides margin; validated sufficient by sweep9)
+
+  Cascade mechanism (from sweep9 at econ=0.70, hashrate=0.50):
+    - Both chains start 50/50 hashrate and mine at equal rate
+    - Economic_split drives a price differential (v27 price > v26 price at econ>0.50)
+    - Higher v27 price → v27 mining more profitable → pool drift toward v27 pre-retarget
+    - v27 accumulates hashrate advantage → mines 2016 blocks first at t≈8,106s
+    - v27 retargets (difficulty drops ~50%); v26 hasn't hit 2016 blocks → stays at difficulty=1.0
+    - Post-retarget: v27 now far more profitable → remaining v26 hashrate forced to switch
+    - v26 never retargets → stuck at high difficulty → cascade completes
+
+  Research question: what is the minimum economic_split for v27 to win via the retarget mechanism?
+    - econ=0.82: v27 wins (confirmed sweep8)
+    - econ=0.70: v27 wins post-retarget (confirmed sweep9 at 50% hashrate)
+    - econ=0.60: uncertain — price gap is narrower; pool drift may be too slow
+    - econ=0.50: likely contested — symmetric economic signal gives no differential
+    - econ=0.35: v26 wins (economic majority on v26 side)
+
+  IMPORTANT: Run with --retarget-interval 2016 and --duration 13000.
+  Do NOT pass --enable-liveness-penalty (this is the baseline run with default oracle).
+
+network: lite
+
+# Fixed parameters — same ideology/switching params as sweep8/sweep9/sweep10
+fixed:
+  hashrate_split: 0.50
+  pool_committed_split: 0.35
+  pool_neutral_pct: 30.0
+  pool_ideology_strength: 0.51
+  pool_profitability_threshold: 0.16
+  pool_max_loss_pct: 0.26
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.14
+  econ_inertia: 0.17
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  transaction_velocity: 0.50
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  solo_miner_hashrate: 0.085
+
+# Grid over economic_split — same levels as sweep8/sweep10 for comparison
+grid:
+  economic_split: [0.35, 0.50, 0.60, 0.70, 0.82]

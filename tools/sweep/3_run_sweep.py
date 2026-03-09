@@ -520,7 +520,8 @@ def run_scenario(
     extract_script: Path,
     dry_run: bool = False,
     random_seed: int = None,
-    retarget_interval: int = 2016
+    retarget_interval: int = 2016,
+    enable_liveness_penalty: bool = False,
 ) -> bool:
     """Run a single scenario and extract results"""
 
@@ -578,6 +579,9 @@ def run_scenario(
     # Add random seed if provided (for baseline reproducibility testing)
     if random_seed is not None:
         cmd.append(f"--random-seed={random_seed}")
+
+    if enable_liveness_penalty:
+        cmd.append("--enable-liveness-penalty")
 
     if dry_run:
         print(f"  [DRY RUN] Would execute:")
@@ -710,6 +714,8 @@ def main():
                         help="Disable automatic minikube restart on failures")
     parser.add_argument("--retarget-interval", type=int, default=144,
                         help="Difficulty retarget interval in blocks (default: 144)")
+    parser.add_argument("--enable-liveness-penalty", action="store_true", default=False,
+                        help="Pass --enable-liveness-penalty to each scenario run (Option B price oracle)")
 
     args = parser.parse_args()
 
@@ -815,11 +821,13 @@ def main():
     try:
         for i, scenario in enumerate(pending):
             scenario_id = scenario["scenario_id"]
-            network_path = Path(scenario["network_path"])
+            # Resolve network_path relative to the manifest file so the sweep
+            # can be invoked from any working directory.
+            network_path = (manifest_path.parent / scenario["network_path"]).resolve()
 
             # Check network exists
             if not network_path.exists():
-                print(f"[{i+1}/{len(pending)}] SKIP {scenario_id} - network not found")
+                print(f"[{i+1}/{len(pending)}] SKIP {scenario_id} - network not found: {network_path}")
                 progress["failed"] += 1
                 continue
 
@@ -847,7 +855,8 @@ def main():
                 extract_script=extract_script,
                 dry_run=args.dry_run,
                 random_seed=random_seed,
-                retarget_interval=args.retarget_interval
+                retarget_interval=args.retarget_interval,
+                enable_liveness_penalty=args.enable_liveness_penalty,
             )
 
             scenario_elapsed = time.time() - scenario_start

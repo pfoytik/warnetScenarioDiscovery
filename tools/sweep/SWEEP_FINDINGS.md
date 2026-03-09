@@ -1,5 +1,23 @@
 # Parameter Sweep Findings - Combined Analysis
 
+## Research Direction and Modeling Philosophy
+
+### Research phases
+1. **Pre-retarget dynamics (sweeps 1–11, largely complete):** What conditions determine which fork wins? Economic thresholds, pool ideology, retarget regime, stuck contested state. The outcome variable was binary: `v27_dominant` vs `v26_dominant`.
+2. **Retarget and reorg dynamics (next phase):** What actually happens *during* and *after* the difficulty adjustment fires? Reorg depth, orphan rates, chainwork divergence trajectories, reunion scenarios. The reorg metrics already collected (`partition_reorg.json`, `reorg_mass`, orphan counts, losing fork depth) become the primary outcome variables.
+
+### Modeling philosophy
+All model parameters encode **explicit, documented assumptions** — not hidden tuning. The goal is a transparent model where any assumption can be challenged and replaced with empirical data or a different theoretical prior:
+
+| Assumption | Current value | What it means | How to challenge |
+|-----------|--------------|---------------|-----------------|
+| `assumed_fork_hashrate` | 50.0% | Pools evaluate profitability assuming even hashrate split (fog of war) | Replace with observed-hashrate-with-lag model |
+| `price_divergence_cap` | 20% | Markets cannot price forks more than 20% apart | Raise cap; calibrate against real fork price data |
+| Option B `confidence_exponent` | 1.0 (proposed) | Market confidence in a chain decays linearly with block production rate | Empirical exchange response data from past forks |
+| `econ_f` direction | Custody = price support | Economic custody props up a fork's price | Could be reversed (custody = selling pressure on losing fork) with real-world justification |
+
+If findings are criticized in the future, the response is: state the assumption, state the value used, explain what it represents, and update it with better evidence. The model is not claiming ground truth — it is claiming transparent, reproducible outcomes under stated assumptions.
+
 ## Executive Summary
 
 ### Key Discovery

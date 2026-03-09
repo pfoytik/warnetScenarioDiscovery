@@ -21,6 +21,7 @@ The **realistic_sweep3_rapid** sweep with fixed code reveals a dramatically diff
 6. **2016-block retarget is a qualitatively different regime** — without the difficulty adjustment profit spike arriving within the run window, cascades stall at partial equilibrium (neutral pool migration only); the "stuck contested" state at ~50/35 hashrate is the realistic baseline for most real-world forks (see targeted_sweep8 findings)
 7. **The stuck contested state DOES resolve — after ~8,100s when the first retarget arrives** — sweep9 (20,000s, econ=0.70) confirmed that the ~50% difficulty drop forces committed v26 pools off (loss 56% >> 13.3% tolerance), completing the cascade decisively; the sweep8 "stuck" result was purely a run-duration artifact (see targeted_sweep9 findings)
 8. **Even in the 144-block regime, the difficulty retarget is the primary cascade trigger — not price** — sweep10 (accidentally run at retarget=144, not 2016) showed v27_dominant at all economic splits (0.35–0.70) via a three-phase cascade completing in ~30 min: (1) initial split, (2) all pools temporarily collapse onto v26 when v26's difficulty drops while v27's hasn't yet, (3) v27 retargets to extreme low difficulty → all committed v26 pools forced off by 36.7% losses >> 13.3% tolerance. The 2016-block research question remains open — sweep10 must be rerun with `--retarget-interval 2016` (see targeted_sweep10 findings)
+9. **The 144-block "inversion" at econ=0.50 was an artifact — 2016-block shows deterministic v26 dominance** — sweep11 (chaos test, 3 replicates at econ=0.50, commit=0.20, 2016-block) produced identical v26_dominant outcomes in all 3 runs. The lite network divergence observed in sweep7 (144-block showed v27_dominant) was caused by the artificial 144-block retarget rescuing the dying v27 chain. With realistic 2016-block retarget, v27 collapses by t≈1200s (only 197 blocks) and never reaches its first retarget — no resurrection mechanism exists (see targeted_sweep11 findings)
 
 ### Zone Analysis Caveat
 
@@ -557,13 +558,15 @@ econ_f = 0.8 + (committed_support - cross_chain_selling) × 0.4
 
 #### Practical implication for existing results
 
-The "stuck contested" state observed in sweep8 and sweep11 may be an artifact of the oracle lacking both Option B and custody duplication dynamics. Both fixes compound in the same direction — they both accelerate the weaker fork's price decline. Implementing one without the other still understates the real collapse pressure.
+The "stuck contested" state observed in sweep8 may be an artifact of the oracle lacking both Option B and custody duplication dynamics. Both fixes compound in the same direction — they both accelerate the weaker fork's price decline. Implementing one without the other still understates the real collapse pressure.
+
+**Update (sweep11 results):** Sweep11 (econ=0.50, commit=0.20, 2016-block) did NOT show a stuck contested state — it showed decisive v26 dominance (3/3 replicates). The cascade completed by t≈1200s without requiring any difficulty retarget. This suggests that the "stuck contested" state only occurs at certain economic levels (e.g., econ=0.70 in sweep8), not universally in the 2016-block regime.
 
 Priority order:
 1. **Implement Option B first** (liveness penalty — simpler, bounded effect, preserves backward compatibility)
-2. **Evaluate sweep11 results** under current oracle to characterize the stuck contested regime
+2. **Map the stuck contested regime** — sweep11 shows econ=0.50 is decisive; sweep9 shows econ=0.70 resolves after retarget; the boundary is somewhere between
 3. **Design custody duplication model** as a follow-on (more complex, larger structural change to econ_f)
-4. **Re-run 2016-block sweeps** with both improvements to assess whether stuck contested survives
+4. **Re-run 2016-block sweeps** with both improvements to assess whether stuck contested at econ=0.70 is an artifact
 
 ---
 
@@ -622,8 +625,9 @@ This document summarizes findings from four parameter sweeps exploring Bitcoin f
 | **targeted_sweep8_lite_2016_retarget** | 5 | 25 nodes | 120 min | **2016 blocks (~67 min)** | Fixed | ✅ **Complete** — 2016-block retarget creates qualitatively different "stuck contested" regime |
 | **targeted_sweep9_long_duration_2016** | 1 | 25 nodes | 333 min | **2016 blocks (~67 min)** | Fixed | ✅ **Complete** — stuck contested state resolves at t≈8,100s when first retarget fires; v27 dominant |
 | **targeted_sweep10_econ_threshold_2016** | 5 | 25 nodes | 217 min | **2016 blocks (~67 min)** | Fixed | ✅ **Complete (4/5)** — v27_dominant at ALL economic splits (0.35–0.70); correlation=0; difficulty mechanics dominate |
+| **targeted_sweep11_lite_chaos_test** | 3 | 25 nodes | 333 min | **2016 blocks (~67 min)** | Fixed | ✅ **Complete** — chaos test at econ=0.50, commit=0.20; 3/3 v26_dominant; NOT stochastic, deterministic outcome |
 
-**Total: 395 scenarios** (366 with full analysis)
+**Total: 398 scenarios** (369 with full analysis)
 
 ### Sweep Configuration Notes
 
@@ -1852,6 +1856,83 @@ V27 produces zero blocks for 600 seconds but its price only drops ~6% ($60,917 �
 
 ---
 
+### targeted_sweep11_lite_chaos_test: Deterministic Outcomes at econ=0.50
+
+#### Purpose
+
+Sweep7 (144-block) showed that at econ=0.50, commit=0.20, the lite network produced v27_dominant while the full network produced v26_dominant. This raised the question: is econ=0.50 a chaotic boundary where small random variations determine outcomes, or is the divergence structural?
+
+Sweep11 answers this by running 3 identical replicates with 2016-block retarget to see if outcomes vary.
+
+#### Sweep Design
+
+| Parameter | Value |
+|-----------|-------|
+| **economic_split** | 0.50 (fixed) |
+| **pool_committed_split** | 0.20 (fixed) |
+| **retarget_interval** | **2016 blocks** |
+| **duration** | 20,000s |
+| Replicates | 3 |
+
+#### Results
+
+| Scenario | Outcome | v27 Hash | v27 Blocks | v26 Blocks | Reorgs | Total Blocks |
+|----------|---------|----------|------------|------------|--------|--------------|
+| sweep_0000 | **v26_dominant** | 0.0% | 197 | 9506 | 8 | 9703 |
+| sweep_0001 | **v26_dominant** | 0.0% | 197 | 9504 | 8 | 9701 |
+| sweep_0002 | **v26_dominant** | 0.0% | 197 | 9498 | 8 | 9695 |
+
+**Result: 3/3 identical outcomes — NOT chaos, deterministic v26 dominance.**
+
+#### Timeline Analysis (sweep_0001)
+
+The cascade completes in ~20 minutes:
+
+| Time | v27 Hash | v26 Hash | Event |
+|------|----------|----------|-------|
+| 0s | 38.1% | 48.3% | Fork splits. Committed pools on their respective forks |
+| 543s | 38.1% | 48.3% | Prices drift slightly but stay near parity (~$59,800 both) |
+| 603s | **20.5%** | **65.9%** | **Neutral pools choose v26** (30% hashrate shifts) |
+| 1208s | **0.0%** | **86.4%** | **Committed v27 pools capitulate** — cascade complete |
+| 20000s | 0.0% | 86.4% | v27 stuck at 197 blocks, v26 at 9504 blocks |
+
+**Key observations:**
+1. **Neutral pools chose v26 at t=603s** — with only 50% economic support, v27 had no price advantage
+2. **Committed v27 pools capitulated at t=1208s** — with only 20.5% hashrate, their losses exceeded tolerance
+3. **v27 never reached its first retarget** — stuck at 197 blocks (needs 2016 for retarget)
+4. **No resurrection mechanism** — unlike 144-block where dead chains can retarget quickly
+
+#### Why Sweep7 (144-block) Showed Different Results
+
+| Regime | econ=0.50, commit=0.20 | Mechanism |
+|--------|------------------------|-----------|
+| 144-block | v27_dominant | Dead v27 chain retargets quickly (every ~6 min), creating profit spike that resurrects it |
+| 2016-block | **v26_dominant** | Dead v27 chain can never reach 2016-block retarget — stays dead |
+
+The 144-block regime artificially allows dead chains to recover via difficulty drops. With realistic 2016-block retarget:
+- A chain that loses all hashrate early cannot trigger its first retarget
+- There is no difficulty drop to create a profit spike
+- The cascade is one-way and irreversible
+
+#### Implications
+
+1. **econ=0.50 is NOT a chaotic boundary** — outcomes are deterministic with 2016-block
+2. **The 144-block results at econ=0.50 were misleading** — the "v27_dominant" outcome was an artifact
+3. **The real economic threshold for v27 to win is higher than 0.50** — somewhere between 0.50 and 0.70
+4. **Sweep10 rerun with 2016-block** should map the exact threshold
+
+#### Data Location
+
+| File | Description |
+|------|-------------|
+| `targeted_sweep11_lite_chaos_test/results/` | All scenario results |
+| `targeted_sweep11_lite_chaos_test/results/analysis/` | Analysis outputs |
+| `targeted_sweep11_lite_chaos_test/results/analysis/sweep_data.csv` | Summary metrics |
+| `targeted_sweep11_lite_chaos_test/results/sweep_0001/results.json` | Full timeline data |
+| `specs/targeted_sweep11_lite_chaos_test.yaml` | Sweep spec |
+
+---
+
 ## Outcome Distribution
 
 | Sweep | v27 Wins | v26 Wins | Contested |
@@ -2189,6 +2270,7 @@ When analyzing new sweep results, watch for these indicators of potential bugs:
 | **targeted_sweep8_lite_2016_retarget** | `targeted_sweep8_lite_2016_retarget/results/analysis/` | 5 | ✅ **2016-block retarget validation** — qualitatively different regime; stuck contested state at econ=0.35–0.70; econ=0.82 still decisive |
 | **targeted_sweep9_long_duration_2016** | `targeted_sweep9_long_duration_2016/results/sweep_0000/` | 1 | ✅ **Long-duration confirmation** — stuck contested state resolves at t=8,106s (first retarget); v27 dominant at econ=0.70; cascade mechanism confirmed |
 | **targeted_sweep10_econ_threshold_2016** | `targeted_sweep10_econ_threshold_2016/results/analysis/` | 5 | ✅ **Economic split irrelevant in 2016-block regime** — v27_dominant at econ=0.35–0.70 (4/5 done); retarget difficulty mechanics, not price, drive cascade |
+| **targeted_sweep11_lite_chaos_test** | `targeted_sweep11_lite_chaos_test/results/analysis/` | 3 | ✅ **Chaos test at econ=0.50** — 3/3 v26_dominant; NOT stochastic; 144-block divergence was artifact of artificial retarget |
 
 ### Network Versions
 
@@ -2239,4 +2321,4 @@ When analyzing new sweep results, watch for these indicators of potential bugs:
 
 ---
 
-*Analysis compiled February–March 2026; targeted_sweep9 added March 2026; targeted_sweep10 added March 2026*
+*Analysis compiled February–March 2026; targeted_sweep9 added March 2026; targeted_sweep10 added March 2026; targeted_sweep11 added March 2026*

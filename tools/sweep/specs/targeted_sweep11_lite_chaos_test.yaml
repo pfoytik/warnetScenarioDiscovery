@@ -1,0 +1,54 @@
+# Targeted Sweep 11: Chaos Test at econ=0.50 (2016-block retarget)
+#
+# Purpose: Determine if econ=0.50 is a chaotic transition zone where small
+# random variations determine fork winners.
+#
+# Background: sweep7 (144-block) showed lite/full divergence at econ=0.50.
+# However, sweep9 demonstrated that 144-block results are intermediate states -
+# the actual winner isn't determined until after the 2016-block difficulty
+# adjustment creates the profit spike that triggers the cascade.
+#
+# This test uses 2016-block retarget to measure variability in FINAL outcomes:
+#   - If outcomes are CONSISTENT across replicates → econ=0.50 has deterministic winner
+#   - If outcomes VARY across replicates → econ=0.50 is a true chaotic boundary
+#
+# Network: lite (25 nodes)
+# Scenarios: 3 (commit=0.20 × 3 replicates)
+# Duration: 9600s (~2.7 hours per scenario, 8 hours total)
+# Retarget: 2016 blocks
+#
+# Note: Focused on commit=0.20 because sweep7 showed this had the highest
+# reorg count (12 vs 4 on full network) suggesting boundary instability.
+#
+# IMPORTANT: Run with --retarget-interval 2016 --duration 9600
+
+name: targeted_sweep11_lite_chaos_test
+description: >
+  Chaos test at econ=0.50, commit=0.20 with 2016-block retarget. Runs 3
+  replicates to determine if outcomes are consistent (structural) or vary
+  (stochastic boundary). Focused on commit=0.20 which showed highest reorg
+  count in sweep7.
+
+network: lite
+
+# 3 replicates at commit=0.20 to test variance at this boundary point
+grid:
+  pool_committed_split: [0.20, 0.20, 0.20]
+
+# Fixed at econ=0.50 - the divergence point
+fixed:
+  economic_split: 0.50
+  hashrate_split: 0.25
+  pool_neutral_pct: 30.0
+  pool_ideology_strength: 0.51
+  pool_profitability_threshold: 0.16
+  pool_max_loss_pct: 0.26
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.14
+  econ_inertia: 0.17
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  transaction_velocity: 0.50
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  solo_miner_hashrate: 0.085

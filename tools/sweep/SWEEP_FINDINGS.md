@@ -473,7 +473,7 @@ Cons: Requires rebalancing all weights. Introduces a new time-window parameter. 
 
 #### Recommended path
 
-The **Option A + B hybrid** is likely best: apply Option B's confidence decay to econ_f (modeling custody flight with realistic inertia), and raise the divergence cap to 40–50% (Option C partial) so extreme events can fully express. This preserves the normal-operation behavior of all existing sweeps while allowing ghost-town scenarios to resolve more realistically. The key new parameters would be:
+The **Option B** (confidence-decayed econ_f) is the priority fix, with a raised divergence cap. Implement behind `--enable-liveness-penalty` flag (default False) to preserve backward compatibility with all existing sweeps. The key new parameters would be:
 
 | Parameter | Suggested range | Effect |
 |-----------|----------------|--------|
@@ -481,7 +481,89 @@ The **Option A + B hybrid** is likely best: apply Option B's confidence decay to
 | `confidence_exponent` | 0.5–2.0 | How steeply custody confidence decays (1.0 = linear) |
 | `price_divergence_cap` | 0.20–0.60 | Raised from current 0.20 for extreme scenarios |
 
-These should themselves become sweep parameters once implemented, since they represent real-world uncertainty about how quickly markets respond to chain liveness failures.
+**Implementation decision gate: evaluate after sweep11 (2016-block) completes.**
+
+---
+
+### Price Oracle: The Custody Duplication Problem
+
+A deeper structural issue with `econ_f` that is distinct from the ghost town problem.
+
+#### The fundamental direction of econ_f is wrong for fork scenarios
+
+The current oracle treats economic custody as **price support**: if 70% of BTC custody is on v27 exchanges, `econ_f_v27 = 1.08` props up v27's price. The implicit model is that custodians are *loyal supporters* of their fork.
+
+**This is backwards from how fork custody actually works.**
+
+When a fork occurs, every BTC holder has their coins **duplicated on both chains simultaneously**. A custodian holding 1 BTC before the fork holds 1 BTC-v27 AND 1 BTC-v26 after it. If v26 goes to zero, they have lost nothing from their pre-fork position. The rational response is to **sell the weaker fork's coins as quickly as possible** to capture any residual value before they become worthless.
+
+The selling pressure this creates is *proportional to custody weight* — the more BTC a large custodian holds, the more weaker-fork coins they are incentivized to dump. The current model uses custody weight to generate a price *floor* on the weaker chain, when in reality large custodians are the primary source of **selling pressure** on the fork they believe will lose.
+
+```
+Current model:  econ_f → price SUPPORT (larger custody = higher price floor)
+Reality:        econ_f → selling PRESSURE on losing fork (larger custody = faster price collapse)
+```
+
+#### Reflexive price collapse
+
+This selling pressure creates a self-reinforcing dynamic absent from the current model:
+
+```
+v26 falls behind on hashrate
+  → custodians expect v26 to lose → they sell v26 coins
+    → v26 price drops further
+      → mining v26 less profitable → more pools switch to v27
+        → v26 falls further behind → more selling pressure → ...
+```
+
+Real fork resolutions are often faster and more decisive than models predict precisely because of this reflexivity. The current oracle, with static custody weights providing a price floor, suppresses this cascade.
+
+#### Interaction with the ghost town problem (Option B)
+
+These are two distinct but compounding mechanisms:
+
+| Mechanism | Trigger | Effect on weak fork price |
+|-----------|---------|--------------------------|
+| Option B (liveness) | Chain stops producing blocks → settlement impossible | Econ confidence decays → price floor erodes |
+| Custody duplication | Rational actors sell "airdrop" coins on losing fork | Active selling pressure → price drops regardless of liveness |
+
+In the stuck contested state (sweep8), both mechanisms are absent:
+- Option B absent → slow v26 chain (35.9% hashrate) gets no price penalty
+- Custody duplication absent → v26 economic custody provides a floor instead of generating selling pressure
+
+In reality, both would apply simultaneously, making the stuck contested state significantly less stable than the model predicts.
+
+#### Toward a more accurate model
+
+Instead of:
+```python
+econ_f = 0.8 + custody_weight × 0.4  # custody = support
+```
+
+A more accurate formulation:
+```python
+# Custody generates support on the chain you're committed to
+# and selling pressure on the chain you're abandoning
+committed_support    = own_fork_custody × confidence_in_own_fork
+cross_chain_selling  = other_fork_custody × (1 - confidence) × sell_urgency
+
+# sell_urgency increases as the fork falls further behind
+sell_urgency = f(hashrate_gap, block_production_ratio, price_gap)
+
+econ_f = 0.8 + (committed_support - cross_chain_selling) × 0.4
+```
+
+`sell_urgency` is what makes this reflexive: as one fork clearly starts losing, urgency to sell that fork's "airdrop" coins rises, driving price down further, which increases urgency. This is the cascade that makes real fork resolution faster than miner economics alone would predict.
+
+#### Practical implication for existing results
+
+The "stuck contested" state observed in sweep8 and sweep11 may be an artifact of the oracle lacking both Option B and custody duplication dynamics. Both fixes compound in the same direction — they both accelerate the weaker fork's price decline. Implementing one without the other still understates the real collapse pressure.
+
+Priority order:
+1. **Implement Option B first** (liveness penalty — simpler, bounded effect, preserves backward compatibility)
+2. **Evaluate sweep11 results** under current oracle to characterize the stuck contested regime
+3. **Design custody duplication model** as a follow-on (more complex, larger structural change to econ_f)
+4. **Re-run 2016-block sweeps** with both improvements to assess whether stuck contested survives
 
 ---
 

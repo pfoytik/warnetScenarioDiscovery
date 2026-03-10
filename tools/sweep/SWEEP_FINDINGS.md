@@ -38,7 +38,8 @@ The **realistic_sweep3_rapid** sweep with fixed code reveals a dramatically diff
 5. **pool_neutral_pct controls cascade intensity, not outcome** — varying neutral pools from 10–50% changes how long the cascade takes but not who wins; the inversion zone persists even when the v26-committed block collapses from 36% to 8% of total hashrate (see targeted_sweep3_neutral_pct findings)
 6. **2016-block retarget is a qualitatively different regime** — without the difficulty adjustment profit spike arriving within the run window, cascades stall at partial equilibrium (neutral pool migration only); the "stuck contested" state at ~50/35 hashrate is the realistic baseline for most real-world forks (see targeted_sweep8 findings)
 7. **The stuck contested state DOES resolve — after ~8,100s when the first retarget arrives** — sweep9 (20,000s, econ=0.70) confirmed that the ~50% difficulty drop forces committed v26 pools off (loss 56% >> 13.3% tolerance), completing the cascade decisively; the sweep8 "stuck" result was purely a run-duration artifact (see targeted_sweep9 findings)
-8. **Even in the 144-block regime, the difficulty retarget is the primary cascade trigger — not price** — sweep10 (accidentally run at retarget=144, not 2016) showed v27_dominant at all economic splits (0.35–0.70) via a three-phase cascade completing in ~30 min: (1) initial split, (2) all pools temporarily collapse onto v26 when v26's difficulty drops while v27's hasn't yet, (3) v27 retargets to extreme low difficulty → all committed v26 pools forced off by 36.7% losses >> 13.3% tolerance. The 2016-block research question remains open — sweep10 must be rerun with `--retarget-interval 2016` (see targeted_sweep10 findings)
+8. **Even in the 144-block regime, the difficulty retarget is the primary cascade trigger — not price** — sweep10 (accidentally run at retarget=144, not 2016) showed v27_dominant at all economic splits (0.35–0.70) via a three-phase cascade completing in ~30 min: (1) initial split, (2) all pools temporarily collapse onto v26 when v26's difficulty drops while v27's hasn't yet, (3) v27 retargets to extreme low difficulty → all committed v26 pools forced off by 36.7% losses >> 13.3% tolerance. Answered by sweep10b (see below).
+10. **In the 2016-block regime with equal starting hashrate, economic_split is irrelevant across 0.35–0.70 — the retarget mechanism alone determines the winner** — sweep10b (corrected rerun of sweep10, retarget=2016, hashrate=0.50) showed v27_dominant at all five economic levels including econ=0.35 where v26 holds 65% of economic weight. Scenarios at econ=0.35, 0.50, 0.60, 0.70 produced statistically identical outcomes (same reorg count, block distribution, and prices). The retarget mechanism fires regardless of economic conditions: Foundry's commitment gives v27 the early hashrate edge to mine the first 2016 blocks, after which the difficulty drop makes all remaining v26 mining unprofitable. The minimum economic_split for v27 to win via this mechanism is below 0.35 — possibly zero (see targeted_sweep10b findings)
 9. **The 144-block "inversion" at econ=0.50 was an artifact — 2016-block shows deterministic v26 dominance** — sweep11 (chaos test, 3 replicates at econ=0.50, commit=0.20, 2016-block) produced identical v26_dominant outcomes in all 3 runs. The lite network divergence observed in sweep7 (144-block showed v27_dominant) was caused by the artificial 144-block retarget rescuing the dying v27 chain. With realistic 2016-block retarget, v27 collapses by t≈1200s (only 197 blocks) and never reaches its first retarget — no resurrection mechanism exists (see targeted_sweep11 findings)
 
 ### Zone Analysis Caveat
@@ -642,10 +643,11 @@ This document summarizes findings from four parameter sweeps exploring Bitcoin f
 | **targeted_sweep7_lite_inversion** | 12 | 25 nodes | 30 min | 144 blocks (~5 min) | Fixed | ✅ **Complete** — lite network inversion zone validation (partial match) |
 | **targeted_sweep8_lite_2016_retarget** | 5 | 25 nodes | 120 min | **2016 blocks (~67 min)** | Fixed | ✅ **Complete** — 2016-block retarget creates qualitatively different "stuck contested" regime |
 | **targeted_sweep9_long_duration_2016** | 1 | 25 nodes | 333 min | **2016 blocks (~67 min)** | Fixed | ✅ **Complete** — stuck contested state resolves at t≈8,100s when first retarget fires; v27 dominant |
-| **targeted_sweep10_econ_threshold_2016** | 5 | 25 nodes | 217 min | **2016 blocks (~67 min)** | Fixed | ✅ **Complete (4/5)** — v27_dominant at ALL economic splits (0.35–0.70); correlation=0; difficulty mechanics dominate |
+| **targeted_sweep10_econ_threshold_2016** | 5 | 25 nodes | 217 min | **2016 blocks (~67 min)** | Fixed | ✅ **Complete** — 144-block accidental run; v27_dominant at econ=0.35–0.70 via three-phase difficulty cascade |
+| **targeted_sweep10b_econ_threshold_2016** | 5 | 60 nodes | 217 min | **2016 blocks (~67 min)** | Fixed | ✅ **Complete** — corrected 2016-block rerun; v27_dominant at ALL 5 econ levels incl. 0.35; economic_split irrelevant in 0.35–0.70 range |
 | **targeted_sweep11_lite_chaos_test** | 3 | 25 nodes | 333 min | **2016 blocks (~67 min)** | Fixed | ✅ **Complete** — chaos test at econ=0.50, commit=0.20; 3/3 v26_dominant; NOT stochastic, deterministic outcome |
 
-**Total: 398 scenarios** (369 with full analysis)
+**Total: 403 scenarios** (374 with full analysis)
 
 ### Sweep Configuration Notes
 
@@ -1874,6 +1876,81 @@ V27 produces zero blocks for 600 seconds but its price only drops ~6% ($60,917 �
 
 ---
 
+### targeted_sweep10b_econ_threshold_2016: Economic_split Is Irrelevant in the 2016-block Regime
+
+#### Purpose
+
+This is the corrected rerun of sweep10, which accidentally used `retarget_interval=144` instead of the intended 2016. Sweep10b answers the original research question: **what is the minimum economic_split for v27 to win via the 2016-block retarget mechanism?**
+
+Key configuration changes from sweep10:
+- `hashrate_split`: 0.25 → **0.50** (equal starting hashrate, matching sweep9 which validated the cascade mechanism)
+- `retarget_interval`: 144 (accidental) → **2016** (intended)
+- Duration: 13,000s (validated sufficient by sweep9 which showed retarget at t≈8,106s)
+
+#### Sweep Design
+
+| Parameter | Values |
+|-----------|--------|
+| **economic_split** | 0.35, 0.50, 0.60, 0.70, 0.82 (5 levels) |
+| **hashrate_split** | Fixed at **0.50** (equal starting hashrate) |
+| **pool_committed_split** | Fixed at 0.35 (Foundry committed to v27) |
+| **retarget_interval** | **2016 blocks** |
+| **duration** | 13,000s |
+| Network | Full 60-node |
+| Scenarios | 5 total |
+
+#### Results
+
+| econ | outcome | reorgs | reorg_mass | v27 blocks | v26 blocks | v27 price | v26 price | v27 opp cost |
+|:----:|:-------:|:------:|:----------:|:----------:|:----------:|:---------:|:---------:|:------------:|
+| 0.35 | v27 | 10 | 8,338 | 5,271 | 1,546 | $64,142 | $55,205 | $76.3M |
+| 0.50 | v27 | 10 | 8,338 | 5,271 | 1,546 | $64,143 | $55,204 | $76.3M |
+| 0.60 | v27 | 10 | 8,338 | 5,271 | 1,546 | $64,142 | $55,205 | $76.3M |
+| 0.70 | v27 | 10 | 8,338 | 5,276 | 1,546 | $64,145 | $55,202 | $76.3M |
+| 0.82 | v27 | 4 | 564 | 6,049 | 150 | $71,147 | $48,200 | $0 |
+
+#### Finding 1: v27 wins all 5 scenarios including where v26 holds economic majority
+
+At econ=0.35, v26 holds 65% of economic weight — v27 still wins. The 2016-block retarget mechanism operates independently of economic_split across the 0.35–0.70 range. The threshold model from the 144-block regime (requiring econ≥0.45 for v27 to win) does not apply in realistic Bitcoin timing.
+
+#### Finding 2: Economic_split is irrelevant from 0.35–0.70
+
+The econ=0.35, 0.50, 0.60, and 0.70 rows are **statistically identical** — same reorg count (10), same reorg_mass (8,338), same block distribution (~5,271 v27 / 1,546 v26), same prices ($64,142 vs $55,204). Economic_split barely affects pre-retarget pool drift in this range. The decisive event is who mines the first 2016 blocks, which is determined by Foundry's committed hashrate advantage — not by the economic signal.
+
+#### Finding 3: econ=0.82 follows the standard fast economic cascade
+
+At econ=0.82 the result is qualitatively different: 4 reorgs, only 150 v26 blocks, v27 opportunity cost = $0. This matches the 144-block pattern where econ=0.82 always produces a fast, clean economic cascade. At this economic level the cascade completes through the price mechanism before the retarget becomes the dominant force — Foundry never incurs a loss because v27 is immediately profitable.
+
+#### Finding 4: Commitment carries a large cost in the 2016-block regime
+
+At econ=0.35–0.70, Foundry pays **$76.3M in cumulative opportunity cost** for staying committed to v27 during the pre-retarget contest period. This cost is the same regardless of economic_split — again confirming that the economic signal is not what determines outcomes in this range. At econ=0.82 that cost drops to zero: the cascade is fast enough that Foundry's preferred fork wins before any revenue sacrifice accumulates.
+
+#### Research question answered
+
+> *What is the minimum economic_split for v27 to win via the 2016-block retarget mechanism?*
+
+**Below 0.35** — and the threshold may not exist at all under this configuration. With equal starting hashrate and Foundry committed to v27, the retarget mechanism fires regardless of economic_split across the full 0.35–0.70 range. The correct question for the 2016-block regime is not "what economic majority does v27 need?" but **"who mines the first 2016 blocks?"** — which is determined by committed hashrate, not economic_split.
+
+#### Comparison with related sweeps
+
+| Sweep | Retarget | hashrate | econ tested | reorgs | v27 blocks | v26 blocks |
+|-------|:--------:|:--------:|:-----------:|:------:|:----------:|:----------:|
+| sweep9 (2016-block baseline) | 2016 | 0.25 | 0.70 | 10 | 8,760 | 1,548 |
+| sweep10 (accidental 144-block) | 144 | 0.25 | 0.35–0.70 | 16 | ~6,158 | 808 |
+| **sweep10b (corrected 2016-block)** | **2016** | **0.50** | **0.35–0.82** | **10** | **5,271** | **1,546** |
+
+Sweep10b's higher v26 block count (1,546 vs 808 in sweep10) reflects the longer pre-retarget contest at 2016-block timing — both chains mine for much longer before the decisive difficulty drop, so v26 accumulates more blocks before being overtaken.
+
+#### Data Location
+
+| File | Description |
+|------|-------------|
+| `targeted_sweep10b_econ_threshold_2016/results/analysis/` | Analysis outputs |
+| `targeted_sweep10b_econ_threshold_2016/scenarios.json` | Full scenario configurations |
+| `specs/targeted_sweep10b_econ_threshold_2016.yaml` | Sweep spec |
+
+---
+
 ### targeted_sweep11_lite_chaos_test: Deterministic Outcomes at econ=0.50
 
 #### Purpose
@@ -2287,7 +2364,8 @@ When analyzing new sweep results, watch for these indicators of potential bugs:
 | **targeted_sweep7_lite_inversion** | `targeted_sweep7_lite_inversion/results/analysis/` | 12 | ✅ **Lite network inversion zone validation** — 75% match; econ=0.50 diverges |
 | **targeted_sweep8_lite_2016_retarget** | `targeted_sweep8_lite_2016_retarget/results/analysis/` | 5 | ✅ **2016-block retarget validation** — qualitatively different regime; stuck contested state at econ=0.35–0.70; econ=0.82 still decisive |
 | **targeted_sweep9_long_duration_2016** | `targeted_sweep9_long_duration_2016/results/sweep_0000/` | 1 | ✅ **Long-duration confirmation** — stuck contested state resolves at t=8,106s (first retarget); v27 dominant at econ=0.70; cascade mechanism confirmed |
-| **targeted_sweep10_econ_threshold_2016** | `targeted_sweep10_econ_threshold_2016/results/analysis/` | 5 | ✅ **Economic split irrelevant in 2016-block regime** — v27_dominant at econ=0.35–0.70 (4/5 done); retarget difficulty mechanics, not price, drive cascade |
+| **targeted_sweep10_econ_threshold_2016** | `targeted_sweep10_econ_threshold_2016/results/analysis/` | 5 | ✅ **Accidental 144-block run** — three-phase cascade; difficulty mechanics dominate; v27_dominant at econ=0.35–0.70 |
+| **targeted_sweep10b_econ_threshold_2016** | `targeted_sweep10b_econ_threshold_2016/results/analysis/` | 5 | ✅ **Corrected 2016-block rerun** — economic_split irrelevant 0.35–0.70; v27 wins via retarget at all levels incl. econ=0.35 |
 | **targeted_sweep11_lite_chaos_test** | `targeted_sweep11_lite_chaos_test/results/analysis/` | 3 | ✅ **Chaos test at econ=0.50** — 3/3 v26_dominant; NOT stochastic; 144-block divergence was artifact of artificial retarget |
 
 ### Network Versions
@@ -2339,4 +2417,4 @@ When analyzing new sweep results, watch for these indicators of potential bugs:
 
 ---
 
-*Analysis compiled February–March 2026; targeted_sweep9 added March 2026; targeted_sweep10 added March 2026; targeted_sweep11 added March 2026*
+*Analysis compiled February–March 2026; targeted_sweep9 added March 2026; targeted_sweep10 added March 2026; targeted_sweep11 added March 2026; targeted_sweep10b added March 2026*

@@ -241,6 +241,12 @@ class PartitionMinerWithPools(Commander):
         parser.add_argument('--snapshot-interval', type=int, default=60,
                           help='Interval in seconds for time series snapshots (default: 60)')
 
+        # Price model options
+        parser.add_argument('--enable-liveness-penalty', action='store_true', default=False,
+                          help='Enable Option B liveness penalty: decay economic factor by block '
+                               'production rate. Dead chains (0 blocks/hr) lose their economic '
+                               'premium/discount. Raises max_divergence cap to 50%%.')
+
         # Debug options
         parser.add_argument('--debug-prices', action='store_true', default=False,
                           help='Enable verbose price calculation debugging')
@@ -1312,7 +1318,8 @@ class PartitionMinerWithPools(Commander):
         self.price_oracle = PriceOracle(
             base_price=60000,
             min_fork_depth=6,
-            debug=self.options.debug_prices
+            debug=self.options.debug_prices,
+            liveness_penalty=self.options.enable_liveness_penalty,
         )
         self.log.info(f"✓ Price oracle initialized (debug={self.options.debug_prices})")
 
@@ -1664,6 +1671,28 @@ class PartitionMinerWithPools(Commander):
                 old_v27_price = self.price_oracle.get_price('v27')
                 old_v26_price = self.price_oracle.get_price('v26')
 
+                # Liveness penalty: compute each chain's block production rate
+                # relative to the simulation target (1 block per --interval seconds).
+                # production_ratio = 1.0 means on-target; 0.0 means ghost town.
+                v27_rate_ratio = None
+                v26_rate_ratio = None
+                if self.options.enable_liveness_penalty and self.difficulty_oracle:
+                    target_bph = 3600.0 / self.difficulty_oracle.target_block_interval
+                    v27_bph = self.difficulty_oracle.get_blocks_per_hour(
+                        'v27', self.current_v27_hashrate
+                    )
+                    v26_bph = self.difficulty_oracle.get_blocks_per_hour(
+                        'v26', self.current_v26_hashrate
+                    )
+                    v27_rate_ratio = min(1.0, v27_bph / target_bph)
+                    v26_rate_ratio = min(1.0, v26_bph / target_bph)
+                    if self.options.debug_prices:
+                        self.log.info(
+                            f"  [PRICE UPDATE] liveness: target={target_bph:.1f} bph, "
+                            f"v27={v27_bph:.2f} bph (ratio={v27_rate_ratio:.3f}), "
+                            f"v26={v26_bph:.2f} bph (ratio={v26_rate_ratio:.3f})"
+                        )
+
                 self.price_oracle.update_prices_from_state(
                     v27_height=v27_height,
                     v26_height=v26_height,
@@ -1674,6 +1703,8 @@ class PartitionMinerWithPools(Commander):
                     common_ancestor_height=self.options.start_height,
                     v27_chain_weight_override=v27_cw_override,
                     v26_chain_weight_override=v26_cw_override,
+                    v27_block_rate_ratio=v27_rate_ratio,
+                    v26_block_rate_ratio=v26_rate_ratio,
                 )
 
                 new_v27_price = self.price_oracle.get_price('v27')

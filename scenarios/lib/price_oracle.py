@@ -52,7 +52,9 @@ class PriceOracle:
         hashrate_weight_coef: float = 0.2,
         storage_path: Optional[str] = None,
         min_fork_depth: int = 6,
-        debug: bool = False
+        debug: bool = False,
+        liveness_penalty: bool = False,
+        liveness_exponent: float = 1.0,
     ):
         """
         Initialize price oracle.
@@ -65,9 +67,18 @@ class PriceOracle:
             hashrate_weight_coef: Weight for hashrate factor (0-1)
             storage_path: Path to store price history (JSON file)
             min_fork_depth: Minimum fork depth to consider sustained (default: 6)
+            liveness_penalty: If True, decay the economic factor by block production
+                rate. Chains producing 0 blocks/hour get no economic premium/discount.
+                Raises max_divergence to 0.50 to allow larger swings.
+            liveness_exponent: Exponent for production ratio decay (1.0 = linear).
+                Higher values make the penalty kick in harder at low production.
         """
         self.base_price = base_price
-        self.max_divergence = max_divergence
+        # Raise divergence cap when liveness penalty is active so that a dead
+        # chain (0 blocks) can actually fall below the normal ±20% floor.
+        self.max_divergence = 0.50 if liveness_penalty else max_divergence
+        self.liveness_penalty = liveness_penalty
+        self.liveness_exponent = liveness_exponent
 
         # Model coefficients (should sum to ~1.0)
         self.chain_weight_coef = chain_weight_coef
@@ -177,7 +188,8 @@ class PriceOracle:
         chain_weight: float,
         economic_weight: float,
         hashrate_weight: float,
-        metadata: Optional[Dict] = None
+        metadata: Optional[Dict] = None,
+        block_rate_ratio: Optional[float] = None,
     ) -> float:
         """
         Update price based on chain fundamentals.
@@ -194,6 +206,10 @@ class PriceOracle:
             hashrate_weight: Hashrate concentration (0-1)
                            0.5 = split evenly, >0.5 = majority on this chain
             metadata: Optional additional data to store with price point
+            block_rate_ratio: Fraction of target block rate this chain is currently
+                producing (0-1, where 1.0 = on-target). Used for liveness penalty
+                when self.liveness_penalty=True. None disables the penalty for
+                this call even if liveness_penalty is globally enabled.
 
         Returns:
             New price for the chain
@@ -211,10 +227,26 @@ class PriceOracle:
             economic_factor = 0.8 + (economic_weight * 0.4)
             hashrate_factor = 0.8 + (hashrate_weight * 0.4)
 
+            # Option B: Liveness penalty — decay economic factor by block production rate.
+            # A chain producing 0 blocks/hr has production_ratio=0, collapsing its
+            # economic_factor to the neutral value 1.0 (no premium or discount from
+            # economics on a ghost-town chain). A chain at full target rate keeps its
+            # economic_factor unchanged. Formula:
+            #   effective_econ = 1.0 + (raw_econ - 1.0) * production_ratio^exponent
+            if self.liveness_penalty and block_rate_ratio is not None:
+                effective_econ_factor = 1.0 + (economic_factor - 1.0) * (
+                    block_rate_ratio ** self.liveness_exponent
+                )
+                if self.debug:
+                    print(f"  [PRICE DEBUG] {chain_id}: liveness block_rate_ratio={block_rate_ratio:.3f} "
+                          f"econ_factor {economic_factor:.3f}->{effective_econ_factor:.3f}")
+            else:
+                effective_econ_factor = economic_factor
+
             # Weighted combination
             combined_factor = (
                 chain_factor * self.chain_weight_coef +
-                economic_factor * self.economic_weight_coef +
+                effective_econ_factor * self.economic_weight_coef +
                 hashrate_factor * self.hashrate_weight_coef
             )
 
@@ -228,7 +260,7 @@ class PriceOracle:
 
             if self.debug:
                 print(f"  [PRICE DEBUG] {chain_id}: chain={chain_weight:.3f} econ={economic_weight:.3f} hash={hashrate_weight:.3f}")
-                print(f"  [PRICE DEBUG] {chain_id}: factors chain={chain_factor:.3f} econ={economic_factor:.3f} hash={hashrate_factor:.3f}")
+                print(f"  [PRICE DEBUG] {chain_id}: factors chain={chain_factor:.3f} econ={effective_econ_factor:.3f} hash={hashrate_factor:.3f}")
                 print(f"  [PRICE DEBUG] {chain_id}: combined={combined_factor:.4f} -> ${new_price:,.0f}")
 
         # Update price
@@ -258,6 +290,8 @@ class PriceOracle:
         metadata: Optional[Dict] = None,
         v27_chain_weight_override: Optional[float] = None,
         v26_chain_weight_override: Optional[float] = None,
+        v27_block_rate_ratio: Optional[float] = None,
+        v26_block_rate_ratio: Optional[float] = None,
     ) -> Tuple[float, float]:
         """
         Update both chain prices from current network state.
@@ -275,6 +309,9 @@ class PriceOracle:
                 chain weight for v27 (0-1, from difficulty oracle chainwork)
             v26_chain_weight_override: If provided, use this instead of height-based
                 chain weight for v26 (0-1, from difficulty oracle chainwork)
+            v27_block_rate_ratio: Fraction of target block rate v27 is producing (0-1).
+                Passed to update_price() for liveness penalty calculation.
+            v26_block_rate_ratio: Fraction of target block rate v26 is producing (0-1).
 
         Returns:
             Tuple of (v27_price, v26_price)
@@ -317,7 +354,8 @@ class PriceOracle:
             v27_chain_weight,
             v27_econ_weight,
             v27_hash_weight,
-            metadata
+            metadata,
+            block_rate_ratio=v27_block_rate_ratio,
         )
 
         v26_price = self.update_price(
@@ -325,7 +363,8 @@ class PriceOracle:
             v26_chain_weight,
             v26_econ_weight,
             v26_hash_weight,
-            metadata
+            metadata,
+            block_rate_ratio=v26_block_rate_ratio,
         )
 
         return v27_price, v26_price

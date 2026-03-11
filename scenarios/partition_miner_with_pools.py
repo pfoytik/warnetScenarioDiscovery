@@ -165,6 +165,10 @@ class PartitionMinerWithPools(Commander):
             # Solo miner hashrate (user nodes that mine)
             'v27_solo_hashrate': [],
             'v26_solo_hashrate': [],
+            # Measured block time (rolling window between snapshots, sim-seconds per block)
+            # Scale to real-world: multiply by (600 / target_block_interval)
+            'v27_block_time_s': [],
+            'v26_block_time_s': [],
         }
 
     def add_options(self, parser: argparse.ArgumentParser):
@@ -246,6 +250,24 @@ class PartitionMinerWithPools(Commander):
                           help='Enable Option B liveness penalty: decay economic factor by block '
                                'production rate. Dead chains (0 blocks/hr) lose their economic '
                                'premium/discount. Raises max_divergence cap to 50%%.')
+        parser.add_argument('--use-economic-ema', action='store_true', default=False,
+                          help='Proposal 1 (Kristoufek 2015): Apply EMA lag to economic weight. '
+                               'Price responds gradually to custody shifts rather than instantly.')
+        parser.add_argument('--economic-ema-alpha', type=float, default=0.15,
+                          help='EMA smoothing factor for economic weight (default: 0.15). '
+                               '0=no update, 1=no lag. Half-life ~4.3 cycles at 0.15.')
+        parser.add_argument('--use-sigmoid', action='store_true', default=False,
+                          help='Proposal 2 (Biais et al. 2019): Replace linear factor mapping '
+                               'with logistic sigmoid. Produces sharper minority-chain collapse '
+                               'at extreme economic weights. Applied to economic factor only.')
+        parser.add_argument('--sigmoid-steepness', type=float, default=6.0,
+                          help='Sigmoid steepness k (default: 6.0). k=4 gentle, k=6 moderate, k=10 near-step.')
+        parser.add_argument('--use-cost-floor', action='store_true', default=False,
+                          help='Proposal 3 (Hayes 2019): Replace symmetric price floor with '
+                               'per-fork cost-of-production floor scaled by hashrate share. '
+                               'Minority chains at low hashrate face proportionally lower price floors.')
+        parser.add_argument('--cost-floor-margin-buffer', type=float, default=0.05,
+                          help='Safety buffer below breakeven for cost floor (default: 0.05 = 5%%).')
 
         # Debug options
         parser.add_argument('--debug-prices', action='store_true', default=False,
@@ -1221,6 +1243,17 @@ class PartitionMinerWithPools(Commander):
         Args:
             elapsed: Seconds since simulation start
         """
+        # Compute rolling block time before appending current values
+        if len(self.time_series['timestamps']) > 0:
+            delta_t = elapsed - self.time_series['timestamps'][-1]
+            delta_v27 = self.blocks_mined['v27'] - self.time_series['v27_blocks'][-1]
+            delta_v26 = self.blocks_mined['v26'] - self.time_series['v26_blocks'][-1]
+            v27_block_time = delta_t / delta_v27 if delta_v27 > 0 else None
+            v26_block_time = delta_t / delta_v26 if delta_v26 > 0 else None
+        else:
+            v27_block_time = None  # no previous snapshot to compare against
+            v26_block_time = None
+
         self.time_series['timestamps'].append(elapsed)
         self.time_series['v27_price'].append(self.price_oracle.get_price('v27'))
         self.time_series['v26_price'].append(self.price_oracle.get_price('v26'))
@@ -1298,6 +1331,10 @@ class PartitionMinerWithPools(Commander):
         self.time_series['v27_solo_hashrate'].append(self.current_v27_solo_hashrate)
         self.time_series['v26_solo_hashrate'].append(self.current_v26_solo_hashrate)
 
+        # Measured block time (rolling window)
+        self.time_series['v27_block_time_s'].append(v27_block_time)
+        self.time_series['v26_block_time_s'].append(v26_block_time)
+
     def run_test(self):
         """Main mining loop with dynamic pool strategy"""
 
@@ -1320,6 +1357,12 @@ class PartitionMinerWithPools(Commander):
             min_fork_depth=6,
             debug=self.options.debug_prices,
             liveness_penalty=self.options.enable_liveness_penalty,
+            use_economic_ema=self.options.use_economic_ema,
+            economic_ema_alpha=self.options.economic_ema_alpha,
+            use_sigmoid=self.options.use_sigmoid,
+            sigmoid_steepness_k=self.options.sigmoid_steepness,
+            use_cost_floor=self.options.use_cost_floor,
+            cost_floor_margin_buffer=self.options.cost_floor_margin_buffer,
         )
         self.log.info(f"✓ Price oracle initialized (debug={self.options.debug_prices})")
 

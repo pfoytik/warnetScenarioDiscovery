@@ -1,0 +1,50 @@
+name: targeted_sweep10c_liveness_penalty
+description: >
+  Rerun of targeted_sweep10b with --enable-liveness-penalty (Option B price oracle).
+
+  sweep10b (baseline oracle, liveness penalty OFF) found all 5 scenarios v27_dominant
+  including econ=0.35, with econ=0.35-0.70 producing statistically identical outcomes.
+  The retarget mechanism dominated: the 50% difficulty drop at t≈8,122s pushed all v26
+  pools past their max_loss_pct threshold regardless of economic_split.
+
+  Hypothesis for this run (liveness penalty ON):
+    The liveness penalty dampens the economic factor of slower-producing chains:
+      effective_econ_f = 1.0 + (economic_factor - 1.0) * (block_rate_ratio ^ exponent)
+    During the long race phase, v26 runs at ~35.9% hashrate → block_rate_ratio ≈ 0.359,
+    further suppressing its economic factor on top of its 30-65% custody disadvantage.
+    This accelerates price divergence, potentially pushing v26-committed pools past their
+    loss threshold VIA PRICE SIGNAL ALONE — before the retarget fires.
+
+  If the hypothesis holds:
+    - Higher econ splits (0.70, 0.82) may cascade EARLIER (price-driven, not retarget-driven)
+    - Lower econ splits (0.35, 0.50) may still require the retarget, or may produce contested
+    - The "identical outcomes" pattern from sweep10b would break — econ_split would matter again
+
+  Direct comparison to sweep10b isolates the Option B effect:
+    All parameters identical, only --enable-liveness-penalty differs.
+
+  IMPORTANT: Run with --retarget-interval 2016 --interval 2 --duration 13000 --enable-liveness-penalty.
+
+network: lite
+
+# Fixed parameters — identical to sweep10b for direct comparison
+fixed:
+  hashrate_split: 0.50
+  pool_committed_split: 0.35
+  pool_neutral_pct: 30.0
+  pool_ideology_strength: 0.51
+  pool_profitability_threshold: 0.16
+  pool_max_loss_pct: 0.26
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.14
+  econ_inertia: 0.17
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  transaction_velocity: 0.50
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  solo_miner_hashrate: 0.085
+
+# Same economic_split grid as sweep10b — direct comparison
+grid:
+  economic_split: [0.35, 0.50, 0.60, 0.70, 0.82]

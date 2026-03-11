@@ -59,30 +59,34 @@ def get_completed_scenarios(results_dir: Path) -> set:
     return completed
 
 
-def force_cleanup_cluster(max_attempts: int = 3) -> bool:
+def force_cleanup_cluster(max_attempts: int = 3, namespace: str = "default") -> bool:
     """
     Aggressively clean up the cluster to ensure no pods are left running.
     This is more thorough than stop_warnet for end-of-sweep cleanup.
     """
     print("  Force cleaning cluster...")
+    ns_args = ["-n", namespace]
 
     for attempt in range(max_attempts):
         try:
-            # First try warnet down
-            subprocess.run(
-                ["warnet", "down", "--force"],
-                capture_output=True,
-                text=True,
-                timeout=120
-            )
+            # Tear down namespace resources. warnet down --force has no namespace
+            # support, so use kubectl directly for non-default namespaces.
+            if namespace == "default":
+                subprocess.run(
+                    ["warnet", "down", "--force"],
+                    capture_output=True, text=True, timeout=120
+                )
+            else:
+                subprocess.run(
+                    ["kubectl", "delete", "all", "--all"] + ns_args + ["--force", "--grace-period=0"],
+                    capture_output=True, text=True, timeout=120
+                )
             time.sleep(5)
 
             # Check if any pods are still running
             result = subprocess.run(
-                ["kubectl", "get", "pods", "--no-headers"],
-                capture_output=True,
-                text=True,
-                timeout=30
+                ["kubectl", "get", "pods", "--no-headers"] + ns_args,
+                capture_output=True, text=True, timeout=30
             )
 
             if result.returncode == 0:
@@ -93,12 +97,9 @@ def force_cleanup_cluster(max_attempts: int = 3) -> bool:
 
                 print(f"  {len(pods)} pods still running, attempt {attempt + 1}")
 
-                # Try to delete remaining pods directly
                 subprocess.run(
-                    ["kubectl", "delete", "pods", "--all", "--force", "--grace-period=0"],
-                    capture_output=True,
-                    text=True,
-                    timeout=60
+                    ["kubectl", "delete", "pods", "--all"] + ns_args + ["--force", "--grace-period=0"],
+                    capture_output=True, text=True, timeout=60
                 )
                 time.sleep(10)
 
@@ -112,10 +113,8 @@ def force_cleanup_cluster(max_attempts: int = 3) -> bool:
     # Final check
     try:
         result = subprocess.run(
-            ["kubectl", "get", "pods", "--no-headers"],
-            capture_output=True,
-            text=True,
-            timeout=15
+            ["kubectl", "get", "pods", "--no-headers"] + ns_args,
+            capture_output=True, text=True, timeout=15
         )
         pods = [l.strip() for l in result.stdout.strip().split('\n') if l.strip()]
         if pods:
@@ -253,7 +252,7 @@ def inject_network_metadata(network_path: Path, scenarios_dir: Path) -> bool:
         return False
 
 
-def wait_for_cluster_ready(timeout: int = 60) -> bool:
+def wait_for_cluster_ready(timeout: int = 60, namespace: str = "default") -> bool:
     """Wait for the cluster to be responsive with exponential backoff"""
     start = time.time()
     wait_time = 2  # Start with 2 second wait
@@ -262,7 +261,7 @@ def wait_for_cluster_ready(timeout: int = 60) -> bool:
     while time.time() - start < timeout:
         try:
             result = subprocess.run(
-                ["kubectl", "get", "pods", "--no-headers"],
+                ["kubectl", "get", "pods", "--no-headers", "-n", namespace],
                 capture_output=True,
                 text=True,
                 timeout=15
@@ -284,29 +283,31 @@ def wait_for_cluster_ready(timeout: int = 60) -> bool:
     return False
 
 
-def stop_warnet(dry_run: bool = False, cooldown: int = 30) -> bool:
+def stop_warnet(dry_run: bool = False, cooldown: int = 30, namespace: str = "default") -> bool:
     """Stop any running warnet network with retry logic"""
     if dry_run:
-        print(f"  [DRY RUN] Would run: warnet down --force")
+        print(f"  [DRY RUN] Would stop warnet (namespace={namespace})")
         return True
 
+    # warnet down --force has no namespace support. For non-default namespaces
+    # use kubectl to tear down all resources in the namespace instead.
     max_attempts = 2
     for attempt in range(max_attempts):
         try:
-            result = subprocess.run(
-                ["warnet", "down", "--force"],
-                capture_output=True,
-                text=True,
-                timeout=180  # 3 min timeout
-            )
+            if namespace == "default":
+                cmd = ["warnet", "down", "--force"]
+            else:
+                cmd = ["kubectl", "delete", "all", "--all", "-n", namespace, "--force", "--grace-period=0"]
+
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
             if result.returncode == 0:
                 break
             else:
-                print(f"  Warning: warnet down returned {result.returncode}")
+                print(f"  Warning: stop command returned {result.returncode}")
                 if result.stderr:
                     print(f"    {result.stderr[:200]}")
         except subprocess.TimeoutExpired:
-            print(f"  Warning: warnet down timed out (attempt {attempt + 1})")
+            print(f"  Warning: stop command timed out (attempt {attempt + 1})")
             if attempt < max_attempts - 1:
                 time.sleep(10)
                 continue
@@ -318,20 +319,18 @@ def stop_warnet(dry_run: bool = False, cooldown: int = 30) -> bool:
     time.sleep(cooldown)
 
     # Wait for cluster to be responsive
-    if not wait_for_cluster_ready(60):
+    if not wait_for_cluster_ready(60, namespace=namespace):
         print(f"  Warning: Cluster may not be fully ready after shutdown")
-        # Give even more time
         time.sleep(15)
 
     return True
 
 
-def get_commander_pod_name() -> Optional[str]:
+def get_commander_pod_name(namespace: str = "default") -> Optional[str]:
     """Get the commander pod name from warnet status or kubectl"""
     try:
-        # Try kubectl to find commander pod
         result = subprocess.run(
-            ["kubectl", "get", "pods", "-o", "name"],
+            ["kubectl", "get", "pods", "-o", "name", "-n", namespace],
             capture_output=True,
             text=True,
             timeout=30
@@ -346,11 +345,11 @@ def get_commander_pod_name() -> Optional[str]:
     return None
 
 
-def get_pod_status(pod_name: str) -> Optional[str]:
+def get_pod_status(pod_name: str, namespace: str = "default") -> Optional[str]:
     """Get the status of a pod (Running, Succeeded, Failed, etc.)"""
     try:
         result = subprocess.run(
-            ["kubectl", "get", "pod", pod_name, "-o", "jsonpath={.status.phase}"],
+            ["kubectl", "get", "pod", pod_name, "-o", "jsonpath={.status.phase}", "-n", namespace],
             capture_output=True,
             text=True,
             timeout=30
@@ -362,7 +361,7 @@ def get_pod_status(pod_name: str) -> Optional[str]:
     return None
 
 
-def wait_for_scenario_completion(duration: int, poll_interval: int = 10, dry_run: bool = False) -> Tuple[bool, Optional[str]]:
+def wait_for_scenario_completion(duration: int, poll_interval: int = 10, dry_run: bool = False, namespace: str = "default") -> Tuple[bool, Optional[str]]:
     """
     Wait for the scenario to complete by monitoring pod status and logs.
 
@@ -389,13 +388,13 @@ def wait_for_scenario_completion(duration: int, poll_interval: int = 10, dry_run
         try:
             # Find commander pod if we don't have it
             if not commander_pod:
-                commander_pod = get_commander_pod_name()
+                commander_pod = get_commander_pod_name(namespace=namespace)
                 if commander_pod:
                     print(f"    Found commander pod: {commander_pod}")
 
             # Check pod status first - this is more reliable than log parsing
             if commander_pod:
-                pod_status = get_pod_status(commander_pod)
+                pod_status = get_pod_status(commander_pod, namespace=namespace)
                 if pod_status in ["Succeeded", "Failed"]:
                     elapsed = int(time.time() - start_time)
                     print(f"    Pod status: {pod_status} after {elapsed}s")
@@ -403,7 +402,7 @@ def wait_for_scenario_completion(duration: int, poll_interval: int = 10, dry_run
                     # Pod finished, fetch final logs
                     try:
                         result = subprocess.run(
-                            ["kubectl", "logs", commander_pod, "--all-containers"],
+                            ["kubectl", "logs", commander_pod, "--all-containers", "-n", namespace],
                             capture_output=True,
                             text=True,
                             timeout=60
@@ -419,7 +418,7 @@ def wait_for_scenario_completion(duration: int, poll_interval: int = 10, dry_run
             if commander_pod and not pod_completed:
                 try:
                     result = subprocess.run(
-                        ["kubectl", "logs", commander_pod, "--all-containers"],
+                        ["kubectl", "logs", commander_pod, "--all-containers", "-n", namespace],
                         capture_output=True,
                         text=True,
                         timeout=60
@@ -450,7 +449,7 @@ def wait_for_scenario_completion(duration: int, poll_interval: int = 10, dry_run
         # Progress indicator
         elapsed = int(time.time() - start_time)
         if elapsed % 90 == 0 and elapsed > 0:
-            status_str = f", pod: {get_pod_status(commander_pod)}" if commander_pod else ""
+            status_str = f", pod: {get_pod_status(commander_pod, namespace=namespace)}" if commander_pod else ""
             print(f"    Still waiting... ({elapsed}s elapsed{status_str})")
 
         time.sleep(poll_interval)
@@ -460,15 +459,15 @@ def wait_for_scenario_completion(duration: int, poll_interval: int = 10, dry_run
     return False, last_logs
 
 
-def deploy_network(network_path: Path, startup_wait: int = 45, dry_run: bool = False) -> bool:
+def deploy_network(network_path: Path, startup_wait: int = 45, dry_run: bool = False, namespace: str = "default") -> bool:
     """Deploy a warnet network and wait for nodes to start"""
     if dry_run:
-        print(f"  [DRY RUN] Would deploy: {network_path.parent}")
+        print(f"  [DRY RUN] Would deploy: {network_path.parent} (namespace={namespace})")
         return True
 
     try:
         result = subprocess.run(
-            ["warnet", "deploy", str(network_path.parent)],
+            ["warnet", "deploy", str(network_path.parent), "--namespace", namespace],
             capture_output=True,
             text=True,
             timeout=420  # 7 min for deployment (can be slow with many nodes)
@@ -485,7 +484,7 @@ def deploy_network(network_path: Path, startup_wait: int = 45, dry_run: bool = F
         # Verify nodes are actually running
         try:
             check = subprocess.run(
-                ["kubectl", "get", "pods", "--no-headers"],
+                ["kubectl", "get", "pods", "--no-headers", "-n", namespace],
                 capture_output=True,
                 text=True,
                 timeout=15
@@ -522,6 +521,13 @@ def run_scenario(
     random_seed: int = None,
     retarget_interval: int = 2016,
     enable_liveness_penalty: bool = False,
+    use_economic_ema: bool = False,
+    economic_ema_alpha: float = 0.15,
+    use_sigmoid: bool = False,
+    sigmoid_steepness: float = 6.0,
+    use_cost_floor: bool = False,
+    cost_floor_margin_buffer: float = 0.05,
+    namespace: str = "default",
 ) -> bool:
     """Run a single scenario and extract results"""
 
@@ -532,7 +538,7 @@ def run_scenario(
 
     # Step 0a: Pre-flight check - ensure cluster is responsive
     if not dry_run:
-        if not wait_for_cluster_ready(60):
+        if not wait_for_cluster_ready(60, namespace=namespace):
             print(f"  Error: Cluster not responsive, skipping scenario")
             return False
 
@@ -551,11 +557,11 @@ def run_scenario(
 
     # Step 1: Stop any running network
     print(f"  Stopping previous network...")
-    stop_warnet(dry_run, cooldown)
+    stop_warnet(dry_run, cooldown, namespace=namespace)
 
     # Step 2: Deploy the new network
     print(f"  Deploying network...")
-    if not deploy_network(network_path, startup_wait, dry_run):
+    if not deploy_network(network_path, startup_wait, dry_run, namespace=namespace):
         return False
 
     # Step 3: Run the scenario
@@ -565,6 +571,7 @@ def run_scenario(
     cmd = [
         "warnet", "run",
         str(scenarios_dir / "partition_miner_with_pools.py"),
+        "--namespace", namespace,
         f"--pool-scenario={scenario_id}",
         f"--economic-scenario={scenario_id}",
         "--enable-difficulty",
@@ -582,11 +589,20 @@ def run_scenario(
 
     if enable_liveness_penalty:
         cmd.append("--enable-liveness-penalty")
+    if use_economic_ema:
+        cmd.append("--use-economic-ema")
+        cmd.append(f"--economic-ema-alpha={economic_ema_alpha}")
+    if use_sigmoid:
+        cmd.append("--use-sigmoid")
+        cmd.append(f"--sigmoid-steepness={sigmoid_steepness}")
+    if use_cost_floor:
+        cmd.append("--use-cost-floor")
+        cmd.append(f"--cost-floor-margin-buffer={cost_floor_margin_buffer}")
 
     if dry_run:
         print(f"  [DRY RUN] Would execute:")
         print(f"    {' '.join(cmd)}")
-        wait_for_scenario_completion(duration, dry_run=True)
+        wait_for_scenario_completion(duration, dry_run=True, namespace=namespace)
         return True
 
     # Variable to store logs from completion monitoring
@@ -619,7 +635,7 @@ def run_scenario(
         return False
 
     # Step 3b: Wait for the scenario to actually complete
-    completed, scenario_logs = wait_for_scenario_completion(duration)
+    completed, scenario_logs = wait_for_scenario_completion(duration, namespace=namespace)
     if not completed:
         print(f"  Warning: Scenario may not have completed properly")
         # Continue anyway to try to extract whatever results exist
@@ -631,14 +647,14 @@ def run_scenario(
         if scenario_logs:
             logs_content = scenario_logs
         else:
-            commander_pod = get_commander_pod_name()
+            commander_pod = get_commander_pod_name(namespace=namespace)
             logs_content = None
 
             if commander_pod:
                 # Try kubectl directly - more reliable than warnet logs
                 try:
                     logs_result = subprocess.run(
-                        ["kubectl", "logs", commander_pod, "--all-containers"],
+                        ["kubectl", "logs", commander_pod, "--all-containers", "-n", namespace],
                         capture_output=True,
                         text=True,
                         timeout=120
@@ -716,6 +732,21 @@ def main():
                         help="Difficulty retarget interval in blocks (default: 144)")
     parser.add_argument("--enable-liveness-penalty", action="store_true", default=False,
                         help="Pass --enable-liveness-penalty to each scenario run (Option B price oracle)")
+    parser.add_argument("--use-economic-ema", action="store_true", default=False,
+                        help="Proposal 1: EMA lag on economic weight (Kristoufek 2015)")
+    parser.add_argument("--economic-ema-alpha", type=float, default=0.15,
+                        help="EMA smoothing factor (default: 0.15)")
+    parser.add_argument("--use-sigmoid", action="store_true", default=False,
+                        help="Proposal 2: Sigmoid factor mapping on economic weight (Biais et al. 2019)")
+    parser.add_argument("--sigmoid-steepness", type=float, default=6.0,
+                        help="Sigmoid steepness k (default: 6.0)")
+    parser.add_argument("--use-cost-floor", action="store_true", default=False,
+                        help="Proposal 3: Asymmetric cost-of-production price floor (Hayes 2019)")
+    parser.add_argument("--cost-floor-margin-buffer", type=float, default=0.05,
+                        help="Cost floor margin buffer below breakeven (default: 0.05)")
+    parser.add_argument("--namespace", type=str, default="default",
+                        help="Kubernetes namespace to deploy into (default: default). "
+                             "Allows multiple sweeps to run in parallel on different namespaces.")
 
     args = parser.parse_args()
 
@@ -784,6 +815,7 @@ def main():
     print(f"Startup wait: {args.startup_wait}s")
     print(f"Estimated total time: {len(pending) * time_per_scenario / 3600:.1f} hours")
     print(f"Results directory: {results_dir}")
+    print(f"Namespace: {args.namespace}")
     if not args.no_auto_restart:
         print(f"Auto-restart: after {args.max_consecutive_failures} consecutive failures")
     else:
@@ -813,7 +845,7 @@ def main():
     # Initial cleanup - ensure no stale networks are running
     if not args.dry_run:
         print("Initial cleanup - stopping any running networks...")
-        stop_warnet(dry_run=False, cooldown=args.cooldown)
+        stop_warnet(dry_run=False, cooldown=args.cooldown, namespace=args.namespace)
 
     start_time = time.time()
     consecutive_failures = 0
@@ -857,6 +889,13 @@ def main():
                 random_seed=random_seed,
                 retarget_interval=args.retarget_interval,
                 enable_liveness_penalty=args.enable_liveness_penalty,
+                use_economic_ema=args.use_economic_ema,
+                economic_ema_alpha=args.economic_ema_alpha,
+                use_sigmoid=args.use_sigmoid,
+                sigmoid_steepness=args.sigmoid_steepness,
+                use_cost_floor=args.use_cost_floor,
+                cost_floor_margin_buffer=args.cost_floor_margin_buffer,
+                namespace=args.namespace,
             )
 
             scenario_elapsed = time.time() - scenario_start
@@ -906,7 +945,7 @@ def main():
             print(f"\n" + "="*60)
             print("Final cleanup - ensuring cluster is clean...")
             print("="*60)
-            force_cleanup_cluster(max_attempts=3)
+            force_cleanup_cluster(max_attempts=3, namespace=args.namespace)
 
     # Final summary
     total_elapsed = time.time() - start_time

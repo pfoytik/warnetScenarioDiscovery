@@ -1,0 +1,63 @@
+name: cost_floor_asymmetric_test
+description: >
+  Tests Proposal 3 (Hayes 2019 cost floor) in the regime where it has maximum
+  impact: asymmetric hashrate split (v27=25%, v26=75%).
+
+  At hashrate_split=0.25, v27 starts at a 3:1 hashrate disadvantage.
+  As pools cascade toward the winning fork, the losing fork sheds hashrate rapidly.
+  The cost floor scales with hashrate_weight — so as a fork loses hashrate its
+  price floor drops proportionally, making the cascade faster and more decisive.
+
+  Cost floor comparison at key hashrate levels:
+    hashrate=0.75 → floor = $42,750  (vs baseline $48,000 — small difference)
+    hashrate=0.50 → floor = $28,500  (vs baseline $48,000 — $19,500 gap)
+    hashrate=0.25 → floor = $14,250  (vs baseline $48,000 — $33,750 gap)
+    hashrate=0.00 → floor = $0       (vs baseline $48,000 — total collapse)
+
+  Run BOTH in parallel — two namespaces, same scenarios:
+
+    Sweep A — baseline oracle:
+      python 3_run_sweep.py \
+        --input cost_floor_asymmetric_test/build_manifest.json \
+        --namespace sweep-floor-base \
+        --results-dir cost_floor_asymmetric_test/results_baseline \
+        --duration 2500 --retarget-interval 144 --interval 2
+
+    Sweep B — cost floor active:
+      python 3_run_sweep.py \
+        --input cost_floor_asymmetric_test/build_manifest.json \
+        --namespace sweep-floor-active \
+        --results-dir cost_floor_asymmetric_test/results_floor \
+        --duration 2500 --retarget-interval 144 --interval 2 \
+        --use-cost-floor
+
+  Namespaces to create first:
+    kubectl create namespace sweep-floor-base
+    kubectl create namespace sweep-floor-active
+
+  Key questions:
+    - Does the cost floor accelerate cascade timing (faster v27_block_share growth)?
+    - Does it change the winning fork at econ=0.60 where v27 starts hashrate-disadvantaged?
+    - Does reorg_mass change? Larger price gaps → stronger incentive to switch → fewer reorgs?
+
+network: lite
+
+fixed:
+  hashrate_split: 0.25
+  pool_committed_split: 0.35
+  pool_neutral_pct: 30.0
+  pool_ideology_strength: 0.51
+  pool_profitability_threshold: 0.16
+  pool_max_loss_pct: 0.26
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.14
+  econ_inertia: 0.17
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  transaction_velocity: 0.50
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  solo_miner_hashrate: 0.085
+
+grid:
+  economic_split: [0.60, 0.82]

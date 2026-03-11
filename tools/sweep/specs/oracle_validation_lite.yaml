@@ -1,0 +1,62 @@
+name: oracle_validation_lite
+description: >
+  Oracle validation sweep — tests the three literature-grounded price oracle
+  proposals against the baseline oracle.
+
+  Proposals:
+    1. EMA lag on economic weight (Kristoufek 2015) — smooths early chop
+    2. Sigmoid factor mapping (Biais et al. 2019/Metcalfe) — nonlinear at extremes
+    3. Asymmetric cost-of-production price floor (Hayes 2019) — floors minority fork
+
+  Run TWICE simultaneously on different namespaces to compare oracle behaviors
+  for the same scenario grid:
+
+    Sweep A — baseline oracle:
+      python 3_run_sweep.py \
+        --input oracle_validation_lite/build_manifest.json \
+        --namespace sweep-oracle-a \
+        --results-dir oracle_validation_lite/results_baseline \
+        --duration 3000 --retarget-interval 144 --interval 2
+
+    Sweep B — all proposals enabled:
+      python 3_run_sweep.py \
+        --input oracle_validation_lite/build_manifest.json \
+        --namespace sweep-oracle-b \
+        --results-dir oracle_validation_lite/results_proposals \
+        --duration 3000 --retarget-interval 144 --interval 2 \
+        --use-economic-ema --use-sigmoid --use-cost-floor
+
+  Three economic_split values cover the known outcome zones:
+    0.35 → v26 expected to win (economic majority on v26 side)
+    0.60 → contested / narrow v27 advantage
+    0.82 → v27 expected to win (strong economic majority on v27 side)
+
+  Key questions:
+    - Does EMA smooth the early price chop seen at t<300s?
+    - Does the sigmoid change the cascade threshold (econ=0.60 flip)?
+    - Does the cost floor affect pricing when one fork has minority hashrate?
+
+  Uses 144-block retarget for fast feedback (multiple retarget cycles in 3000s).
+  Lite network (25 nodes) keeps runtime short — ~3000s per scenario.
+
+network: lite
+
+fixed:
+  hashrate_split: 0.50
+  pool_committed_split: 0.35
+  pool_neutral_pct: 30.0
+  pool_ideology_strength: 0.51
+  pool_profitability_threshold: 0.16
+  pool_max_loss_pct: 0.26
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.14
+  econ_inertia: 0.17
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  transaction_velocity: 0.50
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  solo_miner_hashrate: 0.085
+
+grid:
+  economic_split: [0.35, 0.60, 0.82]

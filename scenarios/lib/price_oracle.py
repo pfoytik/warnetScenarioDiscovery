@@ -15,6 +15,7 @@ Usage:
 
 import json
 import time
+from math import exp, log
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 from dataclasses import dataclass, asdict
@@ -55,6 +56,15 @@ class PriceOracle:
         debug: bool = False,
         liveness_penalty: bool = False,
         liveness_exponent: float = 1.0,
+        # Proposal 1 (Kristoufek 2015): EMA lag on economic weight
+        use_economic_ema: bool = False,
+        economic_ema_alpha: float = 0.15,
+        # Proposal 2 (Biais et al. 2019 / Metcalfe): Sigmoid factor mapping
+        use_sigmoid: bool = False,
+        sigmoid_steepness_k: float = 6.0,
+        # Proposal 3 (Hayes 2019): Asymmetric cost-of-production price floor
+        use_cost_floor: bool = False,
+        cost_floor_margin_buffer: float = 0.05,
     ):
         """
         Initialize price oracle.
@@ -72,6 +82,24 @@ class PriceOracle:
                 Raises max_divergence to 0.50 to allow larger swings.
             liveness_exponent: Exponent for production ratio decay (1.0 = linear).
                 Higher values make the penalty kick in harder at low production.
+            use_economic_ema: If True, apply EMA smoothing to economic weight before
+                computing the economic factor. Introduces realistic lag — market prices
+                respond gradually to custody shifts rather than instantaneously.
+                (Kristoufek 2015)
+            economic_ema_alpha: EMA smoothing factor (0=no update, 1=no lag).
+                Default 0.15 gives half-life of ~4.3 update cycles (~4 min at 60s interval).
+            use_sigmoid: If True, replace the linear [0.8, 1.2] factor mapping with a
+                logistic sigmoid. Produces sharper minority-chain collapse at extreme
+                weights while remaining nearly linear in the central 40-60% range.
+                Applied to the economic factor only. (Biais et al. 2019, Metcalfe)
+            sigmoid_steepness_k: Steepness of the sigmoid curve. k=4 is gentle,
+                k=6 is moderate (default), k=10 is near-step.
+            use_cost_floor: If True, replace the symmetric ±max_divergence floor with
+                a per-fork cost-of-production floor scaled by hashrate share. A fork
+                at 10% hashrate has ~10% of difficulty and a proportionally lower
+                breakeven price. (Hayes 2019)
+            cost_floor_margin_buffer: Safety buffer below breakeven before floor
+                activates (0.05 = 5% below breakeven). Default 0.05.
         """
         self.base_price = base_price
         # Raise divergence cap when liveness penalty is active so that a dead
@@ -79,6 +107,19 @@ class PriceOracle:
         self.max_divergence = 0.50 if liveness_penalty else max_divergence
         self.liveness_penalty = liveness_penalty
         self.liveness_exponent = liveness_exponent
+
+        # Proposal 1: EMA lag
+        self.use_economic_ema = use_economic_ema
+        self.economic_ema_alpha = economic_ema_alpha
+        self._ema_economic: Dict[str, Optional[float]] = {'v27': None, 'v26': None}
+
+        # Proposal 2: Sigmoid factor mapping
+        self.use_sigmoid = use_sigmoid
+        self.sigmoid_steepness_k = sigmoid_steepness_k
+
+        # Proposal 3: Asymmetric cost floor
+        self.use_cost_floor = use_cost_floor
+        self.cost_floor_margin_buffer = cost_floor_margin_buffer
 
         # Model coefficients (should sum to ~1.0)
         self.chain_weight_coef = chain_weight_coef
@@ -116,6 +157,26 @@ class PriceOracle:
         start_time = time.time()
         self.history.append(PricePoint(start_time, 'v27', base_price, {'initial': True}))
         self.history.append(PricePoint(start_time, 'v26', base_price, {'initial': True}))
+
+    def _compute_factor(self, weight: float, use_sigmoid: bool = False) -> float:
+        """
+        Map a weight (0-1) to a price factor (0.8-1.2).
+
+        Linear (current default):
+            factor = 0.8 + (weight × 0.4)
+            weight=0.5 → 1.00, weight=1.0 → 1.20, weight=0.0 → 0.80
+
+        Sigmoid (Proposal 2):
+            sig = 1 / (1 + exp(-k × (weight - 0.5)))
+            factor = 0.8 + (sig × 0.4)
+            Identical to linear at weight=0.5, but curves away more steeply
+            outside the 40-60% range — producing sharper minority-chain collapse.
+        """
+        if use_sigmoid:
+            sig = 1.0 / (1.0 + exp(-self.sigmoid_steepness_k * (weight - 0.5)))
+            return 0.8 + (sig * 0.4)
+        else:
+            return 0.8 + (weight * 0.4)
 
     def get_price(self, chain_id: str) -> float:
         """
@@ -222,17 +283,35 @@ class PriceOracle:
                 print(f"  [PRICE DEBUG] {chain_id}: fork NOT sustained, price stays at ${new_price:,.0f}")
         else:
             # Fork is sustained - calculate price divergence
-            # Calculate factors (normalize to 0.8 - 1.2 range to limit divergence)
-            chain_factor = 0.8 + (chain_weight * 0.4)
-            economic_factor = 0.8 + (economic_weight * 0.4)
-            hashrate_factor = 0.8 + (hashrate_weight * 0.4)
 
-            # Option B: Liveness penalty — decay economic factor by block production rate.
-            # A chain producing 0 blocks/hr has production_ratio=0, collapsing its
-            # economic_factor to the neutral value 1.0 (no premium or discount from
-            # economics on a ghost-town chain). A chain at full target rate keeps its
-            # economic_factor unchanged. Formula:
-            #   effective_econ = 1.0 + (raw_econ - 1.0) * production_ratio^exponent
+            # Proposal 1: EMA lag on economic weight (Kristoufek 2015)
+            # Market prices respond gradually to custody shifts rather than instantly.
+            if self.use_economic_ema:
+                prev_ema = self._ema_economic.get(chain_id)
+                if prev_ema is None:
+                    smoothed_econ_weight = economic_weight  # seed on first call
+                else:
+                    smoothed_econ_weight = (
+                        prev_ema * (1 - self.economic_ema_alpha)
+                        + economic_weight * self.economic_ema_alpha
+                    )
+                self._ema_economic[chain_id] = smoothed_econ_weight
+                if self.debug:
+                    print(f"  [PRICE DEBUG] {chain_id}: EMA econ {economic_weight:.3f} -> {smoothed_econ_weight:.3f} "
+                          f"(alpha={self.economic_ema_alpha})")
+            else:
+                smoothed_econ_weight = economic_weight
+
+            # Proposal 2: Sigmoid vs linear factor mapping (Biais et al. 2019 / Metcalfe)
+            # Sigmoid applied to economic factor only — the dominant 50% component.
+            # Linear mapping used for chain and hashrate factors.
+            chain_factor    = self._compute_factor(chain_weight,         use_sigmoid=False)
+            economic_factor = self._compute_factor(smoothed_econ_weight, use_sigmoid=self.use_sigmoid)
+            hashrate_factor = self._compute_factor(hashrate_weight,      use_sigmoid=False)
+
+            # Liveness penalty: decay economic factor by block production rate.
+            # A chain producing 0 blocks/hr collapses its economic_factor to neutral 1.0.
+            # Formula: effective_econ = 1.0 + (raw_econ - 1.0) * production_ratio^exponent
             if self.liveness_penalty and block_rate_ratio is not None:
                 effective_econ_factor = 1.0 + (economic_factor - 1.0) * (
                     block_rate_ratio ** self.liveness_exponent
@@ -253,15 +332,31 @@ class PriceOracle:
             # Calculate new price
             new_price = self.base_price * combined_factor
 
-            # Apply max divergence constraint
-            min_price = self.base_price * (1 - self.max_divergence)
+            # Proposal 3: Asymmetric cost-of-production floor (Hayes 2019)
+            # A fork with x% of hashrate has ~x% of difficulty → x% of mining cost.
+            # Its token price floor = that proportional cost × (1 - margin_buffer),
+            # well below the symmetric ±20% floor used for the majority chain.
+            # This prevents ideology-driven miners from sustaining a near-worthless
+            # minority chain indefinitely behind an artificially high price floor.
+            if self.use_cost_floor:
+                fork_floor = hashrate_weight * self.base_price * (1 - self.cost_floor_margin_buffer)
+                if self.debug and fork_floor < self.base_price * (1 - self.max_divergence):
+                    print(f"  [PRICE DEBUG] {chain_id}: cost floor ${fork_floor:,.0f} "
+                          f"(hashrate_weight={hashrate_weight:.3f}) below symmetric floor "
+                          f"${self.base_price * (1 - self.max_divergence):,.0f}")
+            else:
+                fork_floor = self.base_price * (1 - self.max_divergence)
+
             max_price = self.base_price * (1 + self.max_divergence)
-            new_price = max(min_price, min(max_price, new_price))
+            new_price = max(fork_floor, min(max_price, new_price))
 
             if self.debug:
-                print(f"  [PRICE DEBUG] {chain_id}: chain={chain_weight:.3f} econ={economic_weight:.3f} hash={hashrate_weight:.3f}")
-                print(f"  [PRICE DEBUG] {chain_id}: factors chain={chain_factor:.3f} econ={effective_econ_factor:.3f} hash={hashrate_factor:.3f}")
-                print(f"  [PRICE DEBUG] {chain_id}: combined={combined_factor:.4f} -> ${new_price:,.0f}")
+                print(f"  [PRICE DEBUG] {chain_id}: chain={chain_weight:.3f} econ={economic_weight:.3f} "
+                      f"(smoothed={smoothed_econ_weight:.3f}) hash={hashrate_weight:.3f}")
+                print(f"  [PRICE DEBUG] {chain_id}: factors chain={chain_factor:.3f} "
+                      f"econ={effective_econ_factor:.3f} hash={hashrate_factor:.3f}")
+                print(f"  [PRICE DEBUG] {chain_id}: combined={combined_factor:.4f} -> ${new_price:,.0f} "
+                      f"(floor=${fork_floor:,.0f})")
 
         # Update price
         with self._lock:

@@ -1,0 +1,188 @@
+{
+  "metadata": {
+    "type": "targeted_grid",
+    "name": "cost_floor_asymmetric_test",
+    "description": "Tests Proposal 3 (Hayes 2019 cost floor) in the regime where it has maximum impact: asymmetric hashrate split (v27=25%, v26=75%).\nAt hashrate_split=0.25, v27 starts at a 3:1 hashrate disadvantage. As pools cascade toward the winning fork, the losing fork sheds hashrate rapidly. The cost floor scales with hashrate_weight \u2014 so as a fork loses hashrate its price floor drops proportionally, making the cascade faster and more decisive.\nCost floor comparison at key hashrate levels:\n  hashrate=0.75 \u2192 floor = $42,750  (vs baseline $48,000 \u2014 small difference)\n  hashrate=0.50 \u2192 floor = $28,500  (vs baseline $48,000 \u2014 $19,500 gap)\n  hashrate=0.25 \u2192 floor = $14,250  (vs baseline $48,000 \u2014 $33,750 gap)\n  hashrate=0.00 \u2192 floor = $0       (vs baseline $48,000 \u2014 total collapse)\n\nRun BOTH in parallel \u2014 two namespaces, same scenarios:\n\n  Sweep A \u2014 baseline oracle:\n    python 3_run_sweep.py \\\n      --input cost_floor_asymmetric_test/build_manifest.json \\\n      --namespace sweep-floor-base \\\n      --results-dir cost_floor_asymmetric_test/results_baseline \\\n      --duration 2500 --retarget-interval 144 --interval 2\n\n  Sweep B \u2014 cost floor active:\n    python 3_run_sweep.py \\\n      --input cost_floor_asymmetric_test/build_manifest.json \\\n      --namespace sweep-floor-active \\\n      --results-dir cost_floor_asymmetric_test/results_floor \\\n      --duration 2500 --retarget-interval 144 --interval 2 \\\n      --use-cost-floor\n\nNamespaces to create first:\n  kubectl create namespace sweep-floor-base\n  kubectl create namespace sweep-floor-active\n\nKey questions:\n  - Does the cost floor accelerate cascade timing (faster v27_block_share growth)?\n  - Does it change the winning fork at econ=0.60 where v27 starts hashrate-disadvantaged?\n  - Does reorg_mass change? Larger price gaps \u2192 stronger incentive to switch \u2192 fewer reorgs?\n",
+    "spec_file": "specs/cost_floor_asymmetric_test.yaml",
+    "base_network": "lite",
+    "n_samples": 2,
+    "n_parameters": 16,
+    "grid_axes": {
+      "economic_split": [
+        0.6,
+        0.82
+      ]
+    },
+    "fixed_parameters": {
+      "hashrate_split": 0.25,
+      "pool_committed_split": 0.35,
+      "pool_neutral_pct": 30.0,
+      "pool_ideology_strength": 0.51,
+      "pool_profitability_threshold": 0.16,
+      "pool_max_loss_pct": 0.26,
+      "econ_ideology_strength": 0.4,
+      "econ_switching_threshold": 0.14,
+      "econ_inertia": 0.17,
+      "user_ideology_strength": 0.49,
+      "user_switching_threshold": 0.12,
+      "transaction_velocity": 0.5,
+      "user_nodes_per_partition": 6,
+      "economic_nodes_per_partition": 2,
+      "solo_miner_hashrate": 0.085
+    },
+    "parameters": [
+      {
+        "name": "economic_split",
+        "min": 0.0,
+        "max": 1.0,
+        "type": "continuous",
+        "role": "grid"
+      },
+      {
+        "name": "hashrate_split",
+        "min": 0.0,
+        "max": 1.0,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_ideology_strength",
+        "min": 0.1,
+        "max": 0.9,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_profitability_threshold",
+        "min": 0.02,
+        "max": 0.3,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_max_loss_pct",
+        "min": 0.02,
+        "max": 0.5,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_committed_split",
+        "min": 0.0,
+        "max": 1.0,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_neutral_pct",
+        "min": 10.0,
+        "max": 50.0,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "econ_ideology_strength",
+        "min": 0.0,
+        "max": 0.8,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "econ_switching_threshold",
+        "min": 0.02,
+        "max": 0.25,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "econ_inertia",
+        "min": 0.05,
+        "max": 0.3,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "user_ideology_strength",
+        "min": 0.1,
+        "max": 0.9,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "user_switching_threshold",
+        "min": 0.05,
+        "max": 0.2,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "transaction_velocity",
+        "min": 0.1,
+        "max": 0.9,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "user_nodes_per_partition",
+        "min": 2,
+        "max": 10,
+        "type": "discrete",
+        "role": "fixed"
+      },
+      {
+        "name": "economic_nodes_per_partition",
+        "min": 1,
+        "max": 3,
+        "type": "discrete",
+        "role": "fixed"
+      },
+      {
+        "name": "solo_miner_hashrate",
+        "min": 0.02,
+        "max": 0.15,
+        "type": "continuous",
+        "role": "fixed"
+      }
+    ]
+  },
+  "scenarios": [
+    {
+      "scenario_id": "sweep_0000",
+      "hashrate_split": 0.25,
+      "pool_committed_split": 0.35,
+      "pool_neutral_pct": 30.0,
+      "pool_ideology_strength": 0.51,
+      "pool_profitability_threshold": 0.16,
+      "pool_max_loss_pct": 0.26,
+      "econ_ideology_strength": 0.4,
+      "econ_switching_threshold": 0.14,
+      "econ_inertia": 0.17,
+      "user_ideology_strength": 0.49,
+      "user_switching_threshold": 0.12,
+      "transaction_velocity": 0.5,
+      "user_nodes_per_partition": 6,
+      "economic_nodes_per_partition": 2,
+      "solo_miner_hashrate": 0.085,
+      "economic_split": 0.6
+    },
+    {
+      "scenario_id": "sweep_0001",
+      "hashrate_split": 0.25,
+      "pool_committed_split": 0.35,
+      "pool_neutral_pct": 30.0,
+      "pool_ideology_strength": 0.51,
+      "pool_profitability_threshold": 0.16,
+      "pool_max_loss_pct": 0.26,
+      "econ_ideology_strength": 0.4,
+      "econ_switching_threshold": 0.14,
+      "econ_inertia": 0.17,
+      "user_ideology_strength": 0.49,
+      "user_switching_threshold": 0.12,
+      "transaction_velocity": 0.5,
+      "user_nodes_per_partition": 6,
+      "economic_nodes_per_partition": 2,
+      "solo_miner_hashrate": 0.085,
+      "economic_split": 0.82
+    }
+  ]
+}

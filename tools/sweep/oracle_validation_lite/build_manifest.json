@@ -1,0 +1,225 @@
+{
+  "metadata": {
+    "type": "targeted_grid",
+    "name": "oracle_validation_lite",
+    "description": "Oracle validation sweep \u2014 tests the three literature-grounded price oracle proposals against the baseline oracle.\nProposals:\n  1. EMA lag on economic weight (Kristoufek 2015) \u2014 smooths early chop\n  2. Sigmoid factor mapping (Biais et al. 2019/Metcalfe) \u2014 nonlinear at extremes\n  3. Asymmetric cost-of-production price floor (Hayes 2019) \u2014 floors minority fork\n\nRun TWICE simultaneously on different namespaces to compare oracle behaviors for the same scenario grid:\n\n  Sweep A \u2014 baseline oracle:\n    python 3_run_sweep.py \\\n      --input oracle_validation_lite/build_manifest.json \\\n      --namespace sweep-oracle-a \\\n      --results-dir oracle_validation_lite/results_baseline \\\n      --duration 3000 --retarget-interval 144 --interval 2\n\n  Sweep B \u2014 all proposals enabled:\n    python 3_run_sweep.py \\\n      --input oracle_validation_lite/build_manifest.json \\\n      --namespace sweep-oracle-b \\\n      --results-dir oracle_validation_lite/results_proposals \\\n      --duration 3000 --retarget-interval 144 --interval 2 \\\n      --use-economic-ema --use-sigmoid --use-cost-floor\n\nThree economic_split values cover the known outcome zones:\n  0.35 \u2192 v26 expected to win (economic majority on v26 side)\n  0.60 \u2192 contested / narrow v27 advantage\n  0.82 \u2192 v27 expected to win (strong economic majority on v27 side)\n\nKey questions:\n  - Does EMA smooth the early price chop seen at t<300s?\n  - Does the sigmoid change the cascade threshold (econ=0.60 flip)?\n  - Does the cost floor affect pricing when one fork has minority hashrate?\n\nUses 144-block retarget for fast feedback (multiple retarget cycles in 3000s). Lite network (25 nodes) keeps runtime short \u2014 ~3000s per scenario.\n",
+    "spec_file": "specs/oracle_validation_lite.yaml",
+    "base_network": "lite",
+    "n_samples": 3,
+    "n_parameters": 16,
+    "grid_axes": {
+      "economic_split": [
+        0.35,
+        0.6,
+        0.82
+      ]
+    },
+    "fixed_parameters": {
+      "hashrate_split": 0.5,
+      "pool_committed_split": 0.35,
+      "pool_neutral_pct": 30.0,
+      "pool_ideology_strength": 0.51,
+      "pool_profitability_threshold": 0.16,
+      "pool_max_loss_pct": 0.26,
+      "econ_ideology_strength": 0.4,
+      "econ_switching_threshold": 0.14,
+      "econ_inertia": 0.17,
+      "user_ideology_strength": 0.49,
+      "user_switching_threshold": 0.12,
+      "transaction_velocity": 0.5,
+      "user_nodes_per_partition": 6,
+      "economic_nodes_per_partition": 2,
+      "solo_miner_hashrate": 0.085
+    },
+    "parameters": [
+      {
+        "name": "economic_split",
+        "min": 0.0,
+        "max": 1.0,
+        "type": "continuous",
+        "role": "grid"
+      },
+      {
+        "name": "hashrate_split",
+        "min": 0.0,
+        "max": 1.0,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_ideology_strength",
+        "min": 0.1,
+        "max": 0.9,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_profitability_threshold",
+        "min": 0.02,
+        "max": 0.3,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_max_loss_pct",
+        "min": 0.02,
+        "max": 0.5,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_committed_split",
+        "min": 0.0,
+        "max": 1.0,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_neutral_pct",
+        "min": 10.0,
+        "max": 50.0,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "econ_ideology_strength",
+        "min": 0.0,
+        "max": 0.8,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "econ_switching_threshold",
+        "min": 0.02,
+        "max": 0.25,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "econ_inertia",
+        "min": 0.05,
+        "max": 0.3,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "user_ideology_strength",
+        "min": 0.1,
+        "max": 0.9,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "user_switching_threshold",
+        "min": 0.05,
+        "max": 0.2,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "transaction_velocity",
+        "min": 0.1,
+        "max": 0.9,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "user_nodes_per_partition",
+        "min": 2,
+        "max": 10,
+        "type": "discrete",
+        "role": "fixed"
+      },
+      {
+        "name": "economic_nodes_per_partition",
+        "min": 1,
+        "max": 3,
+        "type": "discrete",
+        "role": "fixed"
+      },
+      {
+        "name": "solo_miner_hashrate",
+        "min": 0.02,
+        "max": 0.15,
+        "type": "continuous",
+        "role": "fixed"
+      }
+    ]
+  },
+  "scenarios": [
+    {
+      "scenario_id": "sweep_0000",
+      "parameters": {
+        "scenario_id": "sweep_0000",
+        "hashrate_split": 0.5,
+        "pool_committed_split": 0.35,
+        "pool_neutral_pct": 30.0,
+        "pool_ideology_strength": 0.51,
+        "pool_profitability_threshold": 0.16,
+        "pool_max_loss_pct": 0.26,
+        "econ_ideology_strength": 0.4,
+        "econ_switching_threshold": 0.14,
+        "econ_inertia": 0.17,
+        "user_ideology_strength": 0.49,
+        "user_switching_threshold": 0.12,
+        "transaction_velocity": 0.5,
+        "user_nodes_per_partition": 6,
+        "economic_nodes_per_partition": 2,
+        "solo_miner_hashrate": 0.085,
+        "economic_split": 0.35
+      },
+      "network_config": "oracle_validation_lite/configs/network/sweep_0000.yaml",
+      "network_path": "networks/sweep_0000/network.yaml"
+    },
+    {
+      "scenario_id": "sweep_0001",
+      "parameters": {
+        "scenario_id": "sweep_0001",
+        "hashrate_split": 0.5,
+        "pool_committed_split": 0.35,
+        "pool_neutral_pct": 30.0,
+        "pool_ideology_strength": 0.51,
+        "pool_profitability_threshold": 0.16,
+        "pool_max_loss_pct": 0.26,
+        "econ_ideology_strength": 0.4,
+        "econ_switching_threshold": 0.14,
+        "econ_inertia": 0.17,
+        "user_ideology_strength": 0.49,
+        "user_switching_threshold": 0.12,
+        "transaction_velocity": 0.5,
+        "user_nodes_per_partition": 6,
+        "economic_nodes_per_partition": 2,
+        "solo_miner_hashrate": 0.085,
+        "economic_split": 0.6
+      },
+      "network_config": "oracle_validation_lite/configs/network/sweep_0001.yaml",
+      "network_path": "networks/sweep_0001/network.yaml"
+    },
+    {
+      "scenario_id": "sweep_0002",
+      "parameters": {
+        "scenario_id": "sweep_0002",
+        "hashrate_split": 0.5,
+        "pool_committed_split": 0.35,
+        "pool_neutral_pct": 30.0,
+        "pool_ideology_strength": 0.51,
+        "pool_profitability_threshold": 0.16,
+        "pool_max_loss_pct": 0.26,
+        "econ_ideology_strength": 0.4,
+        "econ_switching_threshold": 0.14,
+        "econ_inertia": 0.17,
+        "user_ideology_strength": 0.49,
+        "user_switching_threshold": 0.12,
+        "transaction_velocity": 0.5,
+        "user_nodes_per_partition": 6,
+        "economic_nodes_per_partition": 2,
+        "solo_miner_hashrate": 0.085,
+        "economic_split": 0.82
+      },
+      "network_config": "oracle_validation_lite/configs/network/sweep_0002.yaml",
+      "network_path": "networks/sweep_0002/network.yaml"
+    }
+  ],
+  "generated_networks": 3,
+  "failed_networks": 0
+}

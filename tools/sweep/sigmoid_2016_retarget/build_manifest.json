@@ -1,0 +1,275 @@
+{
+  "metadata": {
+    "type": "targeted_grid",
+    "name": "sigmoid_2016_retarget",
+    "description": "Tests Proposal 2 (Biais et al. 2019 sigmoid) in the 2016-block retarget regime.\nSweep10b (baseline oracle) showed all 5 econ levels going v27_dominant via the retarget cascade. The sigmoid oracle created 2.7x higher pool opportunity costs in the 144-block test (sweep_0001: $2.49M vs $922K baseline). The question is whether this amplified pricing changes cascade timing or flips outcomes in the 2016-block regime where the retarget cascade is the dominant mechanism.\nResearch question: Does sigmoid change the minimum economic_split needed for v27 to win via the 2016-block retarget cascade? Specifically, does econ=0.50 or 0.35 flip outcomes that were v27_dominant in sweep10b?\nRun across FOUR namespaces for faster completion (split scenarios across pairs):\n\n  Sweep A \u2014 baseline, scenarios 0-2 (econ=0.35, 0.50, 0.60):\n    python 3_run_sweep.py \\\n      --input sigmoid_2016_retarget/build_manifest.json \\\n      --namespace sweep-2016-base-a \\\n      --results-dir sigmoid_2016_retarget/results_baseline \\\n      --duration 13000 --retarget-interval 2016 --interval 2 \\\n      --scenarios sweep_0000 sweep_0001 sweep_0002\n\n  Sweep B \u2014 baseline, scenarios 3-4 (econ=0.70, 0.82):\n    python 3_run_sweep.py \\\n      --input sigmoid_2016_retarget/build_manifest.json \\\n      --namespace sweep-2016-base-b \\\n      --results-dir sigmoid_2016_retarget/results_baseline \\\n      --duration 13000 --retarget-interval 2016 --interval 2 \\\n      --scenarios sweep_0003 sweep_0004\n\n  Sweep C \u2014 sigmoid, scenarios 0-2 (econ=0.35, 0.50, 0.60):\n    python 3_run_sweep.py \\\n      --input sigmoid_2016_retarget/build_manifest.json \\\n      --namespace sweep-2016-sig-a \\\n      --results-dir sigmoid_2016_retarget/results_sigmoid \\\n      --duration 13000 --retarget-interval 2016 --interval 2 \\\n      --use-sigmoid \\\n      --scenarios sweep_0000 sweep_0001 sweep_0002\n\n  Sweep D \u2014 sigmoid, scenarios 3-4 (econ=0.70, 0.82):\n    python 3_run_sweep.py \\\n      --input sigmoid_2016_retarget/build_manifest.json \\\n      --namespace sweep-2016-sig-b \\\n      --results-dir sigmoid_2016_retarget/results_sigmoid \\\n      --duration 13000 --retarget-interval 2016 --interval 2 \\\n      --use-sigmoid \\\n      --scenarios sweep_0003 sweep_0004\n\nNamespaces to create first:\n  kubectl create namespace sweep-2016-base-a\n  kubectl create namespace sweep-2016-base-b\n  kubectl create namespace sweep-2016-sig-a\n  kubectl create namespace sweep-2016-sig-b\n\nWall-clock estimate with 4 parallel namespaces:\n  A+C run simultaneously: 3 scenarios x 13,000s = ~11h\n  B+D run simultaneously: 2 scenarios x 13,000s = ~7.5h\n  Overall bottleneck: ~11h (done by morning)\n\nNOTE: Sweeps A+B share results_baseline dir; C+D share results_sigmoid dir. The sweep runner handles concurrent writes safely (different scenario subdirs).\n",
+    "spec_file": "specs/sigmoid_2016_retarget.yaml",
+    "base_network": "lite",
+    "n_samples": 5,
+    "n_parameters": 16,
+    "grid_axes": {
+      "economic_split": [
+        0.35,
+        0.5,
+        0.6,
+        0.7,
+        0.82
+      ]
+    },
+    "fixed_parameters": {
+      "hashrate_split": 0.5,
+      "pool_committed_split": 0.35,
+      "pool_neutral_pct": 30.0,
+      "pool_ideology_strength": 0.51,
+      "pool_profitability_threshold": 0.16,
+      "pool_max_loss_pct": 0.26,
+      "econ_ideology_strength": 0.4,
+      "econ_switching_threshold": 0.14,
+      "econ_inertia": 0.17,
+      "user_ideology_strength": 0.49,
+      "user_switching_threshold": 0.12,
+      "transaction_velocity": 0.5,
+      "user_nodes_per_partition": 6,
+      "economic_nodes_per_partition": 2,
+      "solo_miner_hashrate": 0.085
+    },
+    "parameters": [
+      {
+        "name": "economic_split",
+        "min": 0.0,
+        "max": 1.0,
+        "type": "continuous",
+        "role": "grid"
+      },
+      {
+        "name": "hashrate_split",
+        "min": 0.0,
+        "max": 1.0,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_ideology_strength",
+        "min": 0.1,
+        "max": 0.9,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_profitability_threshold",
+        "min": 0.02,
+        "max": 0.3,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_max_loss_pct",
+        "min": 0.02,
+        "max": 0.5,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_committed_split",
+        "min": 0.0,
+        "max": 1.0,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_neutral_pct",
+        "min": 10.0,
+        "max": 50.0,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "econ_ideology_strength",
+        "min": 0.0,
+        "max": 0.8,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "econ_switching_threshold",
+        "min": 0.02,
+        "max": 0.25,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "econ_inertia",
+        "min": 0.05,
+        "max": 0.3,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "user_ideology_strength",
+        "min": 0.1,
+        "max": 0.9,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "user_switching_threshold",
+        "min": 0.05,
+        "max": 0.2,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "transaction_velocity",
+        "min": 0.1,
+        "max": 0.9,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "user_nodes_per_partition",
+        "min": 2,
+        "max": 10,
+        "type": "discrete",
+        "role": "fixed"
+      },
+      {
+        "name": "economic_nodes_per_partition",
+        "min": 1,
+        "max": 3,
+        "type": "discrete",
+        "role": "fixed"
+      },
+      {
+        "name": "solo_miner_hashrate",
+        "min": 0.02,
+        "max": 0.15,
+        "type": "continuous",
+        "role": "fixed"
+      }
+    ]
+  },
+  "scenarios": [
+    {
+      "scenario_id": "sweep_0000",
+      "parameters": {
+        "scenario_id": "sweep_0000",
+        "hashrate_split": 0.5,
+        "pool_committed_split": 0.35,
+        "pool_neutral_pct": 30.0,
+        "pool_ideology_strength": 0.51,
+        "pool_profitability_threshold": 0.16,
+        "pool_max_loss_pct": 0.26,
+        "econ_ideology_strength": 0.4,
+        "econ_switching_threshold": 0.14,
+        "econ_inertia": 0.17,
+        "user_ideology_strength": 0.49,
+        "user_switching_threshold": 0.12,
+        "transaction_velocity": 0.5,
+        "user_nodes_per_partition": 6,
+        "economic_nodes_per_partition": 2,
+        "solo_miner_hashrate": 0.085,
+        "economic_split": 0.35
+      },
+      "network_config": "sigmoid_2016_retarget/configs/network/sweep_0000.yaml",
+      "network_path": "networks/sweep_0000/network.yaml"
+    },
+    {
+      "scenario_id": "sweep_0001",
+      "parameters": {
+        "scenario_id": "sweep_0001",
+        "hashrate_split": 0.5,
+        "pool_committed_split": 0.35,
+        "pool_neutral_pct": 30.0,
+        "pool_ideology_strength": 0.51,
+        "pool_profitability_threshold": 0.16,
+        "pool_max_loss_pct": 0.26,
+        "econ_ideology_strength": 0.4,
+        "econ_switching_threshold": 0.14,
+        "econ_inertia": 0.17,
+        "user_ideology_strength": 0.49,
+        "user_switching_threshold": 0.12,
+        "transaction_velocity": 0.5,
+        "user_nodes_per_partition": 6,
+        "economic_nodes_per_partition": 2,
+        "solo_miner_hashrate": 0.085,
+        "economic_split": 0.5
+      },
+      "network_config": "sigmoid_2016_retarget/configs/network/sweep_0001.yaml",
+      "network_path": "networks/sweep_0001/network.yaml"
+    },
+    {
+      "scenario_id": "sweep_0002",
+      "parameters": {
+        "scenario_id": "sweep_0002",
+        "hashrate_split": 0.5,
+        "pool_committed_split": 0.35,
+        "pool_neutral_pct": 30.0,
+        "pool_ideology_strength": 0.51,
+        "pool_profitability_threshold": 0.16,
+        "pool_max_loss_pct": 0.26,
+        "econ_ideology_strength": 0.4,
+        "econ_switching_threshold": 0.14,
+        "econ_inertia": 0.17,
+        "user_ideology_strength": 0.49,
+        "user_switching_threshold": 0.12,
+        "transaction_velocity": 0.5,
+        "user_nodes_per_partition": 6,
+        "economic_nodes_per_partition": 2,
+        "solo_miner_hashrate": 0.085,
+        "economic_split": 0.6
+      },
+      "network_config": "sigmoid_2016_retarget/configs/network/sweep_0002.yaml",
+      "network_path": "networks/sweep_0002/network.yaml"
+    },
+    {
+      "scenario_id": "sweep_0003",
+      "parameters": {
+        "scenario_id": "sweep_0003",
+        "hashrate_split": 0.5,
+        "pool_committed_split": 0.35,
+        "pool_neutral_pct": 30.0,
+        "pool_ideology_strength": 0.51,
+        "pool_profitability_threshold": 0.16,
+        "pool_max_loss_pct": 0.26,
+        "econ_ideology_strength": 0.4,
+        "econ_switching_threshold": 0.14,
+        "econ_inertia": 0.17,
+        "user_ideology_strength": 0.49,
+        "user_switching_threshold": 0.12,
+        "transaction_velocity": 0.5,
+        "user_nodes_per_partition": 6,
+        "economic_nodes_per_partition": 2,
+        "solo_miner_hashrate": 0.085,
+        "economic_split": 0.7
+      },
+      "network_config": "sigmoid_2016_retarget/configs/network/sweep_0003.yaml",
+      "network_path": "networks/sweep_0003/network.yaml"
+    },
+    {
+      "scenario_id": "sweep_0004",
+      "parameters": {
+        "scenario_id": "sweep_0004",
+        "hashrate_split": 0.5,
+        "pool_committed_split": 0.35,
+        "pool_neutral_pct": 30.0,
+        "pool_ideology_strength": 0.51,
+        "pool_profitability_threshold": 0.16,
+        "pool_max_loss_pct": 0.26,
+        "econ_ideology_strength": 0.4,
+        "econ_switching_threshold": 0.14,
+        "econ_inertia": 0.17,
+        "user_ideology_strength": 0.49,
+        "user_switching_threshold": 0.12,
+        "transaction_velocity": 0.5,
+        "user_nodes_per_partition": 6,
+        "economic_nodes_per_partition": 2,
+        "solo_miner_hashrate": 0.085,
+        "economic_split": 0.82
+      },
+      "network_config": "sigmoid_2016_retarget/configs/network/sweep_0004.yaml",
+      "network_path": "networks/sweep_0004/network.yaml"
+    }
+  ],
+  "generated_networks": 5,
+  "failed_networks": 0
+}

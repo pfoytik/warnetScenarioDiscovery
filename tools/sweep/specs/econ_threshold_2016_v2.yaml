@@ -1,0 +1,55 @@
+name: econ_threshold_2016_v2
+description: >
+  Re-probes the economic threshold in the 2016-block retarget regime using
+  corrected code. Sweep10b ran with the old dead v27_economic_pct parameter
+  (econ=0.35/0.50/0.60/0.70 all gave identical 5271/1546 block counts),
+  making those results meaningless. Sweep11 confirmed econ=0.50 → v26_dominant.
+
+  The bracket [0.50, 0.70] is still open. This sweep probes econ=0.55 and 0.60
+  with the fixed code (image_tag-based initial fork + corrected switching model).
+
+  Also updates economic switching params:
+    - econ_switching_threshold: 0.14 → 0.10 (was never triggering at 14.3% gap)
+    - econ_inertia: 0.17 → 0.05 (was probabilistically blocking the rare crossings)
+
+  Cascade mechanism (from sweep9 at econ=0.70):
+    - v27 retargets at t≈8,106s (difficulty 1.0 → 0.497)
+    - Committed v26 pool losses jump 9% → 56%, far above 13.3% tolerance
+    - Cascade completes ~4,000s post-retarget
+    - Run must be ≥ 12,100s to capture full cascade; 13,000s gives margin
+
+  Research question: does econ=0.55 or 0.60 produce a sustained v27 win via
+  the retarget mechanism, or does the narrower initial price gap fail to drive
+  enough pre-retarget pool drift to hit 2016 blocks first?
+
+  Run with:
+    python 3_run_sweep.py \
+      --input econ_threshold_2016_v2/build_manifest.json \
+      --namespace sweep-econ-thresh-v2 \
+      --results-dir econ_threshold_2016_v2/results \
+      --duration 13000 --retarget-interval 2016 --interval 2
+
+  Namespace to create first:
+    kubectl create namespace sweep-econ-thresh-v2
+
+network: lite
+
+fixed:
+  hashrate_split: 0.50
+  pool_committed_split: 0.35
+  pool_neutral_pct: 30.0
+  pool_ideology_strength: 0.51
+  pool_profitability_threshold: 0.16
+  pool_max_loss_pct: 0.26
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.10
+  econ_inertia: 0.05
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  transaction_velocity: 0.50
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  solo_miner_hashrate: 0.085
+
+grid:
+  economic_split: [0.55, 0.60]

@@ -129,6 +129,14 @@ class ScenarioConfig:
     randomize_user_nodes: bool = False
     user_node_count_range: Tuple[int, int] = (1, 5)
 
+    # Ideology heterogeneity
+    # Fraction of economic nodes per partition that are purely neutral (ideology=0,
+    # fork_preference="neutral"). These nodes will switch forks based on price alone.
+    # The remaining (1 - econ_neutral_fraction) nodes retain their partisan fork
+    # preference and the ideology_strength from the v27/v26 economic config.
+    # Sweepable: [0.0, 1.0]. At 0.0 all nodes are ideological; at 1.0 all are neutral.
+    econ_neutral_fraction: float = 0.0
+
     # Output
     fork_observer_enabled: bool = False
 
@@ -214,8 +222,15 @@ class ScenarioNetworkGenerator:
             pool.max_loss_pct = round(self.rng.uniform(0.05, 0.30), 2)
 
     def _create_economic_node(self, node_idx: int, version: str,
-                               economic_pct: float, partition: str) -> Dict:
-        """Create an economic node configuration"""
+                               economic_pct: float, partition: str,
+                               is_neutral: bool = False) -> Dict:
+        """Create an economic node configuration.
+
+        Args:
+            is_neutral: If True, this node is a pure profit-seeker (ideology=0,
+                fork_preference='neutral'). It will switch forks on price alone.
+                Fraction controlled by ScenarioConfig.econ_neutral_fraction.
+        """
         # Get override config if available
         override = (
             self.config.v27_economic if partition == "v27"
@@ -249,6 +264,11 @@ class ScenarioNetworkGenerator:
             transaction_velocity = 0.8
             hashrate_pct = 0.0
             role = "major_exchange"
+
+        # Neutral fraction override: purely rational, no fork loyalty
+        if is_neutral:
+            fork_pref = "neutral"
+            ideology = 0.0
 
         metadata = {
             'role': role,
@@ -489,10 +509,12 @@ class ScenarioNetworkGenerator:
         # Generate v27 partition
         print(f"\n  Generating v27 partition (nodes 0-{self.nodes_per_partition-1})...")
 
-        # Economic nodes
-        for _ in range(self.economic_nodes_per_partition):
+        # Economic nodes — first neutral_count are pure profit-seekers (ideology=0)
+        neutral_count = round(self.config.econ_neutral_fraction * self.economic_nodes_per_partition)
+        for i in range(self.economic_nodes_per_partition):
             v27_nodes.append(self._create_economic_node(
-                node_idx, "27.0", v27_economic_pct, "v27"
+                node_idx, "27.0", v27_economic_pct, "v27",
+                is_neutral=(i < neutral_count)
             ))
             node_idx += 1
 
@@ -509,10 +531,11 @@ class ScenarioNetworkGenerator:
         # Generate v26 partition
         print(f"  Generating v26 partition (nodes {node_idx}-{node_idx + self.nodes_per_partition - 1})...")
 
-        # Economic nodes
-        for _ in range(self.economic_nodes_per_partition):
+        # Economic nodes — same neutral_count applies to v26 partition
+        for i in range(self.economic_nodes_per_partition):
             v26_nodes.append(self._create_economic_node(
-                node_idx, "26.0", v26_economic_pct, "v26"
+                node_idx, "26.0", v26_economic_pct, "v26",
+                is_neutral=(i < neutral_count)
             ))
             node_idx += 1
 
@@ -707,6 +730,7 @@ def load_config_from_yaml(config_path: str) -> ScenarioConfig:
     # Randomization
     config.random_seed = data.get('random_seed')
     config.randomize_ideology = data.get('randomize_ideology', False)
+    config.econ_neutral_fraction = float(data.get('econ_neutral_fraction', 0.0))
     config.randomize_user_nodes = data.get('randomize_user_nodes', False)
     if 'user_node_count_range' in data:
         config.user_node_count_range = tuple(data['user_node_count_range'])

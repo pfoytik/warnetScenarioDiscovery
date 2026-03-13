@@ -284,30 +284,12 @@ class PriceOracle:
         else:
             # Fork is sustained - calculate price divergence
 
-            # Proposal 1: EMA lag on economic weight (Kristoufek 2015)
-            # Market prices respond gradually to custody shifts rather than instantly.
-            if self.use_economic_ema:
-                prev_ema = self._ema_economic.get(chain_id)
-                if prev_ema is None:
-                    smoothed_econ_weight = economic_weight  # seed on first call
-                else:
-                    smoothed_econ_weight = (
-                        prev_ema * (1 - self.economic_ema_alpha)
-                        + economic_weight * self.economic_ema_alpha
-                    )
-                self._ema_economic[chain_id] = smoothed_econ_weight
-                if self.debug:
-                    print(f"  [PRICE DEBUG] {chain_id}: EMA econ {economic_weight:.3f} -> {smoothed_econ_weight:.3f} "
-                          f"(alpha={self.economic_ema_alpha})")
-            else:
-                smoothed_econ_weight = economic_weight
-
             # Proposal 2: Sigmoid vs linear factor mapping (Biais et al. 2019 / Metcalfe)
             # Sigmoid applied to economic factor only — the dominant 50% component.
             # Linear mapping used for chain and hashrate factors.
-            chain_factor    = self._compute_factor(chain_weight,         use_sigmoid=False)
-            economic_factor = self._compute_factor(smoothed_econ_weight, use_sigmoid=self.use_sigmoid)
-            hashrate_factor = self._compute_factor(hashrate_weight,      use_sigmoid=False)
+            chain_factor    = self._compute_factor(chain_weight,    use_sigmoid=False)
+            economic_factor = self._compute_factor(economic_weight, use_sigmoid=self.use_sigmoid)
+            hashrate_factor = self._compute_factor(hashrate_weight, use_sigmoid=False)
 
             # Liveness penalty: decay economic factor by block production rate.
             # A chain producing 0 blocks/hr collapses its economic_factor to neutral 1.0.
@@ -352,11 +334,29 @@ class PriceOracle:
 
             if self.debug:
                 print(f"  [PRICE DEBUG] {chain_id}: chain={chain_weight:.3f} econ={economic_weight:.3f} "
-                      f"(smoothed={smoothed_econ_weight:.3f}) hash={hashrate_weight:.3f}")
+                      f"hash={hashrate_weight:.3f}")
                 print(f"  [PRICE DEBUG] {chain_id}: factors chain={chain_factor:.3f} "
                       f"econ={effective_econ_factor:.3f} hash={hashrate_factor:.3f}")
                 print(f"  [PRICE DEBUG] {chain_id}: combined={combined_factor:.4f} -> ${new_price:,.0f} "
                       f"(floor=${fork_floor:,.0f})")
+
+            # Proposal 1: EMA lag on price output (Kristoufek 2015)
+            # Market prices respond gradually to fundamental changes — smooth the
+            # output price rather than the input weights so the lag is visible in
+            # the price signal that pool profitability and node switching reads.
+            if self.use_economic_ema:
+                prev_ema = self._ema_economic.get(chain_id)
+                if prev_ema is None:
+                    new_price = new_price  # seed: first call returns raw price
+                else:
+                    new_price = (
+                        prev_ema * (1 - self.economic_ema_alpha)
+                        + new_price * self.economic_ema_alpha
+                    )
+                self._ema_economic[chain_id] = new_price
+                if self.debug:
+                    print(f"  [PRICE DEBUG] {chain_id}: EMA price smoothed -> ${new_price:,.0f} "
+                          f"(alpha={self.economic_ema_alpha})")
 
         # Update price
         with self._lock:

@@ -1,0 +1,65 @@
+======================================================================
+PARAMETER SWEEP ANALYSIS REPORT
+======================================================================
+
+Total scenarios analyzed: 4
+
+OUTCOME DISTRIBUTION:
+  v27_dominant: 4 (100.0%)
+
+MOST DISCRIMINATING PARAMETERS:
+(Parameters with largest difference between v27/v26 dominant outcomes)
+
+  1. economic_split
+     Separation: 0
+     v27 favored when: ?
+     Estimated threshold: ?
+     v27_dominant mean: 0.6
+
+  2. hashrate_split
+     Separation: 0
+     v27 favored when: ?
+     Estimated threshold: ?
+     v27_dominant mean: 0.5
+
+  3. pool_ideology_strength
+     Separation: 0
+     v27 favored when: ?
+     Estimated threshold: ?
+     v27_dominant mean: 0.51
+
+  4. pool_profitability_threshold
+     Separation: 0
+     v27 favored when: ?
+     Estimated threshold: ?
+     v27_dominant mean: 0.16
+
+  5. pool_max_loss_pct
+     Separation: 0
+     v27 favored when: ?
+     Estimated threshold: ?
+     v27_dominant mean: 0.26
+
+ECON SWITCHING TRAJECTORIES:
+(Economic node allocation shift over run duration)
+
+  scenario     econ_outcome   initial%  final%  switch_t  cascade_t   lag_s  peak_gap%
+  ------------------------------------------------------------------------------------
+  sweep_0000   full_switch       56.7%  100.0%      2420       1813     607      35.1%
+  sweep_0001   full_switch       56.7%  100.0%      2725       1814     911      35.1%
+  sweep_0002   full_switch       56.7%  100.0%      3329       1813    1516      35.1%
+  sweep_0003   no_switch         56.7%   56.7%     never       1813     n/a      17.1%
+
+ECON OUTCOME DISTRIBUTION:
+  full_switch: 3 (75%)
+  no_switch: 1 (25%)
+
+STRONG CORRELATIONS:
+(Parameters most correlated with v27 hashrate share / econ final)
+
+  econ_ideology_strength: hash=-0.000  econ=-0.792
+
+KEY INSIGHTS:
+
+
+======================================================================

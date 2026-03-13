@@ -251,18 +251,31 @@ class EconomicNodeStrategy:
                 # Preferred fork IS the rational choice
                 reason = "Ideology and price aligned"
 
-        # Apply inertia: resist switching unless advantage exceeds threshold + inertia
+        # Apply inertia: ideology-scaled threshold + probabilistic switching cost.
+        # Neutral nodes (ideology=0) switch at base threshold (purely rational).
+        # Ideological nodes need a proportionally larger gap to overcome attachment.
+        # Inertia then adds a probabilistic delay even when threshold is crossed.
         current = self.current_allocation[node_id]
         if current is not None and chosen_fork != current:
-            effective_threshold = node.switching_threshold + node.inertia
+            import random
+            effective_threshold = node.switching_threshold * (1 + node.ideology_strength * 2.0)
             if price_advantage < effective_threshold:
-                # Inertia wins: stay on current fork
+                # Threshold not met: gap is too small to justify switching
                 chosen_fork = current
                 inertia_held = True
                 self.node_stats[node_id]['inertia_holds'] += 1
                 reason = (f"Inertia: staying on {current} "
                           f"(advantage {price_advantage*100:.1f}% "
-                          f"< threshold {effective_threshold*100:.1f}%)")
+                          f"< threshold {effective_threshold*100:.1f}% "
+                          f"ideology={node.ideology_strength:.2f})")
+            elif random.random() < node.inertia:
+                # Threshold met but probabilistic inertia delays this attempt
+                chosen_fork = current
+                inertia_held = True
+                self.node_stats[node_id]['inertia_holds'] += 1
+                reason = (f"Inertia: delay on {current} "
+                          f"(advantage {price_advantage*100:.1f}% > threshold "
+                          f"{effective_threshold*100:.1f}%, inertia={node.inertia:.2f})")
 
         # Track switches
         if current is not None and chosen_fork != current:
@@ -674,21 +687,34 @@ def load_economic_nodes_from_network(
         # Check for hashrate (economic nodes can also mine, e.g., mining pool with exchange)
         hashrate_pct = metadata.get('hashrate_pct', defaults.get('hashrate_pct', 0.0))
 
+        # Node metadata (written by scenario_network_generator.py) takes priority
+        # over config defaults. This allows per-node neutral fraction, ideology,
+        # and threshold values to flow through from the network generator.
         profiles.append(EconomicNodeProfile(
             node_id=node_name,
             node_type=NodeType.ECONOMIC,
             activity_type=activity_type,
             transaction_velocity=transaction_velocity,
-            fork_preference=ForkPreference(defaults.get('fork_preference', 'neutral')),
-            ideology_strength=defaults.get('ideology_strength', 0.1),
-            switching_threshold=defaults.get('switching_threshold', 0.03),
+            fork_preference=ForkPreference(
+                metadata.get('fork_preference', defaults.get('fork_preference', 'neutral'))
+            ),
+            ideology_strength=metadata.get(
+                'ideology_strength', defaults.get('ideology_strength', 0.1)
+            ),
+            switching_threshold=metadata.get(
+                'switching_threshold', defaults.get('switching_threshold', 0.03)
+            ),
             custody_btc=metadata.get('custody_btc', 0),
             daily_volume_btc=metadata.get('daily_volume_btc', 0),
             consensus_weight=metadata.get('consensus_weight', 0.0),
             hashrate_pct=hashrate_pct,
-            switching_cooldown=defaults.get('switching_cooldown', 1800),
-            max_loss_pct=defaults.get('max_loss_pct', 0.05),
-            inertia=defaults.get('inertia', 0.15),
+            switching_cooldown=metadata.get(
+                'switching_cooldown', defaults.get('switching_cooldown', 1800)
+            ),
+            max_loss_pct=metadata.get(
+                'max_loss_pct', defaults.get('max_loss_pct', 0.05)
+            ),
+            inertia=metadata.get('inertia', defaults.get('inertia', 0.15)),
             role=role,
             initial_fork=initial_fork,
         ))
@@ -723,15 +749,25 @@ def load_economic_nodes_from_network(
             node_type=NodeType.USER,
             activity_type=activity_type,
             transaction_velocity=transaction_velocity,
-            fork_preference=ForkPreference(defaults.get('fork_preference', 'neutral')),
-            ideology_strength=defaults.get('ideology_strength', 0.3),
-            switching_threshold=defaults.get('switching_threshold', 0.08),
+            fork_preference=ForkPreference(
+                metadata.get('fork_preference', defaults.get('fork_preference', 'neutral'))
+            ),
+            ideology_strength=metadata.get(
+                'ideology_strength', defaults.get('ideology_strength', 0.3)
+            ),
+            switching_threshold=metadata.get(
+                'switching_threshold', defaults.get('switching_threshold', 0.08)
+            ),
             custody_btc=metadata.get('custody_btc', 0),
             daily_volume_btc=metadata.get('daily_volume_btc', 0),
             consensus_weight=metadata.get('consensus_weight', 0.0),
             hashrate_pct=hashrate_pct,
-            switching_cooldown=defaults.get('switching_cooldown', 3600),
-            max_loss_pct=defaults.get('max_loss_pct', 0.15),
+            switching_cooldown=metadata.get(
+                'switching_cooldown', defaults.get('switching_cooldown', 3600)
+            ),
+            max_loss_pct=metadata.get(
+                'max_loss_pct', defaults.get('max_loss_pct', 0.15)
+            ),
             inertia=defaults.get('inertia', 0.05),
             role=None,
             initial_fork=initial_fork,

@@ -63,7 +63,7 @@ REQUIRED_PARAMETERS = {
     "user_switching_threshold":    (0.05, 0.20, "continuous"),
     "transaction_velocity":        (0.1,  0.9,  "continuous"),
     "user_nodes_per_partition":    (2,    10,   "discrete"),
-    "economic_nodes_per_partition":(1,    3,    "discrete"),
+    "economic_nodes_per_partition":(1,    6,    "discrete"),
     "solo_miner_hashrate":         (0.02, 0.15, "continuous"),
 }
 

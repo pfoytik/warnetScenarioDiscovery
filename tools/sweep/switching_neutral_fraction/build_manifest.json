@@ -1,0 +1,229 @@
+{
+  "metadata": {
+    "type": "targeted_grid",
+    "name": "switching_neutral_fraction",
+    "description": "Validates that dynamic economic node switching works by sweeping econ_neutral_fraction with sigmoid pricing enabled.\nNon-neutral nodes (ideology=0.40) have effective_threshold=0.10*(1+0.8)=18%, which is above the actual ~14.3% price gap \u2192 WON'T switch. Neutral nodes (ideology=0.0) have effective_threshold=0.10*(1+0.0)=10%, which is clearly below the 14.3% gap \u2192 WILL switch.\nThis cleanly isolates the neutral fraction effect: only the neutral nodes switch, so varying their fraction produces a proportional change in v27_econ_share.\nPrevious run (threshold=0.14, inertia=0.17) showed zero switching in all scenarios because 14.3% gap barely exceeded the 14% threshold and probabilistic inertia (17%) blocked every switch attempt. Fixed: threshold=0.10, inertia=0.05.\nExpected gradient:\n  econ_neutral_fraction=0.00 \u2192 v27_econ_share flat (~56.7%), no switching\n  econ_neutral_fraction=0.50 \u2192 partial switching, v27_econ_share drifts toward winner\n  econ_neutral_fraction=1.00 \u2192 full switching, v27_econ_share approaches 100%\n\nAlso watch cascade speed: more neutral switching \u2192 wider price gap \u2192 faster pool cascade \u2192 fewer v26 blocks \u2192 lower reorg_mass.\nRun with:\n  python 3_run_sweep.py \\\n    --input switching_neutral_fraction/build_manifest.json \\\n    --namespace sweep-neutral-frac \\\n    --results-dir switching_neutral_fraction/results \\\n    --duration 4000 --retarget-interval 144 --interval 2 \\\n    --use-sigmoid\n\nNamespace to create first:\n  kubectl create namespace sweep-neutral-frac\n",
+    "spec_file": "specs/switching_neutral_fraction.yaml",
+    "base_network": "lite",
+    "n_samples": 3,
+    "n_parameters": 16,
+    "grid_axes": {
+      "econ_neutral_fraction": [
+        0.0,
+        0.5,
+        1.0
+      ]
+    },
+    "fixed_parameters": {
+      "economic_split": 0.6,
+      "hashrate_split": 0.5,
+      "pool_committed_split": 0.35,
+      "pool_neutral_pct": 30.0,
+      "pool_ideology_strength": 0.51,
+      "pool_profitability_threshold": 0.16,
+      "pool_max_loss_pct": 0.26,
+      "econ_ideology_strength": 0.4,
+      "econ_switching_threshold": 0.1,
+      "econ_inertia": 0.05,
+      "user_ideology_strength": 0.49,
+      "user_switching_threshold": 0.12,
+      "transaction_velocity": 0.5,
+      "user_nodes_per_partition": 6,
+      "economic_nodes_per_partition": 4,
+      "solo_miner_hashrate": 0.085
+    },
+    "parameters": [
+      {
+        "name": "economic_split",
+        "min": 0.0,
+        "max": 1.0,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "hashrate_split",
+        "min": 0.0,
+        "max": 1.0,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_ideology_strength",
+        "min": 0.1,
+        "max": 0.9,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_profitability_threshold",
+        "min": 0.02,
+        "max": 0.3,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_max_loss_pct",
+        "min": 0.02,
+        "max": 0.5,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_committed_split",
+        "min": 0.0,
+        "max": 1.0,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_neutral_pct",
+        "min": 10.0,
+        "max": 50.0,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "econ_ideology_strength",
+        "min": 0.0,
+        "max": 0.8,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "econ_switching_threshold",
+        "min": 0.02,
+        "max": 0.25,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "econ_inertia",
+        "min": 0.05,
+        "max": 0.3,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "user_ideology_strength",
+        "min": 0.1,
+        "max": 0.9,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "user_switching_threshold",
+        "min": 0.05,
+        "max": 0.2,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "transaction_velocity",
+        "min": 0.1,
+        "max": 0.9,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "user_nodes_per_partition",
+        "min": 2,
+        "max": 10,
+        "type": "discrete",
+        "role": "fixed"
+      },
+      {
+        "name": "economic_nodes_per_partition",
+        "min": 1,
+        "max": 6,
+        "type": "discrete",
+        "role": "fixed"
+      },
+      {
+        "name": "solo_miner_hashrate",
+        "min": 0.02,
+        "max": 0.15,
+        "type": "continuous",
+        "role": "fixed"
+      }
+    ]
+  },
+  "scenarios": [
+    {
+      "scenario_id": "sweep_0000",
+      "parameters": {
+        "scenario_id": "sweep_0000",
+        "economic_split": 0.6,
+        "hashrate_split": 0.5,
+        "pool_committed_split": 0.35,
+        "pool_neutral_pct": 30.0,
+        "pool_ideology_strength": 0.51,
+        "pool_profitability_threshold": 0.16,
+        "pool_max_loss_pct": 0.26,
+        "econ_ideology_strength": 0.4,
+        "econ_switching_threshold": 0.1,
+        "econ_inertia": 0.05,
+        "user_ideology_strength": 0.49,
+        "user_switching_threshold": 0.12,
+        "transaction_velocity": 0.5,
+        "user_nodes_per_partition": 6,
+        "economic_nodes_per_partition": 4,
+        "solo_miner_hashrate": 0.085,
+        "econ_neutral_fraction": 0.0
+      },
+      "network_config": "tools/sweep/switching_neutral_fraction/configs/network/sweep_0000.yaml",
+      "network_path": "networks/sweep_0000/network.yaml"
+    },
+    {
+      "scenario_id": "sweep_0001",
+      "parameters": {
+        "scenario_id": "sweep_0001",
+        "economic_split": 0.6,
+        "hashrate_split": 0.5,
+        "pool_committed_split": 0.35,
+        "pool_neutral_pct": 30.0,
+        "pool_ideology_strength": 0.51,
+        "pool_profitability_threshold": 0.16,
+        "pool_max_loss_pct": 0.26,
+        "econ_ideology_strength": 0.4,
+        "econ_switching_threshold": 0.1,
+        "econ_inertia": 0.05,
+        "user_ideology_strength": 0.49,
+        "user_switching_threshold": 0.12,
+        "transaction_velocity": 0.5,
+        "user_nodes_per_partition": 6,
+        "economic_nodes_per_partition": 4,
+        "solo_miner_hashrate": 0.085,
+        "econ_neutral_fraction": 0.5
+      },
+      "network_config": "tools/sweep/switching_neutral_fraction/configs/network/sweep_0001.yaml",
+      "network_path": "networks/sweep_0001/network.yaml"
+    },
+    {
+      "scenario_id": "sweep_0002",
+      "parameters": {
+        "scenario_id": "sweep_0002",
+        "economic_split": 0.6,
+        "hashrate_split": 0.5,
+        "pool_committed_split": 0.35,
+        "pool_neutral_pct": 30.0,
+        "pool_ideology_strength": 0.51,
+        "pool_profitability_threshold": 0.16,
+        "pool_max_loss_pct": 0.26,
+        "econ_ideology_strength": 0.4,
+        "econ_switching_threshold": 0.1,
+        "econ_inertia": 0.05,
+        "user_ideology_strength": 0.49,
+        "user_switching_threshold": 0.12,
+        "transaction_velocity": 0.5,
+        "user_nodes_per_partition": 6,
+        "economic_nodes_per_partition": 4,
+        "solo_miner_hashrate": 0.085,
+        "econ_neutral_fraction": 1.0
+      },
+      "network_config": "tools/sweep/switching_neutral_fraction/configs/network/sweep_0002.yaml",
+      "network_path": "networks/sweep_0002/network.yaml"
+    }
+  ],
+  "generated_networks": 3,
+  "failed_networks": 0
+}

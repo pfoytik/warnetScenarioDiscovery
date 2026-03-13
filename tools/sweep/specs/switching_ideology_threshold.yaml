@@ -1,0 +1,67 @@
+name: switching_ideology_threshold
+description: >
+  Validates that ideology_strength correctly scales the effective switching
+  threshold for non-neutral economic nodes.
+
+  With econ_neutral_fraction=0.0 all economic nodes carry their ideology, so
+  only ideology_strength determines whether the actual price gap triggers a switch.
+
+  Actual price gap measured from previous runs: ~14.3% (not 19% as originally
+  assumed). The original spec used econ_switching_threshold=0.14 and
+  econ_inertia=0.17, which put the threshold at exactly the gap edge and added
+  probabilistic blocking — resulting in zero switches across all scenarios.
+
+  Fix: econ_switching_threshold=0.10, econ_inertia=0.05.
+  Effective threshold formula:
+    effective_threshold = econ_switching_threshold * (1 + ideology_strength * 2.0)
+
+  At the actual ~14.3% price gap (with threshold=0.10):
+    ideology_strength=0.00 → effective_threshold=10.0% → SWITCHES (gap >> threshold)
+    ideology_strength=0.15 → effective_threshold=13.0% → SWITCHES (gap > threshold)
+    ideology_strength=0.25 → effective_threshold=15.0% → WON'T switch (gap < threshold)
+    ideology_strength=0.40 → effective_threshold=18.0% → definitely WON'T switch
+
+  This brackets the switchover at ideology ≈ 0.21 (where effective_threshold = 14.3%).
+
+  Expected gradient:
+    ideology=0.00 → v27_econ_share drifts toward 100% (all nodes follow winner)
+    ideology=0.15 → v27_econ_share drifts (just below cutoff)
+    ideology=0.25 → v27_econ_share flat (just above cutoff)
+    ideology=0.40 → v27_econ_share flat (clearly ideological)
+
+  With inertia=0.05 (5% probabilistic block) the gradient should be clean and
+  consistent across replicates.
+
+  Run with:
+    python 3_run_sweep.py \
+      --input switching_ideology_threshold/build_manifest.json \
+      --namespace sweep-ideology-thresh \
+      --results-dir switching_ideology_threshold/results \
+      --duration 4000 --retarget-interval 144 --interval 2 \
+      --use-sigmoid
+
+  Namespace to create first:
+    kubectl create namespace sweep-ideology-thresh
+
+network: lite
+
+fixed:
+  economic_split: 0.60
+  hashrate_split: 0.50
+  pool_committed_split: 0.35
+  pool_neutral_pct: 30.0
+  pool_ideology_strength: 0.51
+  pool_profitability_threshold: 0.16
+  pool_max_loss_pct: 0.26
+  econ_neutral_fraction: 0.0
+  econ_switching_threshold: 0.10
+  econ_inertia: 0.05
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  transaction_velocity: 0.50
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 4
+  solo_miner_hashrate: 0.085
+
+grid:
+  econ_ideology_strength: [0.0, 0.15, 0.25, 0.40]

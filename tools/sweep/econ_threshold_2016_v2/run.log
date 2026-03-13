@@ -1,0 +1,92 @@
+
+============================================================
+Parameter Sweep Runner
+============================================================
+Total scenarios: 2
+Already completed: 0
+Pending: 2
+Duration per scenario: 13000s (217 min)
+Startup wait: 45s
+Estimated total time: 7.3 hours
+Results directory: econ_threshold_2016_v2/results
+Namespace: sweep-econ-thresh-v2
+Auto-restart: after 3 consecutive failures
+
+Starting sweep at 2026-03-12T21:00:37.930169...
+------------------------------------------------------------
+Initial cleanup - stopping any running networks...
+  Cooldown 30s...
+[1/2] Running sweep_0000...
+  Injecting sweep config...
+  Injecting network metadata...
+  Stopping previous network...
+  Cooldown 30s...
+  Deploying network...
+  Waiting 45s for nodes to start...
+  Network deployed with 25 pods
+  Deploying scenario commander...
+  Waiting for scenario completion (up to 13120s)...
+    Found commander pod: commander-partitionminerwithpools-1773363756
+    Still waiting... (810s elapsed, pod: Running)
+    Still waiting... (1530s elapsed, pod: Running)
+    Still waiting... (2160s elapsed, pod: Running)
+    Still waiting... (2790s elapsed, pod: Running)
+    Still waiting... (3960s elapsed, pod: Running)
+    Still waiting... (4500s elapsed, pod: Running)
+    Still waiting... (5040s elapsed, pod: Running)
+    Still waiting... (6030s elapsed, pod: Running)
+    Still waiting... (7020s elapsed, pod: Running)
+    Still waiting... (7470s elapsed, pod: Running)
+    Still waiting... (7920s elapsed, pod: Running)
+    Still waiting... (8730s elapsed, pod: Running)
+    Still waiting... (11610s elapsed, pod: Running)
+    Still waiting... (12240s elapsed, pod: Running)
+    Still waiting... (12600s elapsed, pod: Running)
+    Pod status: Succeeded after 13012s
+  Extracting results...
+  Results extracted successfully
+  OK (13103s) - ETA: 3:38:23
+[2/2] Running sweep_0001...
+  Injecting sweep config...
+  Injecting network metadata...
+  Stopping previous network...
+  Cooldown 30s...
+  Deploying network...
+  Waiting 45s for nodes to start...
+  Network deployed with 25 pods
+  Deploying scenario commander...
+  Waiting for scenario completion (up to 13120s)...
+    Found commander pod: commander-partitionminerwithpools-1773376869
+    Still waiting... (810s elapsed, pod: Running)
+    Still waiting... (1530s elapsed, pod: Running)
+    Still waiting... (2250s elapsed, pod: Running)
+    Still waiting... (2880s elapsed, pod: Running)
+    Still waiting... (4770s elapsed, pod: Running)
+    Still waiting... (7470s elapsed, pod: Running)
+    Still waiting... (9720s elapsed, pod: Running)
+    Still waiting... (10530s elapsed, pod: Running)
+    Still waiting... (11340s elapsed, pod: Running)
+    Still waiting... (11700s elapsed, pod: Running)
+    Still waiting... (12060s elapsed, pod: Running)
+    Still waiting... (12420s elapsed, pod: Running)
+    Still waiting... (12780s elapsed, pod: Running)
+    Pod status: Succeeded after 13006s
+  Extracting results...
+  Results extracted successfully
+  OK (13107s) - ETA: 0:00:00
+
+============================================================
+Final cleanup - ensuring cluster is clean...
+============================================================
+  Force cleaning cluster...
+  Cluster is clean
+
+============================================================
+Sweep Complete!
+============================================================
+Completed: 2
+Failed: 0
+Total time: 7:17:05
+Results saved to: econ_threshold_2016_v2/results
+
+Next step: python 4_analyze_results.py --input econ_threshold_2016_v2/results

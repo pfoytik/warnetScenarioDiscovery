@@ -244,6 +244,7 @@ def create_network_config(scenario: Dict[str, Any]) -> Dict[str, Any]:
         "v27_hashrate_pct": scenario["hashrate_split"] * 100,
         "economic_nodes_per_partition": int(scenario["economic_nodes_per_partition"]),
         "user_nodes_per_partition": int(scenario["user_nodes_per_partition"]),
+        "econ_neutral_fraction": scenario.get("econ_neutral_fraction", 0.0),
         "v27_economic": {
             "fork_preference": "v27",
             "ideology_strength": scenario["econ_ideology_strength"],
@@ -319,6 +320,7 @@ def apply_scenario_to_base_network(base_network: Dict, scenario: Dict) -> Dict:
     econ_ideology = scenario.get('econ_ideology_strength', 0.2)
     econ_switching = scenario.get('econ_switching_threshold', 0.1)
     econ_inertia = scenario.get('econ_inertia', 0.15)
+    econ_neutral_fraction = scenario.get('econ_neutral_fraction', 0.0)
 
     user_ideology = scenario.get('user_ideology_strength', 0.5)
     user_switching = scenario.get('user_switching_threshold', 0.1)
@@ -354,6 +356,25 @@ def apply_scenario_to_base_network(base_network: Dict, scenario: Dict) -> Dict:
             else:
                 econ_node['image'] = {'tag': '26.0'}
             v27_custody_acc += custody
+
+    # --- Compute neutral economic node assignments ---
+    # Neutral nodes (ideology=0, fork_preference=neutral) switch on price alone.
+    # Per partition: sort by custody descending, mark the first N as neutral.
+    neutral_node_ids = set()
+    if econ_neutral_fraction > 0:
+        for partition_tag in ['27.0', '26.0']:
+            partition_econ = [
+                n for n in econ_nodes
+                if n.get('image', {}).get('tag') == partition_tag
+            ]
+            partition_econ_sorted = sorted(
+                partition_econ,
+                key=lambda n: n['metadata'].get('custody_btc', 0),
+                reverse=True
+            )
+            n_neutral = round(econ_neutral_fraction * len(partition_econ_sorted))
+            for n in partition_econ_sorted[:n_neutral]:
+                neutral_node_ids.add(n['name'])
 
     # --- Assign pool image tags based on hashrate_split ---
     # This controls the pool's initial mining fork via node version.
@@ -394,7 +415,15 @@ def apply_scenario_to_base_network(base_network: Dict, scenario: Dict) -> Dict:
             metadata['profitability_threshold'] = round(pool_prof_threshold, 3)
 
         elif role in ['major_exchange', 'exchange', 'economic_aggregate']:
-            metadata['ideology_strength'] = round(econ_ideology, 3)
+            if node['name'] in neutral_node_ids:
+                # Neutral node: purely rational, no fork loyalty, switches on price alone
+                metadata['ideology_strength'] = 0.0
+                metadata['fork_preference'] = 'neutral'
+            else:
+                # Partisan node: loyalty matches their fork (v27 tag → v27 preference)
+                partition_tag = node.get('image', {}).get('tag', '27.0')
+                metadata['fork_preference'] = 'v27' if partition_tag == '27.0' else 'v26'
+                metadata['ideology_strength'] = round(econ_ideology, 3)
             metadata['switching_threshold'] = round(econ_switching, 3)
             metadata['inertia'] = round(econ_inertia, 3)
             metadata['max_loss_pct'] = round(econ_ideology * 0.5, 3)
@@ -671,10 +700,7 @@ Examples:
             scenario_id = scenario["scenario_id"]
             network_output = networks_dir / scenario_id / "network.yaml"
 
-            # Skip if already exists
-            if network_output.exists():
-                manifest["generated_networks"] += 1
-                continue
+            # Always regenerate (stale skipping caused silent build bugs)
 
             if use_base_network:
                 # Generate from base network template

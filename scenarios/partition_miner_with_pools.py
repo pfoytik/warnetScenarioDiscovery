@@ -219,8 +219,8 @@ class PartitionMinerWithPools(Commander):
         # Reorg metrics
         parser.add_argument('--enable-reorg-metrics', action='store_true', default=False,
                           help='Enable reorg tracking oracle for fork impact metrics')
-        parser.add_argument('--enable-dynamic-switching', action='store_true', default=False,
-                          help='Enable dynamic partition switching for economic/user nodes')
+        parser.add_argument('--enable-dynamic-switching', action='store_true', default=True,
+                          help='Enable dynamic partition switching for economic/user nodes (default: True)')
 
         # Fork reunion
         parser.add_argument('--enable-reunion', action='store_true', default=False,
@@ -956,27 +956,36 @@ class PartitionMinerWithPools(Commander):
             should_switch = False
             reason = ""
 
+            # Ideology scales the effective switching threshold.
+            # Low ideology (0.0) → switches at base threshold (purely rational).
+            # High ideology (1.0) → needs 3× the base threshold to switch.
+            # This replaces the old hard cutoffs (< 0.3 / > 0.7) which created
+            # a dead zone where nodes with ideology 0.3–0.7 could never switch.
+            effective_threshold = switching_threshold * (1 + ideology_strength * 2.0)
+
             if current_partition == 'v27':
-                # On v27, consider switching to v26 if:
-                # 1. v26 has significantly better price AND low ideology
-                # 2. Or fork_preference is v26 with high ideology
-                if fork_preference == 'v26' and ideology_strength > 0.7:
+                # Ideological pull: strong preference for v26 overrides price
+                if fork_preference == 'v26' and ideology_strength > 0.5:
                     should_switch = True
                     reason = f"ideological preference for v26 (strength={ideology_strength:.2f})"
-                elif price_ratio < (1 - switching_threshold) and ideology_strength < 0.3:
+                # Rational: v26 price advantage exceeds ideology-adjusted threshold
+                elif price_ratio < (1 - effective_threshold):
                     should_switch = True
-                    reason = f"economic: v27 price {price_ratio:.2%} below v26"
+                    reason = (f"economic: v27/v26 ratio {price_ratio:.3f} below "
+                              f"threshold {1 - effective_threshold:.3f} "
+                              f"(ideology={ideology_strength:.2f})")
 
             else:  # current_partition == 'v26'
-                # On v26, consider switching to v27 if:
-                # 1. v27 has significantly better price AND low ideology
-                # 2. Or fork_preference is v27 with high ideology
-                if fork_preference == 'v27' and ideology_strength > 0.7:
+                # Ideological pull: strong preference for v27 overrides price
+                if fork_preference == 'v27' and ideology_strength > 0.5:
                     should_switch = True
                     reason = f"ideological preference for v27 (strength={ideology_strength:.2f})"
-                elif price_ratio > (1 + switching_threshold) and ideology_strength < 0.3:
+                # Rational: v27 price advantage exceeds ideology-adjusted threshold
+                elif price_ratio > (1 + effective_threshold):
                     should_switch = True
-                    reason = f"economic: v27 price {price_ratio:.2%} above v26"
+                    reason = (f"economic: v27/v26 ratio {price_ratio:.3f} above "
+                              f"threshold {1 + effective_threshold:.3f} "
+                              f"(ideology={ideology_strength:.2f})")
 
             # Apply inertia - random chance to delay switch
             if should_switch:

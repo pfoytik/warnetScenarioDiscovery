@@ -2,6 +2,8 @@
 
 **Reference document:** `docs/Results_Section_Skeleton_v4.md`
 **Last updated:** 2026-03-13
+**Econ switching fixes committed:** `eb127a0` (pushed to GitHub 2026-03-13)
+**All v2 sweeps running against committed, fixed code.**
 
 This file tracks which sweeps are complete, running, and still needed to fill all
 `[TODO]` and `[PENDING DATA]` placeholders in the Results skeleton.

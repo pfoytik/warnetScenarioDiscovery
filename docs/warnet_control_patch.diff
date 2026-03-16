@@ -1,0 +1,11 @@
+--- a/src/warnet/control.py
++++ b/src/warnet/control.py
+@@ -308,6 +308,8 @@ def _run(
+                 "commander.py",
+                 "test_framework",
+                 "ln_framework",
++                "lib/",
++                "config/",
+                 scenario_path.name,
+             ]
+         ):

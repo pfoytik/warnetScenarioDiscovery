@@ -209,23 +209,30 @@ def inject_sweep_config(
         # Load existing main configs
         main_pools_path = scenarios_dir / "config" / "mining_pools_config.yaml"
         main_econ_path = scenarios_dir / "config" / "economic_nodes_config.yaml"
+        lock_path = scenarios_dir / "config" / ".inject.lock"
 
-        with open(main_pools_path, 'r') as f:
-            main_pools = yaml.safe_load(f)
+        # Acquire exclusive lock to prevent concurrent corruption from parallel runners
+        with open(lock_path, 'w') as lock_file:
+            fcntl.flock(lock_file, fcntl.LOCK_EX)
+            try:
+                with open(main_pools_path, 'r') as f:
+                    main_pools = yaml.safe_load(f)
 
-        with open(main_econ_path, 'r') as f:
-            main_econ = yaml.safe_load(f)
+                with open(main_econ_path, 'r') as f:
+                    main_econ = yaml.safe_load(f)
 
-        # Inject sweep scenario
-        main_pools[scenario_id] = sweep_pools[scenario_id]
-        main_econ[scenario_id] = sweep_econ[scenario_id]
+                # Inject sweep scenario
+                main_pools[scenario_id] = sweep_pools[scenario_id]
+                main_econ[scenario_id] = sweep_econ[scenario_id]
 
-        # Write back
-        with open(main_pools_path, 'w') as f:
-            yaml.dump(main_pools, f, default_flow_style=False, sort_keys=False)
+                # Write back
+                with open(main_pools_path, 'w') as f:
+                    yaml.dump(main_pools, f, default_flow_style=False, sort_keys=False)
 
-        with open(main_econ_path, 'w') as f:
-            yaml.dump(main_econ, f, default_flow_style=False, sort_keys=False)
+                with open(main_econ_path, 'w') as f:
+                    yaml.dump(main_econ, f, default_flow_style=False, sort_keys=False)
+            finally:
+                fcntl.flock(lock_file, fcntl.LOCK_UN)
 
         return True
 

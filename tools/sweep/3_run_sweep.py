@@ -628,7 +628,7 @@ def run_scenario(
                 cmd,
                 stdout=f,
                 stderr=subprocess.STDOUT,
-                timeout=120  # Just deployment, should be quick
+                timeout=600  # Allow extra time when cluster is under load from parallel deployments
             )
 
         if result.returncode != 0:

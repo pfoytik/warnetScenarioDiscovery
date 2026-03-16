@@ -41,6 +41,7 @@ The **realistic_sweep3_rapid** sweep with fixed code reveals a dramatically diff
 8. **Even in the 144-block regime, the difficulty retarget is the primary cascade trigger — not price** — sweep10 (accidentally run at retarget=144, not 2016) showed v27_dominant at all economic splits (0.35–0.70) via a three-phase cascade completing in ~30 min: (1) initial split, (2) all pools temporarily collapse onto v26 when v26's difficulty drops while v27's hasn't yet, (3) v27 retargets to extreme low difficulty → all committed v26 pools forced off by 36.7% losses >> 13.3% tolerance. Answered by sweep10b (see below).
 10. **In the 2016-block regime with equal starting hashrate, economic_split is irrelevant across 0.35–0.70 — the retarget mechanism alone determines the winner** — sweep10b (corrected rerun of sweep10, retarget=2016, hashrate=0.50) showed v27_dominant at all five economic levels including econ=0.35 where v26 holds 65% of economic weight. Scenarios at econ=0.35, 0.50, 0.60, 0.70 produced statistically identical outcomes (same reorg count, block distribution, and prices). The retarget mechanism fires regardless of economic conditions: Foundry's commitment gives v27 the early hashrate edge to mine the first 2016 blocks, after which the difficulty drop makes all remaining v26 mining unprofitable. The minimum economic_split for v27 to win via this mechanism is below 0.35 — possibly zero (see targeted_sweep10b findings)
 9. **The 144-block "inversion" at econ=0.50 was an artifact — 2016-block shows deterministic v26 dominance** — sweep11 (chaos test, 3 replicates at econ=0.50, commit=0.20, 2016-block) produced identical v26_dominant outcomes in all 3 runs. The lite network divergence observed in sweep7 (144-block showed v27_dominant) was caused by the artificial 144-block retarget rescuing the dying v27 chain. With realistic 2016-block retarget, v27 collapses by t≈1200s (only 197 blocks) and never reaches its first retarget — no resurrection mechanism exists (see targeted_sweep11 findings)
+11. **Economic thresholds differ sharply by retarget regime (2026-03-15):** 144-block threshold ≈ 0.29 (0.28→v26, 0.30→v27); baseline 2016-block threshold ∈ (0.51, 0.55); sigmoid 2016-block threshold ∈ (0.30, 0.35). The sigmoid oracle lowers the 2016-block threshold by ~0.20 units — equivalent to requiring roughly 20 fewer percentage points of v27 economic support for a v27 win. See `threshold_144_narrow`, `baseline_threshold_2016_narrow`, `sigmoid_threshold_2016` sections.
 
 ### Zone Analysis Caveat
 
@@ -2028,6 +2029,476 @@ The 144-block regime artificially allows dead chains to recover via difficulty d
 
 ---
 
+### switching_ideology_threshold: Econ Node Switching vs Pool Cascade Amplification
+
+#### Purpose
+
+Characterize how `econ_ideology_strength` determines whether economic nodes switch after
+a pool cascade, and measure the cascade's price-amplification effect.
+
+#### Sweep Design
+
+| Parameter | Values |
+|-----------|--------|
+| **econ_ideology_strength** | [0.0, 0.15, 0.25, 0.40] |
+| retarget_interval | 144 |
+| duration | 4,000s |
+| --use-sigmoid | yes |
+
+All other parameters fixed (econ_switching_threshold=0.10, econ_inertia=0.05).
+Effective threshold formula: `threshold_pct = econ_switching_threshold × (1 + ideology × 2.0)`
+
+#### Results
+
+| ideology | eff_threshold | econ_outcome | switch_t | lag_after_cascade | peak_gap |
+|:--------:|:-------------:|:------------:|:--------:|:-----------------:|:--------:|
+| 0.00 | 10% | full_switch | 2,420s | 607s | 35.1% |
+| 0.15 | 13% | full_switch | 2,725s | 911s | 35.1% |
+| 0.25 | 15% | full_switch | 3,329s | 1,516s | 35.1% |
+| 0.40 | 18% | **no_switch** | — | — | 17.1% |
+
+Pool cascade always completes at t≈1,813s (deterministic across all runs).
+
+#### Key Findings
+
+**1. Cascade amplifies the price gap from ~14.3% → 35.1%**
+
+The initial price gap (pre-cascade) is ~14.3%. After the pool cascade, the gap jumps
+to 35.1% because the collapsed fork produces zero blocks, decimating its chain factor.
+This 2.5× amplification is what drives econ switching — the pre-cascade gap alone
+would not trigger switching at any of these thresholds.
+
+**2. Switchover boundary is ideology ≈ 0.30–0.35 (effective threshold ~16–17%)**
+
+ideology=0.25 (eff=15%) still switches because the 35.1% post-cascade gap far exceeds
+the threshold. ideology=0.40 (eff=18%) does NOT switch because the no-switch path
+caps at ~17.1% peak gap — the cascade doesn't fully complete without economic switching
+to reinforce it, so the gap stays just below the 18% threshold.
+
+**3. Threshold design based on pre-cascade gap is unreliable**
+
+A threshold tuned to block switching at the initial ~14.3% gap (e.g., eff_threshold=16%)
+will STILL be breached by the post-cascade 35.1% gap. Models that ignore cascade
+amplification will systematically underestimate switching probability.
+
+**4. Correlation: econ_ideology_strength vs econ_final = -0.792**
+
+Strong negative correlation confirms the parameter is working as designed.
+
+#### Data Location
+
+| File | Description |
+|------|-------------|
+| `switching_ideology_threshold/results/` | All scenario results |
+| `specs/switching_ideology_threshold.yaml` | Sweep spec |
+
+---
+
+### switching_neutral_fraction: Neutral Fraction Does Not Affect Cascade Timing
+
+#### Purpose
+
+Test whether the fraction of "neutral" (purely rational) economic nodes changes the
+speed or timing of the post-cascade econ switch.
+
+#### Sweep Design
+
+| Parameter | Values |
+|-----------|--------|
+| **econ_neutral_fraction** | [0.0, 0.50, 1.0] |
+| econ_ideology_strength | 0.40 (fixed) |
+| retarget_interval | 144 |
+| duration | 4,000s |
+| --use-sigmoid | yes |
+
+#### Results
+
+| neutral_frac | econ_outcome | switch_t | peak_gap | final_econ_v27 |
+|:------------:|:------------:|:--------:|:--------:|:--------------:|
+| 0.0 | no_switch | — | 17.1% | 56.7% |
+| 0.5 | full_switch | 2,420s | 35.1% | 100.0% |
+| 1.0 | full_switch | 2,422s | 35.2% | 100.0% |
+
+#### Key Finding
+
+**Neutral fraction does NOT change cascade speed or switch timing.**
+
+Whether 50% or 100% of econ nodes are neutral (ideology=0), they both switch at
+essentially t≈2,420s — a difference of 2 seconds across a 4,000s run. Neutral fraction
+controls WHAT SHARE can switch (all vs committed fraction), but not WHEN. The pool
+cascade is the bottleneck: econ nodes only react after the cascade drives the price gap
+above their threshold, which is determined by pool dynamics, not econ composition.
+
+The no_switch case (neutral_frac=0.0) is explained by ideology=0.40 with 100%
+ideological nodes: effective threshold=18% > 17.1% peak gap without any neutral econ
+nodes to amplify the switch further.
+
+#### Data Location
+
+| File | Description |
+|------|-------------|
+| `switching_neutral_fraction/results/` | All scenario results |
+| `specs/switching_neutral_fraction.yaml` | Sweep spec |
+
+---
+
+### econ_threshold_2016_v2: Narrowing the 2016-Block Threshold
+
+#### Purpose
+
+The 2016-block threshold for v27 victory was previously bracketed at (0.35, 0.70) by
+sweep10b. This sweep tests econ=[0.55, 0.60] to tighten the bracket from above.
+
+Note: targeted_sweep11 showed econ=0.50 → v26_dominant (197 v27 blocks). Combined with
+this sweep's results, the bracket narrows to **(0.50, 0.55)**.
+
+#### Sweep Design
+
+| Parameter | Values |
+|-----------|--------|
+| **economic_split** | [0.55, 0.60] |
+| retarget_interval | **2016** |
+| duration | 13,000s |
+| pool_committed_split | 0.35 |
+| pool_ideology_strength | 0.51 |
+| pool_max_loss_pct | 0.26 |
+
+Tolerance = 0.51 × 0.26 = **13.26%**. These are the corrected parameters
+(econ_switching_threshold=0.10, econ_inertia=0.05).
+
+#### Results
+
+| econ | outcome | v27 blocks | v26 blocks | cascade_t | retarget_t | peak_gap |
+|:----:|:-------:|:----------:|:----------:|:---------:|:----------:|:--------:|
+| 0.55 | v27_dominant | 5,237 | 1,543 | 8,429s | 8,125s | 16.1% |
+| 0.60 | v27_dominant | 5,237 | 1,544 | 8,423s | 8,120s | 16.1% |
+
+Both runs: econ nodes never switch (no_switch, final econ stays at 56.7%). The
+16.1% peak gap is just below the effective econ threshold of 18% (0.40×2.0+1=18%
+× 0.10 = 18%).
+
+#### Key Findings
+
+**1. Threshold bracketed at econ ∈ (0.50, 0.55)**
+
+econ=0.55 → v27_dominant (5,237 v27 blocks). Combined with sweep11 showing econ=0.50
+→ v26_dominant (197 v27 blocks), the bifurcation is within a 0.05-wide window.
+
+**2. Retarget triggers the cascade, not the other way around (baseline)**
+
+retarget fires at t≈8,120s, cascade at t≈8,425s — 305s later. The v26 difficulty
+drop makes v27 suddenly more profitable, pushing committed v26 pools past their
+tolerance threshold. This causal order (retarget → cascade) is reversed under the
+sigmoid oracle (see sigmoid_2016_retarget below).
+
+**3. v26 mines exactly 1,543 blocks regardless of econ**
+
+This number is determined by v26's committed hashrate fraction and the time it takes
+to reach a cascade, not by economic_split. Both econ=0.55 and econ=0.60 give identical
+v26 block counts — the initial price signal is too weak to shift neutral pool behavior
+in the 2016-block regime with baseline oracle.
+
+#### Data Location
+
+| File | Description |
+|------|-------------|
+| `econ_threshold_2016_v2/results_v2/` | Results |
+| `specs/econ_threshold_2016_v2.yaml` | Sweep spec |
+
+---
+
+### sigmoid_2016_retarget: Sigmoid Oracle is a Structural Change
+
+#### Purpose
+
+Compare baseline (linear) vs sigmoid price oracle in the 2016-block retarget regime
+across econ=[0.35, 0.50, 0.60, 0.70, 0.82]. Does the sigmoid oracle change cascade
+timing or flip outcomes?
+
+#### Sweep Design
+
+Two parallel 5-run sets, identical parameters, differing only in `--use-sigmoid`.
+
+| Parameter | Value |
+|-----------|-------|
+| **economic_split** | [0.35, 0.50, 0.60, 0.70, 0.82] |
+| retarget_interval | 2016 |
+| duration | 13,000s |
+| Baseline run | linear oracle |
+| Sigmoid run | --use-sigmoid |
+
+#### Results
+
+| econ | baseline cascade_t | sigmoid cascade_t | baseline v26 blocks | sigmoid v26 blocks |
+|:----:|:-----------------:|:----------------:|:------------------:|:-----------------:|
+| 0.35 | 8,426s | **4,241s** | 1,543 | **799** |
+| 0.50 | 8,426s | **4,239s** | 1,543 | **799** |
+| 0.60 | 8,424s | **4,239s** | 1,543 | **799** |
+| 0.70 | 8,426s | **4,239s** | 1,543 | **799** |
+| 0.82 | 607s | 607s | 150 | 150 |
+
+Peak gap: baseline 16.1%, sigmoid 21.6% (for econ=0.35–0.70). econ=0.82 is identical
+between both models (cascade fires immediately regardless of oracle shape).
+
+#### Key Findings
+
+**1. Sigmoid fires the cascade ~4,185s earlier across econ=0.35–0.70**
+
+Baseline cascade at t≈8,426s (triggered by retarget at t≈8,123s). Sigmoid cascade at
+t≈4,241s — before the first retarget, which fires at t≈6,660s instead. The sigmoid's
+steeper price response pushes neutral pools past their threshold mid-run, before the
+retarget becomes the dominant mechanism.
+
+**2. Causal order reverses between models**
+
+- **Baseline:** v26 retarget (t=8,123s) → cascade (t=8,426s). Retarget causes cascade.
+- **Sigmoid:** cascade (t=4,241s) → v26 retarget (t=6,660s). Cascade precedes retarget.
+
+This is not a marginal timing difference — it's a regime change. Under baseline,
+the retarget is the precipitating event. Under sigmoid, the price oracle creates
+enough gap pressure independently that the cascade fires on its own.
+
+**3. v26 block count cut nearly in half: 1,543 → 799**
+
+With a cascade at t≈4,241s vs t≈8,426s, v26 mining runs for ~4,185s less at full
+hashrate. This halves v26's block accumulation, reducing the losing fork depth by ~744
+blocks in any hypothetical reunion scenario.
+
+**4. econ=0.82 is oracle-agnostic**
+
+At econ=0.82, the initial v27 price premium (~12.8%) is strong enough to trigger the
+neutral bloc before any oracle shape distinction matters. Both models produce identical
+results: cascade at t≈607s, 150 v26 blocks.
+
+**5. Sigmoid threshold in 2016-block regime is below 0.35**
+
+Under baseline, all five econ levels (0.35–0.82) give v27_dominant. Under sigmoid,
+same result. But the mechanisms differ: baseline needs the retarget to trigger the
+cascade, while sigmoid reaches the cascade independently. The question of where the
+sigmoid threshold lies below econ=0.35 is answered by sigmoid_threshold_2016 (pending).
+
+#### Implication for Threshold Research
+
+The 2016-block economic threshold (baseline: between 0.50 and 0.55) needs to be mapped
+separately under sigmoid. Given that sigmoid fires the cascade earlier and amplifies
+the price gap (21.6% vs 16.1%), the sigmoid threshold is likely lower than the
+baseline threshold — v27 can win at lower economic support under sigmoid.
+
+#### Data Location
+
+| File | Description |
+|------|-------------|
+| `sigmoid_2016_retarget/results_baseline_v2/` | Baseline (linear oracle) results |
+| `sigmoid_2016_retarget/results_sigmoid_v2/` | Sigmoid oracle results |
+| `specs/sigmoid_2016_retarget.yaml` | Sweep spec |
+
+---
+
+### econ_switching_144_verify: economic_split Parameter Fix Confirmed
+
+#### Purpose
+
+After fixing the `economic_split` parameter (commit 816cd30), verify that the fix
+works end-to-end. The null hypothesis (broken): all 5 econ levels produce identical
+v26 block counts. The working hypothesis: outcomes vary monotonically with econ.
+
+#### Sweep Design
+
+| Parameter | Values |
+|-----------|--------|
+| **economic_split** | [0.20, 0.35, 0.50, 0.65, 0.80] |
+| retarget_interval | 144 |
+| duration | 4,000s |
+
+#### Results
+
+| econ | outcome | v27 cascade_t | v26 cascade_t | v27 blocks | v26 blocks | peak_gap |
+|:----:|:-------:|:-------------:|:-------------:|:----------:|:----------:|:--------:|
+| 0.20 | **v26_dominant** | never | 624s | 120 | 1,846 | 45.5% |
+| 0.35 | v27_dominant | 1,818s | 1,211s | 1,657 | 791 | 15.5% |
+| 0.50 | v27_dominant | 1,814s | 1,209s | 1,655 | 794 | 15.6% |
+| 0.65 | v27_dominant | 1,813s | 1,208s | 1,655 | 794 | 15.6% |
+| 0.80 | **v27_dominant** | 611s | never | 1,859 | 142 | 45.5% |
+
+#### Key Findings
+
+**1. Fix confirmed: economic_split is working**
+
+econ=0.20 gives v26_dominant. The null hypothesis (all runs identical) is decisively
+rejected. The outcome is monotonically correlated with econ (correlation +0.707 with
+v27 hashrate share, +0.890 with econ_final).
+
+**2. Perfect symmetry at extremes**
+
+econ=0.20 (v26 wins) mirrors econ=0.80 (v27 wins):
+- Both show cascade at t≈607–624s for the winning side
+- Both show ~45.5% peak gap
+- Both show ~142–150 blocks mined by the losing fork
+
+This symmetry is the clearest possible validation that the parameter is working
+correctly and that the model is symmetric with respect to fork identity.
+
+**3. Threshold bracketed at econ ∈ (0.20, 0.35)**
+
+The analysis tool estimated ≈0.387 by linear interpolation, but the actual threshold
+is somewhere in (0.20, 0.35). All three middle points (0.35, 0.50, 0.65) produce
+nearly identical dynamics (cascade at t≈1,813–1,818s), suggesting the threshold is
+close to 0.20 rather than midway.
+
+**4. Middle band is flat: econ=0.35–0.65 all give identical cascade timing**
+
+Despite the initial price gap varying from 8% v26-premium (econ=0.35) to 8% v27-
+premium (econ=0.65), the cascade timing is the same. This confirms that in the
+144-block regime, moderate initial price gaps (up to ~8%) are insufficient to shift
+neutral pools early — the cascade is driven by the retarget mechanism, not by initial
+price alone. Only at ≥12.8% initial gap (econ=0.20 or 0.80) does the initial signal
+dominate.
+
+#### Data Location
+
+| File | Description |
+|------|-------------|
+| `econ_switching_144_verify/results/` | All scenario results |
+| `econ_switching_144_verify/results/analysis/` | Analysis outputs |
+| `specs/econ_switching_144_verify.yaml` | Sweep spec |
+
+---
+
+### threshold_144_narrow: 144-Block Economic Threshold Bracketed at (0.28, 0.30)
+
+#### Purpose
+
+Narrow the 144-block economic threshold from the prior bracket of (0.20, 0.35) established
+by `econ_switching_144_verify`. Ran 4 scenarios (econ=0.22, 0.25, 0.28, 0.30) at
+retarget=144, duration=4000s.
+
+#### Results (2026-03-15)
+
+| econ | outcome | v27 blocks | v26 blocks | final v27 hash | final v27 econ |
+|:----:|:-------:|:----------:|:----------:|:--------------:|:--------------:|
+| 0.22 | FAILED | — | — | — | — |
+| 0.25 | FAILED | — | — | — | — |
+| 0.28 | **v26_dominant** | 118 | 1,886 | 0.0% | 0.0% |
+| 0.30 | **v27_dominant** | 1,651 | 798 | 86.4% | 56.7% |
+
+Note: econ=0.22 and 0.25 failed at ~355s (namespace warmup issue — first runs in fresh
+namespace). Requires rerun.
+
+#### Key Findings
+
+**Threshold bracketed at econ ∈ (0.28, 0.30), estimated ≈ 0.29.**
+
+This halves the prior bracket (0.20–0.35) and identifies a very sharp boundary.
+The pattern at econ=0.28 is identical to econ=0.20: v27 freezes early (118 blocks),
+all pools end on v26, economic nodes on v26 (0.0% v27 econ). The threshold is below
+the econ "neutral" point where v27 gets 56.7% initial economic support.
+
+At econ=0.30: Initial conditions are v27=56.7%/v26=43.3% economic. Pool dynamics are
+complex (cascade flip at t≈1,450s then reverse at t≈1,814s — 16 reorg events) but v27
+ultimately wins. The three-phase cascade completes with v27 at 86.4% hashrate and
+economic nodes holding at their initial 56.7% (no switch — peak price gap of 15.4%
+stayed below the effective econ switching threshold).
+
+**Cascade dynamics at econ=0.30 (retarget=144):**
+1. t=726s: v26 pools partially migrate to v27 (hash: 50.5%/35.9%)
+2. t=1,450s: v27 temporarily collapses to 0% — v26 at 86.4%
+3. t=1,814s: Reverse cascade — v27 jumps to 86.4%, v26 to 0%
+4. Stable from t=1,814s onward; 16 reorg events total
+
+#### Data Location
+
+| File | Description |
+|------|-------------|
+| `threshold_144_narrow/results/sweep_0002/` | econ=0.28 results |
+| `threshold_144_narrow/results/sweep_0003/` | econ=0.30 results |
+
+---
+
+### baseline_threshold_2016_narrow: 2016-Block Baseline Threshold Tightened to (0.51, 0.55)
+
+#### Purpose
+
+Narrow the 2016-block baseline threshold from (0.50, 0.55). Ran econ=0.51 and 0.52
+at retarget=2016, duration=13,000s. econ=0.52 failed (namespace issue); econ=0.51 succeeded.
+
+#### Results (2026-03-15)
+
+| econ | outcome | v27 blocks | v26 blocks | v26 diff retargets | final v27 hash |
+|:----:|:-------:|:----------:|:----------:|:-----------------:|:--------------:|
+| 0.51 | **v26_dominant** | 126 | 6,075 | 2 (→0.791, →0.832) | 0.0% |
+| 0.52 | FAILED | — | — | — | — |
+
+#### Key Findings
+
+**Threshold confirmed above 0.51; bracket is now (0.51, 0.55).**
+
+At econ=0.51, v27 freezes at 126 blocks (never reaches 2016 for its first retarget).
+v26 difficulty retargets twice during the 13,000s run: once at t≈5,102s (1.0→0.791)
+and once at t≈10,172s (→0.832). Despite the second retarget partially recovering
+v26 difficulty, v27 produces no blocks after the initial cascade (~126 blocks total).
+
+econ=0.52 needs rerun to determine if the threshold falls at 0.51–0.52 or 0.52–0.55.
+
+#### Data Location
+
+| File | Description |
+|------|-------------|
+| `baseline_threshold_2016_narrow/results/sweep_0000/` | econ=0.51 results |
+
+---
+
+### sigmoid_threshold_2016: Sigmoid 2016-Block Threshold Bracketed at (0.30, 0.35)
+
+#### Purpose
+
+Find the 2016-block threshold under the sigmoid oracle (--use-sigmoid --sigmoid-steepness=6.0).
+Prior data showed econ=0.35–0.70 all v27_dominant under sigmoid. This sweep tests econ=0.20,
+0.25, 0.30. econ=0.20 and 0.25 failed (namespace warmup); econ=0.30 succeeded.
+
+#### Results (2026-03-15)
+
+| econ | outcome | v27 blocks | v26 blocks | first v26 retarget | final prices (v27/v26) |
+|:----:|:-------:|:----------:|:----------:|:------------------:|:---------------------:|
+| 0.20 | FAILED | — | — | — | — |
+| 0.25 | FAILED | — | — | — | — |
+| 0.30 | **v26_dominant** | 122 | 4,066 | t≈5,465s (1.0→0.791) | $48,803 / $70,544 |
+
+#### Key Findings
+
+**Sigmoid threshold confirmed above 0.30; bracket is (0.30, 0.35).**
+
+At econ=0.30 with sigmoid enabled, v27 behaves identically to the baseline:
+freezes at 122 blocks, all pools and economic nodes end on v26. The sigmoid oracle
+did not rescue v27 at this economic level.
+
+**Comparing the two 2016-block regimes:**
+
+| Regime | Threshold bracket | Notes |
+|--------|:----------------:|-------|
+| Baseline (linear oracle) | (0.51, 0.55) | Without sigmoid, economics must be strong |
+| Sigmoid oracle | (0.30, 0.35) | Sigmoid lowers threshold by ~0.20 units |
+
+This ~20-point threshold reduction confirms the sigmoid oracle as a **structural change**
+to fork dynamics. The earlier cascade timing under sigmoid (t≈4,241s vs t≈8,426s baseline)
+allows v27 to accumulate chainwork advantage before the economic signal fully attenuates.
+The sigmoid threshold is bounded above by 0.35 and below by 0.30.
+
+econ=0.20 and 0.25 need rerun to confirm both are v26_dominant and tighten the lower bound.
+
+#### Cascade dynamics at econ=0.30 (sigmoid, retarget=2016):
+- Pool cascade starts immediately (t=0 offset from first decision)
+- All pools end on v26 by t≈7,807s (cascade takes much longer with low econ)
+- First v26 difficulty retarget at t≈5,465s (1.0 → 0.791, then remains there)
+- v27 price: $48,803 (-18.7% from $60,000 start); v26 price: $70,544 (+17.6%)
+
+#### Data Location
+
+| File | Description |
+|------|-------------|
+| `sigmoid_threshold_2016/results/sweep_0002/` | econ=0.30 sigmoid results |
+
+---
+
 ## Outcome Distribution
 
 | Sweep | v27 Wins | v26 Wins | Contested |
@@ -2367,6 +2838,12 @@ When analyzing new sweep results, watch for these indicators of potential bugs:
 | **targeted_sweep10_econ_threshold_2016** | `targeted_sweep10_econ_threshold_2016/results/analysis/` | 5 | ✅ **Accidental 144-block run** — three-phase cascade; difficulty mechanics dominate; v27_dominant at econ=0.35–0.70 |
 | **targeted_sweep10b_econ_threshold_2016** | `targeted_sweep10b_econ_threshold_2016/results/analysis/` | 5 | ✅ **Corrected 2016-block rerun** — economic_split irrelevant 0.35–0.70; v27 wins via retarget at all levels incl. econ=0.35 |
 | **targeted_sweep11_lite_chaos_test** | `targeted_sweep11_lite_chaos_test/results/analysis/` | 3 | ✅ **Chaos test at econ=0.50** — 3/3 v26_dominant; NOT stochastic; 144-block divergence was artifact of artificial retarget |
+| **switching_ideology_threshold** | `switching_ideology_threshold/results/` | 4 | ✅ **Econ ideology sweep (sigmoid, 144-block)** — cascade amplifies gap 14.3%→35.1%; switchover bracket ideology ≈ 0.30–0.35 |
+| **switching_neutral_fraction** | `switching_neutral_fraction/results/` | 3 | ✅ **Econ neutral fraction sweep (sigmoid, 144-block)** — neutral fraction does NOT change cascade speed; pool cascade is bottleneck |
+| **econ_threshold_2016_v2** | `econ_threshold_2016_v2/results_v2/` | 2 | ✅ **2016-block threshold refinement** — econ=0.55,0.60 both v27_dominant; threshold narrowed to (0.50, 0.55) |
+| **sigmoid_2016_retarget (baseline_v2)** | `sigmoid_2016_retarget/results_baseline_v2/` | 5 | ✅ **Baseline oracle, 2016-block** — all v27_dominant; cascade at t≈8,426s (post-retarget); econ=0.35–0.70 identical |
+| **sigmoid_2016_retarget (sigmoid_v2)** | `sigmoid_2016_retarget/results_sigmoid_v2/` | 5 | ✅ **Sigmoid oracle, 2016-block** — all v27_dominant; cascade at t≈4,241s (PRE-retarget); v26 blocks cut from 1,543→799 |
+| **econ_switching_144_verify** | `econ_switching_144_verify/results/` | 5 | ✅ **economic_split fix confirmation** — parameter working; econ=0.20 gives v26_dominant; threshold ∈ (0.20, 0.35); perfect symmetry |
 
 ### Network Versions
 

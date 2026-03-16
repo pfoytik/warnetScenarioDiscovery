@@ -1,0 +1,82 @@
+name: econ_switching_144_verify
+description: >
+  Verification sweep to confirm that economic_split is correctly flowing through
+  to the price oracle and econ switching logic in the 144-block retarget regime.
+
+  MOTIVATION:
+  In the sigmoid_2016_retarget sweep, ALL econ levels (0.35–0.70) produced
+  IDENTICAL v26 block counts (~1,543) and identical cascade timing, suggesting
+  economic_split had zero effect. This is suspicious: if the price oracle is
+  correctly using the starting econ split, different splits should create
+  different initial price gaps, which should shift neutral pool behavior and
+  cascade timing.
+
+  The null hypothesis (broken): economic_split has no effect on price or outcomes.
+  The working hypothesis: varying economic_split from 0.20 → 0.80 should produce
+  measurably different outcomes via these mechanisms:
+
+    econ=0.20 → v26 starts with ~12.8% price premium (most custody on v26)
+      → neutral pools prefer v26 from t=0
+      → v26 mines 144 blocks faster → v26 retargets first
+      → possible v26-dominant outcome
+
+    econ=0.50 → roughly even → standard cascade dynamics (v27 wins via ideology)
+
+    econ=0.80 → v27 starts with ~12.8% price premium
+      → neutral pools prefer v27 from t=0
+      → v27 cascade fires faster, fewer v26 blocks
+
+  If the parameter is working: cascade timing (v26 final block count) should
+  vary monotonically with economic_split. A v26 win at low econ would be the
+  strongest confirmation.
+
+  If ALL five runs give the same ~1543 v26 block count: the parameter is still
+  not flowing through to pool profitability calculations and needs a code fix.
+
+  PRICE ORACLE MATH (econ contribution to initial price gap):
+    econ_f = 0.8 + economic_split * 0.4 → [0.88, 0.92, 1.0, 1.06, 1.12] for [0.20, 0.35, 0.50, 0.65, 0.80]
+    With chain and hash both at 1.0 (50/50 start):
+      combined_factor = 1.0*0.3 + econ_f*0.5 + 1.0*0.2
+    econ=0.20: v27_combined=0.940, v26_combined=1.060 → v26 premium ~12.8%
+    econ=0.35: v27_combined=0.960, v26_combined=1.040 → v26 premium ~8.0%
+    econ=0.50: v27_combined=1.000, v26_combined=1.000 → no initial gap
+    econ=0.65: v27_combined=1.040, v26_combined=0.960 → v27 premium ~8.0%
+    econ=0.80: v27_combined=1.060, v26_combined=0.940 → v27 premium ~12.8%
+
+  Note: committed pool tolerance = 0.51 * 0.26 = 13.26%. The pre-retarget price
+  gaps above are below this threshold, so committed pools won't switch based on
+  initial price alone. But neutral pools (30% hashrate, threshold=0.16) WILL
+  respond to the initial price differential, shifting hashrate to the profitable
+  fork and affecting which fork hits 144 blocks first.
+
+  Run with:
+    python 3_run_sweep.py \
+      --input econ_switching_144_verify/build_manifest.json \
+      --namespace sweep-econ-verify \
+      --results-dir econ_switching_144_verify/results \
+      --duration 4000 --retarget-interval 144 --interval 2
+
+  Namespace to create first:
+    kubectl create namespace sweep-econ-verify
+
+network: lite
+
+fixed:
+  hashrate_split: 0.50
+  pool_committed_split: 0.35
+  pool_neutral_pct: 30.0
+  pool_ideology_strength: 0.51
+  pool_profitability_threshold: 0.16
+  pool_max_loss_pct: 0.26
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.10
+  econ_inertia: 0.05
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  transaction_velocity: 0.50
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  solo_miner_hashrate: 0.085
+
+grid:
+  economic_split: [0.20, 0.35, 0.50, 0.65, 0.80]

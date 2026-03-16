@@ -1,0 +1,200 @@
+{
+  "metadata": {
+    "type": "targeted_grid",
+    "name": "baseline_threshold_2016_narrow",
+    "description": "Narrows the economic_split threshold for v27 victory in the 2016-block retarget regime with the BASELINE (linear) price oracle.\nMOTIVATION: econ_threshold_2016_v2 showed:\n  econ=0.55 \u2192 v27_dominant (5,237 v27 blocks, 1,543 v26 blocks, cascade t=8,429s)\n  econ=0.60 \u2192 v27_dominant (identical)\n\ntargeted_sweep11 showed:\n  econ=0.50 \u2192 v26_dominant (197 v27 blocks)\n\nThe threshold is bracketed at (0.50, 0.55). This sweep tests econ=0.51 and 0.52 to narrow that bracket to \u00b10.01.\nResearch question: Is the bifurcation at econ\u22480.51, 0.52, or somewhere between? The sharp jump (197 v27 blocks at 0.50 vs 5237 at 0.55) suggests a true phase transition \u2014 a small change in economic split flips the entire outcome.\nMECHANISM: At econ=0.50, both chains start with identical price \u2192 no initial advantage for either neutral pool direction \u2192 standard cascade should favor v27 (it has committed pools). But the cascade at t\u22488,426s is triggered by the retarget, and the retarget fires when v26 mines 2016 blocks. At econ=0.50, v26's neutral bloc preferences are equal and v26 reaches 2016 blocks first (it starts with more hashrate? \u2014 need to verify). At econ=0.51+, a tiny initial v27 price edge may shift neutral pools just enough to slow v26's block accumulation below the 2016-block threshold before the committed v26 pools give up.\nPRICE GAP AT START:\n  econ=0.50: gap = 0% (perfectly balanced)\n  econ=0.51: gap \u2248 0.8% v27 premium  (econ_f_v27=1.004, econ_f_v26=0.996)\n  econ=0.52: gap \u2248 1.6% v27 premium  (econ_f_v27=1.008, econ_f_v26=0.992)\n\nPRIOR RESULTS FOR CONTEXT:\n  econ=0.50 (2016-block, baseline, sweep_11):       v26_dominant, 197 v27 blocks\n  econ=0.55 (2016-block, baseline, econ_threshold_2016_v2): v27_dominant, 5237 v27 blocks\n\nRun across TWO namespaces (one scenario each) for parallel execution:\n\n  Namespace A \u2014 scenario 0 (econ=0.51):\n    python 3_run_sweep.py \\\n      --input baseline_threshold_2016_narrow/build_manifest.json \\\n      --namespace sweep-base-narrow-a \\\n      --results-dir baseline_threshold_2016_narrow/results \\\n      --duration 13000 --retarget-interval 2016 --interval 2 \\\n      --scenarios sweep_0000\n\n  Namespace B \u2014 scenario 1 (econ=0.52):\n    python 3_run_sweep.py \\\n      --input baseline_threshold_2016_narrow/build_manifest.json \\\n      --namespace sweep-base-narrow-b \\\n      --results-dir baseline_threshold_2016_narrow/results \\\n      --duration 13000 --retarget-interval 2016 --interval 2 \\\n      --scenarios sweep_0001\n\nNamespaces to create first:\n  kubectl create namespace sweep-base-narrow-a\n  kubectl create namespace sweep-base-narrow-b\n\nWall-clock estimate:\n  Each namespace: 1 scenario \u00d7 13,000s = ~3.6h\n  Overall: ~3.6h (fully parallel)\n\nNOTE: Both namespaces write to the same results dir (different scenario subdirs).\n",
+    "spec_file": "specs/baseline_threshold_2016_narrow.yaml",
+    "base_network": "lite",
+    "n_samples": 2,
+    "n_parameters": 16,
+    "grid_axes": {
+      "economic_split": [
+        0.51,
+        0.52
+      ]
+    },
+    "fixed_parameters": {
+      "hashrate_split": 0.5,
+      "pool_committed_split": 0.35,
+      "pool_neutral_pct": 30.0,
+      "pool_ideology_strength": 0.51,
+      "pool_profitability_threshold": 0.16,
+      "pool_max_loss_pct": 0.26,
+      "econ_ideology_strength": 0.4,
+      "econ_switching_threshold": 0.1,
+      "econ_inertia": 0.05,
+      "user_ideology_strength": 0.49,
+      "user_switching_threshold": 0.12,
+      "transaction_velocity": 0.5,
+      "user_nodes_per_partition": 6,
+      "economic_nodes_per_partition": 2,
+      "solo_miner_hashrate": 0.085
+    },
+    "parameters": [
+      {
+        "name": "economic_split",
+        "min": 0.0,
+        "max": 1.0,
+        "type": "continuous",
+        "role": "grid"
+      },
+      {
+        "name": "hashrate_split",
+        "min": 0.0,
+        "max": 1.0,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_ideology_strength",
+        "min": 0.1,
+        "max": 0.9,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_profitability_threshold",
+        "min": 0.02,
+        "max": 0.3,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_max_loss_pct",
+        "min": 0.02,
+        "max": 0.5,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_committed_split",
+        "min": 0.0,
+        "max": 1.0,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_neutral_pct",
+        "min": 10.0,
+        "max": 50.0,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "econ_ideology_strength",
+        "min": 0.0,
+        "max": 0.8,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "econ_switching_threshold",
+        "min": 0.02,
+        "max": 0.25,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "econ_inertia",
+        "min": 0.05,
+        "max": 0.3,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "user_ideology_strength",
+        "min": 0.1,
+        "max": 0.9,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "user_switching_threshold",
+        "min": 0.05,
+        "max": 0.2,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "transaction_velocity",
+        "min": 0.1,
+        "max": 0.9,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "user_nodes_per_partition",
+        "min": 2,
+        "max": 10,
+        "type": "discrete",
+        "role": "fixed"
+      },
+      {
+        "name": "economic_nodes_per_partition",
+        "min": 1,
+        "max": 6,
+        "type": "discrete",
+        "role": "fixed"
+      },
+      {
+        "name": "solo_miner_hashrate",
+        "min": 0.02,
+        "max": 0.15,
+        "type": "continuous",
+        "role": "fixed"
+      }
+    ]
+  },
+  "scenarios": [
+    {
+      "scenario_id": "sweep_0000",
+      "parameters": {
+        "scenario_id": "sweep_0000",
+        "hashrate_split": 0.5,
+        "pool_committed_split": 0.35,
+        "pool_neutral_pct": 30.0,
+        "pool_ideology_strength": 0.51,
+        "pool_profitability_threshold": 0.16,
+        "pool_max_loss_pct": 0.26,
+        "econ_ideology_strength": 0.4,
+        "econ_switching_threshold": 0.1,
+        "econ_inertia": 0.05,
+        "user_ideology_strength": 0.49,
+        "user_switching_threshold": 0.12,
+        "transaction_velocity": 0.5,
+        "user_nodes_per_partition": 6,
+        "economic_nodes_per_partition": 2,
+        "solo_miner_hashrate": 0.085,
+        "economic_split": 0.51
+      },
+      "network_config": "baseline_threshold_2016_narrow/configs/network/sweep_0000.yaml",
+      "network_path": "networks/sweep_0000/network.yaml"
+    },
+    {
+      "scenario_id": "sweep_0001",
+      "parameters": {
+        "scenario_id": "sweep_0001",
+        "hashrate_split": 0.5,
+        "pool_committed_split": 0.35,
+        "pool_neutral_pct": 30.0,
+        "pool_ideology_strength": 0.51,
+        "pool_profitability_threshold": 0.16,
+        "pool_max_loss_pct": 0.26,
+        "econ_ideology_strength": 0.4,
+        "econ_switching_threshold": 0.1,
+        "econ_inertia": 0.05,
+        "user_ideology_strength": 0.49,
+        "user_switching_threshold": 0.12,
+        "transaction_velocity": 0.5,
+        "user_nodes_per_partition": 6,
+        "economic_nodes_per_partition": 2,
+        "solo_miner_hashrate": 0.085,
+        "economic_split": 0.52
+      },
+      "network_config": "baseline_threshold_2016_narrow/configs/network/sweep_0001.yaml",
+      "network_path": "networks/sweep_0001/network.yaml"
+    }
+  ],
+  "generated_networks": 2,
+  "failed_networks": 0
+}

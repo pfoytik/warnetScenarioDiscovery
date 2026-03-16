@@ -1,0 +1,88 @@
+name: baseline_threshold_2016_narrow
+description: >
+  Narrows the economic_split threshold for v27 victory in the 2016-block retarget
+  regime with the BASELINE (linear) price oracle.
+
+  MOTIVATION:
+  econ_threshold_2016_v2 showed:
+    econ=0.55 → v27_dominant (5,237 v27 blocks, 1,543 v26 blocks, cascade t=8,429s)
+    econ=0.60 → v27_dominant (identical)
+
+  targeted_sweep11 showed:
+    econ=0.50 → v26_dominant (197 v27 blocks)
+
+  The threshold is bracketed at (0.50, 0.55). This sweep tests econ=0.51 and 0.52
+  to narrow that bracket to ±0.01.
+
+  Research question: Is the bifurcation at econ≈0.51, 0.52, or somewhere between?
+  The sharp jump (197 v27 blocks at 0.50 vs 5237 at 0.55) suggests a true phase
+  transition — a small change in economic split flips the entire outcome.
+
+  MECHANISM:
+  At econ=0.50, both chains start with identical price → no initial advantage for
+  either neutral pool direction → standard cascade should favor v27 (it has committed
+  pools). But the cascade at t≈8,426s is triggered by the retarget, and the
+  retarget fires when v26 mines 2016 blocks. At econ=0.50, v26's neutral bloc
+  preferences are equal and v26 reaches 2016 blocks first (it starts with more
+  hashrate? — need to verify). At econ=0.51+, a tiny initial v27 price edge
+  may shift neutral pools just enough to slow v26's block accumulation below
+  the 2016-block threshold before the committed v26 pools give up.
+
+  PRICE GAP AT START:
+    econ=0.50: gap = 0% (perfectly balanced)
+    econ=0.51: gap ≈ 0.8% v27 premium  (econ_f_v27=1.004, econ_f_v26=0.996)
+    econ=0.52: gap ≈ 1.6% v27 premium  (econ_f_v27=1.008, econ_f_v26=0.992)
+
+  PRIOR RESULTS FOR CONTEXT:
+    econ=0.50 (2016-block, baseline, sweep_11):       v26_dominant, 197 v27 blocks
+    econ=0.55 (2016-block, baseline, econ_threshold_2016_v2): v27_dominant, 5237 v27 blocks
+
+  Run across TWO namespaces (one scenario each) for parallel execution:
+
+    Namespace A — scenario 0 (econ=0.51):
+      python 3_run_sweep.py \
+        --input baseline_threshold_2016_narrow/build_manifest.json \
+        --namespace sweep-base-narrow-a \
+        --results-dir baseline_threshold_2016_narrow/results \
+        --duration 13000 --retarget-interval 2016 --interval 2 \
+        --scenarios sweep_0000
+
+    Namespace B — scenario 1 (econ=0.52):
+      python 3_run_sweep.py \
+        --input baseline_threshold_2016_narrow/build_manifest.json \
+        --namespace sweep-base-narrow-b \
+        --results-dir baseline_threshold_2016_narrow/results \
+        --duration 13000 --retarget-interval 2016 --interval 2 \
+        --scenarios sweep_0001
+
+  Namespaces to create first:
+    kubectl create namespace sweep-base-narrow-a
+    kubectl create namespace sweep-base-narrow-b
+
+  Wall-clock estimate:
+    Each namespace: 1 scenario × 13,000s = ~3.6h
+    Overall: ~3.6h (fully parallel)
+
+  NOTE: Both namespaces write to the same results dir (different scenario subdirs).
+
+network: lite
+
+fixed:
+  hashrate_split: 0.50
+  pool_committed_split: 0.35
+  pool_neutral_pct: 30.0
+  pool_ideology_strength: 0.51
+  pool_profitability_threshold: 0.16
+  pool_max_loss_pct: 0.26
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.10
+  econ_inertia: 0.05
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  transaction_velocity: 0.50
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  solo_miner_hashrate: 0.085
+
+grid:
+  economic_split: [0.51, 0.52]

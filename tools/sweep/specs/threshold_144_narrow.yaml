@@ -1,0 +1,77 @@
+name: threshold_144_narrow
+description: >
+  Narrows the economic_split threshold for v27 victory in the 144-block retarget
+  regime with the BASELINE (linear) price oracle.
+
+  MOTIVATION:
+  econ_switching_144_verify showed:
+    econ=0.20 → v26_dominant (v26 cascade at t=624s, 1846 v26 blocks, peak gap 45.5%)
+    econ=0.35 → v27_dominant (v27 cascade at t=1818s, 791 v26 blocks, peak gap 15.5%)
+
+  The threshold is bracketed at (0.20, 0.35). The analysis script estimated ≈0.387
+  but that's a linear interpolation artifact — the true boundary could be anywhere
+  in (0.20, 0.35). This sweep probes four points to narrow it substantially.
+
+  Research question: Does the threshold fall near 0.22, 0.25, or 0.28?
+
+  MECHANISM:
+  In the 144-block regime both forks can hit their first retarget quickly. The
+  fork that accumulates 144 blocks first gets a difficulty reduction, which makes
+  it more profitable, triggering a cascade to that fork. The initial price gap
+  determines which fork neutral pools prefer and therefore which one mines faster.
+
+  PRICE GAP AT START (with 50/50 hashrate):
+    econ=0.22 → v26 premium ≈ 11.2%  (neutral pools strongly prefer v26)
+    econ=0.25 → v26 premium ≈ 8.0%   (moderate v26 preference)
+    econ=0.28 → v26 premium ≈ 5.6%   (weaker v26 preference)
+    econ=0.30 → v26 premium ≈ 3.6%   (slight v26 preference; may not overcome v27 ideology)
+
+  Committed v27 pool tolerance = 0.51 × 0.26 = 13.26%. The initial price gaps at
+  econ=0.22 (11.2%) and 0.25 (8.0%) are below this tolerance, so committed v27
+  pools won't switch based on price alone. What drives the v26 win is the neutral
+  bloc's 16% threshold — they switch EARLY to v26, letting v26 retarget first.
+
+  EXPECTED OUTCOMES:
+    econ=0.22: likely v26_dominant (close to 0.20 which gave v26 win)
+    econ=0.25: uncertain — borderline; test is the main purpose
+    econ=0.28: likely v27_dominant (v26 premium insufficient to swing neutral bloc)
+    econ=0.30: v27_dominant (confirmed by proximity to econ=0.35)
+
+  PRIOR RESULTS FOR CONTEXT:
+    econ=0.20 (144-block, baseline): v26_dominant, cascade t=624s, 1846 v26 blocks
+    econ=0.35 (144-block, baseline): v27_dominant, cascade t=1818s, 791 v26 blocks
+
+  Run on a single namespace (4 runs × 4,000s = ~4.4h):
+
+    python 3_run_sweep.py \
+      --input threshold_144_narrow/build_manifest.json \
+      --namespace sweep-144-narrow \
+      --results-dir threshold_144_narrow/results \
+      --duration 4000 --retarget-interval 144 --interval 2
+
+  Namespace to create first:
+    kubectl create namespace sweep-144-narrow
+
+  Wall-clock estimate: 4 × 4,000s = ~4.4h
+
+network: lite
+
+fixed:
+  hashrate_split: 0.50
+  pool_committed_split: 0.35
+  pool_neutral_pct: 30.0
+  pool_ideology_strength: 0.51
+  pool_profitability_threshold: 0.16
+  pool_max_loss_pct: 0.26
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.10
+  econ_inertia: 0.05
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  transaction_velocity: 0.50
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  solo_miner_hashrate: 0.085
+
+grid:
+  economic_split: [0.22, 0.25, 0.28, 0.30]

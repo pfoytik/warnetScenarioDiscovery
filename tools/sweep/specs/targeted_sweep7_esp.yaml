@@ -1,0 +1,88 @@
+name: targeted_sweep7_esp
+description: >
+  Economic Self-Sustaining Point (ESP) sweep. Maps the economic_split threshold above
+  which rational preparation by economic actors becomes self-reinforcing — i.e., where
+  the expectation of v27 winning is itself sufficient to sustain the upgrade outcome.
+  Paper §4.11.1 Objective A.
+
+  RESEARCH QUESTION:
+  At what economic_split does the v27 upgrade become self-sustaining? The ESP is defined
+  as the minimum economic majority at which:
+    1. Economic nodes rationally support v27 (price signal positive)
+    2. That support creates enough price pressure to keep pool opportunity costs above
+       the ideology threshold, sustaining the cascade even without additional hashrate
+    3. The outcome is stable: once above ESP, reducing economic support slightly doesn't
+       reverse the result (hysteresis / self-reinforcing dynamic)
+
+  This sweep holds committed_split at the Foundry flip-point (0.214 — the minimum
+  committed hashrate for v27 to win at 144-block) and hashrate_split at 0.25 (v26
+  hash-dominant). At this constrained operating point, economic support is the marginal
+  factor. We sweep econ from below the quantization threshold (0.28 → v26) through
+  expected self-sustaining range (0.60–0.80) to strong majority (0.85).
+
+  RETARGET REGIME:
+  Run at both 144-block and 2016-block to identify if ESP shifts. 144-block provides
+  a faster/cleaner signal; 2016-block reflects realistic Bitcoin timing.
+  Use --retarget-interval 144 for the first run, then repeat with 2016 if resources allow.
+
+  PRIOR CONTEXT:
+  - At committed_split=0.214, econ=0.78, hash=0.25: v27 wins at 144-block (sweep1)
+  - Quantization boundary: econ ≥ ~0.30 → 1 node on v27; econ ≥ ~0.80 → 2 nodes
+  - econ=0.82 (2 nodes): fast cascade (~607s/144-block, ~607s/2016-block too)
+  - econ=0.35–0.70 (1 node): normal cascade (~1813s/144-block, ~8426s/2016-block)
+  - econ=0.28 (0 nodes): v26_dominant regardless of other params
+  - Expected ESP: somewhere in the 0.60–0.78 range (1-node regime)
+
+  WHAT TO LOOK FOR:
+  - Which econ values produce v27_dominant vs v26_dominant at this tight committed_split?
+  - Is the transition sharp (quantization-driven at ~0.30) or gradual?
+  - Does peak_price_gap grow with econ level, or is it flat once above quantization step?
+  - Combine with econ_committed_2016_grid to identify the full 2D self-sustaining region
+
+  PARALLELIZATION (large server):
+  9 scenarios. Run all in parallel: 9 namespaces × 1 scenario = 13,000s ≈ 3.6h.
+  Or run sequentially in 1 namespace: 9 × 13,000s = 117,000s ≈ 32.5h.
+
+  Run command (full parallel, 144-block first):
+    for i in 0 1 2 3 4 5 6 7 8; do
+      kubectl create namespace esp-144-$i
+      python tools/sweep/3_run_sweep.py \
+        --input tools/sweep/targeted_sweep7_esp/build_manifest.json \
+        --scenarios sweep_000$i --namespace esp-144-$i \
+        --results-dir targeted_sweep7_esp/results_144 \
+        --duration 13000 --retarget-interval 144 --interval 2 &
+    done
+
+  For 2016-block repeat:
+    for i in 0 1 2 3 4 5 6 7 8; do
+      kubectl create namespace esp-2016-$i
+      python tools/sweep/3_run_sweep.py \
+        --input tools/sweep/targeted_sweep7_esp/build_manifest.json \
+        --scenarios sweep_000$i --namespace esp-2016-$i \
+        --results-dir targeted_sweep7_esp/results_2016 \
+        --duration 13000 --retarget-interval 2016 --interval 2 &
+    done
+
+  Wall-clock: 13,000s ≈ 3.6h per set (both sets can overlap if namespaces are available)
+
+network: full
+
+fixed:
+  pool_committed_split: 0.214
+  hashrate_split: 0.25
+  pool_neutral_pct: 30.0
+  pool_ideology_strength: 0.51
+  pool_profitability_threshold: 0.16
+  pool_max_loss_pct: 0.26
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.10
+  econ_inertia: 0.05
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  transaction_velocity: 0.50
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  solo_miner_hashrate: 0.085
+
+grid:
+  economic_split: [0.28, 0.35, 0.45, 0.55, 0.60, 0.65, 0.70, 0.78, 0.85]

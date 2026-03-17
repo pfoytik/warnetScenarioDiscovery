@@ -9,3 +9,9 @@
                  scenario_path.name,
              ]
          ):
+
+--- a/src/warnet/control.py
++++ b/src/warnet/control.py
+@@ -438,1 +438,1 @@
+-    wait_for_init(name, namespace=namespace)
++    wait_for_init(name, namespace=namespace, timeout=600)

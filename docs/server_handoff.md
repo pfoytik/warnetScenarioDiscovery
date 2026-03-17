@@ -1,33 +1,99 @@
 # Server Handoff Briefing
-**Date:** 2026-03-16
-**Purpose:** Context for Claude instance on large server (80 cores, 250GB RAM)
+**Date:** 2026-03-16 (updated with hard-won infrastructure lessons)
+**Purpose:** Context for running large-scale sweeps on the 80-core / 187.5 GiB server
 
 ---
 
 ## Project Overview
 
-Bitcoin fork dynamics simulation using warnet (Kubernetes). Parameter sweeps over a
+Bitcoin fork dynamics simulation using warnet (Kubernetes/minikube). Parameter sweeps over a
 simulated Bitcoin network map conditions under which a soft fork (v27) wins vs the
 incumbent chain (v26). Results feed a research paper.
 
 **Repo:** `warnetScenarioDiscovery`
 **Sibling repo:** `../warnet/` must exist (symlinks in repo root point there)
+**Both patches in `docs/warnet_control_patch.diff` must be applied to `../warnet/` before running.**
+
+---
+
+## CRITICAL: Infrastructure Limits
+
+### 1. Linux Bridge Port Limit (1024 max) ← most important
+
+The default minikube CNI uses a single Linux bridge. Each pod = one bridge port.
+**Hard kernel limit: 1024 ports.** Exceeding it silently fails all new pod creation with
+`exchange full`. This is NOT tunable without rebuilding the kernel.
+
+- grid2016 (9 ns × 61 pods = 549) + esp-144 all 9 (366) + system (~10) = ~925 → at the ceiling
+- **Never launch all ESP scenarios while grid2016 is running simultaneously**
+- Use `tools/launch_esp_batched.sh` which launches in capacity-aware batches
+
+**Fix for future runs:** Use Flannel CNI (VXLAN — no bridge, no limit):
+```bash
+minikube start --cni=flannel --max-pods=1800 \
+  --extra-config=kubelet.cgroup-driver=cgroupfs \
+  --memory=180g --cpus=80
+```
+
+### 2. cgroupv2 + Docker systemd driver
+
+Creating 500+ pods simultaneously overwhelms systemd D-Bus. Symptoms: `operation timeout:
+context deadline exceeded` on pod sandbox creation.
+
+**Fix:** Use cgroupfs driver. Add to `/etc/docker/daemon.json`:
+```json
+{"exec-opts": ["native.cgroupdriver=cgroupfs"]}
+```
+Then restart minikube with `--extra-config=kubelet.cgroup-driver=cgroupfs`.
+
+### 3. warnet archive upload timeout
+
+`warnet run` uploads the scenario `.pyz` archive to the commander init container. Default
+timeout is 300s — under load, sandbox creation takes longer, upload silently fails,
+commander stays `Init:0/1` forever.
+
+**Fix:** Apply `docs/warnet_control_patch.diff` (increases timeout to 600s).
+
+### 4. Namespace pre-creation required
+
+`warnet deploy` does NOT create namespaces. Always pre-create before running:
+```bash
+kubectl create namespace <ns>
+```
+
+### 5. YAML race condition (parallel config injection)
+
+9 parallel runners all write to `scenarios/config/mining_pools_config.yaml`.
+**Fix already in `tools/sweep/3_run_sweep.py`:** `fcntl.flock` exclusive locking.
+
+---
+
+## Required Warnet Patches
+
+Apply `docs/warnet_control_patch.diff` to `../warnet/src/warnet/control.py` before running.
+Both patches are already applied on this server — verify with:
+```bash
+grep -n "wait_for_init\|\"lib/\"\|\"config/\"" ../warnet/src/warnet/control.py
+```
+Expected output:
+- line ~363: `"lib/",` and `"config/",` in the archive filter list
+- line ~438: `wait_for_init(name, namespace=namespace, timeout=600)`
 
 ---
 
 ## Sweep Infrastructure
 
 ```bash
-# Step 1: generate scenarios (ALREADY DONE for both sweeps below — skip)
+# Step 1: generate scenarios (ALREADY DONE for both sweeps — skip)
 python tools/sweep/1_generate_targeted.py --spec tools/sweep/specs/<name>.yaml
 
-# Step 2: build configs (run this on the server)
+# Step 2: build configs (run once per sweep)
 python tools/sweep/2_build_configs.py \
   --input tools/sweep/<name>/scenarios.json \
   --output-dir tools/sweep/<name> \
   --base-network networks/realistic-economy-v2/network.yaml
 
-# Step 3: run sweep
+# Step 3: run sweep (see per-sweep instructions below)
 python tools/sweep/3_run_sweep.py \
   --input tools/sweep/<name>/build_manifest.json \
   --namespace <ns> --scenarios <ids> \
@@ -40,10 +106,24 @@ python tools/sweep/4_analyze_results.py \
   --manifest tools/sweep/<name>/build_manifest.json
 ```
 
-**Parallelization:** use `--scenarios sweep_000X` + `--namespace <ns>` to pin one
-scenario per namespace. Create namespaces first: `kubectl create namespace <ns>`.
-Results land in the **repo root** (e.g. `econ_committed_2016_grid/results/`), not
-inside `tools/sweep/`.
+Results land in **repo root** (e.g. `econ_committed_2016_grid/results/`), not inside `tools/sweep/`.
+
+---
+
+## Monitoring
+
+```bash
+python tools/monitor_sweeps.py            # one-shot status
+python tools/monitor_sweeps.py --watch    # live refresh every 60s
+tmux attach -t esp_batched                # watch batched ESP launcher
+tail -f /tmp/launch_esp_batched.log       # same, without attaching
+```
+
+Per-namespace pod check:
+```bash
+kubectl get pods --all-namespaces | grep commander   # see all commander states
+minikube ssh "ls /sys/class/net/bridge/brif/ | wc -l"  # bridge port count (keep <950)
+```
 
 ---
 
@@ -64,16 +144,9 @@ econ=0.70: 0027  0028  0029  0030  0031  0032  0033  0034  0035
 econ=0.82: 0036  0037  0038  0039  0040  0041  0042  0043  0044
 ```
 
-### Build
+### Run (9 namespaces × 5 scenarios, ~18h wall-clock)
 
-```bash
-python tools/sweep/2_build_configs.py \
-  --input tools/sweep/econ_committed_2016_grid/scenarios.json \
-  --output-dir tools/sweep/econ_committed_2016_grid \
-  --base-network networks/realistic-economy-v2/network.yaml
-```
-
-### Run (9 namespaces × 5 scenarios, one per committed_split column, ~18h wall-clock)
+Use `tools/launch_staggered.sh` or run manually. Pre-create namespaces first.
 
 ```bash
 for ns in grid2016-c0 grid2016-c1 grid2016-c2 grid2016-c3 grid2016-c4 \
@@ -81,50 +154,12 @@ for ns in grid2016-c0 grid2016-c1 grid2016-c2 grid2016-c3 grid2016-c4 \
   kubectl create namespace $ns
 done
 
+# Launch 3 at a time, 90s between groups to avoid cgroup burst
 python tools/sweep/3_run_sweep.py --input tools/sweep/econ_committed_2016_grid/build_manifest.json \
   --scenarios sweep_0000 sweep_0009 sweep_0018 sweep_0027 sweep_0036 \
   --namespace grid2016-c0 --results-dir econ_committed_2016_grid/results \
   --duration 13000 --retarget-interval 2016 --interval 2 &
-
-python tools/sweep/3_run_sweep.py --input tools/sweep/econ_committed_2016_grid/build_manifest.json \
-  --scenarios sweep_0001 sweep_0010 sweep_0019 sweep_0028 sweep_0037 \
-  --namespace grid2016-c1 --results-dir econ_committed_2016_grid/results \
-  --duration 13000 --retarget-interval 2016 --interval 2 &
-
-python tools/sweep/3_run_sweep.py --input tools/sweep/econ_committed_2016_grid/build_manifest.json \
-  --scenarios sweep_0002 sweep_0011 sweep_0020 sweep_0029 sweep_0038 \
-  --namespace grid2016-c2 --results-dir econ_committed_2016_grid/results \
-  --duration 13000 --retarget-interval 2016 --interval 2 &
-
-python tools/sweep/3_run_sweep.py --input tools/sweep/econ_committed_2016_grid/build_manifest.json \
-  --scenarios sweep_0003 sweep_0012 sweep_0021 sweep_0030 sweep_0039 \
-  --namespace grid2016-c3 --results-dir econ_committed_2016_grid/results \
-  --duration 13000 --retarget-interval 2016 --interval 2 &
-
-python tools/sweep/3_run_sweep.py --input tools/sweep/econ_committed_2016_grid/build_manifest.json \
-  --scenarios sweep_0004 sweep_0013 sweep_0022 sweep_0031 sweep_0040 \
-  --namespace grid2016-c4 --results-dir econ_committed_2016_grid/results \
-  --duration 13000 --retarget-interval 2016 --interval 2 &
-
-python tools/sweep/3_run_sweep.py --input tools/sweep/econ_committed_2016_grid/build_manifest.json \
-  --scenarios sweep_0005 sweep_0014 sweep_0023 sweep_0032 sweep_0041 \
-  --namespace grid2016-c5 --results-dir econ_committed_2016_grid/results \
-  --duration 13000 --retarget-interval 2016 --interval 2 &
-
-python tools/sweep/3_run_sweep.py --input tools/sweep/econ_committed_2016_grid/build_manifest.json \
-  --scenarios sweep_0006 sweep_0015 sweep_0024 sweep_0033 sweep_0042 \
-  --namespace grid2016-c6 --results-dir econ_committed_2016_grid/results \
-  --duration 13000 --retarget-interval 2016 --interval 2 &
-
-python tools/sweep/3_run_sweep.py --input tools/sweep/econ_committed_2016_grid/build_manifest.json \
-  --scenarios sweep_0007 sweep_0016 sweep_0025 sweep_0034 sweep_0043 \
-  --namespace grid2016-c7 --results-dir econ_committed_2016_grid/results \
-  --duration 13000 --retarget-interval 2016 --interval 2 &
-
-python tools/sweep/3_run_sweep.py --input tools/sweep/econ_committed_2016_grid/build_manifest.json \
-  --scenarios sweep_0008 sweep_0017 sweep_0026 sweep_0035 sweep_0044 \
-  --namespace grid2016-c8 --results-dir econ_committed_2016_grid/results \
-  --duration 13000 --retarget-interval 2016 --interval 2 &
+# ... (repeat for c1-c8, see tools/launch_staggered.sh)
 ```
 
 ---
@@ -138,44 +173,57 @@ maps the minimum economic majority at which v27 becomes self-reinforcing. Run at
 `econ_split` grid: [0.28, 0.35, 0.45, 0.55, 0.60, 0.65, 0.70, 0.78, 0.85]
 `pool_committed_split` fixed at 0.214 (Foundry flip-point), `hashrate_split` = 0.25
 
-### Build
+### ⚠️ Bridge port constraint — use batched launcher
 
+**Do NOT launch all 18 ESP namespaces at once while grid2016 is running.**
+The combined pod count will exceed the 1024 bridge port limit.
+
+**Correct approach** (automated):
 ```bash
-python tools/sweep/2_build_configs.py \
-  --input tools/sweep/targeted_sweep7_esp/scenarios.json \
-  --output-dir tools/sweep/targeted_sweep7_esp \
-  --base-network networks/realistic-economy-v2/network.yaml
+# Run in a tmux/screen session — handles all batches automatically
+bash tools/launch_esp_batched.sh
+
+# Resume from a specific batch if needed:
+bash tools/launch_esp_batched.sh --batch 2
+bash tools/launch_esp_batched.sh --batch 3
 ```
 
-### Run 144-block (~3.6h wall-clock)
+Batch schedule (while grid2016 is running):
+| Batch | Namespaces | ~When |
+|-------|------------|-------|
+| 1 | esp-144-6/7/8 + esp-2016-0/1/2 | after esp-144-0..5 finishes |
+| 2 | esp-2016-3/4/5 | after batch 1 finishes |
+| 3 | esp-2016-6/7/8 | after batch 2 finishes |
+
+esp-144-0..5 can run **simultaneously** with grid2016 (within the port budget).
+
+### Manual run (if grid2016 is NOT running, or using Flannel CNI)
 
 ```bash
+# Pre-create all namespaces first
 for i in 0 1 2 3 4 5 6 7 8; do
   kubectl create namespace esp-144-$i
+  kubectl create namespace esp-2016-$i
 done
 
+# 144-block (~3.6h)
 for i in 0 1 2 3 4 5 6 7 8; do
   python tools/sweep/3_run_sweep.py \
     --input tools/sweep/targeted_sweep7_esp/build_manifest.json \
     --scenarios sweep_000$i --namespace esp-144-$i \
     --results-dir targeted_sweep7_esp/results_144 \
     --duration 13000 --retarget-interval 144 --interval 2 &
-done
-```
-
-### Run 2016-block (~3.6h wall-clock, can overlap with 144-block if namespaces allow)
-
-```bash
-for i in 0 1 2 3 4 5 6 7 8; do
-  kubectl create namespace esp-2016-$i
+  sleep 8
 done
 
+# 2016-block (~3.6h, can overlap with 144-block)
 for i in 0 1 2 3 4 5 6 7 8; do
   python tools/sweep/3_run_sweep.py \
     --input tools/sweep/targeted_sweep7_esp/build_manifest.json \
     --scenarios sweep_000$i --namespace esp-2016-$i \
     --results-dir targeted_sweep7_esp/results_2016 \
     --duration 13000 --retarget-interval 2016 --interval 2 &
+  sleep 8
 done
 ```
 
@@ -207,13 +255,40 @@ e.g. split=0.35, neutral=30%: v27=24.5%, v26=45.5%
 Baseline oracle peak_gap ≈ 16% → below threshold → econ nodes never switch
 Sigmoid oracle peak_gap ≈ 40% → above threshold → full econ switch possible
 
-**Monitoring parallel runs:**
+---
+
+## Debugging Common Failures
+
+### Commander stuck in `Init:0/1`
+
+Either the archive upload failed or the pod sandbox never created.
+Check: `cat <results_dir>/<scenario_id>/scenario.log`
+
+- `"Timeout waiting for initContainer"` + `"container not found (init)"` → archive upload failed
+  - Fix: archive will never arrive. Kill runner, delete namespace, relaunch.
+- `"namespace not found"` → namespace wasn't pre-created before warnet run
+  - Fix: `kubectl create namespace <ns>`, then relaunch runner.
+- `"exchange full"` on pods → bridge port limit hit (see above)
+- `"operation timeout: context deadline exceeded"` → cgroup pressure (see above)
+
+### Checking scenario logs (runner output is buffered)
+
+`/tmp/sweep_*.log` is often empty while running — Python stdout is fully buffered when
+redirected to file. Check per-scenario logs instead:
 ```bash
-# Check pod status per namespace
-for ns in grid2016-c0 grid2016-c1 grid2016-c2 grid2016-c3 grid2016-c4 \
-          grid2016-c5 grid2016-c6 grid2016-c7 grid2016-c8; do
-  pending=$(kubectl get pods -n $ns 2>/dev/null | grep Pending | wc -l)
-  running=$(kubectl get pods -n $ns 2>/dev/null | grep Running | wc -l)
-  echo "$ns: $running running, $pending pending"
-done
+cat targeted_sweep7_esp/results_144/sweep_0006/scenario.log
+```
+
+### Killing and relaunching stuck runners
+
+```bash
+# Find PIDs
+ps aux | grep 3_run_sweep | grep "namespace esp-144-6" | awk '{print $2}'
+
+# Kill, delete namespace, pre-create, relaunch
+kill <pid>
+kubectl delete namespace esp-144-6 --wait=false
+sleep 120   # wait for pods to terminate
+kubectl create namespace esp-144-6
+python tools/sweep/3_run_sweep.py --input ... --namespace esp-144-6 ... &
 ```

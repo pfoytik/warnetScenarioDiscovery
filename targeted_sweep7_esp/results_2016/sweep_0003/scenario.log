@@ -1,14 +1,32 @@
 Including: __init__.py
 Including: commander.py
+Including: config/.inject.lock
 Including: config/__init__.py
+Including: config/economic_nodes_config.yaml
+Including: config/fee_model_config.yaml
+Including: config/mining_pools_config.yaml
+Including: config/network_metadata.yaml
+Including: config/price_model_config.yaml
 Including: lib/__init__.py
+Including: lib/difficulty_oracle.py
+Including: lib/economic_node_strategy.py
+Including: lib/fee_oracle.py
+Including: lib/mining_pool_strategy.py
+Including: lib/price_oracle.py
+Including: lib/reorg_oracle.py
 Including: ln_framework
 Including: ln_framework/__init__.py
 Including: ln_framework/ln.py
 Including: partition_miner_with_pools.py
 Including: research/commander.py
 Including: research/config/__init__.py
+Including: research/config/fee_model_config.yaml
+Including: research/config/mining_pools_config.yaml
+Including: research/config/price_model_config.yaml
 Including: research/lib/__init__.py
+Including: research/lib/fee_oracle.py
+Including: research/lib/mining_pool_strategy.py
+Including: research/lib/price_oracle.py
 Including: research/ln_framework
 Including: research/ln_framework/__init__.py
 Including: research/ln_framework/ln.py
@@ -87,8 +105,11 @@ Including: test_framework/v2_p2p.py
 Including: test_framework/wallet.py
 Including: test_framework/wallet_util.py
 Successfully deployed scenario commander: partition_miner_with_pools
-Commander pod name: commander-partitionminerwithpools-1773682222
+Commander pod name: commander-partitionminerwithpools-1774040938
+initContainer in pod commander-partitionminerwithpools-1774040938 (esp-2016-3) is ready
+Successfully copied data to commander-partitionminerwithpools-1774040938(init):/shared/archive.pyz
+Successfully uploaded scenario data to commander: partition_miner_with_pools
 # Scenario: sweep_0003
-# Started: 2026-03-16T13:30:21.564689
+# Started: 2026-03-20T17:08:58.163871
 # Command: warnet run /home/pfoy/bitcoin/warnetScenarioDiscovery/scenarios/partition_miner_with_pools.py --namespace esp-2016-3 --pool-scenario=sweep_0003 --economic-scenario=sweep_0003 --enable-difficulty --enable-reorg-metrics --retarget-interval=2016 --duration=13000 --interval=2 --results-id=sweep_0003 --snapshot-interval=60
 

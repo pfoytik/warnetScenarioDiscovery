@@ -379,10 +379,10 @@ def wait_for_scenario_completion(duration: int, poll_interval: int = 10, dry_run
         Tuple of (completed, logs_content)
     """
     if dry_run:
-        print(f"  [DRY RUN] Would wait up to {duration + 120}s for scenario completion")
+        print(f"  [DRY RUN] Would wait up to {duration + 3600}s for scenario completion")
         return True, None
 
-    timeout = duration + 120  # Allow extra time beyond expected duration
+    timeout = duration + 1800  # Allow extra time beyond expected duration (scenario script starts several minutes after wait begins)
     start_time = time.time()
 
     print(f"  Waiting for scenario completion (up to {timeout}s)...")

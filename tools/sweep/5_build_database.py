@@ -106,6 +106,18 @@ CREATE TABLE IF NOT EXISTS scenarios (
     hashrate_flipped INTEGER,  -- 1 if final hashrate differs from initial by >10%
     profitability_gap REAL,  -- (v26_price - v27_price) / v27_price
 
+    -- Temporal/cascade dynamics (from time series analysis)
+    econ_initial REAL,           -- starting v27 economic %
+    econ_final REAL,             -- ending v27 economic %
+    econ_delta REAL,             -- change in v27 economic %
+    econ_switched INTEGER,       -- 1 if econ moved >5pp
+    econ_outcome TEXT,           -- 'full_switch', 'partial_switch', 'no_switch'
+    econ_switch_time_s REAL,     -- time of first meaningful econ departure
+    econ_95pct_time_s REAL,      -- time econ first exceeded 95%
+    cascade_time_s REAL,         -- time pool cascade completed (v27 hash >65%)
+    econ_lag_s REAL,             -- lag between cascade and econ switching
+    peak_price_gap_pct REAL,     -- maximum (v27-v26)/v26 price divergence %
+
     FOREIGN KEY (sweep_id) REFERENCES sweeps(sweep_id),
     UNIQUE(sweep_id, scenario_id)
 );
@@ -115,6 +127,8 @@ CREATE INDEX IF NOT EXISTS idx_scenarios_outcome ON scenarios(outcome);
 CREATE INDEX IF NOT EXISTS idx_scenarios_sweep ON scenarios(sweep_id);
 CREATE INDEX IF NOT EXISTS idx_scenarios_economic_split ON scenarios(economic_split);
 CREATE INDEX IF NOT EXISTS idx_scenarios_hashrate_split ON scenarios(hashrate_split);
+CREATE INDEX IF NOT EXISTS idx_scenarios_cascade_time ON scenarios(cascade_time_s);
+CREATE INDEX IF NOT EXISTS idx_scenarios_econ_outcome ON scenarios(econ_outcome);
 
 -- View for easy querying with sweep names
 CREATE VIEW IF NOT EXISTS scenario_results AS
@@ -306,6 +320,31 @@ def import_sweep(conn: sqlite3.Connection, sweep_name: str, csv_path: Path,
             v26_price = float(row.get('final_v26_price', 1) or 1)
             profitability_gap = (v26_price - v27_price) / v27_price if v27_price > 0 else 0
 
+            # Helper for optional float fields
+            def opt_float(key):
+                val = row.get(key)
+                if val is None or val == '' or val == 'None':
+                    return None
+                try:
+                    return float(val)
+                except (ValueError, TypeError):
+                    return None
+
+            # Helper for optional int/bool fields
+            def opt_int(key):
+                val = row.get(key)
+                if val is None or val == '' or val == 'None':
+                    return None
+                try:
+                    # Handle boolean strings
+                    if val in ('True', 'true', '1'):
+                        return 1
+                    if val in ('False', 'false', '0'):
+                        return 0
+                    return int(float(val))
+                except (ValueError, TypeError):
+                    return None
+
             cursor.execute("""
                 INSERT INTO scenarios (
                     sweep_id, scenario_id,
@@ -326,11 +365,15 @@ def import_sweep(conn: sqlite3.Connection, sweep_name: str, csv_path: Path,
                     duration,
                     v27_fork_valuation, v26_fork_valuation,
                     v27_pool_opportunity_cost, v26_pool_opportunity_cost,
-                    cascade_occurred, hashrate_flipped, profitability_gap
+                    cascade_occurred, hashrate_flipped, profitability_gap,
+                    econ_initial, econ_final, econ_delta, econ_switched,
+                    econ_outcome, econ_switch_time_s, econ_95pct_time_s,
+                    cascade_time_s, econ_lag_s, peak_price_gap_pct
                 ) VALUES (
                     ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
                     ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-                    ?, ?, ?, ?, ?, ?, ?
+                    ?, ?, ?, ?, ?, ?, ?,
+                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
                 )
             """, (
                 sweep_id, row.get('scenario_id', ''),
@@ -374,7 +417,18 @@ def import_sweep(conn: sqlite3.Connection, sweep_name: str, csv_path: Path,
                 float(row.get('v26_pool_opportunity_cost') or 0),
                 cascade_occurred,
                 hashrate_flipped,
-                profitability_gap
+                profitability_gap,
+                # Temporal/cascade dynamics
+                opt_float('econ_initial'),
+                opt_float('econ_final'),
+                opt_float('econ_delta'),
+                opt_int('econ_switched'),
+                row.get('econ_outcome', None) or None,
+                opt_float('econ_switch_time_s'),
+                opt_float('econ_95pct_time_s'),
+                opt_float('cascade_time_s'),
+                opt_float('econ_lag_s'),
+                opt_float('peak_price_gap_pct'),
             ))
             imported += 1
 

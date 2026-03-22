@@ -21,8 +21,8 @@ outcomes; second, what quantitative thresholds govern phase transitions;
 and third, how difficulty adjustment timing modulates these dynamics.
 
 **\[TODO:** *Update \[N\] total scenarios and \[X\] sweep count when
-targeted_sweep6 and 2016-block runs complete. Current valid n =
-323.***\]**
+targeted_sweep6 completes. Current valid n = 368 (323 prior + 45
+econ_committed_2016_grid).***\]**
 
 **4.1 Scenario Overview and Data Quality**
 
@@ -66,14 +66,31 @@ discussed qualitatively where relevant.
   behavior)                                                    --- no causal effect
                                                                detected
 
-  targeted_sweep6 (pool    \~TBD    60-node       ⏳ Pending   Pool ideology strength ×
-  ideology)                                                    max_loss_pct diagonal
-                                                               threshold (full network)
+  targeted_sweep6_pool_   20       60-node       ✓ Complete   Pool ideology ×
+  ideology_full                                                max_loss_pct diagonal
+                                                               threshold at econ=0.78
+                                                               confirmed (n=20)
 
-  2016-block threshold     \~TBD    60-node       ⏳ Planned   Confirm economic &
-  grid                                                         committed thresholds hold
-                                                               under realistic difficulty
-                                                               timing
+  targeted_sweep6_econ_   27       60-node       ⏳ Pending   Economic override threshold
+  override                                                     for high-ideology pools;
+                                                               sweeps econ=[0.82,0.90,0.95]
+                                                               × ideology × max_loss;
+                                                               fills §4.3.3 Table 5
+
+  econ_committed_          45       60-node       ✓ Complete   5×9 economic_split ×
+  2016_grid                                                    pool_committed_split grid
+                                                               at 2016-block retarget ---
+                                                               direct regime comparison
+                                                               to targeted_sweep1
+
+  targeted_sweep7_esp      4/9      60-node       ⏳ Partial   Economic Self-Sustaining
+  (144-block)              per                                 Point sweep --- econ_split
+                           regime                              0.28--0.55 complete;
+                                                               0.60--0.85 pending
+
+  targeted_sweep7_esp      4/9      60-node       ⏳ Partial   As above at 2016-block
+  (2016-block)             per                                 retarget; ESP boundary
+                           regime                              not yet located
 
   targeted_sweep2b (lite)  20       25-node       ⚠ Partial    Pool ideology on lite
                                                                network --- pool params
@@ -345,15 +362,29 @@ distribution statistics.
 mechanism showing pool assignment at commit=0.20 vs commit=0.30. Can be
 a simple two-panel diagram.***\]**
 
-**4.3.3 Pool Ideology Threshold (Pending)**
+**4.3.3 Pool Ideology Threshold (Partially Complete)**
 
-**\[PENDING DATA ---** *targeted_sweep6 will map the joint threshold
-surface of pool_ideology_strength × pool_max_loss_pct on the full
-60-node network. Expected finding: a diagonal boundary where high
-ideology + low max_loss produces ideologically locked pools that resist
-even strong economic pressure. Fill this subsection when sweep6
-completes. Key question: does the \~0.82 economic override threshold
-shift when pool ideology is at maximum?***\]**
+The joint behavior of pool_ideology_strength and pool_max_loss_pct was
+mapped on the full 60-node network at econ=0.78 (targeted_sweep6_pool_ideology_full,
+n=20). A diagonal threshold is confirmed: committed v26 pools survive economic
+pressure when ideology × max_loss ≳ 0.16--0.20 (Table 5). Below this product,
+pools capitulate regardless of individual ideology or loss tolerance. The direction
+of the effect is economic-context-dependent: the product governs defender resilience
+--- whichever fork holds economic minority, its committed pools survive only if their
+product exceeds the threshold.
+
+Six of 20 cells showed v26 surviving at econ=0.78: all cases where ideology × max_loss
+≥ 0.18. The boundary cells narrow the threshold to approximately 0.16--0.20 (the range
+between the highest v27-winning product and the lowest v26-surviving product).
+
+**\[PENDING DATA ---** *targeted_sweep6_econ_override (n=27, spec at
+tools/sweep/specs/targeted_sweep6_econ_override.yaml) will answer the remaining
+question for this subsection: does the \~0.82 economic override threshold shift
+upward when ideology × max_loss is high? The sweep runs the 9 upper-right-quadrant
+ideology × max_loss cells at econ=[0.82, 0.90, 0.95]. If any v26 cells persist
+at econ=0.82, Table 5's override threshold row requires upward revision. Fill
+this subsection with the override threshold value and add the 3D surface description
+when the sweep completes.***\]**
 
 **4.4 Consolidated Threshold Summary**
 
@@ -427,22 +458,33 @@ difficulty retarget behavior.***
                          quickly and compete      epoch; majority fork
                                                   pulls away
 
-  Economic cascade       Cascade mechanism        Pending full sweep ---
-  validity               demonstrated             single scenario
-                                                  (uasf_2016Interval)
-                                                  shows majority advantage
+  Economic cascade       Cascade mechanism        Confirmed (n=45,
+  validity               demonstrated             econ_committed_2016_grid)
+                                                  --- cascade is possible
+                                                  but requires higher
+                                                  economic threshold
 
   Fee counter-pressure   \~5 min per interval     \~67 min per interval
   duration                                        --- sustained longer
 
-  Known result           144-block retarget       2016-block strongly
-                         allows minority fork to  favors hashrate-majority
-                         win (UASF test)          fork (v26 wins at 544
-                                                  v27 blocks)
+  Lower economic         econ \~0.45--0.50        econ \~0.55--0.60
+  threshold (no cascade                           (econ=0.50 produces
+  below this)                                     v26 wins in 8/9 cells)
 
-  Threshold robustness   econ \~0.82, Foundry     Confirmation pending ---
-                         flip \~0.214 confirmed   planned large-server
-                                                  sweep
+  Upper economic         econ \~0.82              econ \~0.82 (unchanged
+  threshold (all-v27                              --- econ=0.82 sweeps
+  above this)                                     all 9 cells v27)
+
+  Inversion zone         committed=0.20 is        More complex --- mixed
+  structure              pivotal; outcome          checkerboard at econ=0.60;
+                         non-monotonic in          non-monotonic at econ=0.70;
+                         0.50--0.70               see Table 4b
+
+  Threshold robustness   econ \~0.82, Foundry     Upper bound confirmed;
+                         flip \~0.214 confirmed   lower bound shifts up by
+                                                  \~0.10--0.15 units;
+                                                  econ_committed_2016_grid
+                                                  (n=45) complete
   ---------------------- ------------------------ ------------------------
 
 The single completed 2016-block scenario (uasf_2016Interval_reunited)
@@ -454,13 +496,52 @@ cycle (difficulty 0.736) and accelerated block production. Under
 demonstrating that retarget interval is not a neutral methodological
 choice.
 
-**\[PENDING DATA ---** *2016-block threshold grid sweep --- planned for
-large-server runs. Priority: re-run the economic_split ×
-pool_committed_split grid (targeted_sweep1 design) at 2016-block
-difficulty. Key question: does the \~0.82 economic threshold shift
-upward under realistic timing, as the difficulty penalty on the minority
-chain creates additional barriers to cascade? Fill Table 6 final row and
-add a comparison figure when complete.***\]**
+The full 5×9 economic_split × pool_committed_split grid was completed at
+2016-block difficulty (econ_committed_2016_grid, n=45, March 2026).
+Table 4b presents the outcome matrix.
+
+***Table 4b. econ_committed_2016_grid: fork outcomes at 2016-block
+retarget across economic_split × pool_committed_split. Compare to
+Table 4 (144-block). Green = v27 wins; Red = v26 wins.***
+
+  ----------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+  **econ \\   **0.20**   **0.30**   **0.38**   **0.43**   **0.47**   **0.52**   **0.58**   **0.65**   **0.75**
+  commit**
+
+  **0.35**    v26        v26        v26        v26        v26        v26        v26        v26        v26
+
+  **0.50**    v26        v26        v26        v26        v26        v26        v26        v27        v26
+
+  **0.60**    v27        v26        v27        v26        v27        v26        v27        v27        v27
+
+  **0.70**    v26        v27        v27        v27        v26        v27        v27        v27        v27
+
+  **0.82**    v27        v27        v27        v27        v27        v27        v27        v27        v27
+  ----------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ---------- ----------
+
+Three findings emerge from the 2016-block comparison. First, the upper
+threshold (econ ≥ 0.82 → v27 universal) is unchanged from the
+144-block regime, confirming that strong economic majority overrides
+difficulty timing. Second, the lower threshold shifts upward
+significantly: econ=0.50 produces v26 wins in 8/9 cells (versus 1/9
+in the 144-block regime), placing the 2016-block lower threshold near
+0.55--0.60. Third, the transition zone (econ=0.60--0.70) exhibits a
+checkerboard pattern rather than the clean committed=0.20 inversion seen
+at 144-block, reflecting a more complex interaction between difficulty
+timing and pool switching costs.
+
+Two anomalous cells warrant particular attention. At econ=0.70,
+committed=0.47: v26 wins chainwork but v27 holds 95.6% of final
+economic weight with a 1,462-block reorg mass --- the most extreme
+chainwork-vs-economics divergence in the dataset. At econ=0.50,
+committed=0.65: v27 wins by a margin of 142 vs. 138 blocks --- the
+closest outcome in the grid, at a non-monotonic position (the
+adjacent committed=0.75 cell reverts to v26). See docs/esp_matrix.md
+for detailed analysis of the 2016-block transition zone.
+
+**\[TODO:** *Add a comparison figure: side-by-side 2D heatmaps of
+Table 4 (144-block) and Table 4b (2016-block) with identical color
+scales. This is the primary visualization for Section 4.5.***\]**
 
 **4.5.1 The Difficulty Adjustment Survival Window**
 
@@ -575,10 +656,17 @@ enhancement replacing assumed_fork_hashrate=50.0 with an
 observed-hashrate-with-lag parameter would make fog of war explicit and
 tunable --- flag this as a Phase 2 model improvement.\]**
 
-**\[TODO:** *Once 2016-block sweep completes, add a brief paragraph
-quantifying the threshold shift (if any) and discuss whether the
-144-block results are conservative or liberal estimates of cascade
-difficulty.***\]**
+The completed econ_committed_2016_grid (n=45) now allows a direct
+quantification of the threshold shift. The 2016-block retarget raises
+the lower cascade threshold by approximately 0.10--0.15 units
+(from econ \~0.45--0.50 to econ \~0.55--0.60) while leaving the upper
+threshold unchanged at \~0.82. The 144-block regime therefore produces
+liberal estimates of cascade ease: scenarios that v27 wins easily under
+144-block timing (econ=0.50, most committed levels) require substantially
+higher economic support under realistic difficulty dynamics. The upper
+threshold robustness (0.82 unchanged) suggests that once economic
+majority is decisive, difficulty timing is irrelevant --- it only matters
+in the contested middle range.
 
 **4.6 Fork Dynamics and Cascade Signatures**
 
@@ -876,14 +964,24 @@ dependency for the paper.\]**
 The following and ONLY the following additional sweeps are needed to
 fill all \[PENDING DATA\] placeholders in this results section:
 
-4.  **targeted_sweep6 (pool ideology full network) --- fills Section
-    4.3.3 and updates Table 5 ideology row. HIGHEST PRIORITY.**
+4.  **targeted_sweep6_econ_override (27 scenarios, full network,
+    144-block) --- fills §4.3.3 override threshold and updates Table 5
+    ideology row. HIGHEST PRIORITY.** Spec: tools/sweep/specs/
+    targeted_sweep6_econ_override.yaml. Note: targeted_sweep6_pool_ideology_full
+    (n=20) is complete and fills the diagonal threshold finding; this
+    sweep answers the remaining economic override question.
 
-5.  **2016-block economic × committed grid (\~45 scenarios) --- fills
-    Section 4.5 and Table 6 final row. Use large servers. HIGHEST
-    PRIORITY.**
+5.  ~~2016-block economic × committed grid (~45 scenarios)~~ ---
+    **COMPLETE.** econ_committed_2016_grid (n=45) finished March 2026.
+    §4.5 Table 6 and Table 4b filled.
 
-6.  targeted_sweep5_lite re-run (after role-name fix) --- fills lite
+6.  **targeted_sweep7_esp sweeps 0004--0008 (econ=0.60--0.85, both
+    144-block and 2016-block) --- locates the ESP boundary.** The
+    existing runs only cover econ ≤ 0.55; the self-sustaining point
+    is expected in 0.60--0.70. Run sweep_0004 (econ=0.60) first as
+    bellwether. See docs/esp_matrix.md §6.
+
+7.  targeted_sweep5_lite re-run (after role-name fix) --- fills lite
     network comparison if included. LOWER PRIORITY --- can be deferred
     to Phase 2 if lite comparison is not load-bearing.
 

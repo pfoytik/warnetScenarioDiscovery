@@ -1,0 +1,129 @@
+name: targeted_sweep6_econ_override
+description: >
+  Maps the economic override threshold for ideologically stubborn pools. Completes
+  §4.3.3 and fills Table 5's ideology threshold row.
+
+  BACKGROUND:
+  targeted_sweep6_pool_ideology_full (n=20, econ=0.78 fixed) established the diagonal
+  threshold: ideology × max_loss ≳ 0.16–0.20 allows committed v26 pools to survive
+  economic pressure at econ=0.78. Six cells showed v26 surviving:
+
+    ideology=0.4, max_loss=0.45 (product=0.18) → v26 holds
+    ideology=0.6, max_loss=0.35 (product=0.21) → v26 holds
+    ideology=0.6, max_loss=0.45 (product=0.27) → v26 holds
+    ideology=0.8, max_loss=0.25 (product=0.20) → v26 holds
+    ideology=0.8, max_loss=0.35 (product=0.28) → v26 holds
+    ideology=0.8, max_loss=0.45 (product=0.36) → v26 holds
+
+  The econ_committed_2016_grid and targeted_sweep1 both show v27 winning universally
+  at econ=0.82 with standard ideology params (product≈0.13). But that was with
+  ideology_strength=0.51, max_loss_pct=0.26 — well below the diagonal threshold.
+
+  The critical open question for the paper: does the ~0.82 economic override threshold
+  shift upward when ideology × max_loss is high? If ideology=0.8, max_loss=0.45
+  (product=0.36) allows v26 pools to hold even at econ=0.82, then the boundary
+  in the full 4D parameter space is not a simple threshold — it is a surface where
+  the required economic majority increases with pool ideology resilience.
+
+  RESEARCH QUESTION:
+  At what economic_split does v27 win unconditionally — even the most ideologically
+  stubborn committed v26 pools (product=0.36) are forced to capitulate? Is the
+  unconditional override at ~0.82 (as the coarse grid suggests) or does it sit higher,
+  implying that real-world pools with extreme ideology could sustain a minority chain
+  even against very strong economic majorities?
+
+  DESIGN:
+  3×3×3 grid: ideology=[0.4, 0.6, 0.8] × max_loss=[0.25, 0.35, 0.45] × econ=[0.82, 0.90, 0.95]
+  This covers the upper-right quadrant of sweep6_full (products 0.10–0.36) and sweeps
+  econ upward from the expected override boundary. Reference data at econ=0.78 comes
+  from sweep6_full and does not need to be re-run.
+
+  Key cells to watch:
+    - ideology=0.8, max_loss=0.45, econ=0.82 (product=0.36): does the most resistant
+      pool configuration hold at the nominal override threshold?
+    - The first econ level where all 9 cells show v27 wins is the true override threshold.
+    - Any v26 cells surviving at econ=0.90+ represent a significant upward revision to
+      Table 5's ideology threshold row.
+
+  WHAT TO LOOK FOR:
+    - If all 9 cells show v27 at econ=0.82: ideology does not shift the override threshold.
+      The 0.82 value in Table 5 is confirmed as unconditional.
+    - If some cells show v26 at econ=0.82 but all flip by econ=0.90: override threshold
+      shifts to ~0.88–0.90 for max-resilience pools. Update Table 5 with a range.
+    - If v26 cells persist at econ=0.95: the override may require economic_split > 0.95,
+      meaning near-total economic consensus is needed against maximally stubborn pools.
+      This would be the most consequential finding for real-world fork assessment.
+
+  RETARGET INTERVAL: 144-block (consistent with sweep6_pool_ideology_full for direct
+  comparison). If v26 cells persist at high econ, consider a 2016-block follow-on
+  to determine whether slower retarget further protects ideologically committed pools.
+
+  PARALLELIZATION:
+  27 scenarios. Recommended: 9 namespaces × 3 scenarios each (one namespace per
+  ideology_strength value at each max_loss_pct, running 3 econ levels sequentially).
+  Wall-clock: 3 × 13,000s ≈ 10.8h per namespace (all 9 finish simultaneously).
+
+  Alternatively: 27 namespaces × 1 scenario = 13,000s ≈ 3.6h (maximum parallelism).
+
+  Run command (27-namespace full parallel, 144-block):
+    for i in $(seq -w 0 26); do
+      kubectl create namespace s6ov-$i
+    done
+    python tools/sweep/3_run_sweep.py \
+      --input tools/sweep/targeted_sweep6_econ_override/build_manifest.json \
+      --all-scenarios \
+      --namespace-prefix s6ov \
+      --results-dir targeted_sweep6_econ_override/results \
+      --duration 13000 --retarget-interval 144 --interval 2
+
+  Or 9-namespace split (group by ideology_strength):
+    for ns in s6ov-id0 s6ov-id1 s6ov-id2; do
+      kubectl create namespace $ns
+    done
+    # ideology=0.4 (sweep_0000..0008)
+    python tools/sweep/3_run_sweep.py \
+      --input tools/sweep/targeted_sweep6_econ_override/build_manifest.json \
+      --scenarios sweep_0000 sweep_0001 sweep_0002 sweep_0003 sweep_0004 sweep_0005 \
+                  sweep_0006 sweep_0007 sweep_0008 \
+      --namespace s6ov-id0 \
+      --results-dir targeted_sweep6_econ_override/results \
+      --duration 13000 --retarget-interval 144 --interval 2 &
+    # (repeat for ideology=0.6 → s6ov-id1, ideology=0.8 → s6ov-id2)
+
+  CONNECTING TO PHASE 2:
+  Combined with sweep6_pool_ideology_full (econ=0.78 reference), this gives a
+  4-level econ axis {0.78, 0.82, 0.90, 0.95} across the high-ideology parameter
+  region. The logistic regression boundary fit in §4.8.1 needs this data to
+  correctly parameterize the ideology × econ interaction term (β₅ in the model).
+  Without it, the boundary fit will linearly extrapolate past the tested range
+  and likely underestimate the override threshold for high-ideology pools.
+
+network: full
+
+fixed:
+  hashrate_split: 0.25
+  pool_committed_split: 0.35
+  pool_neutral_pct: 30.0
+  pool_profitability_threshold: 0.16
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.10
+  econ_inertia: 0.05
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  transaction_velocity: 0.50
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  solo_miner_hashrate: 0.085
+
+grid:
+  pool_ideology_strength: [0.4, 0.6, 0.8]
+  pool_max_loss_pct:       [0.25, 0.35, 0.45]
+  economic_split:          [0.82, 0.90, 0.95]
+
+# Expected outcome grid (reference from sweep6_full at econ=0.78):
+# ideology \ max_loss    0.25   0.35   0.45
+#   0.4                  v27    v27    v26*   ← * = v26 at econ=0.78; unknown above
+#   0.6                  v27    v26*   v26*
+#   0.8                  v26*   v26*   v26*
+# At econ=0.82 we expect the * cells to begin flipping to v27.
+# If any * cells remain v26 at econ=0.82, this revises Table 5.

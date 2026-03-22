@@ -1,0 +1,61 @@
+name: committed_threshold_2016_narrow
+description: >
+  Narrow sweep to pin the exact committed_split flip-point at 2016-block retarget.
+  Companion to threshold_144_narrow (which pinned the econ_split boundary at ~0.29)
+  and committed_2016_high_econ (which bracketed committed_split threshold in (0.20, 0.30)).
+
+  RESEARCH QUESTION:
+  committed_2016_high_econ and committed_2016_mid_econ confirmed the committed_split
+  threshold is ∈(0.20, 0.30) at 2016-block for both econ=0.55 and econ=0.78. Where
+  exactly within that range does the flip-point fall? This narrow sweep tests
+  committed=[0.22, 0.24, 0.26, 0.28] to bracket it precisely.
+
+  PRIOR CONTEXT:
+  - committed_split=0.20 → v26_dominant (all econ levels, all retarget regimes)
+  - committed_split=0.30 → v27_dominant (all econ levels, all retarget regimes)
+  - targeted_sweep1 (full 60-node, 144-block) found flip-point near committed≈0.214
+  - Lite network may have a different flip-point due to different pool composition
+  - This sweep characterizes the lite network threshold at 2016-block
+
+  COMMITTED_SPLIT INTERPRETATION (neutral=30%):
+    committed_split=0.22: v27=15.4%, v26=54.6%, neutral=30%
+    committed_split=0.24: v27=16.8%, v26=53.2%, neutral=30%
+    committed_split=0.26: v27=18.2%, v26=51.8%, neutral=30%
+    committed_split=0.28: v27=19.6%, v26=50.4%, neutral=30%
+
+  Run command (4 parallel namespaces):
+    kubectl create namespace cthr2016-0
+    kubectl create namespace cthr2016-1
+    kubectl create namespace cthr2016-2
+    kubectl create namespace cthr2016-3
+
+    python tools/sweep/3_run_sweep.py \
+      --input tools/sweep/committed_threshold_2016_narrow/build_manifest.json \
+      --scenarios sweep_0000 --namespace cthr2016-0 \
+      --results-dir committed_threshold_2016_narrow/results \
+      --duration 13000 --retarget-interval 2016 --interval 2 &
+    (repeat for sweep_0001/0002/0003)
+
+  Wall-clock: 4 scenarios × 13,000s parallel = 13,000s ≈ 3.6h
+
+network: lite
+
+fixed:
+  economic_split: 0.78
+  hashrate_split: 0.50
+  pool_neutral_pct: 30.0
+  pool_ideology_strength: 0.51
+  pool_profitability_threshold: 0.16
+  pool_max_loss_pct: 0.26
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.10
+  econ_inertia: 0.05
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  transaction_velocity: 0.50
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  solo_miner_hashrate: 0.085
+
+grid:
+  pool_committed_split: [0.22, 0.24, 0.26, 0.28]

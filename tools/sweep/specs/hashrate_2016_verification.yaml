@@ -1,0 +1,68 @@
+name: hashrate_2016_verification
+description: >
+  Verify that hashrate_split non-causality holds at 2016-block retarget conditions.
+
+  At 144-block retarget (targeted_sweep2_hashrate_economic, 42 scenarios), hashrate_split
+  was shown to have only weak influence on fork outcome when pool_committed_split is fixed
+  above the Foundry flip-point (~0.214). Economic split dominated regardless of hashrate.
+  However, that finding was validated only at 144-block retarget.
+
+  The 2016-block regime is qualitatively different: the minority chain suffers a much longer
+  difficulty penalty period (~67 min per retarget vs ~5 min), which could amplify the
+  hashrate signal. Specifically, a larger hashrate advantage on v26 means a more severe
+  minority-chain fee squeeze over a much longer window before the retarget cascade fires.
+  This sweep tests whether hashrate_split changes the decision boundary at 2016-block or
+  remains non-causal, as assumed in the Phase 2 PRIM analysis.
+
+  DESIGN (mirrors targeted_sweep2 at 2016-block):
+    - pool_committed_split fixed at 0.50 (above Foundry flip-point; no inversion contamination)
+    - economic_split sampled at 3 levels spanning the transition zone (0.50, 0.60, 0.70)
+    - hashrate_split swept across 6 levels (0.15 → heavy v26 advantage, 0.65 → near parity)
+    - Grid: 6 hashrate × 3 economic = 18 scenarios
+
+  EXPECTED OUTCOME (if non-causality holds):
+    - Each economic_split level should produce the same outcome across all hashrate values
+    - econ=0.50: all v26_dominant (0 nodes on v27 via quantization at econ<0.30... wait,
+      actually econ=0.50 → 1 node → v27_dominant; econ<0.30 → 0 nodes → v26_dominant)
+    - econ=0.50, 0.60, 0.70: all 1-node configurations → v27_dominant regardless of hashrate
+    - If hashrate_split IS causal: some hashrate values will flip outcome within an econ row
+
+  VALIDATED PARAMS: Uses corrected econ switching parameters (threshold=0.10, inertia=0.05)
+  matching all v2 sweeps. Fixed params from phase 2 medians.
+
+  RUNTIME: 18 scenarios × ~13,000s = ~234,000s total (sequential).
+  On lite network at ~60 min/scenario: ~18h. Consider running in 2 parallel namespaces
+  to halve wall time.
+
+  Run command (single namespace):
+    python tools/sweep/1_generate_targeted.py --spec specs/hashrate_2016_verification.yaml
+    python tools/sweep/2_build_configs.py \
+      --input hashrate_2016_verification/scenarios.json \
+      --output-dir hashrate_2016_verification
+    python tools/sweep/3_run_sweep.py \
+      --input hashrate_2016_verification/build_manifest.json \
+      --results-dir hashrate_2016_verification/results \
+      --duration 13000 --retarget-interval 2016 --interval 2
+
+network: lite
+
+fixed:
+  pool_committed_split: 0.50        # Above Foundry flip-point (~0.214); matches targeted_sweep2
+  pool_neutral_pct: 30.0
+  pool_ideology_strength: 0.51
+  pool_profitability_threshold: 0.16
+  pool_max_loss_pct: 0.26
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.10    # Validated value (was 0.14 in pre-fix sweeps)
+  econ_inertia: 0.05                # Validated value (was 0.17 in pre-fix sweeps)
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  transaction_velocity: 0.50
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  solo_miner_hashrate: 0.085
+
+# 6 hashrate levels (mirrors targeted_sweep2) × 3 economic levels (transition zone) = 18 scenarios
+grid:
+  hashrate_split:  [0.15, 0.25, 0.35, 0.45, 0.55, 0.65]
+  economic_split:  [0.50, 0.60, 0.70]

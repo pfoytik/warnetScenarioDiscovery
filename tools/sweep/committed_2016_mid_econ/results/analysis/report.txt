@@ -1,0 +1,73 @@
+======================================================================
+PARAMETER SWEEP ANALYSIS REPORT
+======================================================================
+
+Total scenarios analyzed: 4
+
+OUTCOME DISTRIBUTION:
+  v26_dominant: 1 (25.0%)
+  v27_dominant: 3 (75.0%)
+
+MOST DISCRIMINATING PARAMETERS:
+(Parameters with largest difference between v27/v26 dominant outcomes)
+
+  1. pool_committed_split
+     Separation: 0.2
+     v27 favored when: higher
+     Estimated threshold: 0.3
+     v27_dominant mean: 0.4
+     v26_dominant mean: 0.2
+
+  2. economic_split
+     Separation: 0.0
+     v27 favored when: lower
+     Estimated threshold: 0.55
+     v27_dominant mean: 0.55
+     v26_dominant mean: 0.55
+
+  3. hashrate_split
+     Separation: 0.0
+     v27 favored when: lower
+     Estimated threshold: 0.5
+     v27_dominant mean: 0.5
+     v26_dominant mean: 0.5
+
+  4. pool_ideology_strength
+     Separation: 0.0
+     v27 favored when: lower
+     Estimated threshold: 0.51
+     v27_dominant mean: 0.51
+     v26_dominant mean: 0.51
+
+  5. pool_profitability_threshold
+     Separation: 0.0
+     v27 favored when: lower
+     Estimated threshold: 0.16
+     v27_dominant mean: 0.16
+     v26_dominant mean: 0.16
+
+ECON SWITCHING TRAJECTORIES:
+(Economic node allocation shift over run duration)
+
+  scenario     econ_outcome   initial%  final%  switch_t  cascade_t   lag_s  peak_gap%
+  ------------------------------------------------------------------------------------
+  sweep_0000   no_switch         56.7%   56.7%     never      never     n/a       0.8%
+  sweep_0001   no_switch         56.7%   56.7%     never       8426     n/a      16.1%
+  sweep_0002   no_switch         56.7%   56.7%     never       8429     n/a      16.1%
+  sweep_0003   no_switch         56.7%   56.7%     never       8424     n/a      16.1%
+
+ECON OUTCOME DISTRIBUTION:
+  no_switch: 4 (100%)
+
+STRONG CORRELATIONS:
+(Parameters most correlated with v27 hashrate share / econ final)
+
+  econ_ideology_strength: hash=-0.000  econ=-0.000
+
+KEY INSIGHTS:
+
+  * pool_committed_split is the strongest predictor of fork outcome
+    Threshold around 0.3
+    v27 dominant when higher
+
+======================================================================

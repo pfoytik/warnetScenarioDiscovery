@@ -280,7 +280,11 @@ The `committed_2016_*` sweeps from the large servers use `hashrate_split = 0.50`
 
 **Chi-square test for main effect:** χ² = 0.03, p = 0.860
 
-The overall effect is **not statistically significant**. However, stratified analysis reveals a Simpson's paradox — opposite effects at different economic support levels that cancel out:
+The overall effect is **not statistically significant**. However, stratified analysis reveals a Simpson's paradox:
+
+> **Simpson's Paradox** occurs when a trend that appears in subgroups reverses or disappears when the groups are combined. In our case, the positive effects of hashrate at low/mid economic support cancel out with the negative effect at high economic support, making the overall effect appear near zero. The effect isn't "no effect" — it's "opposite effects that happen to balance out." This is why stratified analysis is essential; aggregate statistics can mask real, actionable patterns.
+
+Stratified by economic support level:
 
 | Economic Support | hashrate=0.25 | hashrate=0.50 | Effect |
 |-----------------|---------------|---------------|--------|

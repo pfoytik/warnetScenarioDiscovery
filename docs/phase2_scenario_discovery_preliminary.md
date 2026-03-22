@@ -177,6 +177,72 @@ Contentiousness is similar across regimes, suggesting the dynamics of contested 
 
 ---
 
+## Figures
+
+### Figure 1: Decision Boundary
+
+![Decision Boundary](../tools/discovery/output/figures/decision_boundary.png)
+
+**Description:** This heatmap shows the predicted probability of v27 winning (P(v27 wins)) across the two most important parameters: `economic_split` (x-axis) and `pool_committed_split` (y-axis). The color gradient ranges from red (v26 wins) through yellow (uncertain) to green (v27 wins).
+
+**Key Observations:**
+
+1. **Vertical Transition Zone:** The decision boundary is primarily vertical, occurring around `economic_split ≈ 0.55-0.65`. This confirms that economic node support is the dominant factor determining fork outcome.
+
+2. **Inversion Zone:** There is a notable "inversion" region (red pocket) around `economic_split ≈ 0.60-0.70` and `pool_committed_split ≈ 0.30-0.50`. In this zone, *increasing* pool commitment to v27 paradoxically *decreases* v27's chances of winning. This may be related to the Foundry flip-point dynamics identified in Phase 1.
+
+3. **PRIM Box (blue dashed):** The PRIM algorithm identified the region below `pool_committed_split ≤ 0.50` as the high-uncertainty zone. Points within this box have outcomes closest to 50/50.
+
+4. **Scattered Outcomes:** Green (v27 wins) and red (v26 wins) points are intermixed in the central region, indicating genuine outcome uncertainty rather than clean separation.
+
+5. **Clear Extremes:** The left edge (`economic_split < 0.35`) is solidly red (v26 wins), while the right edge with low pool commitment shows green (v27 wins).
+
+---
+
+### Figure 2: Feature Importance
+
+![Feature Importance](../tools/discovery/output/figures/feature_importance.png)
+
+**Description:** Side-by-side comparison of logistic regression coefficients (left) and random forest feature importances (right) for the 144-block regime.
+
+**Key Observations:**
+
+1. **Economic Split Dominates:** Both models agree that `economic_split` is the most important predictor, with ~74% importance in random forest and the largest positive coefficient in logistic regression.
+
+2. **Pool Committed Split Second:** `pool_committed_split` is the second most important feature in both models, with positive coefficient indicating higher values favor v27.
+
+3. **Negative Coefficients for Pool Behavior:** In logistic regression, `pool_ideology_strength` and `pool_max_loss_pct` have small negative coefficients. This suggests that when pools are more ideologically committed or tolerate higher losses, v27 is *less* likely to win outright (possibly leading to more contested outcomes).
+
+4. **Random Forest Captures Non-linearity:** The random forest assigns more balanced importance to the secondary features (8-12% each), while logistic regression shows them as nearly negligible. This suggests non-linear interactions that random forest can capture.
+
+---
+
+### Figure 3: Contentiousness Distribution
+
+![Contentiousness Distribution](../tools/discovery/output/figures/contentiousness_distribution.png)
+
+**Description:** Kernel density estimates showing the distribution of contentiousness scores for each outcome type (v27_dominant, v26_dominant, contested).
+
+**Contentiousness Score Components:**
+- Normalized reorg count
+- Normalized reorg mass (total blocks displaced)
+- Inverse cascade time (slower cascades = more contentious)
+- Economic lag (delay between hashrate cascade and economic switching)
+
+**Key Observations:**
+
+1. **Contested Outcomes are Bimodal:** The green "contested" distribution shows peaks at both low (~0.0) and moderate (~0.25) contentiousness. The low peak may represent stable stalemates, while the higher peak represents actively fought contests.
+
+2. **v27 Wins Show Two Modes:** Blue distribution (v27_dominant) has a peak around 0.12-0.15 and another around 0.55. The higher contentiousness v27 wins may represent hard-fought victories that required significant reorgs to achieve.
+
+3. **v26 Wins Cluster at Moderate Contentiousness:** Orange distribution (v26_dominant) peaks around 0.30-0.35, suggesting v26 victories often involve moderate levels of conflict before resolution.
+
+4. **Overlap Region (0.25-0.35):** All three outcome types overlap in this contentiousness range, making it difficult to predict outcome from contentiousness alone. This is the "fog of war" zone where dynamics are most uncertain.
+
+5. **High Contentiousness Rare for v26:** v26 wins rarely occur at contentiousness > 0.45, while v27 wins extend to 0.55+. This asymmetry suggests that prolonged contentious periods tend to favor v27 resolution.
+
+---
+
 ## Logistic Regression Insights
 
 Top interaction terms (144-block):

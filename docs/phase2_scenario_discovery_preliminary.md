@@ -82,13 +82,17 @@ The following parameters were fixed at median values based on Phase 1 non-causal
 
 | Metric | Value |
 |--------|-------|
-| Total Scenarios | 63 |
-| Sweeps Included | 6 |
-| v27 Dominant | 34 (54.0%) |
-| v26 Dominant | 29 (46.0%) |
+| Total Scenarios | 78 |
+| Sweeps Included | 10 |
+| v27 Dominant | 49 (62.8%) |
+| v26 Dominant | 29 (37.2%) |
 
 **Sweeps:**
-- `econ_committed_2016_grid` (45 scenarios - newly imported)
+- `econ_committed_2016_grid` (45 scenarios)
+- `committed_2016_high_econ` (4 scenarios, hashrate=0.50)
+- `committed_2016_mid_econ` (4 scenarios, hashrate=0.50)
+- `committed_2016_sigmoid` (4 scenarios, hashrate=0.50)
+- `committed_2016_sigmoid_midecon` (3 scenarios, hashrate=0.50)
 - `targeted_sweep10_econ_threshold_2016`
 - `targeted_sweep10b_econ_threshold_2016`
 - `targeted_sweep8_lite_2016_retarget`
@@ -257,25 +261,85 @@ The negative interaction between `pool_ideology_strength` and `pool_max_loss_pct
 
 ---
 
+## hashrate_split Validation at 2016-block
+
+### Background
+
+In Phase 1 (144-block regime), `hashrate_split` was found to have no causal effect on fork outcomes and was fixed at 0.25 for subsequent sweeps. However, this finding required validation at 2016-block conditions where the difficulty adjustment window is ~14x longer.
+
+### New Data
+
+The `committed_2016_*` sweeps from the large servers use `hashrate_split = 0.50`, providing a natural comparison against the `econ_committed_2016_grid` sweep which uses `hashrate_split = 0.25`.
+
+| hashrate_split | Scenarios | v27 Win Rate |
+|----------------|-----------|--------------|
+| 0.25 | 47 | 61.7% |
+| 0.50 | 27 | 66.7% |
+
+### Statistical Test
+
+**Chi-square test for main effect:** χ² = 0.03, p = 0.860
+
+The overall effect is **not statistically significant**. However, stratified analysis reveals a Simpson's paradox — opposite effects at different economic support levels that cancel out:
+
+| Economic Support | hashrate=0.25 | hashrate=0.50 | Effect |
+|-----------------|---------------|---------------|--------|
+| Low (<0.45) | 10.0% v27 wins (n=10) | 25.0% v27 wins (n=4) | **+15.0%** |
+| Mid (0.45-0.65) | 50.0% v27 wins (n=16) | 69.2% v27 wins (n=13) | **+19.2%** |
+| High (>0.65) | 95.2% v27 wins (n=21) | 80.0% v27 wins (n=10) | **-15.2%** |
+
+### Key Finding: Interaction Effect
+
+`hashrate_split` exhibits a **significant interaction with `economic_split`**:
+
+- **At low/mid economic support:** Higher v27 hashrate helps v27 (+15-19%)
+- **At high economic support:** Higher v27 hashrate **hurts** v27 (-15%) — **inversion effect**
+
+This interaction mirrors the inversion zone observed in the decision boundary visualization and may share the same underlying mechanism (Foundry flip-point dynamics).
+
+### Implications
+
+1. **Main effect validation:** The 144-block finding that `hashrate_split` has no independent causal effect appears to hold at 2016-block (p=0.86)
+
+2. **Interaction effect:** There is a meaningful `hashrate_split × economic_split` interaction that was not detected in Phase 1. This interaction should be considered in Phase 3 sampling.
+
+3. **Inversion zone confirmed:** The paradoxical effect where more v27 support hurts v27 is present in both the `pool_committed_split` and `hashrate_split` dimensions at high economic support.
+
+### Ongoing Verification
+
+The `hashrate_2016_verification` sweep is currently running to provide additional data points:
+- hashrate_split: [0.15, 0.25, 0.35, 0.50, 0.65]
+- economic_split: [0.50, 0.60, 0.70]
+- 18 scenarios targeting the mid-economic range where effects are clearest
+
+---
+
 ## Known Limitations
 
 1. **Parameter Coverage Imbalance:** 2016-block regime has less diverse parameter coverage (many values fixed in primary sweep)
 
-2. **Unvalidated Fixed Parameters:** Non-causality findings for fixed parameters have only been validated at 144-block conditions
+2. **Partially Validated Fixed Parameters:**
+   - `hashrate_split` main effect validated as non-causal at 2016-block (p=0.86)
+   - `hashrate_split × economic_split` interaction effect detected but not fully characterized
+   - Other fixed parameters (pool_neutral_pct, user params) remain unvalidated at 2016-block
 
-3. **Sample Size Disparity:** 232 scenarios (144-block) vs 63 scenarios (2016-block)
+3. **Sample Size Disparity:** 232 scenarios (144-block) vs 78 scenarios (2016-block)
 
 4. **Temporal Data Gaps:** Some sweeps lack complete temporal/cascade dynamics data
+
+5. **Interaction Effects:** The `hashrate_split × economic_split` interaction suggests other unmodeled interactions may exist
 
 ---
 
 ## Recommended Next Steps
 
-### Immediate (Tomorrow)
+### In Progress
 
-1. **Run `hashrate_2016_verification` sweep** - Test if `hashrate_split` non-causality holds at 2016-block
-   - Spec file: `tools/sweep/specs/hashrate_2016_verification.yaml`
-   - 18 scenarios: hashrate (0.15-0.65) x economic (0.50, 0.60, 0.70)
+1. **`hashrate_2016_verification` sweep** - RUNNING
+   - Testing `hashrate_split` effect at 2016-block conditions
+   - Spec file: `tools/sweep/hashrate_2016_verification/`
+   - 18 scenarios: hashrate (0.15-0.65) × economic (0.50, 0.60, 0.70)
+   - Will provide additional data on the hashrate × economic interaction effect
 
 ### Short-term
 

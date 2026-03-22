@@ -309,6 +309,50 @@ This interaction mirrors the inversion zone observed in the decision boundary vi
 
 3. **Inversion zone confirmed:** The paradoxical effect where more v27 support hurts v27 is present in both the `pool_committed_split` and `hashrate_split` dimensions at high economic support.
 
+### Caveat: Model-Dependent Threshold?
+
+The ~65% economic support threshold where dynamics flip may be an artifact of modeling assumptions rather than a fundamental Bitcoin dynamic. Several assumptions could create artificial thresholds:
+
+| Assumption | Current Value | Potential Effect |
+|------------|---------------|------------------|
+| Price oracle economic weight | 0.50 | High weight means economic support dominates price; threshold may shift with different weights |
+| Price oracle chain weight | 0.30 | Lower priority than economic; changing ratio could move threshold |
+| Price oracle hashrate weight | 0.20 | Lowest priority; may underweight miner influence |
+| Max price divergence | ±20% | Ceiling effects may create nonlinearities near threshold |
+| Economic switching threshold | 0.14 | Fixed value creates specific trigger points |
+| Economic inertia | 0.17 | Combined with threshold, defines switching barrier |
+| Pool profitability assumption | 50% hashrate | Prevents feedback but may create artifacts |
+
+**Testing for Model Dependence:**
+
+To determine if the 65% threshold is fundamental or model-dependent, run sensitivity sweeps that vary key assumptions:
+
+1. **Price oracle weight sensitivity:**
+   - Current: economic=0.5, chain=0.3, hashrate=0.2
+   - Test: economic=0.4, chain=0.4, hashrate=0.2 (reduced economic dominance)
+   - Test: economic=0.6, chain=0.2, hashrate=0.2 (increased economic dominance)
+   - If threshold moves proportionally with economic weight, it's model-dependent
+
+2. **Max price divergence sensitivity:**
+   - Current: ±20%
+   - Test: ±10%, ±30%, ±40%
+   - If threshold disappears at higher caps, ceiling effects are responsible
+
+3. **Economic switching parameter sensitivity:**
+   - Vary `econ_switching_threshold` and `econ_inertia` independently
+   - If threshold tracks these parameters, it's driven by switching logic
+
+4. **Custody distribution sensitivity:**
+   - Redistribute custody_btc more evenly across economic nodes
+   - If threshold shifts, it's driven by concentration of economic power
+
+**Interpretation:**
+- If the threshold moves when assumptions change → model-dependent artifact
+- If the threshold persists across assumption variations → potentially fundamental dynamic
+- If the threshold disappears entirely → artifact of specific parameter combinations
+
+This sensitivity analysis should be conducted before drawing conclusions about real-world Bitcoin fork dynamics.
+
 ### Ongoing Verification
 
 The `hashrate_2016_verification` sweep is currently running to provide additional data points:

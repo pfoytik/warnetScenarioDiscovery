@@ -534,6 +534,7 @@ def run_scenario(
     sigmoid_steepness: float = 6.0,
     use_cost_floor: bool = False,
     cost_floor_margin_buffer: float = 0.05,
+    max_price_divergence: float = None,
     namespace: str = "default",
 ) -> bool:
     """Run a single scenario and extract results"""
@@ -605,6 +606,8 @@ def run_scenario(
     if use_cost_floor:
         cmd.append("--use-cost-floor")
         cmd.append(f"--cost-floor-margin-buffer={cost_floor_margin_buffer}")
+    if max_price_divergence is not None:
+        cmd.append(f"--max-price-divergence={max_price_divergence}")
 
     if dry_run:
         print(f"  [DRY RUN] Would execute:")
@@ -751,6 +754,8 @@ def main():
                         help="Proposal 3: Asymmetric cost-of-production price floor (Hayes 2019)")
     parser.add_argument("--cost-floor-margin-buffer", type=float, default=0.05,
                         help="Cost floor margin buffer below breakeven (default: 0.05)")
+    parser.add_argument("--max-price-divergence", type=float, default=None,
+                        help="Max price divergence cap (e.g., 0.20 for ±20%%). If not set, uses scenario default.")
     parser.add_argument("--namespace", type=str, default="default",
                         help="Kubernetes namespace to deploy into (default: default). "
                              "Allows multiple sweeps to run in parallel on different namespaces.")
@@ -902,6 +907,7 @@ def main():
                 sigmoid_steepness=args.sigmoid_steepness,
                 use_cost_floor=args.use_cost_floor,
                 cost_floor_margin_buffer=args.cost_floor_margin_buffer,
+                max_price_divergence=args.max_price_divergence,
                 namespace=args.namespace,
             )
 

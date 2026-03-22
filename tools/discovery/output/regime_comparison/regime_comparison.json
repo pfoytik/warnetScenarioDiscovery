@@ -1,0 +1,90 @@
+{
+  "144_block": {
+    "regime": "144-block",
+    "n_scenarios": 232,
+    "v27_win_rate": 0.4396551724137931,
+    "contentiousness_mean": 0.27499430895918286,
+    "rf_accuracy": 0.8146551724137931,
+    "rf_importances": {
+      "economic_split": 0.7418122188635223,
+      "pool_committed_split": 0.11671339508820404,
+      "pool_ideology_strength": 0.06074212415097463,
+      "pool_max_loss_pct": 0.08073226189729896
+    },
+    "prim_bounds": {
+      "economic_split": {
+        "min": 0.0,
+        "max": 0.82
+      },
+      "pool_committed_split": {
+        "min": 0.0,
+        "max": 0.5
+      },
+      "pool_ideology_strength": {
+        "min": 0.0,
+        "max": 0.8
+      },
+      "pool_max_loss_pct": {
+        "min": 0.0,
+        "max": 0.26
+      }
+    },
+    "prim_uncertainty": 0.8921568627450981,
+    "prim_support": 0.8793103448275862
+  },
+  "2016_block": {
+    "regime": "2016-block",
+    "n_scenarios": 63,
+    "v27_win_rate": 0.5396825396825397,
+    "contentiousness_mean": 0.2786892936735861,
+    "rf_accuracy": 0.7936507936507936,
+    "rf_importances": {
+      "economic_split": 0.710310387433796,
+      "pool_committed_split": 0.28968961256620396,
+      "pool_ideology_strength": 0.0,
+      "pool_max_loss_pct": 0.0
+    },
+    "prim_bounds": {
+      "economic_split": {
+        "min": 0.35,
+        "max": 0.82
+      },
+      "pool_committed_split": {
+        "min": 0.2,
+        "max": 0.75
+      },
+      "pool_ideology_strength": {
+        "min": 0.51,
+        "max": 0.51
+      },
+      "pool_max_loss_pct": {
+        "min": 0.26,
+        "max": 0.26
+      }
+    },
+    "prim_uncertainty": 0.9206349206349207,
+    "prim_support": 1.0
+  },
+  "bound_differences": {
+    "economic_split": {
+      "max_diff": 0.0,
+      "min_diff": 0.35,
+      "note": "Significant difference between regimes"
+    },
+    "pool_committed_split": {
+      "max_diff": 0.25,
+      "min_diff": 0.2,
+      "note": "Significant difference between regimes"
+    },
+    "pool_ideology_strength": {
+      "max_diff": 0.29000000000000004,
+      "min_diff": 0.51,
+      "note": "Significant difference between regimes"
+    },
+    "pool_max_loss_pct": {
+      "max_diff": 0.0,
+      "min_diff": 0.26,
+      "note": "Significant difference between regimes"
+    }
+  }
+}

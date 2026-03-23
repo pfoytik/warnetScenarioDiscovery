@@ -133,7 +133,7 @@ VALID_SWEEPS_2016 = [
     'committed_2016_mid_econ',
     'committed_2016_sigmoid',
     'committed_2016_sigmoid_midecon',
-    # ESP sweeps will be added here when complete
+    'hashrate_2016_verification',
 ]
 
 # Combined list for 'all' mode

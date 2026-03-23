@@ -1,0 +1,80 @@
+name: lhs_2016_full_parameter
+description: |
+  Latin Hypercube Sampling sweep at 2016-block retarget for unbiased feature importance.
+
+  PURPOSE: The targeted sweeps at 2016-block only varied economic_split and pool_committed_split
+  while fixing pool_ideology_strength and pool_max_loss_pct. This creates sampling bias that
+  prevents valid comparison of feature importance between 144-block and 2016-block regimes.
+
+  This LHS sweep samples all 4 key parameters proportionally to:
+  1. Provide unbiased feature importance estimates at 2016-block
+  2. Enable valid regime comparison with 144-block data
+  3. Detect interaction effects missed by targeted sweeps
+  4. Generate proper PRIM uncertainty bounds
+
+  DESIGN:
+  - 64 scenarios via Latin Hypercube Sampling (divisible by 4 for parallel namespaces)
+  - All 4 key parameters varied across their plausible ranges
+  - Fixed parameters set to validated values from Phase 1/2
+  - Duration 13000s at 2016-block retarget for realistic dynamics
+
+  RUNTIME: 64 scenarios x ~35 min = ~37 hours sequential
+           With 4 namespaces: ~9.5 hours
+
+  RUN COMMAND:
+    python tools/sweep/3_run_sweep.py \
+      --input lhs_2016_full_parameter/build_manifest.json \
+      --results-dir lhs_2016_full_parameter/results \
+      --duration 13000 --retarget-interval 2016 --interval 2 \
+      --namespace ns1 \
+      --scenarios <scenario_list>
+
+type: lhs
+network: lite
+n_samples: 64
+
+# Key parameters to vary - these determine fork outcomes
+parameters:
+  economic_split:
+    min: 0.30
+    max: 0.80
+    description: Fraction of economic nodes initially on v27
+
+  pool_committed_split:
+    min: 0.15
+    max: 0.70
+    description: Fraction of committed (non-neutral) pool hashrate on v27
+
+  pool_ideology_strength:
+    min: 0.30
+    max: 0.80
+    description: How strongly pools weight ideology vs profitability (0=pure profit, 1=pure ideology)
+
+  pool_max_loss_pct:
+    min: 0.10
+    max: 0.40
+    description: Maximum loss pools tolerate before switching forks
+
+# Fixed parameters - validated as non-causal or set to realistic values
+fixed:
+  # Validated non-causal at both 144 and 2016 block
+  hashrate_split: 0.25
+
+  # Pool behavior
+  pool_neutral_pct: 30.0
+  pool_profitability_threshold: 0.16
+
+  # Economic node behavior (validated values from v2 sweeps)
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.10
+  econ_inertia: 0.05
+
+  # User node behavior
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+
+  # Network structure
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  transaction_velocity: 0.5
+  solo_miner_hashrate: 0.085

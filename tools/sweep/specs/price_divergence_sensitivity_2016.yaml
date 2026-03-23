@@ -1,0 +1,101 @@
+name: price_divergence_sensitivity_2016
+description: >
+  Test whether the ~65% economic support inversion threshold is an artifact of the
+  ±20% max price divergence cap.
+
+  BACKGROUND:
+  Phase 2 analysis identified a "regime shift" at ~65% economic support where the
+  effect of hashrate on v27 outcomes reverses direction:
+    - Below 65%: more v27 hashrate helps v27 (+15-19% effect)
+    - Above 65%: more v27 hashrate hurts v27 (-15% effect, "inversion zone")
+
+  This could be a fundamental dynamic OR an artifact of the ±20% price divergence
+  cap hitting a ceiling at high economic support. This sweep tests the hypothesis
+  by varying max_price_divergence across [±10%, ±20%, ±30%, ±40%].
+
+  EXPECTED OUTCOMES:
+    - If threshold MOVES with divergence cap: artifact of price ceiling
+    - If threshold PERSISTS across all caps: likely fundamental dynamic
+    - If threshold DISAPPEARS at higher caps: ±20% constraint is the cause
+
+  DESIGN:
+    - max_price_divergence: 4 levels [0.10, 0.20, 0.30, 0.40]
+    - economic_split: 3 levels spanning the threshold [0.55, 0.65, 0.75]
+    - pool_committed_split: 2 levels in mid-range [0.30, 0.40]
+    - hashrate_split: 2 levels to observe the interaction [0.25, 0.50]
+    - Grid: 4 divergence × 3 economic × 2 committed × 2 hashrate = 48 scenarios
+
+  NOTE: max_price_divergence is a RUNTIME flag, not a config parameter.
+  This sweep must be run 4 times with different --max-price-divergence values.
+  See run commands below.
+
+  RUNTIME: 48 total scenarios (12 per divergence level)
+  At ~35 min/scenario on lite network: ~28 hours total (~7 hours per divergence level)
+  Recommend running all 4 divergence levels in parallel on different namespaces.
+
+  RUN COMMANDS (run each in separate namespace or sequentially):
+
+  # Generate scenarios (once)
+  python tools/sweep/1_generate_targeted.py --spec specs/price_divergence_sensitivity_2016.yaml
+
+  # Build configs (once)
+  python tools/sweep/2_build_configs.py \
+    --input price_divergence_sensitivity_2016/scenarios.json \
+    --output-dir price_divergence_sensitivity_2016
+
+  # Run with ±10% divergence cap
+  python tools/sweep/3_run_sweep.py \
+    --input price_divergence_sensitivity_2016/build_manifest.json \
+    --results-dir price_divergence_sensitivity_2016/results_div10 \
+    --duration 13000 --retarget-interval 2016 --interval 2 \
+    --max-price-divergence 0.10
+
+  # Run with ±20% divergence cap (current default - control group)
+  python tools/sweep/3_run_sweep.py \
+    --input price_divergence_sensitivity_2016/build_manifest.json \
+    --results-dir price_divergence_sensitivity_2016/results_div20 \
+    --duration 13000 --retarget-interval 2016 --interval 2 \
+    --max-price-divergence 0.20
+
+  # Run with ±30% divergence cap
+  python tools/sweep/3_run_sweep.py \
+    --input price_divergence_sensitivity_2016/build_manifest.json \
+    --results-dir price_divergence_sensitivity_2016/results_div30 \
+    --duration 13000 --retarget-interval 2016 --interval 2 \
+    --max-price-divergence 0.30
+
+  # Run with ±40% divergence cap
+  python tools/sweep/3_run_sweep.py \
+    --input price_divergence_sensitivity_2016/build_manifest.json \
+    --results-dir price_divergence_sensitivity_2016/results_div40 \
+    --duration 13000 --retarget-interval 2016 --interval 2 \
+    --max-price-divergence 0.40
+
+  ANALYSIS:
+  After all runs complete, compare v27 win rates at each economic_split level
+  across the 4 divergence caps. If the inversion at 65% disappears or shifts
+  at higher caps, the price ceiling is the cause.
+
+network: lite
+
+fixed:
+  pool_neutral_pct: 30.0
+  pool_ideology_strength: 0.51
+  pool_profitability_threshold: 0.16
+  pool_max_loss_pct: 0.26
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.10
+  econ_inertia: 0.05
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  transaction_velocity: 0.50
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  solo_miner_hashrate: 0.085
+
+# 3 economic × 2 committed × 2 hashrate = 12 scenarios per divergence level
+# Run 4 times with different --max-price-divergence for 48 total scenarios
+grid:
+  economic_split: [0.55, 0.65, 0.75]
+  pool_committed_split: [0.30, 0.40]
+  hashrate_split: [0.25, 0.50]

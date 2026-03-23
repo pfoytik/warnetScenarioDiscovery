@@ -1,0 +1,121 @@
+======================================================================
+PARAMETER SWEEP ANALYSIS REPORT
+======================================================================
+
+Total scenarios analyzed: 45
+
+OUTCOME DISTRIBUTION:
+  contested: 4 (8.9%)
+  v26_dominant: 18 (40.0%)
+  v27_dominant: 23 (51.1%)
+
+MOST DISCRIMINATING PARAMETERS:
+(Parameters with largest difference between v27/v26 dominant outcomes)
+
+  1. economic_split
+     Separation: 0.274
+     v27 favored when: higher
+     Estimated threshold: 0.584
+     v27_dominant mean: 0.721
+     v26_dominant mean: 0.447
+
+  2. pool_committed_split
+     Separation: 0.073
+     v27 favored when: higher
+     Estimated threshold: 0.459
+     v27_dominant mean: 0.495
+     v26_dominant mean: 0.422
+
+  3. hashrate_split
+     Separation: 0.0
+     v27 favored when: lower
+     Estimated threshold: 0.25
+     v27_dominant mean: 0.25
+     v26_dominant mean: 0.25
+
+  4. pool_ideology_strength
+     Separation: 0.0
+     v27 favored when: lower
+     Estimated threshold: 0.51
+     v27_dominant mean: 0.51
+     v26_dominant mean: 0.51
+
+  5. pool_profitability_threshold
+     Separation: 0.0
+     v27 favored when: lower
+     Estimated threshold: 0.16
+     v27_dominant mean: 0.16
+     v26_dominant mean: 0.16
+
+ECON SWITCHING TRAJECTORIES:
+(Economic node allocation shift over run duration)
+
+  scenario     econ_outcome   initial%  final%  switch_t  cascade_t   lag_s  peak_gap%
+  ------------------------------------------------------------------------------------
+  sweep_0000   no_switch         30.1%    0.0%      1105      never     n/a       0.0%
+  sweep_0001   no_switch         30.1%    0.0%       905      never     n/a       0.0%
+  sweep_0002   no_switch         30.1%    0.0%      1329      never     n/a       0.0%
+  sweep_0003   no_switch         30.1%    0.0%       964      never     n/a       0.0%
+  sweep_0004   no_switch         30.1%    0.0%       949      never     n/a       0.0%
+  sweep_0005   no_switch         30.1%    0.0%       905      never     n/a       0.0%
+  sweep_0006   no_switch         30.1%    0.0%       935      never     n/a       0.0%
+  sweep_0007   no_switch         30.1%    0.0%      1078      never     n/a       0.0%
+  sweep_0008   no_switch         30.1%    0.0%      1013      never     n/a       0.0%
+  sweep_0009   no_switch         50.1%    0.0%      3021      never     n/a       0.0%
+  sweep_0010   partial_switch    62.1%   62.1%     never      never     n/a       0.0%
+  sweep_0011   no_switch         50.1%    0.0%      3137      never     n/a       0.0%
+  sweep_0012   no_switch         50.1%   50.1%     never      never     n/a       0.0%
+  sweep_0013   no_switch         50.1%    0.0%      2500      never     n/a       0.0%
+  sweep_0014   no_switch         50.1%   50.1%     never      never     n/a       0.0%
+  sweep_0015   no_switch         50.1%   50.1%     never      never     n/a       0.0%
+  sweep_0016   no_switch         50.1%   50.1%     never      never     n/a       0.0%
+  sweep_0017   no_switch         50.1%   50.1%     never      never     n/a       3.3%
+  sweep_0018   full_switch       62.1%  100.0%      1036        928     108      48.6%
+  sweep_0019   partial_switch    62.1%   62.1%     never      never     n/a       0.0%
+  sweep_0020   full_switch       62.1%  100.0%      1613       1993    -380      45.0%
+  sweep_0021   partial_switch    62.1%   62.1%     never      never     n/a       5.7%
+  sweep_0022   full_switch       62.1%  100.0%      4976       5037     -61      39.2%
+  sweep_0023   partial_switch    62.1%   62.1%     never      never     n/a       0.0%
+  sweep_0024   full_switch       62.1%  100.0%      1293       1448    -155      48.5%
+  sweep_0025   full_switch       62.1%  100.0%      1022       1437    -415      46.5%
+  sweep_0026   full_switch       62.1%  100.0%       928       1319    -391      43.6%
+  sweep_0027   partial_switch    70.2%   70.2%     never      never     n/a       3.3%
+  sweep_0028   full_switch       70.2%  100.0%      1048       1339    -291      46.2%
+  sweep_0029   full_switch       70.2%  100.0%      1697       1386     311      47.5%
+  sweep_0030   full_switch       70.2%  100.0%       302        604    -302      45.8%
+  sweep_0031   full_switch       70.2%   95.6%     11552      12073    -521      27.0%
+  sweep_0032   full_switch       70.2%  100.0%       966       1338    -372      41.6%
+  sweep_0033   full_switch       70.2%  100.0%       919       1332    -413      45.3%
+  sweep_0034   full_switch       70.2%  100.0%       993       1384    -391      47.5%
+  sweep_0035   full_switch       70.2%  100.0%       319        742    -423      46.2%
+  sweep_0036   full_switch       80.8%  100.0%       338        654    -316      46.3%
+  sweep_0037   full_switch       80.8%  100.0%       315        646    -331      47.2%
+  sweep_0038   full_switch       80.8%  100.0%       379        723    -344      48.0%
+  sweep_0039   full_switch       80.8%  100.0%       302        605    -303      47.6%
+  sweep_0040   full_switch       70.2%  100.0%       302        626    -324      46.1%
+  sweep_0041   full_switch       80.8%  100.0%       330        682    -352      46.8%
+  sweep_0042   full_switch       80.8%  100.0%       734        734       0      47.7%
+  sweep_0043   full_switch       80.8%  100.0%       337        700    -363      47.1%
+  sweep_0044   full_switch       80.8%  100.0%       329        650    -321      46.7%
+
+ECON OUTCOME DISTRIBUTION:
+  full_switch: 23 (51%)
+  no_switch: 17 (38%)
+  partial_switch: 5 (11%)
+
+STRONG CORRELATIONS:
+(Parameters most correlated with v27 hashrate share / econ final)
+
+  economic_split: hash=+0.839  econ=+0.883
+  pool_ideology_strength: hash=-0.000  econ=-0.000
+  pool_profitability_threshold: hash=-0.000  econ=-0.000
+  pool_max_loss_pct: hash=-0.000  econ=-0.000
+  econ_ideology_strength: hash=-0.000  econ=-0.000
+
+KEY INSIGHTS:
+
+  * economic_split is the strongest predictor of fork outcome
+    Threshold around 0.584
+    v27 dominant when higher
+
+======================================================================

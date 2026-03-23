@@ -268,6 +268,8 @@ class PartitionMinerWithPools(Commander):
                                'Minority chains at low hashrate face proportionally lower price floors.')
         parser.add_argument('--cost-floor-margin-buffer', type=float, default=0.05,
                           help='Safety buffer below breakeven for cost floor (default: 0.05 = 5%%).')
+        parser.add_argument('--max-price-divergence', type=float, default=None,
+                          help='Max price divergence cap (e.g., 0.20 for ±20%%). Overrides default oracle cap.')
 
         # Debug options
         parser.add_argument('--debug-prices', action='store_true', default=False,
@@ -1361,19 +1363,24 @@ class PartitionMinerWithPools(Commander):
         self.log.info(f"{'='*70}\n")
 
         # Initialize oracles
-        self.price_oracle = PriceOracle(
-            base_price=60000,
-            min_fork_depth=6,
-            debug=self.options.debug_prices,
-            liveness_penalty=self.options.enable_liveness_penalty,
-            use_economic_ema=self.options.use_economic_ema,
-            economic_ema_alpha=self.options.economic_ema_alpha,
-            use_sigmoid=self.options.use_sigmoid,
-            sigmoid_steepness_k=self.options.sigmoid_steepness,
-            use_cost_floor=self.options.use_cost_floor,
-            cost_floor_margin_buffer=self.options.cost_floor_margin_buffer,
-        )
-        self.log.info(f"✓ Price oracle initialized (debug={self.options.debug_prices})")
+        price_oracle_kwargs = {
+            'base_price': 60000,
+            'min_fork_depth': 6,
+            'debug': self.options.debug_prices,
+            'liveness_penalty': self.options.enable_liveness_penalty,
+            'use_economic_ema': self.options.use_economic_ema,
+            'economic_ema_alpha': self.options.economic_ema_alpha,
+            'use_sigmoid': self.options.use_sigmoid,
+            'sigmoid_steepness_k': self.options.sigmoid_steepness,
+            'use_cost_floor': self.options.use_cost_floor,
+            'cost_floor_margin_buffer': self.options.cost_floor_margin_buffer,
+        }
+        # Override max divergence if specified via command line
+        if self.options.max_price_divergence is not None:
+            price_oracle_kwargs['max_divergence'] = self.options.max_price_divergence
+        self.price_oracle = PriceOracle(**price_oracle_kwargs)
+        divergence_msg = f", max_divergence=±{self.options.max_price_divergence*100:.0f}%" if self.options.max_price_divergence else ""
+        self.log.info(f"✓ Price oracle initialized (debug={self.options.debug_prices}{divergence_msg})")
 
         self.fee_oracle = FeeOracle()
         self.log.info("✓ Fee oracle initialized")

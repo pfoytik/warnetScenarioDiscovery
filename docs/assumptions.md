@@ -397,3 +397,62 @@ SegWit2x fork events to bound plausible ideology and loss tolerance ranges.
 **Conservative** = assumption makes fork outcomes harder to trigger than in reality,
 so reported thresholds are upper bounds.
 **Neutral** = bias direction unclear or effect is symmetric.
+
+---
+
+## 8. Phase 2 Findings: Emergent Thresholds and Interaction Effects
+
+Phase 2 scenario discovery analysis (see `phase2_scenario_discovery_preliminary.md`)
+identified emergent behavior that may be artifacts of the assumptions above.
+
+### 8.1 The ~65% Economic Support Threshold
+
+**Observation:** At approximately 65% economic support, the effect of additional
+v27 hashrate on fork outcomes **reverses direction**:
+- Below 65%: more v27 hashrate helps v27 win (+15-19% effect)
+- Above 65%: more v27 hashrate hurts v27 win (-15% effect, "inversion zone")
+
+**Potential model-dependent causes:**
+
+| Assumption | How it could create the threshold |
+|------------|-----------------------------------|
+| 2.2 Price oracle economic weight (0.50) | At 65% economic support, price advantage may cross a critical value that triggers different pool behavior |
+| 2.4 Max price divergence (±20%) | Ceiling effects may create nonlinearities when price approaches the cap |
+| 4.2 Economic switching threshold formula | The `ideology_strength × 2.0` multiplier creates specific trigger points |
+| 3.1 Pool profitability at assumed 50% hashrate | Actual hashrate divergence not reflected in decisions creates artifacts |
+
+**Status:** Unclear whether this is a fundamental dynamic or model artifact.
+Sensitivity analysis recommended (vary 2.2, 2.4, 4.2 parameters and observe
+whether threshold moves, persists, or disappears).
+
+### 8.2 hashrate_split × economic_split Interaction (Simpson's Paradox)
+
+**Observation:** The `hashrate_split` parameter shows no statistically significant
+main effect at 2016-block conditions (p=0.86), consistent with Phase 1 findings.
+However, stratified analysis reveals opposite effects at different economic levels
+that cancel out in aggregate (Simpson's paradox).
+
+**Implication:** Parameters identified as "non-causal" based on main effects may
+still have significant interaction effects. Future sweeps should test interaction
+terms explicitly, not just main effects.
+
+### 8.3 Regime-Dependent Parameter Importance
+
+**Observation:** `pool_committed_split` importance nearly triples between 144-block
+(11.7%) and 2016-block (29.0%) regimes. This suggests parameter importance is
+regime-dependent — findings from fast-retarget experiments may not generalize to
+realistic Bitcoin timing.
+
+**Implication:** All threshold claims should be validated at 2016-block conditions.
+The 144-block regime is useful for rapid exploration but not for calibrated claims.
+
+---
+
+## 9. Cross-References
+
+| Document | Purpose |
+|----------|---------|
+| `phase2_scenario_discovery_preliminary.md` | PRIM bounds, feature importance, regime comparison, hashrate validation |
+| `esp_matrix.md` | Economic Self-Sustaining Point analysis |
+| `Methodology.md` (in paper/) | Complete methodology including Phase 2 Section 13 |
+| `tools/sweep/SWEEP_FINDINGS.md` | Phase 1 sweep results and parameter elimination |

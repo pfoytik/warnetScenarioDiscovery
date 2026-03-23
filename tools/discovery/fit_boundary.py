@@ -129,6 +129,10 @@ VALID_SWEEPS_2016 = [
     'targeted_sweep8_lite_2016_retarget',
     'targeted_sweep9_long_duration_2016',
     'targeted_sweep11_lite_chaos_test',
+    'committed_2016_high_econ',
+    'committed_2016_mid_econ',
+    'committed_2016_sigmoid',
+    'committed_2016_sigmoid_midecon',
     # ESP sweeps will be added here when complete
 ]
 

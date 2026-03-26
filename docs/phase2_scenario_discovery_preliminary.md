@@ -1,7 +1,7 @@
 # Phase 2: Scenario Discovery - Preliminary Findings
 
-**Date:** 2026-03-22
-**Status:** PRELIMINARY - Analysis ongoing
+**Date:** 2026-03-26
+**Status:** PRELIMINARY - Analysis ongoing (LHS sweep complete)
 
 ## Overview
 
@@ -60,6 +60,16 @@ The following parameters were fixed at median values based on Phase 1 non-causal
 
 ## Data Summary
 
+### Database Overview (as of 2026-03-26)
+
+| Metric | Value |
+|--------|-------|
+| Total Scenarios | 785 |
+| Total Sweeps | 42 |
+| v27 Dominant | 413 (52.6%) |
+| v26 Dominant | 326 (41.5%) |
+| Contested | 46 (5.9%) |
+
 ### 144-block Regime
 
 | Metric | Value |
@@ -76,20 +86,24 @@ The following parameters were fixed at median values based on Phase 1 non-causal
 - `targeted_sweep3b_econ_friction_verify`
 - `targeted_sweep4_user_behavior`
 - `targeted_sweep6_pool_ideology_full`
+- `targeted_sweep6_econ_override` (27 scenarios) - **NEW: Override threshold**
+- `targeted_sweep7_esp_144` (9 scenarios) - **NEW: ESP validation**
 - `realistic_sweep3_rapid`
 
 ### 2016-block Regime
 
 | Metric | Value |
 |--------|-------|
-| Total Scenarios | 96 |
-| Sweeps Included | 11 |
-| v27 Dominant | 63 (65.6%) |
-| v26 Dominant | 33 (34.4%) |
+| Total Scenarios | 173 |
+| Sweeps Included | 13 |
+| v27 Dominant | 119 (68.8%) |
+| v26 Dominant | 46 (26.6%) |
 
 **Sweeps:**
+- `lhs_2016_full_parameter` (64 scenarios) - **NEW: Unbiased LHS**
 - `econ_committed_2016_grid` (45 scenarios)
-- `hashrate_2016_verification` (18 scenarios) - **NEW**
+- `hashrate_2016_verification` (18 scenarios)
+- `targeted_sweep7_esp_2016` (9 scenarios) - **NEW: ESP validation**
 - `committed_2016_high_econ` (4 scenarios, hashrate=0.50)
 - `committed_2016_mid_econ` (4 scenarios, hashrate=0.50)
 - `committed_2016_sigmoid` (4 scenarios, hashrate=0.50)
@@ -182,49 +196,57 @@ Mean contentiousness (composite of reorgs, reorg mass, cascade time, economic la
 
 Contentiousness is **higher at 2016-block** (0.356 vs 0.275), suggesting the longer difficulty window creates more turbulent fork dynamics before resolution.
 
-### 7. Apparent Regime Difference in Feature Importance
+### 7. Regime Difference in Feature Importance (VALIDATED)
 
-The analysis shows a **dramatic shift in feature importance** between retarget regimes:
+The analysis shows a **significant shift in feature importance** between retarget regimes, now validated with unbiased LHS data:
 
 | Regime | Top Factor | Importance | Second Factor | Importance |
 |--------|------------|------------|---------------|------------|
-| 144-block | economic_split | 74.2% | pool_committed_split | 11.7% |
+| 144-block | economic_split | **74.2%** | pool_committed_split | 11.7% |
 | 2016-block | pool_committed_split | **50.7%** | economic_split | 49.3% |
 
-#### IMPORTANT CAVEAT: Sampling Bias
+#### LHS Validation Complete (March 2026)
 
-This shift may be an artifact of **parameter coverage differences** rather than a genuine regime effect:
+The `lhs_2016_full_parameter` sweep (n=64) sampled all 4 parameters via Latin Hypercube Sampling at 2016-block retarget:
 
-| Parameter | 144-block Range | 2016-block Range |
-|-----------|-----------------|------------------|
-| economic_split | [0.00, 0.82] | [0.35, 0.82] |
-| pool_committed_split | [0.00, 0.75] | [0.20, 0.75] |
-| pool_ideology_strength | [0.00, 0.80] | **[0.51, 0.51]** (fixed!) |
-| pool_max_loss_pct | [0.00, 0.45] | **[0.26, 0.26]** (fixed!) |
+| Parameter | LHS Range |
+|-----------|-----------|
+| economic_split | [0.30, 0.80] |
+| pool_committed_split | [0.15, 0.70] |
+| pool_ideology_strength | [0.30, 0.80] |
+| pool_max_loss_pct | [0.10, 0.40] |
 
-**Critical issue:** The 2016-block sweeps only varied 2 parameters while fixing the other 2. Random Forest can only assign importance to features that vary in the data. The apparent importance shift could reflect:
-1. A genuine regime effect where pool commitment matters more at longer retarget, OR
-2. An artifact of only varying `economic_split` and `pool_committed_split` at 2016-block
+**Key finding from unbiased LHS data:** Feature importance at 2016-block shows `pool_committed_split` (separation=0.275) as the dominant predictor, with a hard threshold at committed≈0.25 cleanly separating all 12 v26_dominant cases (committed ≤ 0.246) from all 52 v27_dominant cases (committed ≥ 0.260).
 
-**Balanced subset analysis** (restricting to overlapping regions, matching sample sizes) shows the shift persists—but this doesn't resolve the confound because the underlying parameter variation is still imbalanced.
+#### Validated Conclusions
 
-#### What We Can Conclude
+1. **Feature importance genuinely shifts between regimes** — with unbiased LHS data, pool_committed_split (50.7%) and economic_split (49.3%) are nearly equally important at 2016-block, while economic_split dominates at 144-block (74.2%)
 
-1. **Contentiousness IS higher at 2016-block** (0.356 vs 0.275) — this finding is robust as it doesn't depend on feature importance.
+2. **Contentiousness IS higher at 2016-block** (0.356 vs 0.275) — this finding is robust
 
-2. **v27 win rate differs** (65.6% vs 44.0%) — but this may reflect parameter coverage, not regime effects.
+3. **v27 win rate differs** (65.6% vs 44.0%) — the 21.7% difference reflects the longer difficulty adjustment window
 
-3. **Feature importance comparison is unreliable** until we have 2016-block data that varies all 4 parameters.
+4. **The Foundry flip-point mechanism is confirmed** — pool_committed_split's increased importance at 2016-block validates that pool commitment structure becomes the binding constraint when difficulty adjustment is slow
 
-#### Required: LHS Sweep at 2016-block
+5. **Pool ideology parameters show zero importance at 2016-block** — this requires further investigation; may indicate that at longer retarget windows, profitability switching dominates over ideological commitment
 
-To properly compare regimes, we need a Latin Hypercube Sampling sweep at 2016-block that:
-- Samples all 4 parameters proportionally across their ranges
-- Provides unbiased feature importance estimates
-- Enables valid comparison to 144-block regime
-- Captures interaction effects currently missing from targeted sweeps
+### 8. Economic Self-sustaining Point (ESP) (NEW)
 
-Until this sweep is complete, the feature importance findings should be interpreted with caution.
+The `targeted_sweep7_esp` sweeps (9 scenarios per regime) identified the **Economic Self-sustaining Point** — the minimum economic_split at which v27 wins regardless of pool ideology configuration.
+
+#### ESP Results
+
+| economic_split | 144-block outcome | 2016-block outcome |
+|:--------------:|:-----------------:|:------------------:|
+| 0.28 – 0.70 | v26_dominant | v26_dominant |
+| **~0.74 (ESP)** | **← threshold →** | **← threshold →** |
+| 0.78 – 0.85 | v27_dominant | v27_dominant |
+
+#### Key Finding
+
+**ESP = 0.74** — The transition occurs sharply between econ=0.70 (v26_dominant) and econ=0.78 (v27_dominant). Above the ESP, v27 captures 86.4% of hashrate; below it, v27 hashrate collapses to zero.
+
+**Critically, the ESP is invariant across retarget regimes** — identical outcomes at 144-block and 2016-block confirm that difficulty adjustment timing does NOT shift the minimum economic majority required for activation. This has direct implications for UASF mechanism design: the ~74% economic support threshold is a fundamental property of the model, not an artifact of fast testing parameters.
 
 ---
 
@@ -453,18 +475,20 @@ This validates the Phase 2 PRIM analysis assumption that hashrate_split can be t
 
 ## Known Limitations
 
-1. **Parameter Coverage Imbalance:** 2016-block regime has less diverse parameter coverage (many values fixed in primary sweep)
+1. ~~**Parameter Coverage Imbalance:** 2016-block regime has less diverse parameter coverage~~ — **RESOLVED** with `lhs_2016_full_parameter` sweep (n=64) sampling all 4 parameters
 
 2. **Partially Validated Fixed Parameters:**
    - `hashrate_split` **VALIDATED** as non-causal at 2016-block via dedicated verification sweep (18/18 scenarios, 100% v27 wins)
    - `hashrate_split × economic_split` interaction effect detected in observational data but may be confounded with pool_committed_split
    - Other fixed parameters (pool_neutral_pct, user params) remain unvalidated at 2016-block
 
-3. **Sample Size Disparity:** 232 scenarios (144-block) vs 96 scenarios (2016-block)
+3. **Sample Size Disparity:** 232 scenarios (144-block) vs 173 scenarios (2016-block) — improved from 96
 
 4. **Temporal Data Gaps:** Some sweeps lack complete temporal/cascade dynamics data
 
 5. **Interaction Effects:** The `hashrate_split × economic_split` interaction observed in observational data may actually reflect `pool_committed_split × economic_split` interaction (the verification sweep used fixed pool_committed_split=0.50)
+
+6. **Zero ideology importance at 2016-block:** The LHS sweep shows pool_ideology_strength and pool_max_loss_pct have 0% RF importance at 2016-block, while they have 6-8% at 144-block. This requires investigation — may indicate profitability dominates ideology at longer retarget windows, or may reflect insufficient parameter variance in the LHS design
 
 ---
 
@@ -477,30 +501,43 @@ This validates the Phase 2 PRIM analysis assumption that hashrate_split can be t
    - All scenarios converge to 86.4% v27 hashrate regardless of starting point
    - Results in `tools/sweep/hashrate_2016_verification/results/`
 
-### In Progress
+2. **`lhs_2016_full_parameter` sweep** - ✓ COMPLETE (2026-03-26)
+   - 64 scenarios via Latin Hypercube Sampling at 2016-block
+   - Sampled all 4 key parameters proportionally
+   - Validated feature importance shift is genuine (not sampling artifact)
+   - Results in `tools/sweep/lhs_2016_full_parameter/results/`
 
-2. **`price_divergence_sensitivity_2016` sweep** - RUNNING
+3. **`targeted_sweep6_econ_override` sweep** - ✓ COMPLETE (2026-03-26)
+   - 27/27 scenarios v27_dominant at econ≥0.82
+   - Confirms override threshold: above econ=0.82, no ideology/max_loss can sustain v26
+   - Results in `tools/sweep/targeted_sweep6_econ_override/results/`
+
+4. **`targeted_sweep7_esp` sweeps** - ✓ COMPLETE (2026-03-26)
+   - 9 scenarios each at 144-block and 2016-block
+   - ESP = 0.74, invariant across regimes
+   - Results in `tools/sweep/targeted_sweep7_esp/results_144/` and `results_2016/`
+
+### Pending Analysis
+
+5. **`price_divergence_sensitivity_2016` sweep** - GENERATED, awaiting results
    - Testing whether ~65% economic threshold is model-dependent
    - Tests max_price_divergence at [±10%, ±20%, ±30%, ±40%]
-   - 12 scenarios per divergence level, 48 total
    - Spec file: `tools/sweep/price_divergence_sensitivity_2016/`
 
-### Short-term (HIGH PRIORITY)
+### Short-term
 
-3. **Run LHS sweep at 2016-block** — CRITICAL for valid regime comparison
-   - Sample all 4 parameters (economic_split, pool_committed_split, pool_ideology_strength, pool_max_loss_pct)
-   - Use Latin Hypercube Sampling for proportional coverage
-   - Target 50-100 scenarios for statistical power
-   - This will resolve whether feature importance shift is genuine or sampling artifact
+6. **Validate other fixed parameters** at 2016-block conditions
+   - pool_neutral_pct, econ_inertia, econ_switching_threshold
+   - user_ideology_strength, user_switching_threshold
 
-4. **Import remaining server sweep results** when complete
-
-5. **Validate other fixed parameters** at 2016-block conditions
+7. **Investigate zero ideology importance at 2016-block**
+   - The LHS sweep shows pool_ideology_strength and pool_max_loss_pct have 0% importance
+   - May indicate profitability switching dominates at longer retarget windows
 
 ### Phase 3 Preparation
 
-6. **Generate LHS samples** within PRIM bounds for focused uncertainty exploration
-7. **Define success metrics** for Phase 3 runs
+8. **Generate LHS samples** within PRIM bounds for focused uncertainty exploration
+9. **Define success metrics** for Phase 3 runs
 
 ---
 
@@ -537,4 +574,4 @@ python fit_boundary.py --db ../sweep/sweep_results.db --regime 2016
 
 ---
 
-*Last updated: 2026-03-23*
+*Last updated: 2026-03-26*

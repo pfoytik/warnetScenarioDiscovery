@@ -71,11 +71,17 @@ discussed qualitatively where relevant.
                                                                threshold at econ=0.78
                                                                confirmed (n=20)
 
-  targeted_sweep6_econ_   27       60-node       ⏳ Pending   Economic override threshold
-  override                                                     for high-ideology pools;
-                                                               sweeps econ=[0.82,0.90,0.95]
-                                                               × ideology × max_loss;
-                                                               fills §4.3.3 Table 5
+  targeted_sweep6_econ_   27       60-node       ✓ Valid      Economic override threshold
+  override                                                     — 27/27 v27_dominant; econ
+                                                               override total at econ≥0.82;
+                                                               cascade timing 700–10,920s;
+                                                               §4.3.3 Table 5 filled
+
+  lhs_2016_full_          64       60-node       ✓ Valid      Unbiased LHS at 2016-block
+  parameter                                                    — pool_committed_split
+                                                               dominates (sep=0.275); hard
+                                                               threshold at commit≈0.25;
+                                                               validates regime comparison
 
   econ_committed_          45       60-node       ✓ Complete   5×9 economic_split ×
   2016_grid                                                    pool_committed_split grid
@@ -83,14 +89,13 @@ discussed qualitatively where relevant.
                                                                direct regime comparison
                                                                to targeted_sweep1
 
-  targeted_sweep7_esp      4/9      60-node       ⏳ Partial   Economic Self-Sustaining
-  (144-block)              per                                 Point sweep --- econ_split
-                           regime                              0.28--0.55 complete;
-                                                               0.60--0.85 pending
+  targeted_sweep7_esp      9/9      60-node       ✓ Valid      ESP = 0.74 (threshold
+  (144-block)              per                                 econ=0.70→0.78);
+                           regime                              all 9 scenarios complete
 
-  targeted_sweep7_esp      4/9      60-node       ⏳ Partial   As above at 2016-block
-  (2016-block)             per                                 retarget; ESP boundary
-                           regime                              not yet located
+  targeted_sweep7_esp      9/9      60-node       ✓ Valid      ESP = 0.74, identical to
+  (2016-block)             per                                 144-block; retarget interval
+                           regime                              does not shift ESP
 
   targeted_sweep2b (lite)  20       25-node       ⚠ Partial    Pool ideology on lite
                                                                network --- pool params
@@ -377,14 +382,13 @@ Six of 20 cells showed v26 surviving at econ=0.78: all cases where ideology × m
 ≥ 0.18. The boundary cells narrow the threshold to approximately 0.16--0.20 (the range
 between the highest v27-winning product and the lowest v26-surviving product).
 
-**\[PENDING DATA ---** *targeted_sweep6_econ_override (n=27, spec at
-tools/sweep/specs/targeted_sweep6_econ_override.yaml) will answer the remaining
-question for this subsection: does the \~0.82 economic override threshold shift
-upward when ideology × max_loss is high? The sweep runs the 9 upper-right-quadrant
-ideology × max_loss cells at econ=[0.82, 0.90, 0.95]. If any v26 cells persist
-at econ=0.82, Table 5's override threshold row requires upward revision. Fill
-this subsection with the override threshold value and add the 3D surface description
-when the sweep completes.***\]**
+**Empirical result (targeted_sweep6_econ_override, March 2026):** The override threshold is confirmed at **econ = 0.82**. All 27 scenarios (ideology=[0.40,0.60,0.80] × max_loss=[0.25,0.35,0.45] × econ=[0.82,0.90,0.95]) are v27_dominant. The diagonal threshold established at econ=0.78 does not extend upward — above econ=0.82, no ideology/max_loss combination can sustain v26.
+
+Cascade timing varies substantially with ideology × max_loss: standard cascades complete in ~700s; ideology=0.80 + max_loss=0.35 takes 10,920s. High ideology creates resistance that delays but does not change the outcome. This confirms the 3D structure of the ideology surface: outcome is flat (always v27) above the ESP; cascade timing is the only remaining variable, and it scales with ideology strength × loss tolerance.
+
+**[TODO: Add a brief sentence synthesizing this finding with the §4.3.2 diagonal threshold — the joint picture is that ideology determines whether v26 survives at econ=0.78 (threshold at ideology×max_loss ≳ 0.16) but above econ=0.82 ideology becomes irrelevant to outcome.]**
+
+Data: `tools/sweep/targeted_sweep6_econ_override/results/analysis/`.
 
 **4.4 Consolidated Threshold Summary**
 
@@ -417,10 +421,12 @@ source.***
                                            hashrate) and inverts  mechanism analysis
                                            outcomes               
 
-  pool_ideology_strength × Diagonal TBD    Joint threshold        Pending ---
-  pool_max_loss_pct                        determines whether     targeted_sweep6
-                                           ideology overrides     
-                                           profitability          
+  pool_ideology_strength × ~0.16--0.20     Below this product,    High ---
+  pool_max_loss_pct        (product)       ideology capitulates;  targeted_sweep6_
+                                           above it, v26 pools    pool_ideology_full
+                                           survive at econ=0.78;  (n=20) +
+                                           threshold vanishes at  targeted_sweep6_
+                                           econ≥0.82              econ_override (n=27)
 
   hashrate_split           No independent  Appears important in   High ---
                            effect          exploratory sweeps but targeted_sweep2
@@ -499,6 +505,8 @@ choice.
 The full 5×9 economic_split × pool_committed_split grid was completed at
 2016-block difficulty (econ_committed_2016_grid, n=45, March 2026).
 Table 4b presents the outcome matrix.
+
+**Unbiased feature importance confirmation (lhs_2016_full_parameter, n=64, March 2026):** A Latin Hypercube sweep sampling all 4 key parameters simultaneously at 2016-block retarget confirms and extends Table 6. Feature importance ranking: pool_committed_split (separation=0.275) >> economic_split (0.059) ≈ pool_ideology_strength (0.059) > pool_max_loss_pct (0.038). A hard threshold at committed_split ≈ 0.25 cleanly separates all 12 v26_dominant cases (committed ≤ 0.246) from all 52 v27_dominant cases (committed ≥ 0.260). The Foundry flip-point mechanism is confirmed via unbiased sampling: at 2016-block retarget, pool commitment structure is the binding constraint, not economic split. This validates the regime comparison — the dominant causal variable genuinely shifts between regimes, not merely the threshold value.
 
 ***Table 4b. econ_committed_2016_grid: fork outcomes at 2016-block
 retarget across economic_split × pool_committed_split. Compare to
@@ -964,22 +972,20 @@ dependency for the paper.\]**
 The following and ONLY the following additional sweeps are needed to
 fill all \[PENDING DATA\] placeholders in this results section:
 
-4.  **targeted_sweep6_econ_override (27 scenarios, full network,
-    144-block) --- fills §4.3.3 override threshold and updates Table 5
-    ideology row. HIGHEST PRIORITY.** Spec: tools/sweep/specs/
-    targeted_sweep6_econ_override.yaml. Note: targeted_sweep6_pool_ideology_full
-    (n=20) is complete and fills the diagonal threshold finding; this
-    sweep answers the remaining economic override question.
+4.  ~~targeted_sweep6_econ_override (27 scenarios, full network,
+    144-block)~~ --- **COMPLETE.** All 27 scenarios finished March
+    2026. 27/27 v27_dominant. Override threshold confirmed at econ=0.82.
+    §4.3.3 filled. Table 5 ideology row updated.
 
 5.  ~~2016-block economic × committed grid (~45 scenarios)~~ ---
     **COMPLETE.** econ_committed_2016_grid (n=45) finished March 2026.
     §4.5 Table 6 and Table 4b filled.
 
-6.  **targeted_sweep7_esp sweeps 0004--0008 (econ=0.60--0.85, both
-    144-block and 2016-block) --- locates the ESP boundary.** The
-    existing runs only cover econ ≤ 0.55; the self-sustaining point
-    is expected in 0.60--0.70. Run sweep_0004 (econ=0.60) first as
-    bellwether. See docs/esp_matrix.md §6.
+6.  ~~targeted_sweep7_esp sweeps 0004--0008 (econ=0.60--0.85, both
+    144-block and 2016-block)~~ --- **COMPLETE.** All 9 scenarios
+    finished March 2026. ESP = 0.74 (threshold between econ=0.70 and
+    econ=0.78), identical across 144-block and 2016-block regimes.
+    §4.11.1 filled.
 
 7.  targeted_sweep5_lite re-run (after role-name fix) --- fills lite
     network comparison if included. LOWER PRIORITY --- can be deferred
@@ -1011,9 +1017,17 @@ Critically, the feedback loop is not guaranteed to be unidirectional. If economi
 
 **Expected finding:** Based on Phase 1 inversion zone data, the ESP is expected to fall in the 0.70--0.78 range. Below this range, committed legacy-rules pool ideology can sustain the minority chain long enough to prevent cascade completion. Above it, economic pressure overcomes pool ideology regardless of parameterization.
 
-**[TODO: Insert Figure X --- P(new_rules_wins) as a function of economic_split at fixed pool_committed_split = 0.214, with the ESP annotated as the inflection point. Cross-reference with Section 4.10.1 decision surface.]**
+**Empirical result (targeted_sweep7_esp, March 2026):** The ESP is confirmed at approximately **econ = 0.74** --- the transition occurs between econ=0.70 (v26_dominant in both regimes) and econ=0.78 (v27_dominant in both regimes). The transition is sharp and winner-takes-all: above the ESP, v27 captures 86.4% of hashrate; below it, v27 hashrate collapses to zero. The ESP is **invariant to retarget regime** --- identical outcomes at 144-block and 2016-block confirm that difficulty adjustment timing does not shift the minimum economic majority required for activation.
 
-**[PENDING DATA --- Add to compute queue as targeted_sweep7_esp: 60-node network, ~40 scenarios. Runtime estimate: ~20 hours. Priority: HIGH.]**
+| economic_split | 144-block outcome | 2016-block outcome |
+|:--------------:|:-----------------:|:------------------:|
+| 0.28 -- 0.70 | v26_dominant | v26_dominant |
+| **~0.74 (ESP)** | **← threshold →** | **← threshold →** |
+| 0.78 -- 0.85 | v27_dominant | v27_dominant |
+
+**[TODO: Insert Figure X --- P(new_rules_wins) as a function of economic_split at fixed pool_committed_split = 0.214, with the ESP annotated at 0.74. Overlay 144-block and 2016-block curves to show regime invariance. Cross-reference with Section 4.10.1 decision surface.]**
+
+Data: `tools/sweep/targeted_sweep7_esp/results_144/` and `results_2016/`.
 
 **4.11.2 Objective B: Activation Threshold Effect on the Pool Flip-Point**
 

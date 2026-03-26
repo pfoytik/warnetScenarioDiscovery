@@ -1,0 +1,89 @@
+======================================================================
+PARAMETER SWEEP ANALYSIS REPORT
+======================================================================
+
+Total scenarios analyzed: 27
+
+OUTCOME DISTRIBUTION:
+  v27_dominant: 27 (100.0%)
+
+MOST DISCRIMINATING PARAMETERS:
+(Parameters with largest difference between v27/v26 dominant outcomes)
+
+  1. economic_split
+     Separation: 0
+     v27 favored when: ?
+     Estimated threshold: ?
+     v27_dominant mean: 0.89
+
+  2. hashrate_split
+     Separation: 0
+     v27 favored when: ?
+     Estimated threshold: ?
+     v27_dominant mean: 0.25
+
+  3. pool_ideology_strength
+     Separation: 0
+     v27 favored when: ?
+     Estimated threshold: ?
+     v27_dominant mean: 0.6
+
+  4. pool_profitability_threshold
+     Separation: 0
+     v27 favored when: ?
+     Estimated threshold: ?
+     v27_dominant mean: 0.16
+
+  5. pool_max_loss_pct
+     Separation: 0
+     v27 favored when: ?
+     Estimated threshold: ?
+     v27_dominant mean: 0.35
+
+ECON SWITCHING TRAJECTORIES:
+(Economic node allocation shift over run duration)
+
+  scenario     econ_outcome   initial%  final%  switch_t  cascade_t   lag_s  peak_gap%
+  ------------------------------------------------------------------------------------
+  sweep_0000   full_switch       80.8%  100.0%       302        703    -401      38.9%
+  sweep_0001   full_switch       88.6%  100.0%       316        806    -490      39.0%
+  sweep_0002   full_switch       94.6%  100.0%      1091        756     335      45.8%
+  sweep_0003   full_switch       80.8%  100.0%      1020       1301    -281      47.2%
+  sweep_0004   full_switch       88.6%  100.0%       302        774    -472      37.9%
+  sweep_0005   full_switch       94.6%  100.0%       974        693     281      42.1%
+  sweep_0006   full_switch       80.8%  100.0%       359        694    -335      39.6%
+  sweep_0007   full_switch       88.6%  100.0%       333        736    -403      42.0%
+  sweep_0008   full_switch       88.6%  100.0%       319        838    -519      41.8%
+  sweep_0009   full_switch       80.8%  100.0%       316        623    -307      40.7%
+  sweep_0010   full_switch       88.6%  100.0%       336        800    -464      42.5%
+  sweep_0011   full_switch       94.6%  100.0%      1141        800     341      42.9%
+  sweep_0012   full_switch       94.6%  100.0%      1041        877     164      39.4%
+  sweep_0013   full_switch       80.8%  100.0%       370        739    -369      42.4%
+  sweep_0014   full_switch       94.6%  100.0%       951        879      72      46.3%
+  sweep_0015   full_switch       80.8%  100.0%       330       2003   -1673      44.2%
+  sweep_0016   full_switch       88.6%  100.0%       315       1489   -1174      45.2%
+  sweep_0017   full_switch       94.6%  100.0%      1065        730     335      41.7%
+  sweep_0018   full_switch       80.8%  100.0%       320        680    -360      42.6%
+  sweep_0019   full_switch       88.6%  100.0%       338        683    -345      42.8%
+  sweep_0020   full_switch       94.6%  100.0%      1229        828     401      44.3%
+  sweep_0021   full_switch       80.8%  100.0%       315      10920  -10605      34.5%
+  sweep_0022   full_switch       88.6%  100.0%       342       1543   -1201      46.0%
+  sweep_0023   full_switch       94.6%  100.0%      1588       1407     181      47.4%
+  sweep_0024   full_switch       80.8%  100.0%       344       8524   -8180      40.5%
+  sweep_0025   full_switch       88.6%  100.0%       344       1655   -1311      44.7%
+  sweep_0026   full_switch       94.6%  100.0%       905       1500    -595      47.3%
+
+ECON OUTCOME DISTRIBUTION:
+  full_switch: 27 (100%)
+
+STRONG CORRELATIONS:
+(Parameters most correlated with v27 hashrate share / econ final)
+
+  economic_split: hash=-0.000  econ=+0.256
+  pool_ideology_strength: hash=-0.000  econ=-0.240
+  pool_max_loss_pct: hash=-0.000  econ=-0.000
+
+KEY INSIGHTS:
+
+
+======================================================================

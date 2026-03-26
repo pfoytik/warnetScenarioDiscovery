@@ -1,0 +1,92 @@
+name: lhs_144_6param
+description: |
+  Latin Hypercube Sampling sweep at 144-block retarget expanding to 6 active parameters.
+
+  PURPOSE: The existing lhs_2016_full_parameter sweep varied 4 parameters
+  (economic_split, pool_committed_split, pool_ideology_strength, pool_max_loss_pct)
+  but held pool_profitability_threshold and solo_miner_hashrate fixed at assumed values.
+  Neither of these has ever been varied in any prior sweep, despite both directly
+  affecting the pool cascade trigger mechanism:
+    - pool_profitability_threshold: minimum profit advantage required for pools to switch
+      forks; directly controls when the cascade fires; fixed at 0.16 throughout Phase 1
+    - solo_miner_hashrate: structural v27 hashrate advantage baked into every scenario;
+      may shift the Foundry flip-point and ESP; fixed at 0.085 throughout Phase 1
+
+  This sweep tests whether these assumptions are load-bearing by including both
+  parameters in an unbiased LHS alongside the 4 established active parameters.
+
+  DESIGN:
+  - 130 scenarios via Latin Hypercube Sampling (26 per namespace, 5 namespaces)
+  - 6 parameters varied across plausible ranges
+  - 144-block retarget for comparison with targeted Phase 1 sweeps
+  - Duration 13000s
+
+  RUNTIME: 130 scenarios x ~35 min = ~76 hours sequential
+           With 5 namespaces: ~15.2 hours
+
+  GENERATES: Unbiased 144-block feature importance across 6D parameter space.
+             If pool_profitability_threshold and solo_miner_hashrate show near-zero
+             separation, they are confirmed non-causal and can be fixed in Phase 3.
+             If they show non-trivial separation, the Phase 3 LHS must be 6D.
+
+type: lhs
+network: lite
+n_samples: 130
+
+# 6 active parameters — 4 established + 2 previously untested
+parameters:
+  economic_split:
+    min: 0.30
+    max: 0.80
+    description: Fraction of economic nodes initially on v27
+
+  pool_committed_split:
+    min: 0.15
+    max: 0.70
+    description: Fraction of committed (non-neutral) pool hashrate on v27
+
+  pool_ideology_strength:
+    min: 0.30
+    max: 0.80
+    description: How strongly pools weight ideology vs profitability
+
+  pool_max_loss_pct:
+    min: 0.10
+    max: 0.40
+    description: Maximum loss pools tolerate before switching forks
+
+  pool_profitability_threshold:
+    min: 0.08
+    max: 0.28
+    description: Minimum profit advantage required for pools to consider switching;
+                 has been fixed at 0.16 in all prior sweeps — UNTESTED
+
+  solo_miner_hashrate:
+    min: 0.00
+    max: 0.15
+    description: Fraction of total hashrate from solo miners permanently on v27;
+                 creates structural asymmetry; has been fixed at 0.085 in all prior
+                 sweeps — UNTESTED
+
+# Fixed parameters — confirmed non-causal or set to validated values
+fixed:
+  # Confirmed non-causal at 144-block (targeted_sweep2, n=42; targeted_sweep4, n=35)
+  hashrate_split: 0.25
+  pool_neutral_pct: 30.0
+
+  # Economic node behavior — secondary to pool dynamics at 144-block;
+  # these only matter if economic nodes switch, which occurs near ESP (econ~0.74).
+  # Fixing at validated Phase 1 values; add to 7D sweep if boundary fit shows
+  # economic switching as a key driver.
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.10
+  econ_inertia: 0.05
+
+  # User node behavior — confirmed non-causal (targeted_sweep5, n=36)
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+
+  # Network structure
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  transaction_velocity: 0.5

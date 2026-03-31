@@ -1,0 +1,1013 @@
+{
+  "config": {
+    "lca_height": 0,
+    "lca_hash": "fork-point",
+    "propagation_window": 30.0,
+    "total_nodes": 8
+  },
+  "fork_heights": {
+    "v27": 4267,
+    "v26": 2957
+  },
+  "network_summary": {
+    "lca_height": 0,
+    "lca_hash": "fork-point",
+    "v27_final_height": 4267,
+    "v26_final_height": 2957,
+    "total_nodes_tracked": 8,
+    "total_blocks_mined": 0,
+    "total_blocks_orphaned": 0,
+    "total_reorg_events": 80,
+    "total_fork_incidents": 17,
+    "total_reorg_mass": 132571,
+    "normalized_reorg_mass": 16571.375,
+    "consensus_stress_score": 12288.765625
+  },
+  "node_summaries": {
+    "pool-foundryusa": {
+      "node_id": "pool-foundryusa",
+      "current_fork": "v27",
+      "blocks_mined": 0,
+      "blocks_mined_per_fork": {},
+      "blocks_orphaned": 0,
+      "orphan_rate": 0.0,
+      "reorg_count": 10,
+      "total_exposure": 16963
+    },
+    "pool-marapool": {
+      "node_id": "pool-marapool",
+      "current_fork": "v27",
+      "blocks_mined": 0,
+      "blocks_mined_per_fork": {},
+      "blocks_orphaned": 0,
+      "orphan_rate": 0.0,
+      "reorg_count": 10,
+      "total_exposure": 16342
+    },
+    "pool-luxor": {
+      "node_id": "pool-luxor",
+      "current_fork": "v27",
+      "blocks_mined": 0,
+      "blocks_mined_per_fork": {},
+      "blocks_orphaned": 0,
+      "orphan_rate": 0.0,
+      "reorg_count": 10,
+      "total_exposure": 16342
+    },
+    "pool-ocean": {
+      "node_id": "pool-ocean",
+      "current_fork": "v27",
+      "blocks_mined": 0,
+      "blocks_mined_per_fork": {},
+      "blocks_orphaned": 0,
+      "orphan_rate": 0.0,
+      "reorg_count": 10,
+      "total_exposure": 16342
+    },
+    "pool-antpool": {
+      "node_id": "pool-antpool",
+      "current_fork": "v27",
+      "blocks_mined": 0,
+      "blocks_mined_per_fork": {},
+      "blocks_orphaned": 0,
+      "orphan_rate": 0.0,
+      "reorg_count": 9,
+      "total_exposure": 16227
+    },
+    "pool-f2pool": {
+      "node_id": "pool-f2pool",
+      "current_fork": "v27",
+      "blocks_mined": 0,
+      "blocks_mined_per_fork": {},
+      "blocks_orphaned": 0,
+      "orphan_rate": 0.0,
+      "reorg_count": 9,
+      "total_exposure": 16227
+    },
+    "pool-viabtc": {
+      "node_id": "pool-viabtc",
+      "current_fork": "v27",
+      "blocks_mined": 0,
+      "blocks_mined_per_fork": {},
+      "blocks_orphaned": 0,
+      "orphan_rate": 0.0,
+      "reorg_count": 11,
+      "total_exposure": 17064
+    },
+    "pool-spiderpool": {
+      "node_id": "pool-spiderpool",
+      "current_fork": "v27",
+      "blocks_mined": 0,
+      "blocks_mined_per_fork": {},
+      "blocks_orphaned": 0,
+      "orphan_rate": 0.0,
+      "reorg_count": 11,
+      "total_exposure": 17064
+    }
+  },
+  "reorg_events": [
+    {
+      "timestamp": 600,
+      "node_id": "pool-marapool",
+      "lca_height": 0,
+      "depth": 115,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 600,
+      "node_id": "pool-luxor",
+      "lca_height": 0,
+      "depth": 115,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 600,
+      "node_id": "pool-ocean",
+      "lca_height": 0,
+      "depth": 115,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 600,
+      "node_id": "pool-viabtc",
+      "lca_height": 0,
+      "depth": 135,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 600,
+      "node_id": "pool-spiderpool",
+      "lca_height": 0,
+      "depth": 135,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 1201,
+      "node_id": "pool-foundryusa",
+      "lca_height": 0,
+      "depth": 370,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 1201,
+      "node_id": "pool-viabtc",
+      "lca_height": 0,
+      "depth": 370,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 1201,
+      "node_id": "pool-spiderpool",
+      "lca_height": 0,
+      "depth": 370,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 1801,
+      "node_id": "pool-foundryusa",
+      "lca_height": 0,
+      "depth": 779,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 1801,
+      "node_id": "pool-marapool",
+      "lca_height": 0,
+      "depth": 779,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 1801,
+      "node_id": "pool-luxor",
+      "lca_height": 0,
+      "depth": 779,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 1801,
+      "node_id": "pool-ocean",
+      "lca_height": 0,
+      "depth": 779,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 1801,
+      "node_id": "pool-antpool",
+      "lca_height": 0,
+      "depth": 779,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 1801,
+      "node_id": "pool-f2pool",
+      "lca_height": 0,
+      "depth": 779,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 1801,
+      "node_id": "pool-viabtc",
+      "lca_height": 0,
+      "depth": 779,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 1801,
+      "node_id": "pool-spiderpool",
+      "lca_height": 0,
+      "depth": 779,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 2402,
+      "node_id": "pool-marapool",
+      "lca_height": 0,
+      "depth": 849,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 2402,
+      "node_id": "pool-luxor",
+      "lca_height": 0,
+      "depth": 849,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 2402,
+      "node_id": "pool-ocean",
+      "lca_height": 0,
+      "depth": 849,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 2402,
+      "node_id": "pool-antpool",
+      "lca_height": 0,
+      "depth": 849,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 2402,
+      "node_id": "pool-f2pool",
+      "lca_height": 0,
+      "depth": 849,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 3003,
+      "node_id": "pool-foundryusa",
+      "lca_height": 0,
+      "depth": 1007,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 3003,
+      "node_id": "pool-viabtc",
+      "lca_height": 0,
+      "depth": 1007,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 3003,
+      "node_id": "pool-spiderpool",
+      "lca_height": 0,
+      "depth": 1007,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 3603,
+      "node_id": "pool-foundryusa",
+      "lca_height": 0,
+      "depth": 1374,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 3603,
+      "node_id": "pool-marapool",
+      "lca_height": 0,
+      "depth": 1374,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 3603,
+      "node_id": "pool-luxor",
+      "lca_height": 0,
+      "depth": 1374,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 3603,
+      "node_id": "pool-ocean",
+      "lca_height": 0,
+      "depth": 1374,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 3603,
+      "node_id": "pool-antpool",
+      "lca_height": 0,
+      "depth": 1374,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 3603,
+      "node_id": "pool-f2pool",
+      "lca_height": 0,
+      "depth": 1374,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 3603,
+      "node_id": "pool-viabtc",
+      "lca_height": 0,
+      "depth": 1374,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 3603,
+      "node_id": "pool-spiderpool",
+      "lca_height": 0,
+      "depth": 1374,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 4203,
+      "node_id": "pool-marapool",
+      "lca_height": 0,
+      "depth": 1459,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 4203,
+      "node_id": "pool-luxor",
+      "lca_height": 0,
+      "depth": 1459,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 4203,
+      "node_id": "pool-ocean",
+      "lca_height": 0,
+      "depth": 1459,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 4203,
+      "node_id": "pool-antpool",
+      "lca_height": 0,
+      "depth": 1459,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 4203,
+      "node_id": "pool-f2pool",
+      "lca_height": 0,
+      "depth": 1459,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 4804,
+      "node_id": "pool-foundryusa",
+      "lca_height": 0,
+      "depth": 1602,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 4804,
+      "node_id": "pool-viabtc",
+      "lca_height": 0,
+      "depth": 1602,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 4804,
+      "node_id": "pool-spiderpool",
+      "lca_height": 0,
+      "depth": 1602,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 5410,
+      "node_id": "pool-foundryusa",
+      "lca_height": 0,
+      "depth": 1834,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 5410,
+      "node_id": "pool-marapool",
+      "lca_height": 0,
+      "depth": 1834,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 5410,
+      "node_id": "pool-luxor",
+      "lca_height": 0,
+      "depth": 1834,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 5410,
+      "node_id": "pool-ocean",
+      "lca_height": 0,
+      "depth": 1834,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 5410,
+      "node_id": "pool-antpool",
+      "lca_height": 0,
+      "depth": 1834,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 5410,
+      "node_id": "pool-f2pool",
+      "lca_height": 0,
+      "depth": 1834,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 5410,
+      "node_id": "pool-viabtc",
+      "lca_height": 0,
+      "depth": 1834,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 5410,
+      "node_id": "pool-spiderpool",
+      "lca_height": 0,
+      "depth": 1834,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 6011,
+      "node_id": "pool-marapool",
+      "lca_height": 0,
+      "depth": 2125,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 6011,
+      "node_id": "pool-luxor",
+      "lca_height": 0,
+      "depth": 2125,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 6011,
+      "node_id": "pool-ocean",
+      "lca_height": 0,
+      "depth": 2125,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 6011,
+      "node_id": "pool-antpool",
+      "lca_height": 0,
+      "depth": 2125,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 6011,
+      "node_id": "pool-f2pool",
+      "lca_height": 0,
+      "depth": 2125,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 6615,
+      "node_id": "pool-foundryusa",
+      "lca_height": 0,
+      "depth": 2201,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 6615,
+      "node_id": "pool-viabtc",
+      "lca_height": 0,
+      "depth": 2201,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 6615,
+      "node_id": "pool-spiderpool",
+      "lca_height": 0,
+      "depth": 2201,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 7216,
+      "node_id": "pool-foundryusa",
+      "lca_height": 0,
+      "depth": 2115,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 7216,
+      "node_id": "pool-marapool",
+      "lca_height": 0,
+      "depth": 2115,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 7216,
+      "node_id": "pool-luxor",
+      "lca_height": 0,
+      "depth": 2115,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 7216,
+      "node_id": "pool-ocean",
+      "lca_height": 0,
+      "depth": 2115,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 7216,
+      "node_id": "pool-antpool",
+      "lca_height": 0,
+      "depth": 2115,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 7216,
+      "node_id": "pool-f2pool",
+      "lca_height": 0,
+      "depth": 2115,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 7216,
+      "node_id": "pool-viabtc",
+      "lca_height": 0,
+      "depth": 2115,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 7216,
+      "node_id": "pool-spiderpool",
+      "lca_height": 0,
+      "depth": 2115,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 7816,
+      "node_id": "pool-marapool",
+      "lca_height": 0,
+      "depth": 2736,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 7816,
+      "node_id": "pool-luxor",
+      "lca_height": 0,
+      "depth": 2736,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 7816,
+      "node_id": "pool-ocean",
+      "lca_height": 0,
+      "depth": 2736,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 7816,
+      "node_id": "pool-antpool",
+      "lca_height": 0,
+      "depth": 2736,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 7816,
+      "node_id": "pool-f2pool",
+      "lca_height": 0,
+      "depth": 2736,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 7816,
+      "node_id": "pool-viabtc",
+      "lca_height": 0,
+      "depth": 2736,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 7816,
+      "node_id": "pool-spiderpool",
+      "lca_height": 0,
+      "depth": 2736,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 8443,
+      "node_id": "pool-foundryusa",
+      "lca_height": 0,
+      "depth": 2770,
+      "fork_old": "v27",
+      "fork_new": "v26",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 9665,
+      "node_id": "pool-foundryusa",
+      "lca_height": 0,
+      "depth": 2911,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 9665,
+      "node_id": "pool-viabtc",
+      "lca_height": 0,
+      "depth": 2911,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 9665,
+      "node_id": "pool-spiderpool",
+      "lca_height": 0,
+      "depth": 2911,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 10269,
+      "node_id": "pool-marapool",
+      "lca_height": 0,
+      "depth": 2956,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 10269,
+      "node_id": "pool-luxor",
+      "lca_height": 0,
+      "depth": 2956,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 10269,
+      "node_id": "pool-ocean",
+      "lca_height": 0,
+      "depth": 2956,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 10269,
+      "node_id": "pool-antpool",
+      "lca_height": 0,
+      "depth": 2956,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    },
+    {
+      "timestamp": 10269,
+      "node_id": "pool-f2pool",
+      "lca_height": 0,
+      "depth": 2956,
+      "fork_old": "v26",
+      "fork_new": "v27",
+      "blocks_orphaned": 0
+    }
+  ],
+  "fork_incidents": [
+    {
+      "incident_id": "incident-1",
+      "lca_hash": "fork-point",
+      "winning_fork": "v26",
+      "event_count": 3,
+      "reorg_mass": 345,
+      "penetration": 0.375,
+      "first_observed": 600,
+      "last_observed": 600
+    },
+    {
+      "incident_id": "incident-2",
+      "lca_hash": "fork-point",
+      "winning_fork": "v27",
+      "event_count": 2,
+      "reorg_mass": 270,
+      "penetration": 0.25,
+      "first_observed": 600,
+      "last_observed": 600
+    },
+    {
+      "incident_id": "incident-3",
+      "lca_hash": "fork-point",
+      "winning_fork": "v26",
+      "event_count": 3,
+      "reorg_mass": 1110,
+      "penetration": 0.375,
+      "first_observed": 1201,
+      "last_observed": 1201
+    },
+    {
+      "incident_id": "incident-4",
+      "lca_hash": "fork-point",
+      "winning_fork": "v27",
+      "event_count": 8,
+      "reorg_mass": 6232,
+      "penetration": 1.0,
+      "first_observed": 1801,
+      "last_observed": 1801
+    },
+    {
+      "incident_id": "incident-5",
+      "lca_hash": "fork-point",
+      "winning_fork": "v26",
+      "event_count": 5,
+      "reorg_mass": 4245,
+      "penetration": 0.625,
+      "first_observed": 2402,
+      "last_observed": 2402
+    },
+    {
+      "incident_id": "incident-6",
+      "lca_hash": "fork-point",
+      "winning_fork": "v26",
+      "event_count": 3,
+      "reorg_mass": 3021,
+      "penetration": 0.375,
+      "first_observed": 3003,
+      "last_observed": 3003
+    },
+    {
+      "incident_id": "incident-7",
+      "lca_hash": "fork-point",
+      "winning_fork": "v27",
+      "event_count": 8,
+      "reorg_mass": 10992,
+      "penetration": 1.0,
+      "first_observed": 3603,
+      "last_observed": 3603
+    },
+    {
+      "incident_id": "incident-8",
+      "lca_hash": "fork-point",
+      "winning_fork": "v26",
+      "event_count": 5,
+      "reorg_mass": 7295,
+      "penetration": 0.625,
+      "first_observed": 4203,
+      "last_observed": 4203
+    },
+    {
+      "incident_id": "incident-9",
+      "lca_hash": "fork-point",
+      "winning_fork": "v26",
+      "event_count": 3,
+      "reorg_mass": 4806,
+      "penetration": 0.375,
+      "first_observed": 4804,
+      "last_observed": 4804
+    },
+    {
+      "incident_id": "incident-10",
+      "lca_hash": "fork-point",
+      "winning_fork": "v27",
+      "event_count": 8,
+      "reorg_mass": 14672,
+      "penetration": 1.0,
+      "first_observed": 5410,
+      "last_observed": 5410
+    },
+    {
+      "incident_id": "incident-11",
+      "lca_hash": "fork-point",
+      "winning_fork": "v26",
+      "event_count": 5,
+      "reorg_mass": 10625,
+      "penetration": 0.625,
+      "first_observed": 6011,
+      "last_observed": 6011
+    },
+    {
+      "incident_id": "incident-12",
+      "lca_hash": "fork-point",
+      "winning_fork": "v26",
+      "event_count": 3,
+      "reorg_mass": 6603,
+      "penetration": 0.375,
+      "first_observed": 6615,
+      "last_observed": 6615
+    },
+    {
+      "incident_id": "incident-13",
+      "lca_hash": "fork-point",
+      "winning_fork": "v27",
+      "event_count": 8,
+      "reorg_mass": 16920,
+      "penetration": 1.0,
+      "first_observed": 7216,
+      "last_observed": 7216
+    },
+    {
+      "incident_id": "incident-14",
+      "lca_hash": "fork-point",
+      "winning_fork": "v26",
+      "event_count": 7,
+      "reorg_mass": 19152,
+      "penetration": 0.875,
+      "first_observed": 7816,
+      "last_observed": 7816
+    },
+    {
+      "incident_id": "incident-15",
+      "lca_hash": "fork-point",
+      "winning_fork": "v26",
+      "event_count": 1,
+      "reorg_mass": 2770,
+      "penetration": 0.125,
+      "first_observed": 8443,
+      "last_observed": 8443
+    },
+    {
+      "incident_id": "incident-16",
+      "lca_hash": "fork-point",
+      "winning_fork": "v27",
+      "event_count": 3,
+      "reorg_mass": 8733,
+      "penetration": 0.375,
+      "first_observed": 9665,
+      "last_observed": 9665
+    },
+    {
+      "incident_id": "incident-17",
+      "lca_hash": "fork-point",
+      "winning_fork": "v27",
+      "event_count": 5,
+      "reorg_mass": 14780,
+      "penetration": 0.625,
+      "first_observed": 10269,
+      "last_observed": 10269
+    }
+  ],
+  "reunion_analysis": {
+    "winning_fork": "v27",
+    "losing_fork": "v26",
+    "losing_fork_depth": 2957,
+    "nodes_on_losing_fork": [],
+    "num_nodes_on_losing_fork": 0,
+    "reunion_reorg_mass": 0,
+    "additional_orphans": 0,
+    "v27_chainwork": 2500.7683964066573,
+    "v26_chainwork": 1389.0208709186081
+  }
+}

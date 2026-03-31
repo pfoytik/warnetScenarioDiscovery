@@ -1,0 +1,193 @@
+{
+  "config": {
+    "target_block_interval": 2.0,
+    "retarget_interval": 144,
+    "pre_fork_difficulty": 1.0,
+    "max_adjustment_factor": 4.0,
+    "min_difficulty": 0.0625,
+    "enable_eda": false,
+    "eda_threshold": 6.0,
+    "eda_reduction": 0.2
+  },
+  "forks": {
+    "v27": {
+      "fork_id": "v27",
+      "current_difficulty": 0.0625,
+      "blocks_since_retarget": 25,
+      "cumulative_chainwork": 717.8127213782811,
+      "last_block_sim_time": 12914,
+      "last_retarget_sim_time": 12786,
+      "expected_block_interval": 0.1446759259259259,
+      "initial_height": 101,
+      "blocks_mined": 2041
+    },
+    "v26": {
+      "fork_id": "v26",
+      "current_difficulty": 1.0,
+      "blocks_since_retarget": 129,
+      "cumulative_chainwork": 129.0,
+      "last_block_sim_time": 2123,
+      "last_retarget_sim_time": 0.0,
+      "expected_block_interval": 2000.0,
+      "initial_height": 101,
+      "blocks_mined": 129
+    }
+  },
+  "winning_fork": "v27",
+  "adjustment_history": [
+    {
+      "fork_id": "v27",
+      "sim_time": 882,
+      "height": 168,
+      "old_difficulty": 1.0,
+      "new_difficulty": 0.32653061224489793,
+      "actual_time": 882.0,
+      "target_time": 288.0,
+      "adjustment_factor": 0.32653061224489793,
+      "is_eda": false
+    },
+    {
+      "fork_id": "v27",
+      "sim_time": 1037,
+      "height": 312,
+      "old_difficulty": 0.32653061224489793,
+      "new_difficulty": 0.606714944042133,
+      "actual_time": 155,
+      "target_time": 288.0,
+      "adjustment_factor": 1.8580645161290323,
+      "is_eda": false
+    },
+    {
+      "fork_id": "v27",
+      "sim_time": 1361,
+      "height": 457,
+      "old_difficulty": 0.606714944042133,
+      "new_difficulty": 0.5393021724818959,
+      "actual_time": 324,
+      "target_time": 288.0,
+      "adjustment_factor": 0.8888888888888888,
+      "is_eda": false
+    },
+    {
+      "fork_id": "v27",
+      "sim_time": 1576,
+      "height": 601,
+      "old_difficulty": 0.5393021724818959,
+      "new_difficulty": 0.7224140729059815,
+      "actual_time": 215,
+      "target_time": 288.0,
+      "adjustment_factor": 1.3395348837209302,
+      "is_eda": false
+    },
+    {
+      "fork_id": "v27",
+      "sim_time": 2320,
+      "height": 746,
+      "old_difficulty": 0.7224140729059815,
+      "new_difficulty": 0.2796441572539283,
+      "actual_time": 744,
+      "target_time": 288.0,
+      "adjustment_factor": 0.3870967741935484,
+      "is_eda": false
+    },
+    {
+      "fork_id": "v27",
+      "sim_time": 2421,
+      "height": 890,
+      "old_difficulty": 0.2796441572539283,
+      "new_difficulty": 0.7974011612785282,
+      "actual_time": 101,
+      "target_time": 288.0,
+      "adjustment_factor": 2.8514851485148514,
+      "is_eda": false
+    },
+    {
+      "fork_id": "v27",
+      "sim_time": 4094,
+      "height": 1039,
+      "old_difficulty": 0.7974011612785282,
+      "new_difficulty": 0.19935029031963206,
+      "actual_time": 1673,
+      "target_time": 288.0,
+      "adjustment_factor": 0.25,
+      "is_eda": false
+    },
+    {
+      "fork_id": "v27",
+      "sim_time": 4597,
+      "height": 1183,
+      "old_difficulty": 0.19935029031963206,
+      "new_difficulty": 0.1141409216939444,
+      "actual_time": 503,
+      "target_time": 288.0,
+      "adjustment_factor": 0.5725646123260437,
+      "is_eda": false
+    },
+    {
+      "fork_id": "v27",
+      "sim_time": 5322,
+      "height": 1328,
+      "old_difficulty": 0.1141409216939444,
+      "new_difficulty": 0.0625,
+      "actual_time": 725,
+      "target_time": 288.0,
+      "adjustment_factor": 0.3972413793103448,
+      "is_eda": false
+    },
+    {
+      "fork_id": "v27",
+      "sim_time": 5452,
+      "height": 1471,
+      "old_difficulty": 0.0625,
+      "new_difficulty": 0.13846153846153847,
+      "actual_time": 130,
+      "target_time": 288.0,
+      "adjustment_factor": 2.2153846153846155,
+      "is_eda": false
+    },
+    {
+      "fork_id": "v27",
+      "sim_time": 7337,
+      "height": 1622,
+      "old_difficulty": 0.13846153846153847,
+      "new_difficulty": 0.0625,
+      "actual_time": 1885,
+      "target_time": 288.0,
+      "adjustment_factor": 0.25,
+      "is_eda": false
+    },
+    {
+      "fork_id": "v27",
+      "sim_time": 10818,
+      "height": 1774,
+      "old_difficulty": 0.0625,
+      "new_difficulty": 0.0625,
+      "actual_time": 3481,
+      "target_time": 288.0,
+      "adjustment_factor": 0.25,
+      "is_eda": false
+    },
+    {
+      "fork_id": "v27",
+      "sim_time": 11245,
+      "height": 1916,
+      "old_difficulty": 0.0625,
+      "new_difficulty": 0.0625,
+      "actual_time": 427,
+      "target_time": 288.0,
+      "adjustment_factor": 0.6744730679156908,
+      "is_eda": false
+    },
+    {
+      "fork_id": "v27",
+      "sim_time": 12786,
+      "height": 2067,
+      "old_difficulty": 0.0625,
+      "new_difficulty": 0.0625,
+      "actual_time": 1541,
+      "target_time": 288.0,
+      "adjustment_factor": 0.25,
+      "is_eda": false
+    }
+  ]
+}

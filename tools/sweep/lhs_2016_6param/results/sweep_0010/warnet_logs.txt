@@ -1,0 +1,531 @@
+Waiting for /shared/archive.pyz to exist...
+[0mPartitionMinerWithPools - Adding TestNode #0 from pod node-0000 with IP 10.244.0.8[0m
+[0mPartitionMinerWithPools - Adding TestNode #1 from pod node-0001 with IP 10.244.0.21[0m
+[0mPartitionMinerWithPools - Adding TestNode #2 from pod node-0002 with IP 10.244.0.19[0m
+[0mPartitionMinerWithPools - Adding TestNode #3 from pod node-0003 with IP 10.244.0.18[0m
+[0mPartitionMinerWithPools - Adding TestNode #4 from pod node-0004 with IP 10.244.0.17[0m
+[0mPartitionMinerWithPools - Adding TestNode #5 from pod node-0005 with IP 10.244.0.7[0m
+[0mPartitionMinerWithPools - Adding TestNode #6 from pod node-0006 with IP 10.244.0.22[0m
+[0mPartitionMinerWithPools - Adding TestNode #7 from pod node-0007 with IP 10.244.0.14[0m
+[0mPartitionMinerWithPools - Adding TestNode #8 from pod node-0008 with IP 10.244.0.15[0m
+[0mPartitionMinerWithPools - Adding TestNode #9 from pod node-0009 with IP 10.244.0.12[0m
+[0mPartitionMinerWithPools - Adding TestNode #10 from pod node-0010 with IP 10.244.0.10[0m
+[0mPartitionMinerWithPools - Adding TestNode #11 from pod node-0011 with IP 10.244.0.33[0m
+[0mPartitionMinerWithPools - Adding TestNode #12 from pod node-0012 with IP 10.244.0.23[0m
+[0mPartitionMinerWithPools - Adding TestNode #13 from pod node-0013 with IP 10.244.0.13[0m
+[0mPartitionMinerWithPools - Adding TestNode #14 from pod node-0014 with IP 10.244.0.9[0m
+[0mPartitionMinerWithPools - Adding TestNode #15 from pod node-0015 with IP 10.244.0.27[0m
+[0mPartitionMinerWithPools - Adding TestNode #16 from pod node-0016 with IP 10.244.0.32[0m
+[0mPartitionMinerWithPools - Adding TestNode #17 from pod node-0017 with IP 10.244.0.28[0m
+[0mPartitionMinerWithPools - Adding TestNode #18 from pod node-0018 with IP 10.244.0.24[0m
+[0mPartitionMinerWithPools - Adding TestNode #19 from pod node-0019 with IP 10.244.0.26[0m
+[0mPartitionMinerWithPools - Adding TestNode #20 from pod node-0020 with IP 10.244.0.11[0m
+[0mPartitionMinerWithPools - Adding TestNode #21 from pod node-0021 with IP 10.244.0.29[0m
+[0mPartitionMinerWithPools - Adding TestNode #22 from pod node-0022 with IP 10.244.0.20[0m
+[0mPartitionMinerWithPools - Adding TestNode #23 from pod node-0023 with IP 10.244.0.31[0m
+[0mPartitionMinerWithPools - Adding TestNode #24 from pod node-0024 with IP 10.244.0.25[0m
+[0mPartitionMinerWithPools - User supplied random seed 131260415370612[0m
+[0mPartitionMinerWithPools - PRNG seed is: 131260415370612[0m
+[0mPartitionMinerWithPools - 
+======================================================================[0m
+[0mPartitionMinerWithPools - Partition Mining with Dynamic Pool Strategy[0m
+[0mPartitionMinerWithPools - ======================================================================[0m
+[0mPartitionMinerWithPools - Initial economic weights: v27=70.0%, v26=30.0%[0m
+[0mPartitionMinerWithPools - Duration: 13000s (217 minutes)[0m
+[0mPartitionMinerWithPools - Pool scenario: sweep_0010[0m
+[0mPartitionMinerWithPools - Economic scenario: sweep_0010[0m
+[0mPartitionMinerWithPools - ======================================================================
+[0m
+[0mPartitionMinerWithPools - ✓ Price oracle initialized (debug=False)[0m
+[0mPartitionMinerWithPools - ✓ Fee oracle initialized[0m
+[0mPartitionMinerWithPools - ✓ Pool strategy initialized (8 pools)[0m
+[0mPartitionMinerWithPools - 
+Initial hashrate: v27=38.1%, v26=48.3%
+[0m
+[0mPartitionMinerWithPools - Loading network metadata from bundled config[0m
+[0mPartitionMinerWithPools - ✓ Loaded metadata for 25 nodes[0m
+[0mPartitionMinerWithPools - ✓ Economic strategy initialized (17 nodes: {'economic': 4, 'user': 13})[0m
+[0mPartitionMinerWithPools -   Initial economic weight: v27=56.7%, v26=43.3%[0m
+[0mPartitionMinerWithPools -   Initial transactional weight: v27=56.7%, v26=43.3%[0m
+[0mPartitionMinerWithPools -   Solo miners: 6 nodes with 23.71% hashrate[0m
+[0mPartitionMinerWithPools -     v27: 5.75%, v26: 17.96%[0m
+[0mPartitionMinerWithPools -   Update interval: 300s[0m
+[0mPartitionMinerWithPools - Difficulty oracle initialized:[0m
+[0mPartitionMinerWithPools -   Target interval: 2s, Retarget every 2016 blocks[0m
+[0mPartitionMinerWithPools -   Tick interval: 1.0s, Min difficulty: 0.0625[0m
+[0mPartitionMinerWithPools -   EDA: disabled[0m
+[0mPartitionMinerWithPools - Partitioning nodes by version...[0m
+[0mPartitionMinerWithPools - 
+Partition summary:[0m
+[0mPartitionMinerWithPools -   v27 nodes: 8[0m
+[0mPartitionMinerWithPools -   v26 nodes: 17[0m
+[0mPartitionMinerWithPools - 
+Asymmetric fork mode: 12 foreign-accepting node(s). v27 blocks will be submitted to node-0012 for v26-island propagation.[0m
+[0mPartitionMinerWithPools - 
+Building partition peer lists for dynamic switching...[0m
+[0mPartitionMinerWithPools -   v27 peers: 8 nodes[0m
+[0mPartitionMinerWithPools -   v26 peers: 17 nodes[0m
+[0mPartitionMinerWithPools - 
+Building pool-to-node mappings...[0m
+[0mPartitionMinerWithPools - 
+Pool node distribution (1 node per partition per pool):[0m
+[0mPartitionMinerWithPools -   antpool        : v27=none         v26=node-0012   [0m
+[0mPartitionMinerWithPools -   f2pool         : v27=none         v26=node-0013   [0m
+[0mPartitionMinerWithPools -   foundryusa     : v27=node-0000    v26=none        [0m
+[0mPartitionMinerWithPools -   luxor          : v27=none         v26=node-0002   [0m
+[0mPartitionMinerWithPools -   marapool       : v27=none         v26=node-0001   [0m
+[0mPartitionMinerWithPools -   ocean          : v27=none         v26=node-0003   [0m
+[0mPartitionMinerWithPools -   spiderpool     : v27=none         v26=node-0015   [0m
+[0mPartitionMinerWithPools -   viabtc         : v27=none         v26=node-0014   [0m
+[0mPartitionMinerWithPools - 
+  7 v27 nodes without pool assignment (economic/user nodes)[0m
+[0mPartitionMinerWithPools -   10 v26 nodes without pool assignment (economic/user nodes)[0m
+[0mPartitionMinerWithPools - Auto-detected start_height=0 from nodes[0m
+[0mPartitionMinerWithPools - ✓ Reorg oracle initialized (LCA height=0)[0m
+[0mPartitionMinerWithPools -   Registered 8 pools with reorg oracle[0m
+[0mPartitionMinerWithPools - 
+======================================================================[0m
+[0mPartitionMinerWithPools - Starting partition mining (DIFFICULTY MODE)...[0m
+[0mPartitionMinerWithPools - ======================================================================
+[0m
+[0mPartitionMinerWithPools - [   0s] v27 block                 | Blks: v27=  1 v26=  0 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,000/$60,000 [natural split][0m
+[0mPartitionMinerWithPools - [   3s] v26 block                 | Blks: v27=  1 v26=  1 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,000/$60,000 [natural split][0m
+[0mPartitionMinerWithPools - [   4s] v26 block                 | Blks: v27=  1 v26=  2 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,000/$60,000 [natural split][0m
+[0mPartitionMinerWithPools - [   6s] v27 block                 | Blks: v27=  2 v26=  2 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,000/$60,000 [natural split][0m
+[0mPartitionMinerWithPools - [   8s] v26 block                 | Blks: v27=  2 v26=  3 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,000/$60,000 [natural split][0m
+[0mPartitionMinerWithPools - [  17s] v27 block                 | Blks: v27=  3 v26=  3 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,000/$60,000 [natural split][0m
+[0mPartitionMinerWithPools - [  17s] v26 block                 | Blks: v27=  3 v26=  4 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,000/$60,000 [natural split][0m
+[0mPartitionMinerWithPools - [  20s] v26 block                 | Blks: v27=  3 v26=  5 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,000/$60,000 [natural split][0m
+[0mPartitionMinerWithPools - [  23s] v26 block                 | Blks: v27=  3 v26=  6 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,000/$60,000 [natural split][0m
+[0mPartitionMinerWithPools - [  24s] v26 block                 | Blks: v27=  3 v26=  7 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,000/$60,000 [natural split][0m
+[0mPartitionMinerWithPools - [  28s] v26 block                 | Blks: v27=  3 v26=  8 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,000/$60,000 [natural split][0m
+[0mPartitionMinerWithPools - [  31s] v27 block                 | Blks: v27=  4 v26=  8 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,000/$60,000 [natural split][0m
+[0mPartitionMinerWithPools - [  31s] v26 block                 | Blks: v27=  4 v26=  9 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,000/$60,000 [natural split][0m
+[0mPartitionMinerWithPools - [  32s] v26 block                 | Blks: v27=  4 v26= 10 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,000/$60,000 [natural split][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [  35s] v27 block                 | Blks: v27=  5 v26= 10 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,000/$60,000 [natural split][0m
+[0mPartitionMinerWithPools - [  36s] v27 block                 | Blks: v27=  6 v26= 10 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,000/$60,000 [natural split][0m
+[0mPartitionMinerWithPools - [  38s] v26 block                 | Blks: v27=  6 v26= 11 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,000/$60,000 [natural split][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [  40s] v27 block                 | Blks: v27=  7 v26= 11 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,000/$60,000 [natural split][0m
+[0mPartitionMinerWithPools - [  41s] v26 block                 | Blks: v27=  7 v26= 12 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,000/$60,000 [natural split][0m
+[0mPartitionMinerWithPools - [  43s] v26 block                 | Blks: v27=  7 v26= 13 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,000/$60,000 [natural split][0m
+[0mPartitionMinerWithPools - [  45s] v27 block                 | Blks: v27=  8 v26= 13 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,000/$60,000 [natural split][0m
+[0mPartitionMinerWithPools - [  46s] v27 block                 | Blks: v27=  9 v26= 13 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,000/$60,000 [natural split][0m
+[0mPartitionMinerWithPools - [  48s] v26 block                 | Blks: v27=  9 v26= 14 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,000/$60,000 [natural split][0m
+[0mPartitionMinerWithPools - [  54s] v26 block                 | Blks: v27=  9 v26= 15 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,000/$60,000 [natural split][0m
+[0mPartitionMinerWithPools - [  58s] v26 block                 | Blks: v27=  9 v26= 16 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,000/$60,000 [natural split][0m
+[0mPartitionMinerWithPools - [  59s] v26 block                 | Blks: v27=  9 v26= 17 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,000/$60,000 [natural split][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [  60s] v27 block                 | Blks: v27= 10 v26= 17 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,130/$60,218 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [  63s] v27 block                 | Blks: v27= 11 v26= 17 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,130/$60,218 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [  63s] v26 block                 | Blks: v27= 11 v26= 18 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,130/$60,218 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [  66s] v26 block                 | Blks: v27= 11 v26= 19 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,130/$60,218 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [  68s] v27 block                 | Blks: v27= 12 v26= 19 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,130/$60,218 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [  68s] v26 block                 | Blks: v27= 12 v26= 20 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,130/$60,218 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [  72s] v26 block                 | Blks: v27= 12 v26= 21 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,130/$60,218 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [  74s] v27 block                 | Blks: v27= 13 v26= 21 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,130/$60,218 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [  75s] v27 block                 | Blks: v27= 14 v26= 21 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,130/$60,218 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [  79s] v26 block                 | Blks: v27= 14 v26= 22 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,130/$60,218 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [  83s] v26 block                 | Blks: v27= 14 v26= 23 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,130/$60,218 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [  84s] v27 block                 | Blks: v27= 15 v26= 23 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,130/$60,218 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [  87s] v27 block                 | Blks: v27= 16 v26= 23 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,130/$60,218 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [  89s] v27 block                 | Blks: v27= 17 v26= 23 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,130/$60,218 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [  94s] v27 block                 | Blks: v27= 18 v26= 23 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,130/$60,218 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [  95s] v26 block                 | Blks: v27= 18 v26= 24 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,130/$60,218 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [  97s] v27 block                 | Blks: v27= 19 v26= 24 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,130/$60,218 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 101s] v26 block                 | Blks: v27= 19 v26= 25 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,130/$60,218 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 104s] v26 block                 | Blks: v27= 19 v26= 26 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,130/$60,218 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 107s] v26 block                 | Blks: v27= 19 v26= 27 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,130/$60,218 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 108s] v27 block                 | Blks: v27= 20 v26= 27 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,130/$60,218 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 108s] v26 block                 | Blks: v27= 20 v26= 28 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,130/$60,218 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 111s] v26 block                 | Blks: v27= 20 v26= 29 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,130/$60,218 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 116s] v27 block                 | Blks: v27= 21 v26= 29 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,130/$60,218 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 121s] v26 block                 | Blks: v27= 21 v26= 30 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,661/$59,686 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 123s] v27 block                 | Blks: v27= 22 v26= 30 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,661/$59,686 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 123s] v26 block                 | Blks: v27= 22 v26= 31 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,661/$59,686 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 131s] v27 block                 | Blks: v27= 23 v26= 31 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,661/$59,686 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 138s] v27 block                 | Blks: v27= 24 v26= 31 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,661/$59,686 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 144s] v26 block                 | Blks: v27= 24 v26= 32 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,661/$59,686 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 145s] v26 block                 | Blks: v27= 24 v26= 33 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,661/$59,686 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 146s] v27 block                 | Blks: v27= 25 v26= 33 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,661/$59,686 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 147s] v27 block                 | Blks: v27= 26 v26= 33 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,661/$59,686 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 149s] v26 block                 | Blks: v27= 26 v26= 34 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,661/$59,686 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 152s] v27 block                 | Blks: v27= 27 v26= 34 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,661/$59,686 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 154s] v26 block                 | Blks: v27= 27 v26= 35 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,661/$59,686 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 157s] v26 block                 | Blks: v27= 27 v26= 36 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,661/$59,686 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 161s] v26 block                 | Blks: v27= 27 v26= 37 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,661/$59,686 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 163s] v26 block                 | Blks: v27= 27 v26= 38 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,661/$59,686 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 165s] v27 block                 | Blks: v27= 28 v26= 38 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,661/$59,686 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 170s] v27 block                 | Blks: v27= 29 v26= 38 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,661/$59,686 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 170s] v26 block                 | Blks: v27= 29 v26= 39 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,661/$59,686 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 176s] v27 block                 | Blks: v27= 30 v26= 39 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,661/$59,686 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 179s] v27 block                 | Blks: v27= 31 v26= 39 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,661/$59,686 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 182s] v27 block                 | Blks: v27= 32 v26= 39 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,826/$59,521 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 185s] v26 block                 | Blks: v27= 32 v26= 40 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,826/$59,521 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 189s] v26 block                 | Blks: v27= 32 v26= 41 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,826/$59,521 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 193s] v26 block                 | Blks: v27= 32 v26= 42 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,826/$59,521 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 199s] v26 block                 | Blks: v27= 32 v26= 43 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,826/$59,521 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 200s] v27 block                 | Blks: v27= 33 v26= 43 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,826/$59,521 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 200s] v26 block                 | Blks: v27= 33 v26= 44 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,826/$59,521 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 202s] v26 block                 | Blks: v27= 33 v26= 45 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,826/$59,521 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 204s] v27 block                 | Blks: v27= 34 v26= 45 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,826/$59,521 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 204s] v26 block                 | Blks: v27= 34 v26= 46 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,826/$59,521 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 206s] v27 block                 | Blks: v27= 35 v26= 46 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,826/$59,521 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 208s] v27 block                 | Blks: v27= 36 v26= 46 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,826/$59,521 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 210s] v26 block                 | Blks: v27= 36 v26= 47 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,826/$59,521 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 218s] v27 block                 | Blks: v27= 37 v26= 47 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,826/$59,521 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 219s] v27 block                 | Blks: v27= 38 v26= 47 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,826/$59,521 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 221s] v27 block                 | Blks: v27= 39 v26= 47 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,826/$59,521 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 221s] v26 block                 | Blks: v27= 39 v26= 48 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,826/$59,521 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 222s] v26 block                 | Blks: v27= 39 v26= 49 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,826/$59,521 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 224s] v27 block                 | Blks: v27= 40 v26= 49 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,826/$59,521 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 230s] v27 block                 | Blks: v27= 41 v26= 49 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,826/$59,521 [SUSTAINED][0m
+[91mPartitionMinerWithPools - Error mining v26 block: [Errno 113] No route to host[0m
+[0mPartitionMinerWithPools - [ 236s] v26 block                 | Blks: v27= 41 v26= 50 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,826/$59,521 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 237s] v26 block                 | Blks: v27= 41 v26= 51 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,826/$59,521 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 241s] v27 block                 | Blks: v27= 42 v26= 51 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,846/$59,501 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 242s] v26 block                 | Blks: v27= 42 v26= 52 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,846/$59,501 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 244s] v27 block                 | Blks: v27= 43 v26= 52 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,846/$59,501 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 245s] v27 block                 | Blks: v27= 44 v26= 52 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,846/$59,501 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 247s] v27 block                 | Blks: v27= 45 v26= 52 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,846/$59,501 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 248s] v27 block                 | Blks: v27= 46 v26= 52 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,846/$59,501 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 248s] v26 block                 | Blks: v27= 46 v26= 53 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,846/$59,501 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 253s] v26 block                 | Blks: v27= 46 v26= 54 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,846/$59,501 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 257s] v26 block                 | Blks: v27= 46 v26= 55 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,846/$59,501 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 259s] v26 block                 | Blks: v27= 46 v26= 56 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,846/$59,501 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 264s] v26 block                 | Blks: v27= 46 v26= 57 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,846/$59,501 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 268s] v27 block                 | Blks: v27= 47 v26= 57 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,846/$59,501 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 269s] v26 block                 | Blks: v27= 47 v26= 58 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,846/$59,501 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 270s] v26 block                 | Blks: v27= 47 v26= 59 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,846/$59,501 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 272s] v27 block                 | Blks: v27= 48 v26= 59 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,846/$59,501 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 272s] v26 block                 | Blks: v27= 48 v26= 60 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,846/$59,501 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 274s] v27 block                 | Blks: v27= 49 v26= 60 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,846/$59,501 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 282s] v27 block                 | Blks: v27= 50 v26= 60 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,846/$59,501 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 288s] v26 block                 | Blks: v27= 50 v26= 61 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,846/$59,501 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 292s] v27 block                 | Blks: v27= 51 v26= 61 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,846/$59,501 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 302s] v26 block                 | Blks: v27= 51 v26= 62 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,916/$59,431 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 306s] v27 block                 | Blks: v27= 52 v26= 62 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,916/$59,431 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 310s] v27 block                 | Blks: v27= 53 v26= 62 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,916/$59,431 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 310s] v26 block                 | Blks: v27= 53 v26= 63 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,916/$59,431 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 311s] v26 block                 | Blks: v27= 53 v26= 64 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,916/$59,431 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 312s] v26 block                 | Blks: v27= 53 v26= 65 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,916/$59,431 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 313s] v27 block                 | Blks: v27= 54 v26= 65 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,916/$59,431 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 313s] v26 block                 | Blks: v27= 54 v26= 66 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,916/$59,431 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 322s] v26 block                 | Blks: v27= 54 v26= 67 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,916/$59,431 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 325s] v27 block                 | Blks: v27= 55 v26= 67 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,916/$59,431 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 329s] v27 block                 | Blks: v27= 56 v26= 67 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,916/$59,431 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 330s] v27 block                 | Blks: v27= 57 v26= 67 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,916/$59,431 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 331s] v26 block                 | Blks: v27= 57 v26= 68 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,916/$59,431 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 335s] v27 block                 | Blks: v27= 58 v26= 68 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,916/$59,431 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 335s] v26 block                 | Blks: v27= 58 v26= 69 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,916/$59,431 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 339s] v26 block                 | Blks: v27= 58 v26= 70 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,916/$59,431 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 343s] v27 block                 | Blks: v27= 59 v26= 70 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,916/$59,431 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 343s] v26 block                 | Blks: v27= 59 v26= 71 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,916/$59,431 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 347s] v26 block                 | Blks: v27= 59 v26= 72 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,916/$59,431 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 348s] v27 block                 | Blks: v27= 60 v26= 72 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,916/$59,431 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 348s] v26 block                 | Blks: v27= 60 v26= 73 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,916/$59,431 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 349s] v26 block                 | Blks: v27= 60 v26= 74 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,916/$59,431 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 353s] v26 block                 | Blks: v27= 60 v26= 75 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,916/$59,431 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 355s] v26 block                 | Blks: v27= 60 v26= 76 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,916/$59,431 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 364s] v27 block                 | Blks: v27= 61 v26= 76 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,814/$59,533 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 367s] v27 block                 | Blks: v27= 62 v26= 76 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,814/$59,533 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 372s] v27 block                 | Blks: v27= 63 v26= 76 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,814/$59,533 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 373s] v27 block                 | Blks: v27= 64 v26= 76 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,814/$59,533 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 380s] v26 block                 | Blks: v27= 64 v26= 77 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,814/$59,533 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 387s] v27 block                 | Blks: v27= 65 v26= 77 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,814/$59,533 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 388s] v27 block                 | Blks: v27= 66 v26= 77 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,814/$59,533 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 391s] v26 block                 | Blks: v27= 66 v26= 78 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,814/$59,533 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 392s] v27 block                 | Blks: v27= 67 v26= 78 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,814/$59,533 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 397s] v26 block                 | Blks: v27= 67 v26= 79 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,814/$59,533 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 400s] v27 block                 | Blks: v27= 68 v26= 79 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,814/$59,533 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 401s] v26 block                 | Blks: v27= 68 v26= 80 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,814/$59,533 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 403s] v27 block                 | Blks: v27= 69 v26= 80 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,814/$59,533 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 404s] v27 block                 | Blks: v27= 70 v26= 80 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,814/$59,533 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 405s] v27 block                 | Blks: v27= 71 v26= 80 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,814/$59,533 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 417s] v26 block                 | Blks: v27= 71 v26= 81 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,814/$59,533 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 418s] v27 block                 | Blks: v27= 72 v26= 81 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,814/$59,533 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 418s] v26 block                 | Blks: v27= 72 v26= 82 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,814/$59,533 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 420s] v27 block                 | Blks: v27= 73 v26= 82 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,814/$59,533 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 420s] v26 block                 | Blks: v27= 73 v26= 83 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,814/$59,533 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 423s] v27 block                 | Blks: v27= 74 v26= 83 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,006/$59,341 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 425s] v26 block                 | Blks: v27= 74 v26= 84 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,006/$59,341 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 426s] v26 block                 | Blks: v27= 74 v26= 85 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,006/$59,341 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 427s] v27 block                 | Blks: v27= 75 v26= 85 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,006/$59,341 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 429s] v26 block                 | Blks: v27= 75 v26= 86 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,006/$59,341 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 432s] v27 block                 | Blks: v27= 76 v26= 86 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,006/$59,341 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 434s] v26 block                 | Blks: v27= 76 v26= 87 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,006/$59,341 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 437s] v26 block                 | Blks: v27= 76 v26= 88 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,006/$59,341 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 439s] v26 block                 | Blks: v27= 76 v26= 89 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,006/$59,341 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 441s] v27 block                 | Blks: v27= 77 v26= 89 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,006/$59,341 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 441s] v26 block                 | Blks: v27= 77 v26= 90 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,006/$59,341 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 442s] v26 block                 | Blks: v27= 77 v26= 91 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,006/$59,341 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 450s] v26 block                 | Blks: v27= 77 v26= 92 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,006/$59,341 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 453s] v27 block                 | Blks: v27= 78 v26= 92 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,006/$59,341 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 453s] v26 block                 | Blks: v27= 78 v26= 93 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,006/$59,341 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 455s] v27 block                 | Blks: v27= 79 v26= 93 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,006/$59,341 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 458s] v26 block                 | Blks: v27= 79 v26= 94 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,006/$59,341 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 459s] v26 block                 | Blks: v27= 79 v26= 95 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,006/$59,341 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 464s] v27 block                 | Blks: v27= 80 v26= 95 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,006/$59,341 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 465s] v27 block                 | Blks: v27= 81 v26= 95 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,006/$59,341 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 465s] v26 block                 | Blks: v27= 81 v26= 96 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,006/$59,341 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 467s] v26 block                 | Blks: v27= 81 v26= 97 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,006/$59,341 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 468s] v26 block                 | Blks: v27= 81 v26= 98 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,006/$59,341 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 471s] v26 block                 | Blks: v27= 81 v26= 99 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,006/$59,341 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 474s] v26 block                 | Blks: v27= 81 v26=100 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,006/$59,341 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 477s] v26 block                 | Blks: v27= 81 v26=101 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,006/$59,341 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 478s] v26 block                 | Blks: v27= 81 v26=102 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,006/$59,341 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 479s] v26 block                 | Blks: v27= 81 v26=103 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $60,006/$59,341 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 486s] v27 block                 | Blks: v27= 82 v26=103 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,807/$59,540 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 490s] v27 block                 | Blks: v27= 83 v26=103 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,807/$59,540 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 491s] v27 block                 | Blks: v27= 84 v26=103 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,807/$59,540 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 493s] v27 block                 | Blks: v27= 85 v26=103 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,807/$59,540 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 494s] v26 block                 | Blks: v27= 85 v26=104 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,807/$59,540 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 497s] v27 block                 | Blks: v27= 86 v26=104 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,807/$59,540 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 499s] v27 block                 | Blks: v27= 87 v26=104 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,807/$59,540 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 499s] v26 block                 | Blks: v27= 87 v26=105 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,807/$59,540 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 504s] v26 block                 | Blks: v27= 87 v26=106 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,807/$59,540 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 505s] v26 block                 | Blks: v27= 87 v26=107 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,807/$59,540 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 506s] v27 block                 | Blks: v27= 88 v26=107 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,807/$59,540 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 507s] v26 block                 | Blks: v27= 88 v26=108 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,807/$59,540 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 509s] v26 block                 | Blks: v27= 88 v26=109 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,807/$59,540 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 512s] v26 block                 | Blks: v27= 88 v26=110 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,807/$59,540 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 514s] v27 block                 | Blks: v27= 89 v26=110 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,807/$59,540 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 514s] v26 block                 | Blks: v27= 89 v26=111 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,807/$59,540 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 517s] v26 block                 | Blks: v27= 89 v26=112 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,807/$59,540 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 518s] v26 block                 | Blks: v27= 89 v26=113 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,807/$59,540 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 542s] v26 block                 | Blks: v27= 89 v26=114 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,807/$59,540 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 543s] v27 block                 | Blks: v27= 90 v26=114 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,794/$59,553 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 545s] v27 block                 | Blks: v27= 91 v26=114 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,794/$59,553 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 546s] v27 block                 | Blks: v27= 92 v26=114 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,794/$59,553 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: inconclusive[0m
+[0mPartitionMinerWithPools - [ 548s] v27 block                 | Blks: v27= 93 v26=114 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,794/$59,553 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 550s] v26 block                 | Blks: v27= 93 v26=115 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,794/$59,553 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 553s] v26 block                 | Blks: v27= 93 v26=116 | Diff: 1.0000 | Hash: 38.1%/48.3% | Price: $59,794/$59,553 [SUSTAINED][0m
+[91mPartitionMinerWithPools - Error mining v27 block: timed out[0m
+[0mPartitionMinerWithPools -   REORG: pool-foundryusa switched v27->v26, depth=93, orphaned=0 blocks[0m
+[0mPartitionMinerWithPools -   REORG: pool-marapool switched v27->v26, depth=93, orphaned=0 blocks[0m
+[0mPartitionMinerWithPools -   REORG: pool-luxor switched v27->v26, depth=93, orphaned=0 blocks[0m
+[0mPartitionMinerWithPools -   REORG: pool-ocean switched v27->v26, depth=93, orphaned=0 blocks[0m
+[0mPartitionMinerWithPools -   REORG: pool-viabtc switched v26->v27, depth=116, orphaned=0 blocks[0m
+[0mPartitionMinerWithPools -   REORG: pool-spiderpool switched v26->v27, depth=116, orphaned=0 blocks[0m
+[0mPartitionMinerWithPools - 
+ HASHRATE REALLOCATION at 622s:[0m
+[0mPartitionMinerWithPools -    v27: 38.1% -> 20.5%[0m
+[0mPartitionMinerWithPools -    v26: 48.3% -> 65.9%[0m
+[0mPartitionMinerWithPools -    pool-foundryusa: mining v26 despite $566,518 loss (ideology)[0m
+[0mPartitionMinerWithPools -    pool-marapool: mining v26 despite $86,866 loss (ideology)[0m
+[0mPartitionMinerWithPools -    pool-luxor: mining v26 despite $43,433 loss (ideology)[0m
+[0mPartitionMinerWithPools -    pool-ocean: mining v26 despite $22,661 loss (ideology)[0m
+[0mPartitionMinerWithPools -    pool-antpool: mining v26 despite $319,139 loss (ideology)[0m
+[0mPartitionMinerWithPools -    pool-f2pool: mining v26 despite $205,835 loss (ideology)[0m
+[91mPartitionMinerWithPools -   [asymmetric] Failed to propagate v27 block to v26 island: [Errno 113] No route to host[0m
+[0mPartitionMinerWithPools - [ 622s] v27 block                 | Blks: v27= 94 v26=116 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $59,841/$59,506 [SUSTAINED][0m
+[91mPartitionMinerWithPools - Error mining v27 block: [Errno 113] No route to host[0m
+[91mPartitionMinerWithPools - Error mining v27 block: [Errno 113] No route to host[0m
+[91mPartitionMinerWithPools - Error mining v26 block: [Errno 113] No route to host[0m
+[91mPartitionMinerWithPools - Error mining v26 block: [Errno 113] No route to host[0m
+[0mPartitionMinerWithPools - [ 740s] v26 block                 | Blks: v27= 94 v26=117 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $59,015/$60,332 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 748s] v26 block                 | Blks: v27= 94 v26=118 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $59,015/$60,332 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: prev-blk-not-found[0m
+[0mPartitionMinerWithPools - [ 749s] v27 block                 | Blks: v27= 95 v26=118 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $59,015/$60,332 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 768s] v26 block                 | Blks: v27= 95 v26=119 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $59,004/$60,343 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: prev-blk-not-found[0m
+[0mPartitionMinerWithPools - [ 769s] v27 block                 | Blks: v27= 96 v26=119 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $59,004/$60,343 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 769s] v26 block                 | Blks: v27= 96 v26=120 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $59,004/$60,343 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 776s] v26 block                 | Blks: v27= 96 v26=121 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $59,004/$60,343 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: prev-blk-not-found[0m
+[0mPartitionMinerWithPools - [ 782s] v27 block                 | Blks: v27= 97 v26=121 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $59,004/$60,343 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 782s] v26 block                 | Blks: v27= 97 v26=122 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $59,004/$60,343 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 783s] v26 block                 | Blks: v27= 97 v26=123 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $59,004/$60,343 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 784s] v26 block                 | Blks: v27= 97 v26=124 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $59,004/$60,343 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 787s] v26 block                 | Blks: v27= 97 v26=125 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $59,004/$60,343 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 788s] v26 block                 | Blks: v27= 97 v26=126 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $59,004/$60,343 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: prev-blk-not-found[0m
+[0mPartitionMinerWithPools - [ 790s] v27 block                 | Blks: v27= 98 v26=126 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $59,004/$60,343 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: prev-blk-not-found[0m
+[0mPartitionMinerWithPools - [ 793s] v27 block                 | Blks: v27= 99 v26=126 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $59,004/$60,343 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 794s] v26 block                 | Blks: v27= 99 v26=127 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $59,004/$60,343 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 797s] v26 block                 | Blks: v27= 99 v26=128 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $59,004/$60,343 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 798s] v26 block                 | Blks: v27= 99 v26=129 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $59,004/$60,343 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: prev-blk-not-found[0m
+[0mPartitionMinerWithPools - [ 799s] v27 block                 | Blks: v27=100 v26=129 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $59,004/$60,343 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: prev-blk-not-found[0m
+[0mPartitionMinerWithPools - [ 801s] v27 block                 | Blks: v27=101 v26=129 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $59,004/$60,343 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 801s] v26 block                 | Blks: v27=101 v26=130 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $59,004/$60,343 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 802s] v26 block                 | Blks: v27=101 v26=131 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $59,004/$60,343 [SUSTAINED][0m
+[91mPartitionMinerWithPools - Error mining v26 block: timed out[0m
+[91mPartitionMinerWithPools - Error mining v26 block: [Errno 113] No route to host[0m
+[91mPartitionMinerWithPools - Error mining v26 block: [Errno 113] No route to host[0m
+[0mPartitionMinerWithPools - [ 885s] v26 block                 | Blks: v27=101 v26=134 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,927/$60,420 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: prev-blk-not-found[0m
+[0mPartitionMinerWithPools - [ 897s] v27 block                 | Blks: v27=102 v26=134 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,927/$60,420 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 897s] v26 block                 | Blks: v27=102 v26=135 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,927/$60,420 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: prev-blk-not-found[0m
+[0mPartitionMinerWithPools - [ 950s] v27 block                 | Blks: v27=103 v26=135 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,918/$60,430 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 950s] v26 block                 | Blks: v27=103 v26=136 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,918/$60,430 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 959s] v26 block                 | Blks: v27=103 v26=137 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,918/$60,430 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 964s] v26 block                 | Blks: v27=103 v26=138 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,918/$60,430 [SUSTAINED][0m
+[91mPartitionMinerWithPools - Error mining v27 block: [Errno 113] No route to host[0m
+[0mPartitionMinerWithPools - [ 977s] v26 block                 | Blks: v27=103 v26=139 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,918/$60,430 [SUSTAINED][0m
+[91mPartitionMinerWithPools - Error mining v26 block: [Errno 113] No route to host[0m
+[0mPartitionMinerWithPools - [ 988s] v26 block                 | Blks: v27=103 v26=140 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,918/$60,430 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 989s] v26 block                 | Blks: v27=103 v26=141 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,918/$60,430 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 994s] v26 block                 | Blks: v27=103 v26=142 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,918/$60,430 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [ 996s] v26 block                 | Blks: v27=103 v26=143 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,918/$60,430 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: prev-blk-not-found[0m
+[0mPartitionMinerWithPools - [1000s] v27 block                 | Blks: v27=104 v26=143 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,918/$60,430 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1029s] v26 block                 | Blks: v27=104 v26=144 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,849/$60,498 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1035s] v26 block                 | Blks: v27=104 v26=145 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,849/$60,498 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1038s] v26 block                 | Blks: v27=104 v26=146 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,849/$60,498 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: prev-blk-not-found[0m
+[0mPartitionMinerWithPools - [1040s] v27 block                 | Blks: v27=105 v26=146 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,849/$60,498 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1041s] v26 block                 | Blks: v27=105 v26=147 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,849/$60,498 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1043s] v26 block                 | Blks: v27=105 v26=148 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,849/$60,498 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: prev-blk-not-found[0m
+[0mPartitionMinerWithPools - [1046s] v27 block                 | Blks: v27=106 v26=148 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,849/$60,498 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1046s] v26 block                 | Blks: v27=106 v26=149 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,849/$60,498 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: prev-blk-not-found[0m
+[0mPartitionMinerWithPools - [1048s] v27 block                 | Blks: v27=107 v26=149 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,849/$60,498 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1048s] v26 block                 | Blks: v27=107 v26=150 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,849/$60,498 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: prev-blk-not-found[0m
+[0mPartitionMinerWithPools - [1054s] v27 block                 | Blks: v27=108 v26=150 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,849/$60,498 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1055s] v26 block                 | Blks: v27=108 v26=151 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,849/$60,498 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1065s] v26 block                 | Blks: v27=108 v26=152 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,849/$60,498 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1067s] v26 block                 | Blks: v27=108 v26=153 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,849/$60,498 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1068s] v26 block                 | Blks: v27=108 v26=154 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,849/$60,498 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1069s] v26 block                 | Blks: v27=108 v26=155 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,849/$60,498 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: prev-blk-not-found[0m
+[0mPartitionMinerWithPools - [1076s] v27 block                 | Blks: v27=109 v26=155 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,849/$60,498 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1079s] v26 block                 | Blks: v27=109 v26=156 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,849/$60,498 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1084s] v26 block                 | Blks: v27=109 v26=157 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,849/$60,498 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1087s] v26 block                 | Blks: v27=109 v26=158 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,765/$60,582 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1089s] v26 block                 | Blks: v27=109 v26=159 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,765/$60,582 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1090s] v26 block                 | Blks: v27=109 v26=160 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,765/$60,582 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1093s] v26 block                 | Blks: v27=109 v26=161 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,765/$60,582 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: prev-blk-not-found[0m
+[0mPartitionMinerWithPools - [1094s] v27 block                 | Blks: v27=110 v26=161 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,765/$60,582 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: prev-blk-not-found[0m
+[0mPartitionMinerWithPools - [1097s] v27 block                 | Blks: v27=111 v26=161 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,765/$60,582 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1097s] v26 block                 | Blks: v27=111 v26=162 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,765/$60,582 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: prev-blk-not-found[0m
+[0mPartitionMinerWithPools - [1099s] v27 block                 | Blks: v27=112 v26=162 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,765/$60,582 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: prev-blk-not-found[0m
+[0mPartitionMinerWithPools - [1100s] v27 block                 | Blks: v27=113 v26=162 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,765/$60,582 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1101s] v26 block                 | Blks: v27=113 v26=163 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,765/$60,582 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: prev-blk-not-found[0m
+[0mPartitionMinerWithPools - [1102s] v27 block                 | Blks: v27=114 v26=163 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,765/$60,582 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1102s] v26 block                 | Blks: v27=114 v26=164 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,765/$60,582 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1104s] v26 block                 | Blks: v27=114 v26=165 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,765/$60,582 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1106s] v26 block                 | Blks: v27=114 v26=166 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,765/$60,582 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1108s] v26 block                 | Blks: v27=114 v26=167 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,765/$60,582 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1110s] v26 block                 | Blks: v27=114 v26=168 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,765/$60,582 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1113s] v26 block                 | Blks: v27=114 v26=169 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,765/$60,582 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1117s] v26 block                 | Blks: v27=114 v26=170 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,765/$60,582 [SUSTAINED][0m
+[93mPartitionMinerWithPools -   [asymmetric] submitblock to node-0012 returned: prev-blk-not-found[0m
+[0mPartitionMinerWithPools - [1118s] v27 block                 | Blks: v27=115 v26=170 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,765/$60,582 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1123s] v26 block                 | Blks: v27=115 v26=171 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,765/$60,582 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1125s] v26 block                 | Blks: v27=115 v26=172 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,765/$60,582 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1131s] v26 block                 | Blks: v27=115 v26=173 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,765/$60,582 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1132s] v26 block                 | Blks: v27=115 v26=174 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,765/$60,582 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1133s] v26 block                 | Blks: v27=115 v26=175 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,765/$60,582 [SUSTAINED][0m
+[0mPartitionMinerWithPools - [1144s] v26 block                 | Blks: v27=115 v26=176 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,765/$60,582 [SUSTAINED][0m
+[91mPartitionMinerWithPools - Error mining v27 block: [Errno 113] No route to host[0m
+[0mPartitionMinerWithPools - [1154s] v26 block                 | Blks: v27=115 v26=177 | Diff: 1.0000 | Hash: 20.5%/65.9% | Price: $58,657/$60,690 [SUSTAINED][0m
+[91mPartitionMinerWithPools - Error mining v27 block: [Errno 113] No route to host[0m
+[91mPartitionMinerWithPools -   [asymmetric] Failed to propagate v27 block to v26 island: [Errno 113] No route to host[0m
+[91mPartitionMinerWithPools - Error mining v27 block: timed out[0m
+[0mPartitionMinerWithPools -   REORG: pool-viabtc switched v27->v26, depth=116, orphaned=0 blocks[0m
+[0mPartitionMinerWithPools -   REORG: pool-spiderpool switched v27->v26, depth=116, orphaned=0 blocks[0m
+[0mPartitionMinerWithPools - 
+ HASHRATE REALLOCATION at 1229s:[0m
+[0mPartitionMinerWithPools -    v27: 20.5% -> 0.0%[0m
+[0mPartitionMinerWithPools -    v26: 65.9% -> 86.4%[0m
+[0mPartitionMinerWithPools -    pool-foundryusa: mining v26 despite $566,518 loss (ideology)[0m
+[0mPartitionMinerWithPools -    pool-marapool: mining v26 despite $86,866 loss (ideology)[0m
+[0mPartitionMinerWithPools -    pool-luxor: mining v26 despite $43,433 loss (ideology)[0m
+[0mPartitionMinerWithPools -    pool-ocean: mining v26 despite $22,661 loss (ideology)[0m
+[0mPartitionMinerWithPools -    pool-antpool: mining v26 despite $319,139 loss (ideology)[0m
+[0mPartitionMinerWithPools -    pool-f2pool: mining v26 despite $205,835 loss (ideology)[0m
+[91mPartitionMinerWithPools - Error mining v26 block: [Errno 113] No route to host[0m

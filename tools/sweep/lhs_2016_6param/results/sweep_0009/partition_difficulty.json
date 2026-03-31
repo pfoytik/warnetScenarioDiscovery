@@ -1,0 +1,50 @@
+{
+  "config": {
+    "target_block_interval": 2.0,
+    "retarget_interval": 2016,
+    "pre_fork_difficulty": 1.0,
+    "max_adjustment_factor": 4.0,
+    "min_difficulty": 0.0625,
+    "enable_eda": false,
+    "eda_threshold": 6.0,
+    "eda_reduction": 0.2
+  },
+  "forks": {
+    "v27": {
+      "fork_id": "v27",
+      "current_difficulty": 0.317930925721495,
+      "blocks_since_retarget": 298,
+      "cumulative_chainwork": 2110.7434158650176,
+      "last_block_sim_time": 12999,
+      "last_retarget_sim_time": 12682,
+      "expected_block_interval": 0.735951216947905,
+      "initial_height": 101,
+      "blocks_mined": 2314
+    },
+    "v26": {
+      "fork_id": "v26",
+      "current_difficulty": 1.0,
+      "blocks_since_retarget": 1409,
+      "cumulative_chainwork": 1409.0,
+      "last_block_sim_time": 12889,
+      "last_retarget_sim_time": 0.0,
+      "expected_block_interval": 2000.0,
+      "initial_height": 101,
+      "blocks_mined": 1409
+    }
+  },
+  "winning_fork": "v27",
+  "adjustment_history": [
+    {
+      "fork_id": "v27",
+      "sim_time": 12682,
+      "height": 2017,
+      "old_difficulty": 1.0,
+      "new_difficulty": 0.317930925721495,
+      "actual_time": 12682.0,
+      "target_time": 4032.0,
+      "adjustment_factor": 0.317930925721495,
+      "is_eda": false
+    }
+  ]
+}

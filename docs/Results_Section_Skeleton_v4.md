@@ -21,8 +21,9 @@ outcomes; second, what quantitative thresholds govern phase transitions;
 and third, how difficulty adjustment timing modulates these dynamics.
 
 **\[TODO:** *Update \[N\] total scenarios and \[X\] sweep count when
-targeted_sweep6 completes. Current valid n = 368 (323 prior + 45
-econ_committed_2016_grid).***\]**
+targeted_sweep6 completes. Current valid n = 497 (323 prior + 45
+econ_committed_2016_grid + 64 lhs_2016_full_parameter + 9 esp_144 + 9
+esp_2016 + 18 targeted_sweep6 + 129 lhs_2016_6param).***\]**
 
 **4.1 Scenario Overview and Data Quality**
 
@@ -82,6 +83,17 @@ discussed qualitatively where relevant.
                                                                dominates (sep=0.275); hard
                                                                threshold at commit≈0.25;
                                                                validates regime comparison
+
+  lhs_2016_6param         129      25-node       ✓ Valid      6D LHS at 2016-block ---
+  (lite)                                                       supersedes lhs_2016_full_
+                                                               parameter; pool_committed_
+                                                               split dominates (sep=0.272);
+                                                               threshold ~0.346 (lite net);
+                                                               pool_profitability_threshold
+                                                               and solo_miner_hashrate
+                                                               confirmed non-causal; 46%
+                                                               full econ switch; 24
+                                                               contested (18.6%)
 
   econ_committed_          45       60-node       ✓ Complete   5×9 economic_split ×
   2016_grid                                                    pool_committed_split grid
@@ -155,6 +167,14 @@ sweeps.***
 
   user_nodes_per_partition   6           targeted_sweep5: zero correlation
                                          (n=36)
+
+  pool_profitability_        0.16        lhs_2016_6param: separation=0.011
+  threshold                              across [0.08, 0.28] at 2016-block
+                                         retarget (n=129); previously untested
+
+  solo_miner_hashrate        0.085       lhs_2016_6param: separation~0 across
+                                         [0.00, 0.15] at 2016-block retarget
+                                         (n=129); previously untested
   -------------------------- ----------- ---------------------------------------
 
 **4.2.1 The Hashrate Confound**
@@ -284,6 +304,13 @@ ranking derived from the targeted sweep program.
   pool_neutral_pct; all  **Zero**          No causal effect on outcomes; confirmed by
   user params; econ                        multiple targeted sweeps. Fixed at medians
   friction params                          for all subsequent phases.
+
+  pool_profitability_    **Zero**          lhs_2016_6param (n=129): separation=0.011
+  threshold;                               across [0.08, 0.28] and [0.00, 0.15]
+  solo_miner_hashrate                      respectively at 2016-block retarget. First
+                                           sweep to vary these parameters; both
+                                           confirmed non-causal. Fixed at defaults
+                                           (0.16 and 0.085) for all analyses.
   ---------------------- ----------------- -------------------------------------------
 
 The input potential ranking has direct implications for Phase 3 Latin
@@ -507,6 +534,8 @@ The full 5×9 economic_split × pool_committed_split grid was completed at
 Table 4b presents the outcome matrix.
 
 **Unbiased feature importance confirmation (lhs_2016_full_parameter, n=64, March 2026):** A Latin Hypercube sweep sampling all 4 key parameters simultaneously at 2016-block retarget confirms and extends Table 6. Feature importance ranking: pool_committed_split (separation=0.275) >> economic_split (0.059) ≈ pool_ideology_strength (0.059) > pool_max_loss_pct (0.038). A hard threshold at committed_split ≈ 0.25 cleanly separates all 12 v26_dominant cases (committed ≤ 0.246) from all 52 v27_dominant cases (committed ≥ 0.260). The Foundry flip-point mechanism is confirmed via unbiased sampling: at 2016-block retarget, pool commitment structure is the binding constraint, not economic split. This validates the regime comparison — the dominant causal variable genuinely shifts between regimes, not merely the threshold value.
+
+**Extended 6D confirmation (lhs_2016_6param, n=129, April 2026):** A 6-parameter LHS sweep on the lite network supersedes lhs_2016_full_parameter by adding pool_profitability_threshold [0.08, 0.28] and solo_miner_hashrate [0.00, 0.15] — parameters that were untested in all prior sweeps. Results confirm pool_committed_split dominance (separation=0.272, 5.4× next-best) with a threshold of ~0.346 on the lite network. Both new parameters are non-causal: pool_profitability_threshold separation=0.011; solo_miner_hashrate separation~0. These parameters are added to Table 2. The sweep also reveals that economic switching is active at 2016-block in 46% of scenarios (59/129 full_switch) when committed_split is high enough to generate >40% price gap, creating a second v27 pathway: 21/83 v27_dominant cases achieve the outcome via full economic switching even below the pool cascade threshold. Outcome distribution: v27_dominant=83 (64.3%), v26_dominant=22 (17.1%), contested=24 (18.6%).
 
 ***Table 4b. econ_committed_2016_grid: fork outcomes at 2016-block
 retarget across economic_split × pool_committed_split. Compare to

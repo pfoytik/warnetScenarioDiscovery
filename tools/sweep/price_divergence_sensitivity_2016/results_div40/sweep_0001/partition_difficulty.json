@@ -12,27 +12,50 @@
   "forks": {
     "v27": {
       "fork_id": "v27",
-      "current_difficulty": 1.0,
-      "blocks_since_retarget": 1149,
-      "cumulative_chainwork": 1149.0,
-      "last_block_sim_time": 12961,
-      "last_retarget_sim_time": 0.0,
-      "expected_block_interval": 3.9603960396039604,
+      "current_difficulty": 0.7888334307667584,
+      "blocks_since_retarget": 1232,
+      "cumulative_chainwork": 3991.2389106396513,
+      "last_block_sim_time": 12996,
+      "last_retarget_sim_time": 10645,
+      "expected_block_interval": 1.8260033119600887,
       "initial_height": 101,
-      "blocks_mined": 1149
+      "blocks_mined": 5264
     },
     "v26": {
       "fork_id": "v26",
       "current_difficulty": 1.0,
-      "blocks_since_retarget": 786,
-      "cumulative_chainwork": 786.0,
-      "last_block_sim_time": 12999,
+      "blocks_since_retarget": 1546,
+      "cumulative_chainwork": 1546.0,
+      "last_block_sim_time": 11141,
       "last_retarget_sim_time": 0.0,
-      "expected_block_interval": 5.571030640668524,
+      "expected_block_interval": 2000.0,
       "initial_height": 101,
-      "blocks_mined": 786
+      "blocks_mined": 1546
     }
   },
   "winning_fork": "v27",
-  "adjustment_history": []
+  "adjustment_history": [
+    {
+      "fork_id": "v27",
+      "sim_time": 8101,
+      "height": 2016,
+      "old_difficulty": 1.0,
+      "new_difficulty": 0.49771633131712134,
+      "actual_time": 8101.0,
+      "target_time": 4032.0,
+      "adjustment_factor": 0.49771633131712134,
+      "is_eda": false
+    },
+    {
+      "fork_id": "v27",
+      "sim_time": 10645,
+      "height": 4032,
+      "old_difficulty": 0.49771633131712134,
+      "new_difficulty": 0.7888334307667584,
+      "actual_time": 2544,
+      "target_time": 4032.0,
+      "adjustment_factor": 1.5849056603773586,
+      "is_eda": false
+    }
+  ]
 }

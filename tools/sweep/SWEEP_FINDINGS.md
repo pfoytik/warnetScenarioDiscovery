@@ -46,6 +46,7 @@ The **realistic_sweep3_rapid** sweep with fixed code reveals a dramatically diff
 13. **The Economic Self-Sustaining Point (ESP) is econ ≈ 0.74, and is identical across retarget regimes (2026-03-26):** The `targeted_sweep7_esp` sweep ran all 9 scenarios (econ=0.28–0.85) at both 144-block and 2016-block retarget, with `pool_committed_split=0.214` (Foundry flip-point) and `hashrate_split=0.25`. The outcome flips sharply between econ=0.70 (v26_dominant) and econ=0.78 (v27_dominant) in both regimes — placing the ESP at approximately 0.74. The transition is winner-takes-all: above ESP, v27 captures 86.4% of hashrate; below ESP, v27 hashrate collapses to 0%. Critically, the ESP is invariant to retarget interval — the same threshold applies at both 144-block and 2016-block regimes. This confirms that difficulty adjustment timing does not affect the minimum economic majority required for UASF activation. See `targeted_sweep7_esp` section.
 14. **Economic override is total at econ ≥ 0.82 — pool ideology and loss tolerance delay but cannot prevent v27 victory (2026-03-26):** The `targeted_sweep6_econ_override` sweep ran all 27 cells of the ideology × max_loss × econ grid (ideology=[0.40,0.60,0.80], max_loss=[0.25,0.35,0.45], econ=[0.82,0.90,0.95]) at 144-block retarget. All 27 scenarios are v27_dominant. Outcome is invariant to ideology and max_loss above the ESP. However, cascade timing varies substantially: standard cascades complete in ~700s; high ideology (0.80) + high max_loss (0.45) cascades take up to 10,920s. Pool ideology creates resistance that delays resolution but cannot change it. The ideology × max_loss diagonal threshold from `targeted_sweep6_pool_ideology_full` at econ=0.78 does not extend upward — above econ=0.82, no ideology/max_loss combination can sustain v26. See `targeted_sweep6_econ_override` section.
 15. **At 2016-block retarget, pool_committed_split dominates — economic_split is secondary (2026-03-26):** The `lhs_2016_full_parameter` LHS sweep sampled all 4 key parameters simultaneously across 64 scenarios at 2016-block retarget. Feature importance ranking: pool_committed_split (separation=0.275) >> economic_split (0.059) ≈ pool_ideology_strength (0.059) > pool_max_loss_pct (0.038). A hard threshold at committed_split ≈ 0.25 cleanly separates all 12 v26_dominant cases (committed ≤ 0.246) from all 52 v27_dominant cases (committed ≥ 0.260). This confirms the Foundry flip-point mechanism via unbiased LHS sampling and validates the regime comparison: at 144-block, economic_split dominates; at 2016-block, pool_committed_split dominates because the retarget mechanism fires regardless of economic conditions. See `lhs_2016_full_parameter` section.
+16. **6D LHS at 2016-block retarget confirms pool_committed_split dominance and newly establishes pool_profitability_threshold and solo_miner_hashrate as non-causal (2026-04-01):** The `lhs_2016_6param` sweep ran 129/130 scenarios across 6 parameters via Latin Hypercube Sampling at 2016-block retarget on the lite network. Feature importance ranking: pool_committed_split (separation=0.272) >> pool_ideology_strength (0.050) > pool_max_loss_pct (0.031) > economic_split (0.019) > pool_profitability_threshold (0.011) ≈ solo_miner_hashrate (~0). The committed_split threshold at 2016-block on the lite network is ~0.346. Outcome distribution: v27_dominant=83 (64.3%), v26_dominant=22 (17.1%), contested=24 (18.6%). Full economic switching occurs in 59/129 (46%) scenarios — active at 2016-block when committed_split is high enough to generate >40% price gap. This creates a second v27 pathway: 21/83 v27_dominant cases achieved the outcome via full econ switch even when committed_split was below the ~0.346 pool cascade threshold. Only 1 of 22 v26_dominant cases falls above the threshold (extreme ideology×max_loss product prevents cascade). See `lhs_2016_6param` section.
 
 ### Zone Analysis Caveat
 
@@ -656,8 +657,9 @@ This document summarizes findings from four parameter sweeps exploring Bitcoin f
 | **targeted_sweep7_esp (2016-block)** | 9 | 60 nodes | 217 min | **2016 blocks (~67 min)** | Fixed | ✅ **Complete** — ESP = 0.74, identical to 144-block; retarget interval does not shift ESP |
 | **targeted_sweep6_econ_override** | 27 | 60 nodes | 217 min | 144 blocks (~5 min) | Fixed | ✅ **Complete** — 27/27 v27_dominant; economic override total at econ≥0.82; ideology delays cascade but cannot prevent it |
 | **lhs_2016_full_parameter** | 64 | 60 nodes | 217 min | **2016 blocks (~67 min)** | LHS | ✅ **Complete** — pool_committed_split dominates at 2016-block; hard threshold at commit≈0.25; unbiased regime comparison |
+| **lhs_2016_6param** | 129 | 25 nodes (lite) | 217 min | **2016 blocks (~67 min)** | LHS | ✅ **Complete** — 6D feature importance; pool_committed_split dominates (sep=0.272); threshold ~0.346; pool_profitability_threshold and solo_miner_hashrate confirmed non-causal; 46% full econ switch |
 
-**Total: 560 scenarios** (531 with full analysis)
+**Total: 689 scenarios** (660 with full analysis)
 
 ### Sweep Configuration Notes
 
@@ -3046,6 +3048,90 @@ All 52 v27_dominant cases have committed_split ≥ 0.260. **Gap at 0.247–0.259
 
 ---
 
+### lhs_2016_6param: Unbiased 6D Feature Importance at 2016-Block Retarget
+
+#### Purpose
+
+Supersede `lhs_2016_full_parameter` (4D, n=64) for regime comparison purposes by adding `pool_profitability_threshold` and `solo_miner_hashrate` — two parameters that had been fixed at defaults across all prior sweeps and were therefore untested. Provides a clean 6D comparison with `lhs_144_6param` to confirm or refute the regime shift in dominant causal variable.
+
+**Sweep design:**
+
+| Parameter | Range |
+|-----------|-------|
+| economic_split | [0.30, 0.80] |
+| pool_committed_split | [0.15, 0.70] |
+| pool_ideology_strength | [0.30, 0.80] |
+| pool_max_loss_pct | [0.10, 0.40] |
+| pool_profitability_threshold | [0.08, 0.28] |
+| solo_miner_hashrate | [0.00, 0.15] |
+| hashrate_split | 0.25 (fixed) |
+| retarget_interval | 2016 |
+| network | lite |
+| Total | 129/130 completed |
+
+#### Results
+
+**Outcome distribution:** 83 v27_dominant (64.3%), 22 v26_dominant (17.1%), 24 contested (18.6%)
+
+**Feature importance (separation scores):**
+
+| Parameter | Separation | Direction | Est. Threshold |
+|-----------|:----------:|-----------|:--------------:|
+| **pool_committed_split** | **0.272** | v27 when higher | **~0.346** |
+| pool_ideology_strength | 0.050 | v27 when lower | ~0.555 |
+| pool_max_loss_pct | 0.031 | v27 when lower | ~0.241 |
+| economic_split | 0.019 | v27 when higher | ~0.544 |
+| pool_profitability_threshold | 0.011 | v27 when higher | ~0.183 |
+| solo_miner_hashrate | ~0 | — | — |
+
+**pool_committed_split dominance is 5.4× the next-best parameter** — confirmed across 6D space.
+
+**Economic switching dynamics (59 full_switch, 70 no_switch):**
+
+| Metric | Value |
+|--------|-------|
+| full_switch rate | 59/129 (46%) |
+| cascade_t range | 612–7207s |
+| cascade_t mean (full_switch) | ~1689s |
+| econ_switch_t mean (full_switch) | ~3786s |
+| lag (switch_t − cascade_t) mean | ~1914s |
+| peak_price_gap (full_switch) | 41–47% |
+
+**Two pathways to v27_dominant:**
+1. **Pool cascade pathway (62/83):** committed_split ≥ ~0.346 — retarget fires, cascade completes, econ nodes may or may not switch but outcome is determined by pool dynamics
+2. **Econ switch pathway (21/83):** full econ switch fires even below pool cascade threshold when committed_split is high enough to generate >40% price gap → price signal forces all remaining neutral/committed pools off v26
+
+**The 22 v26_dominant cases — all but 1 have committed_split ≤ 0.346:**
+- 21/22 v26_dominant cases: committed_split below ~0.346 threshold — pool cascade never fires
+- 1/22 exception (sweep_0015): committed_split above threshold but extreme ideology × max_loss product prevents the cascade from completing
+
+**Contested zone:** 24 scenarios (18.6%) span committed_split 0.256–0.552 — driven by ideology × max_loss interactions near the diagonal threshold.
+
+#### Key Findings
+
+**1. pool_committed_split dominance confirmed at 2016-block (6D)** (separation=0.272, 5.4× next-best). Consistent with `lhs_2016_full_parameter` (separation=0.275) — the additional 2 parameters do not shift the regime.
+
+**2. pool_profitability_threshold is non-causal** (separation=0.011). Across the tested range [0.08, 0.28], varying the minimum profit threshold required for pools to consider switching has no meaningful effect on fork outcomes. Fixed at 0.16 in all prior sweeps; this sweep confirms the default is representative.
+
+**3. solo_miner_hashrate is non-causal** (separation~0). Permanent v27-committed solo miners (0–15% of total hashrate) do not shift fork outcomes at 2016-block retarget. The structural contribution of solo hashrate is absorbed by the difficulty adjustment mechanism.
+
+**4. Committed_split threshold shifts relative to lhs_2016_full_parameter:** ~0.346 here vs. ~0.25 in `lhs_2016_full_parameter`. The difference is likely attributable to the lite network vs. 60-node full network — the pool distribution and Foundry flip-point mechanics differ between network topologies.
+
+**5. Econ switching is active at 2016-block in 46% of scenarios.** This is a new finding relative to the `price_divergence_sensitivity_2016` analysis (which found 0% switching under the fixed grid conditions). The key enabler: when committed_split is high enough, the price gap generated exceeds 40%, well above the 18% effective inertia threshold. The `price_divergence_sensitivity_2016` conditions (lower committed_split, fixed moderate ideology) kept price gaps at ~16%, just below threshold — so the 0% finding was not universal but condition-specific.
+
+**6. Second pathway to v27 victory (21/83 v27_dominant via econ switch).** In 21 cases, full economic switching achieves v27 dominance even when committed_split is below the direct pool cascade threshold. This pathway is not captured in the `econ_committed_2016_grid` or `lhs_2016_full_parameter` analyses, which used fixed econ ideology values that placed scenarios in the no-switch dead zone.
+
+#### Data Location
+
+| File | Description |
+|------|-------------|
+| `tools/sweep/lhs_2016_6param/results/analysis/` | Analysis outputs |
+| `tools/sweep/lhs_2016_6param/results/analysis/report.txt` | Full feature importance report |
+| `tools/sweep/lhs_2016_6param/results/analysis/sweep_data.csv` | Per-scenario outcome data |
+| `tools/sweep/specs/lhs_2016_6param.yaml` | Sweep specification |
+
+---
+
 ## Diagnostic Red Flags
 
 When analyzing new sweep results, watch for these indicators of potential bugs:
@@ -3096,6 +3182,7 @@ When analyzing new sweep results, watch for these indicators of potential bugs:
 | **targeted_sweep7_esp (2016-block)** | `targeted_sweep7_esp/results_2016/analysis/` | 9 | ✅ **ESP sweep** — identical outcomes to 144-block; ESP invariant to retarget regime |
 | **targeted_sweep6_econ_override** | `targeted_sweep6_econ_override/results/analysis/` | 27 | ✅ **Economic override sweep** — 27/27 v27_dominant; cascade timing 700–10,920s depending on ideology×max_loss |
 | **lhs_2016_full_parameter** | `lhs_2016_full_parameter/results/analysis/` | 64 | ✅ **LHS 2016-block** — pool_committed_split dominates (sep=0.275); hard threshold at 0.25; 52 v27 / 12 v26 |
+| **lhs_2016_6param** | `tools/sweep/lhs_2016_6param/results/analysis/` | 129 | ✅ **LHS 2016-block 6D** — pool_committed_split dominates (sep=0.272); threshold ~0.346 (lite net); pool_profitability_threshold and solo_miner_hashrate confirmed non-causal; 83 v27 / 22 v26 / 24 contested; 46% full econ switch |
 
 ### Network Versions
 

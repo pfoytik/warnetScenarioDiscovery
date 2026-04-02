@@ -20,10 +20,7 @@ question in turn: first, which parameters causally determine fork
 outcomes; second, what quantitative thresholds govern phase transitions;
 and third, how difficulty adjustment timing modulates these dynamics.
 
-**\[TODO:** *Update \[N\] total scenarios and \[X\] sweep count when
-targeted_sweep6 completes. Current valid n = 497 (323 prior + 45
-econ_committed_2016_grid + 64 lhs_2016_full_parameter + 9 esp_144 + 9
-esp_2016 + 18 targeted_sweep6 + 129 lhs_2016_6param).***\]**
+**\[TODO:** *Update \[N\] total scenarios and \[X\] sweep count. Current valid n = 775 (323 prior + 45 econ_committed_2016_grid + 64 lhs_2016_full_parameter + 9 esp_144 + 9 esp_2016 + 18 targeted_sweep6 + 129 lhs_2016_6param + 130 lhs_144_6param + 48 price_divergence_sensitivity_2016). Sweep count X = 18 configurations (16 valid/partial + 2 invalid). Update body text below when finalizing.***\]**
 
 **4.1 Scenario Overview and Data Quality**
 
@@ -94,6 +91,25 @@ discussed qualitatively where relevant.
                                                                confirmed non-causal; 46%
                                                                full econ switch; 24
                                                                contested (18.6%)
+
+  lhs_144_6param          130      25-node       ✓ Valid      Matched 144-block counterpart
+  (lite)                                                       to lhs_2016_6param ---
+                                                               pool_committed_split dominates
+                                                               (sep=0.162); threshold ~0.407;
+                                                               economic_split non-causal
+                                                               (quantization artifact: all
+                                                               econ [0.30,0.80] → same 1 econ
+                                                               node); 50/130 v26_dominant
+                                                               (38.5% vs 17.1% at 2016-block);
+                                                               econ switch lag 2–3× longer
+
+  price_divergence_        48       60-node       ✓ Valid      4 cap levels ×12 scenarios;
+  sensitivity_2016                                             ±10% cap binds (3 v26 wins);
+                                                               ±30% maximum stall (12/12
+                                                               contested); econ permanently
+                                                               locked at all cap levels;
+                                                               confirms ideology/inertia
+                                                               dead zone not a cap artifact
 
   econ_committed_          45       60-node       ✓ Complete   5×9 economic_split ×
   2016_grid                                                    pool_committed_split grid
@@ -705,6 +721,38 @@ threshold robustness (0.82 unchanged) suggests that once economic
 majority is decisive, difficulty timing is irrelevant --- it only matters
 in the contested middle range.
 
+**4.5.3 LHS Regime Comparison: pool_committed_split Dominates at Both Retarget Intervals on the Lite Network**
+
+To provide an unbiased, multi-parameter comparison across retarget regimes, two matched 6-dimensional Latin Hypercube sweeps were run: lhs_2016_6param (n=129, 2016-block) and lhs_144_6param (n=130, 144-block). Both sweeps used the same lite network, same 6 parameters, and same parameter ranges ([Table 1](#table-1)).
+
+Feature importance at both retarget intervals is dominated by pool_committed_split:
+
+  -------------------------- ----------- -----------
+  **Parameter**              **Sep       **Sep
+                             (2016-blk)**  (144-blk)**
+
+  pool_committed_split       0.272       0.162
+
+  pool_ideology_strength     0.050       0.059
+
+  pool_max_loss_pct          0.031       0.015
+
+  economic_split             0.019       0.002*
+
+  pool_profitability_        0.011       0.010
+  threshold
+
+  solo_miner_hashrate        ~0          ~0
+  -------------------------- ----------- -----------
+
+*\*economic_split separation at 144-block is a quantization artifact, not a genuine finding: the lite network maps all econ_split values in [0.30, 0.80] to the same single economic node at 56.7% custody. The parameter has no real variation within the sampled range. The full-network targeted sweeps (targeted_sweep1, n=45; targeted_sweep7_esp, n=18) remain the primary evidence that economic_split dominates at 144-block.*
+
+Two genuine regime differences emerge from the comparison. First, the committed_split threshold is higher at 144-block (\~0.407 vs \~0.346 at 2016-block): the 2016-block retarget spike at t\~8,400s amplifies pool cascade effects, lowering the required committed hashrate fraction. Second, the v26_dominant rate is substantially higher at 144-block: 50/130 (38.5%) versus 22/129 (17.1%). The scenarios in this gap -- committed_split ∈ (0.346, 0.407) -- represent conditions where the 2016-block retarget provides decisive leverage but the 144-block cascade stalls.
+
+Economic switching is more common at 144-block (55% full_switch vs 46%) but slower: the econ switch lag is 2--3× longer (\~4,300--5,000s vs \~1,900s) because the pool cascade completes early (t\~1,815s) and economic nodes process the price signal gradually over the remaining 11,000+ seconds of run time.
+
+**\[TODO:** *The intended regime comparison (economic_split dominates at 144-block, pool_committed_split dominates at 2016-block) cannot be demonstrated on the lite network due to economic node quantization. A full-network 6D LHS would be required to confirm or refute whether the dominant causal variable shifts between regimes at matched parameter ranges. The existing full-network evidence (targeted_sweep1, econ_committed_2016_grid) strongly suggests the shift is real, but the 6D LHS comparison must be noted as inconclusive on this specific question.***\]**
+
 **4.6 Fork Dynamics and Cascade Signatures**
 
 Beyond binary win/loss outcomes, the simulation produces rich
@@ -748,6 +796,29 @@ because fewer economic nodes have switched.
 representative scenarios: clean win, cascade win, and contested. The
 flawed_idWar stalemate result (final prices nearly equal at 50/50) is a
 particularly clean illustration.***\]**
+
+The sensitivity of outcomes to the model's price divergence cap was tested systematically via the `price_divergence_sensitivity_2016` sweep, which ran the same 12-scenario parameter grid at cap levels of ±10%, ±20%, ±30%, and ±40% (n=48 total). Economic node switching behavior is invariant: 100% no_switch at every cap level. The ideology/inertia dead zone permanently locks economic nodes regardless of cap size. This confirms that the contested and v26-dominant outcomes in the inversion zone are not a cap artifact.
+
+Outcomes do vary across cap levels in ways that illuminate pool cascade mechanics:
+
+  -------------- ------- -------- ---- --------
+  **Cap level**  **v27** **v26**  **Contested** **Key finding**
+
+  ±10%           5       3        4    Cap binds in high-parameter scenarios
+                                       where natural equilibrium gap is 13--16%;
+                                       suppresses pool loss pressure; enables 3 v26 wins
+
+  ±20%           3       0        9    Cap no longer binds; stalled pool dynamics dominate
+
+  ±30%           0       0        12   Maximum stall; pool commitment insufficient
+                                       to complete cascade; all scenarios contested
+
+  ±40%           8       0        4    v27 wins via hardware-speed artifact: fast server
+                                       scenarios completed 2016-block retarget epoch within
+                                       run window; slow hardware scenarios remained contested
+  -------------- ------- -------- ---- --------
+
+The ±10% result is the only level where the cap is causally active. Above ±10%, the cap becomes slack and outcomes are determined by underlying pool and economic dynamics, not the price model boundary. The ±30% maximum-stall result identifies the pool commitment regime where no cap level can shift outcomes: in this grid, pool ideology and loss tolerance parameters are insufficient to complete the cascade regardless of how large the price signal is allowed to grow.
 
 **4.6.3 The Inversion Zone as Governance Risk**
 

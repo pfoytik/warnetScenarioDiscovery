@@ -1,0 +1,204 @@
+======================================================================
+PARAMETER SWEEP ANALYSIS REPORT
+======================================================================
+
+Total scenarios analyzed: 129
+
+OUTCOME DISTRIBUTION:
+  contested: 24 (18.6%)
+  v26_dominant: 22 (17.1%)
+  v27_dominant: 83 (64.3%)
+
+MOST DISCRIMINATING PARAMETERS:
+(Parameters with largest difference between v27/v26 dominant outcomes)
+
+  1. pool_committed_split
+     Separation: 0.272
+     v27 favored when: higher
+     Estimated threshold: 0.346
+     v27_dominant mean: 0.482
+     v26_dominant mean: 0.21
+
+  2. pool_ideology_strength
+     Separation: 0.05
+     v27 favored when: lower
+     Estimated threshold: 0.555
+     v27_dominant mean: 0.53
+     v26_dominant mean: 0.58
+
+  3. pool_max_loss_pct
+     Separation: 0.031
+     v27 favored when: lower
+     Estimated threshold: 0.241
+     v27_dominant mean: 0.226
+     v26_dominant mean: 0.257
+
+  4. economic_split
+     Separation: 0.019
+     v27 favored when: higher
+     Estimated threshold: 0.544
+     v27_dominant mean: 0.553
+     v26_dominant mean: 0.534
+
+  5. pool_profitability_threshold
+     Separation: 0.011
+     v27 favored when: higher
+     Estimated threshold: 0.183
+     v27_dominant mean: 0.189
+     v26_dominant mean: 0.178
+
+ECON SWITCHING TRAJECTORIES:
+(Economic node allocation shift over run duration)
+
+  scenario     econ_outcome   initial%  final%  switch_t  cascade_t   lag_s  peak_gap%
+  ------------------------------------------------------------------------------------
+  sweep_0000   no_switch         56.7%   56.7%     never      never     n/a       0.9%
+  sweep_0001   full_switch       56.7%  100.0%      5443       2427    3016      43.9%
+  sweep_0002   no_switch         56.7%   56.7%     never       8483     n/a      16.2%
+  sweep_0003   full_switch       99.6%  100.0%     never        612     n/a      47.1%
+  sweep_0004   full_switch       56.7%  100.0%      2740       1225    1515      45.2%
+  sweep_0005   no_switch         56.7%   56.7%     never      never     n/a       0.9%
+  sweep_0006   no_switch         56.7%   56.7%     never      never     n/a       6.2%
+  sweep_0007   full_switch       56.7%  100.0%      2578       1247    1331      46.5%
+  sweep_0008   full_switch       56.7%  100.0%      3057       1208    1849      44.9%
+  sweep_0009   no_switch         56.7%   56.7%     never      12937     n/a      12.8%
+  sweep_0010   no_switch         56.7%   56.7%     never      never     n/a       0.3%
+  sweep_0011   no_switch         56.7%   56.7%     never      never     n/a       0.0%
+  sweep_0012   no_switch         56.7%   56.7%     never      never     n/a       6.2%
+  sweep_0013   no_switch         56.7%   56.7%     never      never     n/a       0.0%
+  sweep_0014   no_switch         56.7%   56.7%     never      10447     n/a      15.3%
+  sweep_0015   no_switch         56.7%   56.7%     never      never     n/a       0.0%
+  sweep_0016   no_switch         56.7%   56.7%     never      10479     n/a      16.8%
+  sweep_0017   no_switch         56.7%   56.7%     never      never     n/a       1.1%
+  sweep_0019   no_switch         56.7%   56.7%     never      never     n/a       0.9%
+  sweep_0020   no_switch         56.7%   56.7%     never      never     n/a       9.8%
+  sweep_0021   no_switch         56.7%   56.7%     never      never     n/a       1.0%
+  sweep_0022   full_switch       56.7%  100.0%      3682       2525    1157      46.4%
+  sweep_0023   full_switch       56.7%  100.0%      9158       4282    4876      41.9%
+  sweep_0024   no_switch         56.7%   56.7%     never      11653     n/a      14.1%
+  sweep_0025   no_switch         56.7%   56.7%     never       8418     n/a      16.2%
+  sweep_0026   full_switch       56.7%  100.0%      3025       1207    1818      45.7%
+  sweep_0027   full_switch       56.7%  100.0%      6378       3636    2742      43.9%
+  sweep_0028   full_switch       56.7%  100.0%      2722       1207    1515      46.1%
+  sweep_0029   no_switch         56.7%   56.7%     never      never     n/a       0.8%
+  sweep_0030   no_switch         56.7%   56.7%     never      never     n/a       6.1%
+  sweep_0031   no_switch         56.7%   56.7%     never       7809     n/a      17.5%
+  sweep_0032   full_switch       99.6%  100.0%     never        663     n/a      46.9%
+  sweep_0033   no_switch         56.7%   56.7%     never      never     n/a       6.4%
+  sweep_0034   no_switch         56.7%   56.7%     never      never     n/a       5.8%
+  sweep_0035   full_switch       56.7%  100.0%      7784       4301    3483      42.1%
+  sweep_0036   no_switch         56.7%   56.7%     never      never     n/a       0.9%
+  sweep_0037   no_switch         56.7%   56.7%     never      never     n/a       5.7%
+  sweep_0038   no_switch         56.7%   56.7%     never      never     n/a       8.8%
+  sweep_0039   full_switch       56.7%  100.0%      2771       1225    1546      45.7%
+  sweep_0040   full_switch       99.6%  100.0%     never        655     n/a      45.5%
+  sweep_0041   full_switch       56.7%  100.0%      9724       5682    4042      42.0%
+  sweep_0042   full_switch       56.7%  100.0%      3114       1228    1886      45.6%
+  sweep_0043   full_switch       99.6%  100.0%     never        680     n/a      45.9%
+  sweep_0044   no_switch         56.7%   56.7%     never       7861     n/a      17.8%
+  sweep_0045   full_switch       56.7%  100.0%      6660       3020    3640      44.0%
+  sweep_0046   no_switch         56.7%   56.7%     never      never     n/a       6.1%
+  sweep_0047   no_switch         56.7%   56.7%     never      never     n/a       1.0%
+  sweep_0048   no_switch         56.7%   56.7%     never      never     n/a       6.1%
+  sweep_0049   no_switch         56.7%   56.7%     never      never     n/a       1.0%
+  sweep_0050   no_switch         56.7%   56.7%     never      never     n/a       6.2%
+  sweep_0051   no_switch         56.7%   56.7%     never      never     n/a       9.7%
+  sweep_0052   no_switch         56.7%   56.7%     never      12191     n/a      13.2%
+  sweep_0053   no_switch         56.7%   56.7%     never       9079     n/a      16.5%
+  sweep_0054   no_switch         56.7%   56.7%     never      12164     n/a      13.1%
+  sweep_0055   full_switch       56.7%  100.0%      2743       1208    1535      45.6%
+  sweep_0056   full_switch       56.7%  100.0%      2822       1243    1579      45.4%
+  sweep_0057   no_switch         56.7%   56.7%     never       8413     n/a      15.9%
+  sweep_0058   full_switch       99.6%  100.0%     never        818     n/a      46.2%
+  sweep_0059   no_switch         56.7%   56.7%     never      never     n/a       1.2%
+  sweep_0060   full_switch       56.7%  100.0%      3116       1278    1838      45.4%
+  sweep_0061   full_switch       56.7%  100.0%      3692       1883    1809      45.0%
+  sweep_0062   full_switch       56.7%  100.0%      2816       1261    1555      45.8%
+  sweep_0063   no_switch         56.7%   56.7%     never      never     n/a       1.2%
+  sweep_0064   full_switch       56.7%  100.0%      2762       1209    1553      45.9%
+  sweep_0065   no_switch         56.7%   56.7%     never      never     n/a       1.1%
+  sweep_0066   full_switch       99.6%  100.0%     never        649     n/a      46.0%
+  sweep_0067   no_switch         56.7%   56.7%     never      never     n/a       6.2%
+  sweep_0068   full_switch       56.7%  100.0%      2769       1255    1514      45.7%
+  sweep_0069   full_switch       56.7%  100.0%      3124       1275    1849      45.3%
+  sweep_0070   no_switch         56.7%   56.7%     never       8416     n/a      16.1%
+  sweep_0071   no_switch         56.7%   56.7%     never      never     n/a       0.9%
+  sweep_0072   full_switch       56.7%  100.0%      2792       1269    1523      46.1%
+  sweep_0073   no_switch         56.7%   56.7%     never      never     n/a       6.0%
+  sweep_0074   full_switch       56.7%  100.0%      2504       1258    1246      46.1%
+  sweep_0075   full_switch       56.7%  100.0%      3729       1844    1885      44.5%
+  sweep_0076   no_switch         56.7%   56.7%     never      12847     n/a      12.7%
+  sweep_0077   full_switch       56.7%  100.0%      2777       1264    1513      45.3%
+  sweep_0078   full_switch       56.7%  100.0%      3025       1207    1818      45.8%
+  sweep_0079   no_switch         56.7%   56.7%     never      12807     n/a      12.6%
+  sweep_0080   no_switch         56.7%   56.7%     never      12848     n/a      12.6%
+  sweep_0081   no_switch         56.7%   56.7%     never       9204     n/a      16.7%
+  sweep_0082   full_switch       56.7%  100.0%      3716       1848    1868      44.8%
+  sweep_0083   full_switch       56.7%  100.0%      2722       1208    1514      46.9%
+  sweep_0084   no_switch         56.7%   56.7%     never      never     n/a       6.4%
+  sweep_0085   no_switch         56.7%   56.7%     never      never     n/a       1.2%
+  sweep_0086   no_switch         56.7%   56.7%     never      never     n/a       5.8%
+  sweep_0087   no_switch         56.7%   56.7%     never      never     n/a       6.1%
+  sweep_0088   full_switch       56.7%  100.0%      2484       1241    1243      46.1%
+  sweep_0089   full_switch       56.7%  100.0%      2570       1213    1357      46.5%
+  sweep_0090   full_switch       56.7%  100.0%      2744       1272    1472      45.5%
+  sweep_0091   full_switch       56.7%  100.0%      3132       1220    1912      45.0%
+  sweep_0092   full_switch       99.6%  100.0%     never        650     n/a      46.8%
+  sweep_0093   full_switch       56.7%  100.0%      3069       1261    1808      45.7%
+  sweep_0094   no_switch         56.7%   56.7%     never      never     n/a       5.9%
+  sweep_0095   full_switch       99.6%  100.0%     never        626     n/a      45.8%
+  sweep_0096   full_switch       56.7%  100.0%      2721       1207    1514      46.7%
+  sweep_0097   no_switch         56.7%   56.7%     never      never     n/a       0.9%
+  sweep_0098   no_switch         56.7%   56.7%     never      never     n/a       6.1%
+  sweep_0099   full_switch       56.7%  100.0%      2495       1242    1253      46.2%
+  sweep_0100   full_switch       56.7%  100.0%      2251       1206    1045      46.2%
+  sweep_0101   full_switch       56.7%  100.0%      2773       1237    1536      45.5%
+  sweep_0102   no_switch         56.7%   56.7%     never      never     n/a       0.9%
+  sweep_0103   full_switch       56.7%  100.0%      2772       1227    1545      45.8%
+  sweep_0104   full_switch       56.7%  100.0%      3655       1812    1843      45.3%
+  sweep_0105   no_switch         56.7%   56.7%     never      10335     n/a      15.0%
+  sweep_0106   full_switch       56.7%  100.0%      2748       1208    1540      46.2%
+  sweep_0107   full_switch       56.7%  100.0%      2738       1223    1515      45.6%
+  sweep_0108   full_switch       56.7%  100.0%      3948       1829    2119      45.1%
+  sweep_0109   no_switch         56.7%   56.7%     never      never     n/a       0.9%
+  sweep_0110   no_switch         56.7%   56.7%     never      never     n/a       0.0%
+  sweep_0111   full_switch       56.7%  100.0%      3145       1919    1226      45.3%
+  sweep_0112   full_switch       99.6%  100.0%     never        709     n/a      46.3%
+  sweep_0113   no_switch         56.7%   56.7%     never      never     n/a       6.3%
+  sweep_0114   no_switch         56.7%   56.7%     never       9704     n/a      15.9%
+  sweep_0115   no_switch         56.7%   56.7%     never      never     n/a       7.9%
+  sweep_0116   full_switch       56.7%  100.0%      6551       3694    2857      43.4%
+  sweep_0117   full_switch       56.7%  100.0%      2887       1886    1001      46.8%
+  sweep_0118   full_switch       56.7%  100.0%      2186       1261     925      46.2%
+  sweep_0119   no_switch         56.7%   56.7%     never      never     n/a       6.0%
+  sweep_0120   full_switch       56.7%  100.0%      5732       3091    2641      44.3%
+  sweep_0121   no_switch         56.7%   56.7%     never       9065     n/a      15.8%
+  sweep_0122   full_switch       56.7%  100.0%      2722       1207    1515      46.7%
+  sweep_0123   no_switch         56.7%   56.7%     never      never     n/a       6.2%
+  sweep_0124   no_switch         56.7%   56.7%     never      never     n/a       6.0%
+  sweep_0125   no_switch         56.7%   56.7%     never      never     n/a       6.3%
+  sweep_0126   no_switch         56.7%   56.7%     never      never     n/a       6.2%
+  sweep_0127   no_switch         56.7%   56.7%     never      never     n/a       1.1%
+  sweep_0128   no_switch         56.7%   56.7%     never      never     n/a       0.7%
+  sweep_0129   full_switch       56.7%  100.0%     12044       7207    4837      41.5%
+
+ECON OUTCOME DISTRIBUTION:
+  full_switch: 59 (46%)
+  no_switch: 70 (54%)
+
+STRONG CORRELATIONS:
+(Parameters most correlated with v27 hashrate share / econ final)
+
+  pool_max_loss_pct: hash=-0.253  econ=-0.531
+  pool_ideology_strength: hash=-0.159  econ=-0.333
+  pool_profitability_threshold: hash=+0.146  econ=+0.079
+  economic_split: hash=+0.045  econ=+0.111
+  econ_ideology_strength: hash=-0.000  econ=-0.000
+
+KEY INSIGHTS:
+
+  * pool_committed_split is the strongest predictor of fork outcome
+    Threshold around 0.346
+    v27 dominant when higher
+
+======================================================================

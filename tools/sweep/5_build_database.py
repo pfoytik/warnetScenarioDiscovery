@@ -211,21 +211,264 @@ SWEEP_METADATA = {
         'network_type': 'lite',
         'description': 'Economic split threshold sweep on lite network (econ 0.5→0.85) — comparison baseline for full network thresholds'
     },
+    'targeted_sweep2_hashrate_economic': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'full',
+        'description': 'Hashrate × economic grid — hashrate shown non-causal; identical outcomes at all hashrate levels (n=42)'
+    },
+    'targeted_sweep3_econ_friction': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'lite',
+        'description': 'Economic friction grid on lite network — econ_inertia and econ_switching_threshold have no effect'
+    },
+    'targeted_sweep6_pool_ideology_full': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'full',
+        'description': 'Pool ideology × max_loss diagonal threshold at econ=0.78 on full 60-node network (n=20) — direction corrected over sweep2b'
+    },
+    'targeted_sweep6_econ_override': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'full',
+        'description': 'Ideology × max_loss × econ grid at econ≥0.82 (n=27) — 27/27 v27_dominant; economic override total above ESP; ideology delays but cannot prevent'
+    },
+    'targeted_sweep7_esp_144': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'full',
+        'description': 'ESP sweep at 144-block retarget (econ=0.28–0.85, n=9) — ESP=0.74; threshold between econ=0.70 and econ=0.78'
+    },
+    'targeted_sweep7_esp_2016': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'full',
+        'description': 'ESP sweep at 2016-block retarget (econ=0.28–0.85, n=9) — ESP=0.74 identical to 144-block; ESP invariant to retarget regime'
+    },
+    'targeted_sweep7_lite_inversion': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'lite',
+        'description': 'Lite network inversion zone validation (n=12) — 75% match to full network; econ=0.50 diverges'
+    },
+    'targeted_sweep8_lite_2016_retarget': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'lite',
+        'description': '2016-block retarget validation on lite network (n=5) — qualitatively different regime; stuck contested state at econ=0.35–0.70'
+    },
+    'targeted_sweep9_long_duration_2016': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'lite',
+        'description': 'Long-duration confirmation (n=1, 20000s) — stuck contested state resolves at t=8106s; cascade mechanism confirmed at 2016-block'
+    },
+    'targeted_sweep10_econ_threshold_2016': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'full',
+        'description': 'Accidental 144-block run labeled 2016-block (n=5) — three-phase cascade; difficulty mechanics dominate; v27_dominant at econ=0.35–0.70'
+    },
+    'targeted_sweep10b_econ_threshold_2016': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'full',
+        'description': 'Corrected 2016-block rerun (n=5) — economic_split irrelevant 0.35–0.70; v27 wins via retarget at all levels incl. econ=0.35'
+    },
+    'targeted_sweep10c_liveness_penalty': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'full',
+        'description': 'Liveness penalty (Option B oracle) test — compares baseline vs liveness-penalty oracle variants'
+    },
+    'targeted_sweep11_lite_chaos_test': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'lite',
+        'description': 'Chaos test at econ=0.50, commit=0.20, 2016-block (n=3) — 3/3 v26_dominant; NOT stochastic; confirms deterministic outcome'
+    },
+    'econ_committed_2016_grid': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'full',
+        'description': '5×9 economic_split × pool_committed_split grid at 2016-block retarget (n=45) — direct regime comparison to targeted_sweep1'
+    },
+    'econ_switching_144_verify': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'lite',
+        'description': 'Economic switching verification at 144-block (n=5) — parameter working; threshold ∈ (0.20, 0.35); perfect symmetry'
+    },
+    'econ_threshold_2016_v2': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'full',
+        'description': '2016-block threshold refinement v2 (n=2) — econ=0.55,0.60 both v27_dominant; threshold narrowed to (0.50, 0.55)'
+    },
+    'econ_threshold_2016_v2_v2': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'full',
+        'description': '2016-block threshold refinement v2 variant results — see econ_threshold_2016_v2'
+    },
+    'baseline_threshold_2016_narrow': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'full',
+        'description': 'Narrow threshold sweep at 2016-block baseline — econ=0.20–0.52 all v26_dominant (quantization, not regime effect)'
+    },
+    'sigmoid_threshold_2016': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'full',
+        'description': 'Sigmoid oracle threshold sweep at 2016-block — lower threshold with sigmoid oracle'
+    },
+    'committed_2016_high_econ': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'lite',
+        'description': 'Committed split × 2016-block at econ=0.78 (n=4) — threshold ∈ (0.20, 0.30); econ level does not shift threshold'
+    },
+    'committed_2016_mid_econ': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'lite',
+        'description': 'Committed split × 2016-block at econ=0.55 (n=4) — same threshold as high econ; confirms threshold invariance'
+    },
+    'committed_2016_sigmoid': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'lite',
+        'description': 'Committed split × 2016-block with sigmoid oracle at econ=0.78 — sigmoid triggers full econ switch (peak_gap≈40% > 18% threshold)'
+    },
+    'committed_2016_sigmoid_midecon': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'lite',
+        'description': 'Committed split × 2016-block with sigmoid oracle at econ=0.55 — same econ switch behavior as econ=0.78; oracle interaction is key'
+    },
+    'sigmoid_2016_retarget_baseline': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'full',
+        'description': 'Baseline oracle at 2016-block retarget (initial run) — cascade at t≈8426s; econ=0.35–0.70 identical'
+    },
+    'sigmoid_2016_retarget_baseline_v2': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'full',
+        'description': 'Baseline oracle at 2016-block retarget v2 (n=5) — v26=1543 blocks, cascade_t≈8426s, peak_gap=16.1%; corrected econ switching params'
+    },
+    'sigmoid_2016_retarget_sigmoid': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'full',
+        'description': 'Sigmoid oracle at 2016-block retarget (initial run) — cascade at t≈4239s pre-retarget; full econ switch triggered'
+    },
+    'sigmoid_2016_retarget_sigmoid_v2': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'full',
+        'description': 'Sigmoid oracle at 2016-block retarget v2 (n=5) — halves cascade time (8426→4239s), halves v26 blocks (1543→799), amplifies gap +34%'
+    },
+    'switching_ideology_threshold': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'full',
+        'description': 'Econ ideology sweep at sigmoid oracle 144-block — switchover bracket ideology≈0.30–0.35; cascade amplifies gap 14.3%→35.1%'
+    },
+    'switching_neutral_fraction': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'full',
+        'description': 'Econ neutral fraction sweep at sigmoid oracle 144-block — neutral fraction does NOT change cascade speed; pool cascade is bottleneck'
+    },
+    'threshold_144_narrow': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'lite',
+        'description': 'Narrow econ threshold sweep at 144-block (n=4) — quantization boundary ≈0.29 (between econ=0.28→v26 and econ=0.30→v27)'
+    },
+    'hashrate_2016_verification': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'full',
+        'description': 'Hashrate split verification at 2016-block retarget'
+    },
+    'lhs_2016_full_parameter': {
+        'sweep_type': 'lhs',
+        'network_type': 'full',
+        'description': 'Unbiased 4D LHS at 2016-block retarget (n=64) — pool_committed_split dominates (sep=0.275); hard threshold at commit≈0.25; validates regime comparison'
+    },
+    'lhs_2016_6param': {
+        'sweep_type': 'lhs',
+        'network_type': 'lite',
+        'description': '6D LHS at 2016-block retarget on lite network (n=129) — pool_committed_split dominates (sep=0.272); threshold ~0.346; pool_profitability_threshold and solo_miner_hashrate confirmed non-causal; 46% full econ switch'
+    },
+    'lhs_144_6param': {
+        'sweep_type': 'lhs',
+        'network_type': 'lite',
+        'description': '6D LHS at 144-block retarget on lite network (n=130) — pool_committed_split dominates (sep=0.162); threshold ~0.407; economic_split non-causal (quantization artifact); 38.5% v26_dominant; econ switch lag 2-3x longer than 2016-block'
+    },
+    'price_divergence_sensitivity_2016_div10': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'full',
+        'description': 'Price divergence cap sensitivity at ±10% (n=12) — cap DOES bind in high-parameter scenarios; 5v27/3v26/4contested; 100% no_switch'
+    },
+    'price_divergence_sensitivity_2016_div20': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'full',
+        'description': 'Price divergence cap sensitivity at ±20% (n=12) — cap does not bind; 3v27/9contested; 100% no_switch; stalled pool dynamics dominate'
+    },
+    'price_divergence_sensitivity_2016_div30': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'full',
+        'description': 'Price divergence cap sensitivity at ±30% (n=12) — maximum stall; 12/12 contested; pool commitment insufficient to complete cascade at any cap'
+    },
+    'price_divergence_sensitivity_2016_div40': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'full',
+        'description': 'Price divergence cap sensitivity at ±40% (n=12) — 8v27/4contested; v27 wins via hardware-speed artifact (2016-block retarget epoch reached on fast server); 100% no_switch'
+    },
+    'oracle_validation_lite_baseline': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'lite',
+        'description': 'Oracle validation on lite network — baseline oracle variant'
+    },
+    'oracle_validation_lite_ema_only': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'lite',
+        'description': 'Oracle validation on lite network — EMA-only oracle variant'
+    },
+    'oracle_validation_lite_floor_only': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'lite',
+        'description': 'Oracle validation on lite network — cost floor only oracle variant'
+    },
+    'oracle_validation_lite_proposals': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'lite',
+        'description': 'Oracle validation on lite network — proposals oracle variant'
+    },
+    'oracle_validation_lite_sigmoid_only': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'lite',
+        'description': 'Oracle validation on lite network — sigmoid-only oracle variant'
+    },
+    'cost_floor_asymmetric_test_baseline': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'lite',
+        'description': 'Asymmetric cost floor test — baseline variant (no cost floor)'
+    },
+    'cost_floor_asymmetric_test_floor': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'lite',
+        'description': 'Asymmetric cost floor test — cost floor active variant'
+    },
+    'realistic_sweep3_replay': {
+        'sweep_type': 'lhs',
+        'network_type': 'full',
+        'description': 'Replay of realistic_sweep3 for validation'
+    },
 }
 
 
 def find_sweep_data_files(base_dir: Path) -> Dict[str, Path]:
-    """Find all sweep_data.csv files and map to sweep names."""
+    """Find all sweep_data.csv files and map to sweep names.
+
+    Handles both standard paths (<sweep>/results/analysis/sweep_data.csv)
+    and multi-variant paths (<sweep>/results_<suffix>/analysis/sweep_data.csv).
+    For variants, the sweep name becomes <sweep>_<suffix>.
+    """
     results = {}
     for csv_path in base_dir.glob("**/sweep_data.csv"):
-        # Extract sweep name from path
-        # Pattern: <sweep_name>/results/analysis/sweep_data.csv
         parts = csv_path.parts
-        if 'results' in parts and 'analysis' in parts:
-            results_idx = parts.index('results')
-            if results_idx > 0:
-                sweep_name = parts[results_idx - 1]
-                results[sweep_name] = csv_path
+        # Find a directory component that starts with 'results' and is
+        # immediately followed by 'analysis'
+        results_idx = None
+        for i, part in enumerate(parts):
+            if part.startswith('results') and i + 1 < len(parts) and parts[i + 1] == 'analysis':
+                results_idx = i
+                break
+        if results_idx is not None and results_idx > 0:
+            sweep_name = parts[results_idx - 1]
+            results_dir = parts[results_idx]
+            # If results dir has a suffix (e.g., results_144), append it
+            if results_dir != 'results':
+                suffix = results_dir[len('results_'):]
+                sweep_name = f"{sweep_name}_{suffix}"
+            results[sweep_name] = csv_path
     return results
 
 

@@ -1,0 +1,77 @@
+======================================================================
+PARAMETER SWEEP ANALYSIS REPORT
+======================================================================
+
+Total scenarios analyzed: 12
+
+OUTCOME DISTRIBUTION:
+  contested: 9 (75.0%)
+  v27_dominant: 3 (25.0%)
+
+MOST DISCRIMINATING PARAMETERS:
+(Parameters with largest difference between v27/v26 dominant outcomes)
+
+  1. economic_split
+     Separation: 0
+     v27 favored when: ?
+     Estimated threshold: ?
+     v27_dominant mean: 0.717
+
+  2. hashrate_split
+     Separation: 0
+     v27 favored when: ?
+     Estimated threshold: ?
+     v27_dominant mean: 0.333
+
+  3. pool_ideology_strength
+     Separation: 0
+     v27 favored when: ?
+     Estimated threshold: ?
+     v27_dominant mean: 0.51
+
+  4. pool_profitability_threshold
+     Separation: 0
+     v27 favored when: ?
+     Estimated threshold: ?
+     v27_dominant mean: 0.16
+
+  5. pool_max_loss_pct
+     Separation: 0
+     v27 favored when: ?
+     Estimated threshold: ?
+     v27_dominant mean: 0.26
+
+ECON SWITCHING TRAJECTORIES:
+(Economic node allocation shift over run duration)
+
+  scenario     econ_outcome   initial%  final%  switch_t  cascade_t   lag_s  peak_gap%
+  ------------------------------------------------------------------------------------
+  sweep_0000   no_switch         56.7%   56.7%     never      never     n/a       6.0%
+  sweep_0001   no_switch         56.7%   56.7%     never      never     n/a       6.6%
+  sweep_0002   no_switch         56.7%   56.7%     never      never     n/a       6.2%
+  sweep_0003   no_switch         56.7%   56.7%     never      never     n/a       5.9%
+  sweep_0004   no_switch         56.7%   56.7%     never      10940     n/a      14.7%
+  sweep_0005   no_switch         56.7%   56.7%     never      never     n/a       6.2%
+  sweep_0006   no_switch         56.7%   56.7%     never      never     n/a       6.1%
+  sweep_0007   no_switch         56.7%   56.7%     never      never     n/a       6.1%
+  sweep_0008   no_switch         56.7%   56.7%     never      12909     n/a      12.6%
+  sweep_0009   no_switch         56.7%   56.7%     never      never     n/a       6.0%
+  sweep_0010   no_switch         56.7%   56.7%     never      never     n/a       6.3%
+  sweep_0011   no_switch         56.7%   56.7%     never      11461     n/a      14.3%
+
+ECON OUTCOME DISTRIBUTION:
+  no_switch: 12 (100%)
+
+STRONG CORRELATIONS:
+(Parameters most correlated with v27 hashrate share / econ final)
+
+  economic_split: hash=+0.471  econ=-0.000
+  hashrate_split: hash=-0.192  econ=-0.302
+  pool_ideology_strength: hash=-0.000  econ=-0.000
+  pool_profitability_threshold: hash=-0.000  econ=-0.000
+  pool_max_loss_pct: hash=-0.000  econ=-0.000
+
+KEY INSIGHTS:
+
+
+======================================================================

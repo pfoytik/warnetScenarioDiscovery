@@ -47,6 +47,7 @@ The **realistic_sweep3_rapid** sweep with fixed code reveals a dramatically diff
 14. **Economic override is total at econ ≥ 0.82 — pool ideology and loss tolerance delay but cannot prevent v27 victory (2026-03-26):** The `targeted_sweep6_econ_override` sweep ran all 27 cells of the ideology × max_loss × econ grid (ideology=[0.40,0.60,0.80], max_loss=[0.25,0.35,0.45], econ=[0.82,0.90,0.95]) at 144-block retarget. All 27 scenarios are v27_dominant. Outcome is invariant to ideology and max_loss above the ESP. However, cascade timing varies substantially: standard cascades complete in ~700s; high ideology (0.80) + high max_loss (0.45) cascades take up to 10,920s. Pool ideology creates resistance that delays resolution but cannot change it. The ideology × max_loss diagonal threshold from `targeted_sweep6_pool_ideology_full` at econ=0.78 does not extend upward — above econ=0.82, no ideology/max_loss combination can sustain v26. See `targeted_sweep6_econ_override` section.
 15. **At 2016-block retarget, pool_committed_split dominates — economic_split is secondary (2026-03-26):** The `lhs_2016_full_parameter` LHS sweep sampled all 4 key parameters simultaneously across 64 scenarios at 2016-block retarget. Feature importance ranking: pool_committed_split (separation=0.275) >> economic_split (0.059) ≈ pool_ideology_strength (0.059) > pool_max_loss_pct (0.038). A hard threshold at committed_split ≈ 0.25 cleanly separates all 12 v26_dominant cases (committed ≤ 0.246) from all 52 v27_dominant cases (committed ≥ 0.260). This confirms the Foundry flip-point mechanism via unbiased LHS sampling and validates the regime comparison: at 144-block, economic_split dominates; at 2016-block, pool_committed_split dominates because the retarget mechanism fires regardless of economic conditions. See `lhs_2016_full_parameter` section.
 17. **6D LHS at 144-block retarget: pool_committed_split dominates on lite network — regime comparison confounded by economic quantization (2026-04-02):** The `lhs_144_6param` sweep ran 130 scenarios across the same 6 parameters and same lite network as `lhs_2016_6param`. Feature importance: pool_committed_split (sep=0.162) >> pool_ideology_strength (0.059) >> economic_split (0.002). **economic_split is non-causal at 0.002 — but this is a lite network quantization artifact**, not a genuine finding: all scenarios with econ_split ∈ [0.30, 0.80] map to the same 1 econ node at 56.7% custody, so the parameter has no real effect. The regime comparison (economic_split-dominates-at-144-block) cannot be demonstrated on the lite network. What the matched comparison DOES show: (1) the committed_split threshold is HIGHER at 144-block (~0.407 vs ~0.346 at 2016-block) — the 2016-block retarget spike lowers the threshold; (2) far more v26_dominant at 144-block: 50/130 (38.5%) vs 22/129 (17.1%); (3) econ switch lag is much longer at 144-block (~4300–5000s vs ~1900s) because the cascade completes at t~1815s and econ nodes take 4000–7000s more to respond. pool_profitability_threshold (sep=0.010) and solo_miner_hashrate (~0) confirmed non-causal at 144-block also. See `lhs_144_6param` section.
+18. **Phase 2 boundary fitting confirms regime comparison on full dataset and defines Phase 3 PRIM target (2026-04-03):** `fit_boundary.py` ran on 696 labeled scenarios across both retarget regimes. Random forest feature importance at **144-block** (full-network only, n=268): economic_split = **77.2%** (dominant), pool_committed_split = 11.3%, pool_ideology_strength = 6.0%, pool_max_loss_pct = 5.5%. At **2016-block** (n=298): pool_committed_split = **52.8%** (dominant), economic_split = 20.2%, pool_max_loss_pct = 17.1%, pool_ideology_strength = 9.9%. The rank swap is confirmed on the full multi-sweep dataset without lite-network quantization contamination. RF OOB accuracy: 80.0% at 144-block, **83.2% at 2016-block** — 2016-block dynamics are *more* predictable. Mean contentiousness is 2× higher at 2016-block (0.271) vs 144-block (0.132). Top logistic interaction term at 2016-block: economic_split × pool_committed_split (+1.23) — these parameters interact synergistically, not additively. **2016-block PRIM uncertainty zone** (perfectly 50/50, 51% of data, Phase 3 LHS target): econ ∈ [0.28, 0.78], committed ∈ [0.15, 0.53], ideology ∈ [0.44, 0.80], max_loss ∈ [0.16, 0.40]. Output files: `tools/discovery/output/2016/`. See `Phase 2: Boundary Fitting` section.
 16. **6D LHS at 2016-block retarget confirms pool_committed_split dominance and newly establishes pool_profitability_threshold and solo_miner_hashrate as non-causal (2026-04-01):** The `lhs_2016_6param` sweep ran 129/130 scenarios across 6 parameters via Latin Hypercube Sampling at 2016-block retarget on the lite network. Feature importance ranking: pool_committed_split (separation=0.272) >> pool_ideology_strength (0.050) > pool_max_loss_pct (0.031) > economic_split (0.019) > pool_profitability_threshold (0.011) ≈ solo_miner_hashrate (~0). The committed_split threshold at 2016-block on the lite network is ~0.346. Outcome distribution: v27_dominant=83 (64.3%), v26_dominant=22 (17.1%), contested=24 (18.6%). Full economic switching occurs in 59/129 (46%) scenarios — active at 2016-block when committed_split is high enough to generate >40% price gap. This creates a second v27 pathway: 21/83 v27_dominant cases achieved the outcome via full econ switch even when committed_split was below the ~0.346 pool cascade threshold. Only 1 of 22 v26_dominant cases falls above the threshold (extreme ideology×max_loss product prevents cascade). See `lhs_2016_6param` section.
 
 ### Zone Analysis Caveat
@@ -3208,6 +3209,113 @@ Direct 144-block counterpart to `lhs_2016_6param` using the same lite network, s
 | `tools/sweep/lhs_144_6param/results/analysis/report.txt` | Full feature importance report |
 | `tools/sweep/lhs_144_6param/results/analysis/sweep_data.csv` | Per-scenario outcome data |
 | `tools/sweep/specs/lhs_144_6param.yaml` | Sweep specification |
+
+---
+
+## Phase 2: Boundary Fitting
+
+### Purpose
+
+Fit statistical models to all labeled Phase 1 scenario data to estimate the full 4-dimensional decision boundary as a function of economic_split, pool_committed_split, pool_ideology_strength, and pool_max_loss_pct simultaneously. Three complementary methods applied.
+
+**Script:** `tools/discovery/fit_boundary.py --db ../sweep/sweep_results.db --compare-regimes`
+**Output:** `tools/discovery/output/`
+
+### Data used
+
+| Regime | Sweeps | n |
+|--------|--------|---|
+| 144-block (full-net) | targeted_sweep1, targeted_sweep2_hashrate_economic, targeted_sweep3_neutral_pct, targeted_sweep3b, targeted_sweep4, targeted_sweep6_pool_ideology_full, targeted_sweep6_econ_override, targeted_sweep7_esp_144, realistic_sweep3_rapid | 268 |
+| 2016-block | econ_committed_2016_grid, lhs_2016_full_parameter, lhs_2016_6param, targeted_sweep7_esp_2016, targeted_sweep10, targeted_sweep10b, targeted_sweep8, targeted_sweep9, targeted_sweep11, committed_2016_*, hashrate_2016_verification | 298 |
+
+Note: `lhs_144_6param` excluded from 144-block RF analysis due to economic_split quantization artifact (all econ [0.30,0.80] → same 1 node); included in the `--compare-regimes` combined run but its economic_split signal is noise.
+
+### Random Forest Feature Importance (regime comparison)
+
+| Parameter | 144-block (n=268) | 2016-block (n=298) | Rank change |
+|-----------|:-----------------:|:------------------:|:-----------:|
+| **economic_split** | **77.2%** | 20.2% | #1 → #2 |
+| **pool_committed_split** | 11.3% | **52.8%** | #2 → #1 |
+| pool_max_loss_pct | 5.5% | 17.1% | #4 → #3 |
+| pool_ideology_strength | 6.0% | 9.9% | #3 → #4 |
+
+RF OOB accuracy: 80.0% (144-block), **83.2% (2016-block)**. CV accuracy: 85.5% / 80.2%.
+
+**The dominant causal variable genuinely shifts between regimes.** economic_split is 4× more important at 144-block; pool_committed_split is 2.6× more important at 2016-block. The rank swap is confirmed on the full multi-sweep dataset without lite-network quantization artifacts. 2016-block dynamics are *more* predictable (higher RF accuracy), not less.
+
+### Logistic Regression (2016-block, with interaction terms)
+
+CV accuracy: 77.5% ± 2.9%
+
+| Term | Coefficient |
+|------|:-----------:|
+| economic_split × pool_committed_split | **+1.231** |
+| economic_split × pool_max_loss_pct | −0.618 |
+| economic_split | +0.568 |
+| pool_committed_split × pool_ideology_strength | +0.504 |
+| pool_ideology_strength × pool_max_loss_pct | −0.374 |
+| pool_committed_split × pool_max_loss_pct | −0.278 |
+| economic_split × pool_ideology_strength | −0.289 |
+| pool_committed_split | +0.177 |
+| pool_max_loss_pct | +0.085 |
+| pool_ideology_strength | −0.083 |
+| intercept | +1.152 |
+
+The dominant interaction term `economic_split × pool_committed_split` (+1.23) means these two parameters are **synergistic, not additive**: high econ + high committed is substantially more likely to produce v27_dominant than the sum of each effect alone. The negative `economic_split × pool_max_loss_pct` (−0.62) captures the inverse relationship: when econ is high, higher max_loss *hurts* v27 (committed v26 pools survive longer).
+
+### PRIM Box Constraints (2016-block)
+
+Three PRIM runs on the 2016-block dataset (n=298):
+
+| PRIM target | Support | v27 win rate | Description |
+|-------------|:-------:|:------------:|-------------|
+| v27 wins (maximize) | 58.7% | 85.7% | High-v27-probability zone |
+| **uncertainty** | **51.0%** | **50.0%** | **Transition zone — Phase 3 LHS target** |
+| contentiousness (maximize) | 40.3% | 36.0% | High-chaos zone (v26-leaning) |
+
+**Uncertainty (transition zone) bounds — Phase 3 LHS target:**
+
+| Parameter | PRIM bounds |
+|-----------|:-----------:|
+| economic_split | [0.28, 0.78] |
+| pool_committed_split | [0.15, 0.53] |
+| pool_ideology_strength | [0.44, 0.80] |
+| pool_max_loss_pct | [0.16, 0.40] |
+
+**Contentiousness (high-chaos zone) bounds:**
+
+| Parameter | PRIM bounds |
+|-----------|:-----------:|
+| economic_split | [0.34, 0.78] |
+| pool_committed_split | [0.25, 0.57] |
+| pool_ideology_strength | [0.30, 0.75] |
+| pool_max_loss_pct | [0.10, 0.31] |
+
+The contentiousness zone is a **subset of the uncertainty zone** shifted toward higher committed_split and lower max_loss — the high-chaos region is v26-leaning (36% v27 win rate) because Foundry-committed scenarios create prolonged reorg periods while still likely losing at retarget.
+
+Note: 144-block PRIM returns unbounded results (95%+ support, ~50/50 everywhere) — the full-network 144-block grid data does not have sufficient uniform coverage to isolate a tight transition box. The RF importance scores remain valid.
+
+### Contentiousness comparison
+
+| Metric | 144-block | 2016-block |
+|--------|:---------:|:----------:|
+| Mean contentiousness score | 0.132 | 0.271 |
+| Max contentiousness | 0.781 | 0.607 |
+| v27 win rate | 52.0% | 67.1% |
+
+2016-block scenarios are approximately **2× more contentious** on average. This is consistent with the longer survival window at 2016-block: the minority chain survives longer before its difficulty adjustment, accumulating more reorgs and reorg mass before resolution.
+
+### Output files
+
+| File | Description |
+|------|-------------|
+| `tools/discovery/output/2016/uncertainty_bounds.yaml` | **Phase 3 LHS bounds** — transition zone parameters |
+| `tools/discovery/output/2016/prim_bounds.yaml` | v27-win concentration zone bounds |
+| `tools/discovery/output/2016/contentiousness_bounds.yaml` | High-chaos zone bounds |
+| `tools/discovery/output/2016/coefficients.json` | LR coefficients with all interaction terms |
+| `tools/discovery/output/2016/boundary_models.pkl` | Serialized fitted models (RF + LR) |
+| `tools/discovery/output/regime_comparison/regime_comparison.json` | Full JSON comparison of both regimes |
+| `tools/discovery/output/144_clean/` | 144-block analysis outputs (full-network sweeps only) |
 
 ---
 

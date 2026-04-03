@@ -1,0 +1,88 @@
+name: lhs_2016_phase3
+description: |
+  Latin Hypercube Sampling sweep targeting the Phase 3 PRIM uncertainty zone
+  at 2016-block retarget. Samples uniformly within the 50/50 transition region
+  identified by PRIM boundary fitting (tools/discovery/fit_boundary.py).
+
+  PURPOSE: Resolve the decision boundary within the outcome-uncertainty zone.
+  The Phase 2 PRIM analysis found that 51% of the 2016-block parameter space
+  (n=152/298) produces outcomes near 50/50. This sweep samples exclusively within
+  that zone to identify the precise conditions that separate v27 wins from v26 wins.
+
+  PRIM UNCERTAINTY BOX (source: tools/discovery/output/2016/uncertainty_bounds.yaml):
+    economic_split:        [0.280, 0.779]
+    pool_committed_split:  [0.152, 0.526]
+    pool_ideology_strength:[0.435, 0.797]
+    pool_max_loss_pct:     [0.163, 0.400]
+    support: 51.0% of 2016-block data, mean v27_win = 50.0%
+
+  DESIGN:
+  - 300 scenarios via Latin Hypercube Sampling (25 per namespace, 12 namespaces)
+  - 2 servers × 6 namespaces each (server1: sweep_0000–0149, server2: sweep_0150–0299)
+  - 4 active parameters only (pool_profitability_threshold and solo_miner_hashrate
+    confirmed non-causal at both retarget regimes — fixed at validated values)
+  - 2016-block retarget (realistic Bitcoin mainnet dynamics)
+  - Duration 13000s (consistent with lhs_2016_6param for directly comparable results)
+
+  EXPECTED RUNTIME (per server, 6 namespaces parallel):
+  - 150 scenarios per server, 25 per namespace
+  - ~4 hours wall-clock per scenario (includes pod startup + 13000s simulation)
+  - ~100 hours sequential per namespace → ~100 hours wall-clock (parallel)
+
+  GENERATES: High-resolution boundary map within the 50/50 transition zone.
+             Combined with existing 2016-block data (n=298), total n=598 at 2016-block.
+             Enables Phase 3 PRIM re-fit and logistic regression boundary refinement.
+
+type: lhs
+network: lite
+n_samples: 300
+seed: 2026
+
+# 4 active parameters — bounds are the PRIM uncertainty zone from Phase 2
+# Source: tools/discovery/output/2016/uncertainty_bounds.yaml
+parameters:
+  economic_split:
+    min: 0.280
+    max: 0.779
+    description: Fraction of economic nodes initially on v27 chain
+
+  pool_committed_split:
+    min: 0.152
+    max: 0.526
+    description: Fraction of committed (non-neutral) pool hashrate on v27 chain
+
+  pool_ideology_strength:
+    min: 0.435
+    max: 0.797
+    description: How strongly pools weight ideology vs. profitability
+
+  pool_max_loss_pct:
+    min: 0.163
+    max: 0.400
+    description: Maximum loss fraction pools tolerate before switching forks
+
+# Fixed parameters — confirmed non-causal or structurally secondary
+fixed:
+  # Confirmed non-causal at 144-block (targeted_sweep2, n=42)
+  # UNVALIDATED at 2016-block — held at standard value
+  hashrate_split: 0.25
+  pool_neutral_pct: 30.0
+
+  # Confirmed non-causal at both regimes (lhs_144_6param n=130, lhs_2016_6param n=129)
+  pool_profitability_threshold: 0.16
+  solo_miner_hashrate: 0.085
+
+  # Economic node behavior — dead zone at 2016-block
+  # (price divergence sensitivity sweep confirmed econ nodes rarely switch)
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.10
+  econ_inertia: 0.05
+
+  # User node behavior — confirmed non-causal (targeted_sweep4/5, n=35/36)
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+
+  # Network structure
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  transaction_velocity: 0.5

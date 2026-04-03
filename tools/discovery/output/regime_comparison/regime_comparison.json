@@ -1,15 +1,15 @@
 {
   "144_block": {
     "regime": "144-block",
-    "n_scenarios": 232,
-    "v27_win_rate": 0.4396551724137931,
-    "contentiousness_mean": 0.27499430895918286,
-    "rf_accuracy": 0.8146551724137931,
+    "n_scenarios": 398,
+    "v27_win_rate": 0.5201005025125628,
+    "contentiousness_mean": 0.1324044275351101,
+    "rf_accuracy": 0.7814070351758794,
     "rf_importances": {
-      "economic_split": 0.7418122188635223,
-      "pool_committed_split": 0.11671339508820404,
-      "pool_ideology_strength": 0.06074212415097463,
-      "pool_max_loss_pct": 0.08073226189729896
+      "economic_split": 0.5110959289558723,
+      "pool_committed_split": 0.18314841844827645,
+      "pool_ideology_strength": 0.16739920781938677,
+      "pool_max_loss_pct": 0.13835644477646444
     },
     "prim_bounds": {
       "economic_split": {
@@ -18,7 +18,7 @@
       },
       "pool_committed_split": {
         "min": 0.0,
-        "max": 0.5
+        "max": 0.75
       },
       "pool_ideology_strength": {
         "min": 0.0,
@@ -26,64 +26,64 @@
       },
       "pool_max_loss_pct": {
         "min": 0.0,
-        "max": 0.26
+        "max": 0.45
       }
     },
-    "prim_uncertainty": 0.8921568627450981,
-    "prim_support": 0.8793103448275862
+    "prim_uncertainty": 0.9920844327176781,
+    "prim_support": 0.9522613065326633
   },
   "2016_block": {
     "regime": "2016-block",
-    "n_scenarios": 96,
-    "v27_win_rate": 0.65625,
-    "contentiousness_mean": 0.35559631824742716,
-    "rf_accuracy": 0.8229166666666666,
+    "n_scenarios": 298,
+    "v27_win_rate": 0.6711409395973155,
+    "contentiousness_mean": 0.27061705139598063,
+    "rf_accuracy": 0.8322147651006712,
     "rf_importances": {
-      "economic_split": 0.4928457168769064,
-      "pool_committed_split": 0.5071542831230936,
-      "pool_ideology_strength": 0.0,
-      "pool_max_loss_pct": 0.0
+      "economic_split": 0.2019123065618249,
+      "pool_committed_split": 0.5281644741971022,
+      "pool_ideology_strength": 0.09932635124615112,
+      "pool_max_loss_pct": 0.1705968679949219
     },
     "prim_bounds": {
       "economic_split": {
-        "min": 0.35,
-        "max": 0.82
+        "min": 0.28,
+        "max": 0.779065
       },
       "pool_committed_split": {
-        "min": 0.2,
-        "max": 0.75
+        "min": 0.1517,
+        "max": 0.5264000000000001
       },
       "pool_ideology_strength": {
-        "min": 0.51,
-        "max": 0.51
+        "min": 0.43525,
+        "max": 0.7965
       },
       "pool_max_loss_pct": {
-        "min": 0.26,
-        "max": 0.26
+        "min": 0.16291,
+        "max": 0.3998
       }
     },
-    "prim_uncertainty": 0.6875,
-    "prim_support": 1.0
+    "prim_uncertainty": 1.0,
+    "prim_support": 0.5100671140939598
   },
   "bound_differences": {
     "economic_split": {
-      "max_diff": 0.0,
-      "min_diff": 0.35,
+      "max_diff": 0.040934999999999944,
+      "min_diff": 0.28,
       "note": "Significant difference between regimes"
     },
     "pool_committed_split": {
-      "max_diff": 0.25,
-      "min_diff": 0.2,
+      "max_diff": 0.2235999999999999,
+      "min_diff": 0.1517,
       "note": "Significant difference between regimes"
     },
     "pool_ideology_strength": {
-      "max_diff": 0.29000000000000004,
-      "min_diff": 0.51,
+      "max_diff": 0.0035000000000000586,
+      "min_diff": 0.43525,
       "note": "Significant difference between regimes"
     },
     "pool_max_loss_pct": {
-      "max_diff": 0.0,
-      "min_diff": 0.26,
+      "max_diff": 0.05020000000000002,
+      "min_diff": 0.16291,
       "note": "Significant difference between regimes"
     }
   }

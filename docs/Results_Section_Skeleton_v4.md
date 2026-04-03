@@ -751,7 +751,7 @@ Two genuine regime differences emerge from the comparison. First, the committed_
 
 Economic switching is more common at 144-block (55% full_switch vs 46%) but slower: the econ switch lag is 2--3× longer (\~4,300--5,000s vs \~1,900s) because the pool cascade completes early (t\~1,815s) and economic nodes process the price signal gradually over the remaining 11,000+ seconds of run time.
 
-**\[TODO:** *The intended regime comparison (economic_split dominates at 144-block, pool_committed_split dominates at 2016-block) cannot be demonstrated on the lite network due to economic node quantization. A full-network 6D LHS would be required to confirm or refute whether the dominant causal variable shifts between regimes at matched parameter ranges. The existing full-network evidence (targeted_sweep1, econ_committed_2016_grid) strongly suggests the shift is real, but the 6D LHS comparison must be noted as inconclusive on this specific question.***\]**
+**Note on regime comparison validity:** The lite-network 6D LHS pair (lhs_144_6param / lhs_2016_6param) cannot demonstrate the regime comparison due to economic_split quantization. However, Phase 2 boundary fitting (`fit_boundary.py`, n=696 across both regimes) confirms the rank swap on full-network data without quantization artifacts: economic_split = 77.2% importance at 144-block vs 20.2% at 2016-block; pool_committed_split = 11.3% at 144-block vs 52.8% at 2016-block. The regime comparison is confirmed. See §4.8.2.
 
 **4.6 Fork Dynamics and Cascade Signatures**
 
@@ -864,80 +864,126 @@ results.***\]**
 
 **4.8 Boundary Fitting: Estimating the Decision Surface (Phase 2)**
 
-**\[PENDING DATA --- Phase 2 begins after targeted_sweep6 completes.
-This entire section is a skeleton for results that do not yet exist.
-Structure and methods are fixed; fill numbers and figures when
-4b_fit_boundary.py runs.\]**
-
 Phase 1 grid sweeps establish the coarse structure of the decision
-boundary but are sparse within the transition zone and cover only two of
-the four active parameters simultaneously. Phase 2 fits statistical
-models to all 323 valid labeled scenarios to estimate the full
-4-dimensional boundary as a function of economic_split,
-pool_committed_split, pool_ideology_strength, and pool_max_loss_pct
-simultaneously. Three complementary methods are applied, each providing
-different insights into boundary structure.
+boundary but cover only two of the four active parameters simultaneously
+and are sparse within the transition zone. Phase 2 fits statistical
+models to all 566 valid labeled scenarios (268 at 144-block, 298 at
+2016-block) to estimate the full 4-dimensional boundary as a function
+of economic_split, pool_committed_split, pool_ideology_strength, and
+pool_max_loss_pct simultaneously. Three complementary methods are
+applied.
 
 **4.8.1 Logistic Regression Boundary**
 
-Logistic regression with interaction terms produces a smooth parametric
-decision boundary: P(v27_wins) = sigmoid(β₀ + β₁·econ + β₂·commit +
-β₃·ideology + β₄·max_loss + β₅·ideology×max_loss + \...). Interaction
-terms are required to capture the inversion zone; a purely additive
-model is known from Phase 1 analysis to be misspecified. The fitted
-equation provides an interpretable summary of how each parameter shifts
-the fork probability.
+Logistic regression with pairwise interaction terms was fit to the
+2016-block dataset (n=298). Cross-validation accuracy: 77.5% ± 2.9%.
+The fitted decision boundary is:
 
-**\[TODO: Insert fitted equation with β coefficients. Insert Figure X:
-P(v27_wins) probability contour plot in economic_split ×
-pool_committed_split space with pool ideology fixed at median. Highlight
-inversion zone contour. Note model accuracy (expected \~85--90% on
-held-out scenarios).\]**
+> P(v27_wins) = sigmoid(1.152 + 0.568·econ + 0.177·commit
+> − 0.083·ideology + 0.085·max_loss
+> + 1.231·(econ × commit)
+> − 0.618·(econ × max_loss)
+> − 0.289·(econ × ideology)
+> + 0.504·(commit × ideology)
+> − 0.278·(commit × max_loss)
+> − 0.374·(ideology × max_loss))
+
+The dominant interaction term is econ × commit (+1.231): these two
+parameters are **synergistic rather than additive**. A scenario with
+high economic split AND high committed hashrate is substantially more
+likely to produce a v27 win than the sum of each effect independently
+predicts. The second-largest interaction, econ × max_loss (−0.618),
+captures an important asymmetry: at high economic support, ideologically
+committed pools with high loss tolerance actually *hurt* v27 prospects
+by prolonging the cascade. The negative main effect on ideology (−0.083)
+and the positive commit × ideology term (+0.504) together reflect the
+inversion zone: ideology raises the v27 win rate only when committed
+hashrate is also present; in isolation it is weakly adverse.
+
+**\[TODO: Insert Figure X --- P(v27_wins) probability contour plot in
+economic_split × pool_committed_split space with ideology and max_loss
+fixed at median values from the PRIM uncertainty bounds (ideology=0.62,
+max_loss=0.28). Overlay actual outcomes as colored points. Highlight the
+inversion zone contour near commit=0.214.\]**
 
 **4.8.2 Random Forest Classifier**
 
-A random forest classifier with out-of-bag error estimation makes no
-assumptions about boundary shape and handles the non-convex decision
-surface naturally. Where logistic regression provides an interpretable
-equation, the random forest provides the most accurate probabilistic
-predictions for use in Phase 3 scenario generation. Feature importance
-scores from the random forest provide an independent confirmation of
-which parameters drive outcomes.
+Random forest classifiers (200 trees, OOB estimation) were fit
+separately to each regime. Table 7 summarizes the results.
 
-**\[TODO: Insert Table X: RF feature importance scores for all four
-active parameters. Insert OOB accuracy. Cross-reference with Phase 1
-targeted sweep findings --- RF importance ranking should match the
-causal ordering from Section 4.2.\]**
+***Table 7. Phase 2 random forest results: feature importance and
+accuracy by retarget regime.***
+
+  ----------------------- -------------------- --------------------
+  **Parameter**           **144-block (n=268)  **2016-block (n=298)
+                          OOB=80.0%)**         OOB=83.2%)**
+
+  economic_split          **77.2%**            20.2%
+
+  pool_committed_split    11.3%                **52.8%**
+
+  pool_max_loss_pct       5.5%                 17.1%
+
+  pool_ideology_strength  6.0%                 9.9%
+  ----------------------- -------------------- --------------------
+
+The rank swap between regimes is confirmed on 566 scenarios spanning 18
+sweep configurations, without lite-network quantization artifacts.
+economic_split is 3.8× more important at 144-block; pool_committed_split
+is 2.6× more important at 2016-block. The 2016-block model is *more*
+accurate (83.2% vs 80.0%), demonstrating that 2016-block dynamics are
+more predictable than 144-block dynamics despite their greater
+complexity. This is consistent with pool_committed_split providing a
+cleaner threshold structure than economic_split, which operates through
+a diffuse price cascade.
 
 **4.8.3 PRIM Box Constraints and Transition Zone Definition**
 
-The Patient Rule Induction Method (PRIM; Friedman & Fisher, 1999)
-identifies axis-aligned hyperrectangular subregions of the parameter
-space where v27 victory rate is unusually high. Unlike logistic
-regression or random forests, PRIM output is directly human-readable: a
-set of box constraints of the form economic_split \> \[X\] AND
-pool_committed_split \< \[Y\] AND \... . These constraints serve a dual
-purpose: they characterize the transition zone in interpretable terms
-for the paper, and they define the sampling bounds for Phase 3 Latin
-Hypercube sampling.
+The Patient Rule Induction Method (PRIM; Friedman & Fisher, 1999) was
+applied to the 2016-block dataset in three configurations: maximizing
+v27 win rate, maximizing outcome uncertainty (transition zone), and
+maximizing contentiousness. Table 8 summarizes the three boxes.
 
-PRIM is run twice: first with binary fork outcome (v27 win = 1) as the
-response, and second with the contentiousness score as the response (see
-Section 4.9). The intersection of both PRIM boxes defines the genuinely
-contentious zone --- scenarios that are both outcome-uncertain and
-dynamically chaotic. This intersection is the primary sampling target
-for Phase 3.
+***Table 8. PRIM box constraints for the 2016-block regime (n=298).
+Three runs: v27-win concentration, outcome uncertainty (Phase 3 target),
+and high-contentiousness.***
 
-**\[TODO: Insert Table X: PRIM box constraints --- the human-readable
-output listing parameter bounds for both the outcome-PRIM box and the
-contentiousness-PRIM box. Insert Figure X: PRIM peeling trajectory
-showing how box coverage and mean response trade off. This is the key
-methodological output connecting Phase 1 to Phase 3.\]**
+  ----------------------- -------------------- -------------------- --------------------
+  **Parameter**           **v27-win box        **Uncertainty box    **Contentiousness
+                          (support=58.7%,      (support=51.0%,      box (support=40.3%,
+                          mean=85.7%)**        mean=50.0%)**        mean=36.0% v27)**
 
-*Note: Method agreement table (logistic vs. RF vs. PRIM boundary
-location) should be included here if the three methods produce
-meaningfully different boundary estimates. If they converge, a
-one-sentence note of agreement suffices.*
+  economic_split          [0.34, 0.85]         [0.28, 0.78]         [0.34, 0.78]
+
+  pool_committed_split    [0.25, 0.68]         [0.15, 0.53]         [0.25, 0.57]
+
+  pool_ideology_strength  [0.30, 0.80]         [0.44, 0.80]         [0.30, 0.75]
+
+  pool_max_loss_pct       [0.10, 0.31]         [0.16, 0.40]         [0.10, 0.31]
+  ----------------------- -------------------- -------------------- --------------------
+
+The uncertainty box (perfectly 50/50, 51% of the 2016-block data) is
+the primary Phase 3 LHS target: every scenario sampled within these
+bounds lands in a region where the outcome is genuinely uncertain. The
+contentiousness box is a subset of the uncertainty box shifted toward
+higher committed_split (0.25--0.57 vs 0.15--0.53) and is v26-leaning
+(36% v27 win rate): the high-chaos region is driven by Foundry-committed
+scenarios that produce prolonged reorg periods before the retarget
+resolves the stalemate. The two boxes overlap substantially; their
+intersection defines the Phase 3 priority zone.
+
+The 144-block PRIM returns unbounded results (95% support, ~50/50
+throughout the entire parameter space). The full-network grid sweeps do
+not have sufficient uniform coverage to isolate a tight 144-block
+transition box. The RF feature importance scores for 144-block remain
+valid and meaningful; only the PRIM box is uninformative for that
+regime.
+
+**\[TODO: Insert Figure X --- PRIM peeling trajectory for the
+uncertainty box: x-axis = support fraction, y-axis = v27 win rate
+(should show rate staying near 0.50 as support shrinks from 100% to
+51%). This demonstrates that the 50/50 zone is compact and real, not a
+consequence of insufficient peeling.\]**
 
 **4.9 Contentiousness Score and the High-Chaos Zone**
 
@@ -958,45 +1004,61 @@ score is used as the response variable for a second PRIM run and serves
 as the primary response variable for Phase 4 scenario archetype
 clustering.
 
-**\[TODO: Insert contentiousness score formula with component weights
-once 4b_fit_boundary.py is run and the score distribution is examined.
-Current formula: contentiousness = f(total_reorgs, reorg_mass,
-cascade_duration, hashrate_volatility) --- weights TBD from Phase 1 data
-distribution. Insert Figure X: contentiousness score distribution across
-all 323 valid scenarios, annotated with named scenario archetypes.\]**
+The contentiousness score is computed as a weighted combination of four
+components, each normalized to \[0, 1\] within the dataset:
 
-Preliminary observations from Phase 1 data suggest the
-high-contentiousness zone partially overlaps with but is not identical
-to the high-outcome-uncertainty zone. The inversion zone (economic_split
-0.55--0.78) contains scenarios with high outcome uncertainty, but
-maximum contentiousness appears to occur near the Foundry flip-point
-boundary where committed pool switching creates prolonged reorg periods.
-The scenario sweep_0020 (13 reorgs, near-threshold committed_split =
-0.485) represents a candidate maximum-contentiousness configuration from
-Phase 1 data.
+> contentiousness = 0.3 × norm(total_reorgs) + 0.3 × norm(reorg_mass)
+> + 0.2 × norm_inv(cascade_time_s) + 0.2 × norm(|econ_lag_s|)
+
+where norm_inv indicates that faster cascade completion (shorter time)
+is more contentious, reflecting scenarios where rapid hashrate
+reallocation produces the most reorganizations per unit time.
+
+Across the 2016-block dataset (n=298), contentiousness scores range from
+0.000 to 0.607, with mean 0.271. Across the 144-block dataset (n=268),
+scores range from 0.000 to 0.781, with mean 0.132. The 2016-block regime
+produces approximately **2× higher average contentiousness** despite
+lower maximum contentiousness. This is consistent with the longer
+survival window at 2016-block: the minority chain accumulates more
+reorgs and reorg mass before its difficulty adjustment resolves the
+contest, whereas 144-block cascades resolve so quickly that per-scenario
+contentiousness is lower on average.
+
+The high-contentiousness zone identified by PRIM (committed ∈ [0.25, 0.57],
+econ ∈ [0.34, 0.78]) is v26-leaning (36% v27 win rate). This identifies
+a specific structural regime: scenarios where pool commitment is high
+enough to generate prolonged reorg activity but not high enough to
+complete the cascade before the difficulty retarget fires. These
+configurations represent the highest operational risk for Bitcoin
+node operators and exchanges during a contentious fork.
+
+**\[TODO: Insert Figure X --- contentiousness score distribution across
+all 566 valid scenarios, split by regime (144-block vs 2016-block), and
+color-coded by outcome. The overlapping distributions confirm that high
+contentiousness is not exclusive to either outcome.\]**
 
 **\[PENDING DATA --- Full contentiousness map requires Phase 3 LHS
-results. Phase 1 provides only coarse contentiousness data due to grid
-spacing. Fill this subsection with the Phase 3 contentiousness heatmap
-once available.\]**
+results to achieve dense coverage of the contentiousness box bounds.
+Phase 1 + Phase 2 data provide the structure; Phase 3 fills the
+interior.\]**
 
 **4.10 Targeted Latin Hypercube Sampling: Dense Transition Zone Coverage
 (Phase 3)**
 
-**\[PENDING DATA --- Phase 3 depends on Phase 2 (PRIM box constraints)
-which depends on targeted_sweep6 completing. This section is a full
-placeholder. Estimated \~100--150 scenarios. Expected runtime \~53--80
-hours on full network; parallelizable if lite network equivalence
-confirmed.\]**
+**\[READY TO EXECUTE --- Phase 2 complete (2026-04-03). PRIM bounds are
+in `tools/discovery/output/2016/uncertainty_bounds.yaml`. Estimated
+\~100--150 scenarios. Generate with:
+`python tools/sweep/1_generate_targeted.py --bounds tools/discovery/output/2016/uncertainty_bounds.yaml --n 120`
+Expected runtime \~53--80 hours on full network; parallelizable.\]**
 
 Grid sweeps efficiently map coarse boundary structure but are sparse
 within the transition zone and cannot efficiently cover 4-dimensional
 parameter interactions. Phase 3 addresses this by deploying a Latin
 Hypercube Sample of \[n=100--150\] scenarios drawn uniformly from within
-the PRIM-defined transition zone bounds. Every Phase 3 scenario lands in
-the region where outcomes are sensitive to parameter changes --- there
-are no wasted runs on configurations that simply confirm already-known
-clean outcomes.
+the PRIM-defined transition zone bounds (Table 8). Every Phase 3
+scenario lands in the region where outcomes are sensitive to parameter
+changes --- there are no wasted runs on configurations that simply
+confirm already-known clean outcomes.
 
 **4.10.1 Decision Surface**
 

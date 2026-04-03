@@ -106,6 +106,8 @@ VALIDATION_WARNINGS = [
     "Parameter non-causality findings are from 144-block retarget conditions.",
     "hashrate_split non-causality is UNVALIDATED at 2016-block retarget.",
     "A verification sweep (hashrate × economic at 2016-block) is recommended.",
+    "pool_profitability_threshold and solo_miner_hashrate confirmed non-causal at BOTH retarget regimes (lhs_2016_6param n=129, lhs_144_6param n=130).",
+    "NOTE: lhs_144_6param economic_split is a quantization artifact on the lite network — all econ [0.30,0.80] map to the same node. economic_split signal at 144-block comes from full-network sweeps only.",
 ]
 
 # Sweeps to include (full network, valid results only)
@@ -118,12 +120,21 @@ VALID_SWEEPS_144 = [
     'targeted_sweep3b_econ_friction_verify',
     'targeted_sweep4_user_behavior',
     'targeted_sweep6_pool_ideology_full',
+    'targeted_sweep6_econ_override',      # 27 scenarios: ideology × max_loss at econ≥0.82
+    'targeted_sweep7_esp_144',            # 9 scenarios: ESP boundary at 144-block
     'realistic_sweep3_rapid',
+    'lhs_144_6param',                     # 130 scenarios: LHS 6D at 144-block (lite net)
+    # NOTE: lhs_144_6param economic_split is a quantization artifact — all [0.30,0.80]
+    # map to the same 1 econ node (56.7%). The economic_split dimension has no real
+    # variation in this sweep. pool_committed_split, ideology, max_loss signals are valid.
     # 'balanced_baseline_sweep',  # Excluded: 50/50 stalemates with 0 contentiousness
 ]
 
 VALID_SWEEPS_2016 = [
-    'econ_committed_2016_grid',
+    'econ_committed_2016_grid',           # 45 scenarios: 5×9 econ × committed grid
+    'lhs_2016_full_parameter',            # 64 scenarios: 4D LHS full network
+    'lhs_2016_6param',                    # 129 scenarios: 6D LHS lite network
+    'targeted_sweep7_esp_2016',           # 9 scenarios: ESP boundary at 2016-block
     'targeted_sweep10_econ_threshold_2016',
     'targeted_sweep10b_econ_threshold_2016',
     'targeted_sweep8_lite_2016_retarget',

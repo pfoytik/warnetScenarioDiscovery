@@ -1,0 +1,236 @@
+{
+  "validation_warnings": [
+    "Parameter non-causality findings are from 144-block retarget conditions.",
+    "hashrate_split non-causality is UNVALIDATED at 2016-block retarget.",
+    "A verification sweep (hashrate \u00d7 economic at 2016-block) is recommended.",
+    "pool_profitability_threshold and solo_miner_hashrate confirmed non-causal at BOTH retarget regimes (lhs_2016_6param n=129, lhs_144_6param n=130).",
+    "NOTE: lhs_144_6param economic_split is a quantization artifact on the lite network \u2014 all econ [0.30,0.80] map to the same node. economic_split signal at 144-block comes from full-network sweeps only."
+  ],
+  "fixed_params_status": {
+    "hashrate_split": "UNVALIDATED at 2016-block",
+    "pool_neutral_pct": "UNVALIDATED at 2016-block",
+    "user_params": "UNVALIDATED at 2016-block",
+    "econ_friction": "UNVALIDATED at 2016-block"
+  },
+  "logistic_regression": {
+    "cv_accuracy": 0.5354746835443038,
+    "top_features": {
+      "economic_split*pool_max_loss_pct": 1.2326326145813236,
+      "pool_committed_split": 0.9878978282245867,
+      "pool_ideology_strength": -0.7497207666780596,
+      "pool_max_loss_pct": -0.729827901366189,
+      "economic_split*pool_committed_split": -0.666656611824228
+    }
+  },
+  "random_forest": {
+    "cv_accuracy": 0.7923417721518988,
+    "oob_accuracy": 0.7814070351758794,
+    "top_features": {
+      "economic_split": 0.5110959289558723,
+      "pool_committed_split": 0.18314841844827645,
+      "pool_ideology_strength": 0.16739920781938677,
+      "pool_max_loss_pct": 0.13835644477646444
+    }
+  },
+  "prim_outcome": {
+    "n_boxes": 1,
+    "primary_box": {
+      "bounds": {
+        "economic_split": {
+          "min": 0.0,
+          "max": 0.95
+        },
+        "pool_committed_split": {
+          "min": 0.0,
+          "max": 0.75
+        },
+        "pool_ideology_strength": {
+          "min": 0.0,
+          "max": 0.8
+        },
+        "pool_max_loss_pct": {
+          "min": 0.0,
+          "max": 0.45
+        }
+      },
+      "support": 1.0,
+      "mean": 0.5201005025125628,
+      "n_samples": 398,
+      "trajectory": [
+        {
+          "support": 1.0,
+          "mean": 0.5201005025125628,
+          "n_samples": 398,
+          "bounds": {
+            "economic_split": {
+              "min": 0.0,
+              "max": 0.95
+            },
+            "pool_committed_split": {
+              "min": 0.0,
+              "max": 0.75
+            },
+            "pool_ideology_strength": {
+              "min": 0.0,
+              "max": 0.8
+            },
+            "pool_max_loss_pct": {
+              "min": 0.0,
+              "max": 0.45
+            }
+          }
+        }
+      ]
+    }
+  },
+  "prim_contentiousness": {
+    "n_boxes": 1,
+    "primary_box": {
+      "bounds": {
+        "economic_split": {
+          "min": 0.0,
+          "max": 0.95
+        },
+        "pool_committed_split": {
+          "min": 0.0,
+          "max": 0.75
+        },
+        "pool_ideology_strength": {
+          "min": 0.0,
+          "max": 0.8
+        },
+        "pool_max_loss_pct": {
+          "min": 0.0,
+          "max": 0.45
+        }
+      },
+      "support": 1.0,
+      "mean": 0.1324044275351101,
+      "n_samples": 398,
+      "trajectory": [
+        {
+          "support": 1.0,
+          "mean": 0.1324044275351101,
+          "n_samples": 398,
+          "bounds": {
+            "economic_split": {
+              "min": 0.0,
+              "max": 0.95
+            },
+            "pool_committed_split": {
+              "min": 0.0,
+              "max": 0.75
+            },
+            "pool_ideology_strength": {
+              "min": 0.0,
+              "max": 0.8
+            },
+            "pool_max_loss_pct": {
+              "min": 0.0,
+              "max": 0.45
+            }
+          }
+        }
+      ]
+    }
+  },
+  "intersection": {
+    "bounds": {
+      "economic_split": {
+        "min": 0.0,
+        "max": 0.95
+      },
+      "pool_committed_split": {
+        "min": 0.0,
+        "max": 0.75
+      },
+      "pool_ideology_strength": {
+        "min": 0.0,
+        "max": 0.8
+      },
+      "pool_max_loss_pct": {
+        "min": 0.0,
+        "max": 0.45
+      }
+    },
+    "description": "Intersection of outcome-uncertainty and high-contentiousness zones"
+  },
+  "prim_uncertainty": {
+    "n_boxes": 1,
+    "primary_box": {
+      "bounds": {
+        "economic_split": {
+          "min": 0.0,
+          "max": 0.82
+        },
+        "pool_committed_split": {
+          "min": 0.0,
+          "max": 0.75
+        },
+        "pool_ideology_strength": {
+          "min": 0.0,
+          "max": 0.8
+        },
+        "pool_max_loss_pct": {
+          "min": 0.0,
+          "max": 0.45
+        }
+      },
+      "support": 0.9522613065326633,
+      "mean": 0.49604221635883905,
+      "n_samples": 379,
+      "trajectory": [
+        {
+          "support": 1.0,
+          "mean": 0.5201005025125628,
+          "n_samples": 398,
+          "bounds": {
+            "economic_split": {
+              "min": 0.0,
+              "max": 0.95
+            },
+            "pool_committed_split": {
+              "min": 0.0,
+              "max": 0.75
+            },
+            "pool_ideology_strength": {
+              "min": 0.0,
+              "max": 0.8
+            },
+            "pool_max_loss_pct": {
+              "min": 0.0,
+              "max": 0.45
+            }
+          },
+          "uncertainty": 0.9597989949748744
+        },
+        {
+          "support": 0.9522613065326633,
+          "mean": 0.49604221635883905,
+          "n_samples": 379,
+          "bounds": {
+            "economic_split": {
+              "min": 0.0,
+              "max": 0.82
+            },
+            "pool_committed_split": {
+              "min": 0.0,
+              "max": 0.75
+            },
+            "pool_ideology_strength": {
+              "min": 0.0,
+              "max": 0.8
+            },
+            "pool_max_loss_pct": {
+              "min": 0.0,
+              "max": 0.45
+            }
+          },
+          "uncertainty": 0.9920844327176781
+        }
+      ],
+      "uncertainty": 0.9920844327176781
+    },
+    "description": "Region where outcome is closest to 50/50 (maximum uncertainty)"
+  }
+}

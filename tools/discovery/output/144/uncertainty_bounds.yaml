@@ -1,0 +1,31 @@
+description: PRIM box for maximum outcome uncertainty (transition zone)
+method: prim
+support: 0.9522613065326633
+mean_target: 0.49604221635883905
+n_samples: 379
+validation_warning: Fixed params validated at 144-block only; hashrate_split unvalidated
+  at 2016-block
+parameters:
+  economic_split:
+    min: 0.0
+    max: 0.82
+  pool_committed_split:
+    min: 0.0
+    max: 0.75
+  pool_ideology_strength:
+    min: 0.0
+    max: 0.8
+  pool_max_loss_pct:
+    min: 0.0
+    max: 0.45
+fixed_parameters:
+  hashrate_split: 0.25
+  pool_neutral_pct: 30.0
+  econ_inertia: 0.17
+  econ_switching_threshold: 0.14
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  user_nodes_per_partition: 6
+  solo_miner_hashrate: 0.085
+  transaction_velocity: 0.5
+  economic_nodes_per_partition: 2

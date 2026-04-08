@@ -3212,6 +3212,105 @@ Direct 144-block counterpart to `lhs_2016_6param` using the same lite network, s
 
 ---
 
+### lhs_2016_phase3: Dense Transition Zone Sampling (Phase 3)
+
+#### Purpose
+
+Resolve the decision boundary within the PRIM-identified 50/50 uncertainty zone at 2016-block retarget. Phase 2 boundary fitting found that 51% of the 2016-block parameter space (n=152/298) produced outcomes near 50/50. This sweep samples exclusively within that zone (the PRIM uncertainty box) to identify the precise conditions separating v27 wins from v26 wins — achieving the dense transition-zone coverage that Phase 1 grid sweeps could not provide.
+
+**Sweep design:**
+
+| Parameter | Range (PRIM box) |
+|-----------|------------------|
+| economic_split | [0.280, 0.779] |
+| pool_committed_split | [0.152, 0.526] |
+| pool_ideology_strength | [0.435, 0.797] |
+| pool_max_loss_pct | [0.163, 0.400] |
+| hashrate_split | 0.25 (fixed) |
+| retarget_interval | 2016 |
+| network | lite |
+| Total | 300 scenarios (server1: sweep_0000–0149, server2: sweep_0150–0299) |
+
+**Source:** PRIM uncertainty bounds from `tools/discovery/output/2016/uncertainty_bounds.yaml`. Support = 51% of prior 2016-block data; mean v27_win = 50.0% within the box.
+
+#### Results
+
+**Outcome distribution:**
+
+| Outcome | Count | % |
+|---------|:-----:|:-:|
+| v27_dominant | 147 | 49.0% |
+| v26_dominant | 77 | 25.7% |
+| contested | 76 | 25.3% |
+| **Total** | **300** | |
+
+**Feature importance (separation scores):**
+
+| Parameter | Separation | Direction | Est. Threshold |
+|-----------|:----------:|-----------|:--------------:|
+| **pool_committed_split** | **0.188** | v27 when higher | **~0.296** |
+| economic_split | 0.028 | v27 when higher | ~0.533 |
+| pool_ideology_strength | 0.021 | v27 when lower | ~0.615 |
+| pool_max_loss_pct | 0.012 | v27 when lower | ~0.276 |
+
+**Per-outcome parameter ranges:**
+
+| Metric | v27_dominant (n=147) | v26_dominant (n=77) | contested (n=76) |
+|--------|:-------------------:|:-------------------:|:----------------:|
+| pool_committed_split mean | 0.390 | 0.202 | 0.378 |
+| pool_committed_split range | [0.248, 0.526] | [0.152, 0.378] | [0.187, 0.521] |
+| pool_max_loss_pct mean | 0.270 | 0.282 | 0.302 |
+| economic_split mean | 0.547 | 0.519 | 0.506 |
+| pool_ideology_strength mean | 0.604 | 0.625 | 0.630 |
+
+**Economic switching (two-layer outcome structure):**
+
+| Metric | Value |
+|--------|-------|
+| full_switch rate | 28/300 (9.3%) |
+| full_switch within v27_dominant | 28/147 (19.0%) |
+| v27_dominant with no econ switch | 119/147 (81.0%) |
+| full_switch pool_max_loss_pct mean | 0.186 |
+| no_switch (v27_dom) pool_max_loss_pct mean | 0.291 |
+| full_switch pool_committed_split mean | 0.386 |
+| no_switch (v27_dom) pool_committed_split mean | 0.391 |
+| peak_price_gap (full_switch) | 41.5–46.9% |
+| econ_switch_t range (full_switch) | 2456–12091s |
+| cascade_t range (full_switch) | 1203–6104s |
+| econ_lag mean (full_switch) | ~3500s |
+
+#### Key Findings
+
+**1. pool_committed_split remains the dominant predictor within the transition zone** (separation=0.188). Despite sampling exclusively within the PRIM uncertainty box where prior analysis found 50/50 outcomes, committed pool hashrate is still the primary separating variable. The threshold shifts to ~0.296 (lower than the full-parameter-space estimate of ~0.346 from lhs_2016_6param), reflecting that the PRIM box excludes the cleanest v26_dominant cases (very low committed_split is still represented but constrained to [0.152, 0.526]).
+
+**2. The v26_dominant cluster is sharply bounded at committed_split ≤ 0.378**, with mean 0.202 — nearly all v26 wins occur at the low end of the PRIM box. v27_dominant cases span [0.248, 0.526] with mean 0.390. A soft gap separates the two around committed_split ~0.25–0.29.
+
+**3. Two-layer outcome structure: hash war vs. economic adoption are decoupled.** This is the central new finding of Phase 3. Within v27_dominant outcomes (n=147), only 28 (19%) also achieve full economic node migration (full_switch). The other 119 v27_dominant scenarios have v27 winning the hashrate war while economic nodes remain at their starting 56.7% allocation. The two layers are controlled by different parameters:
+   - **Layer 1 (hash war):** pool_committed_split ~0.296 threshold
+   - **Layer 2 (economic adoption):** pool_max_loss_pct — full_switch requires pool_max_loss_pct ≤ ~0.22; mean 0.186 for full_switch vs. 0.291 for no_switch within v27_dominant
+
+**4. pool_committed_split does NOT separate full_switch from no_switch within v27_dominant** (means are 0.386 vs. 0.391, indistinguishable). Economic adoption is not driven by the size of the committed pool coalition but by how quickly pools cascade — which is governed by their loss tolerance threshold.
+
+**5. The cascade timing mechanism:** When pool_max_loss_pct is low (~0.186), pools abandon v26 rapidly after the retarget spike, generating a sharp price gap of 41–47%. Economic nodes cross their inertia threshold during the compressed window. When pool_max_loss_pct is higher (~0.291), pools drag out the cascade even after v27 wins the hash war — the price signal accumulates more slowly, never triggering economic node migration before the run ends.
+
+**6. Contested zone is characterized by high ideology × max_loss combinations.** Contested scenarios have the highest pool_ideology_strength (mean 0.630) and pool_max_loss_pct (mean 0.302) of any outcome group. These are scenarios where pools are both resistant to switching (high ideology) and can absorb significant losses (high max_loss) — the interaction keeps both chains viable without either achieving dominance.
+
+**7. Low full_switch rate (9%) vs. prior lhs_2016_6param (46%) is a transition zone artifact.** The PRIM box constrains pool_max_loss_pct ≥ 0.163. Full_switch outcomes require max_loss ≤ ~0.22. Only a narrow slice of the PRIM box (max_loss ∈ [0.163, 0.22]) can produce full_switch, explaining the low rate. This is not a change in the underlying mechanism — it confirms that economic adoption requires a fast cascade, and fast cascades are uncommon in the uncertainty zone by construction.
+
+#### Data Location
+
+| File | Description |
+|------|-------------|
+| `tools/sweep/lhs_2016_phase3/results/analysis/` | Analysis outputs (symlinked from server1 + server2) |
+| `tools/sweep/lhs_2016_phase3/results/analysis/report.txt` | Full feature importance report |
+| `tools/sweep/lhs_2016_phase3/results/analysis/sweep_data.csv` | Per-scenario outcome data (300 rows) |
+| `tools/sweep/lhs_2016_phase3/results_server1/` | Raw results ns-0 through ns-5 (sweep_0000–0149) |
+| `tools/sweep/lhs_2016_phase3/results_server2/` | Raw results ns-6 through ns-11 (sweep_0150–0299) |
+| `tools/sweep/lhs_2016_phase3/scenarios.json` | Full scenario configurations |
+| `tools/sweep/specs/lhs_2016_phase3.yaml` | Sweep specification and PRIM box bounds |
+
+---
+
 ## Phase 2: Boundary Fitting
 
 ### Purpose

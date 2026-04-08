@@ -20,7 +20,7 @@ question in turn: first, which parameters causally determine fork
 outcomes; second, what quantitative thresholds govern phase transitions;
 and third, how difficulty adjustment timing modulates these dynamics.
 
-**\[TODO:** *Update \[N\] total scenarios and \[X\] sweep count. Current valid n = 775 (323 prior + 45 econ_committed_2016_grid + 64 lhs_2016_full_parameter + 9 esp_144 + 9 esp_2016 + 18 targeted_sweep6 + 129 lhs_2016_6param + 130 lhs_144_6param + 48 price_divergence_sensitivity_2016). Sweep count X = 18 configurations (16 valid/partial + 2 invalid). Update body text below when finalizing.***\]**
+**\[TODO:** *Update \[N\] total scenarios and \[X\] sweep count. Current valid n = 1075 (323 prior + 45 econ_committed_2016_grid + 64 lhs_2016_full_parameter + 9 esp_144 + 9 esp_2016 + 18 targeted_sweep6 + 129 lhs_2016_6param + 130 lhs_144_6param + 48 price_divergence_sensitivity_2016 + 300 lhs_2016_phase3). Sweep count X = 19 configurations (17 valid/partial + 2 invalid). Update body text below when finalizing.***\]**
 
 **4.1 Scenario Overview and Data Quality**
 
@@ -125,6 +125,19 @@ discussed qualitatively where relevant.
   (2016-block)             per                                 144-block; retarget interval
                            regime                              does not shift ESP
 
+
+  lhs_2016_phase3          300      25-node       ✓ Valid      Phase 3 dense LHS within
+  (lite)                                                       PRIM uncertainty box
+                                                               (2016-block); 49%
+                                                               v27_dom, 25.7% v26_dom,
+                                                               25.3% contested;
+                                                               pool_committed_split
+                                                               dominates (sep=0.188,
+                                                               threshold ~0.296);
+                                                               two-layer outcome
+                                                               structure: hash-war
+                                                               decoupled from econ
+                                                               adoption (§4.10)
   targeted_sweep2b (lite)  20       25-node       ⚠ Partial    Pool ideology on lite
                                                                network --- pool params
                                                                valid; econ context wrong
@@ -1037,97 +1050,194 @@ all 566 valid scenarios, split by regime (144-block vs 2016-block), and
 color-coded by outcome. The overlapping distributions confirm that high
 contentiousness is not exclusive to either outcome.\]**
 
-**\[PENDING DATA --- Full contentiousness map requires Phase 3 LHS
-results to achieve dense coverage of the contentiousness box bounds.
-Phase 1 + Phase 2 data provide the structure; Phase 3 fills the
-interior.\]**
+**\[Phase 3 LHS complete (lhs_2016_phase3, n=300, April 2026). Full
+contentiousness map can now be generated. 25.3% of Phase 3 scenarios
+are contested --- the highest rate of any sweep, confirming successful
+concentration within the uncertainty zone. See §4.10.\]**
 
 **4.10 Targeted Latin Hypercube Sampling: Dense Transition Zone Coverage
 (Phase 3)**
 
-**\[READY TO EXECUTE --- Phase 2 complete (2026-04-03). PRIM bounds are
-in `tools/discovery/output/2016/uncertainty_bounds.yaml`. Estimated
-\~100--150 scenarios. Generate with:
-`python tools/sweep/1_generate_targeted.py --bounds tools/discovery/output/2016/uncertainty_bounds.yaml --n 120`
-Expected runtime \~53--80 hours on full network; parallelizable.\]**
-
 Grid sweeps efficiently map coarse boundary structure but are sparse
 within the transition zone and cannot efficiently cover 4-dimensional
-parameter interactions. Phase 3 addresses this by deploying a Latin
-Hypercube Sample of \[n=100--150\] scenarios drawn uniformly from within
-the PRIM-defined transition zone bounds (Table 8). Every Phase 3
-scenario lands in the region where outcomes are sensitive to parameter
-changes --- there are no wasted runs on configurations that simply
-confirm already-known clean outcomes.
+parameter interactions. Phase 3 deploys a Latin Hypercube Sample of
+n=300 scenarios drawn uniformly from within the PRIM-defined transition
+zone bounds. Every Phase 3 scenario lands in the region where outcomes
+are sensitive to parameter changes --- there are no wasted runs on
+configurations that simply confirm already-known clean outcomes.
+
+**Sweep design (lhs_2016_phase3):** 300 scenarios, lite network, 2016-block
+retarget, 13000s duration. Parameters sampled within the PRIM uncertainty
+box (source: `tools/discovery/output/2016/uncertainty_bounds.yaml`,
+support=51% of prior 2016-block data, mean v27_win=50.0%):
+
+  --------------------  -------------------------
+  **Parameter**         **PRIM box bounds**
+  economic_split        [0.280, 0.779]
+  pool_committed_split  [0.152, 0.526]
+  pool_ideology_strength [0.435, 0.797]
+  pool_max_loss_pct     [0.163, 0.400]
+  hashrate_split        0.25 (fixed)
+  --------------------  -------------------------
+
+**Outcome distribution (n=300):**
+
+  ---------------  -----  ------
+  **Outcome**      **n**  **%**
+  v27_dominant     147    49.0%
+  v26_dominant     77     25.7%
+  contested        76     25.3%
+  ---------------  -----  ------
+
+The near-equal split between v27 and v26 dominant outcomes confirms that
+Phase 3 successfully concentrated scenarios within the genuine uncertainty
+zone. By contrast, prior sweeps over wider parameter space yielded
+64--81% v27_dominant rates, reflecting that much of the parameter space
+produces clean outcomes outside the transition zone.
+
+**Feature importance within the transition zone:**
+
+  ----------------------  ----------  ----------------  ----------------
+  **Parameter**           **Sep.**    **Direction**     **Est. threshold**
+  pool_committed_split    0.188       v27 when higher   ~0.296
+  economic_split          0.028       v27 when higher   ~0.533
+  pool_ideology_strength  0.021       v27 when lower    ~0.615
+  pool_max_loss_pct       0.012       v27 when lower    ~0.276
+  ----------------------  ----------  ----------------  ----------------
+
+pool_committed_split remains the dominant predictor even within the
+transition zone, with a separation 6.7× that of the next-best parameter.
+The threshold estimate (~0.296) is lower than the full-parameter-space
+estimate (~0.346 from lhs_2016_6param), consistent with the PRIM box
+centering on the boundary region where both sides have substantial support.
 
 **4.10.1 Decision Surface**
 
-With dense sampling of the transition zone, the P(v27_wins) surface is
-estimated across all four active parameter dimensions simultaneously.
-The combined Phase 1 + Phase 3 dataset provides \[N\] labeled scenarios
-from which a final decision surface is estimated. The surface is
-characterized by \[expected: two distinct transition regions separated
-by the inversion zone; the boundary is non-convex and cannot be
-accurately summarized by a single threshold value for any individual
-parameter\].
+The Phase 3 data refines the decision surface established in Phase 1 and
+Phase 2. Per-outcome parameter ranges confirm the boundary structure:
+
+  -------------------------  ---------------  ---------------  ---------------
+  **Metric**                 **v27_dom**      **v26_dom**      **contested**
+                             **(n=147)**      **(n=77)**       **(n=76)**
+  pool_committed_split mean  0.390            0.202            0.378
+  pool_committed_split range [0.248, 0.526]   [0.152, 0.378]   [0.187, 0.521]
+  pool_max_loss_pct mean     0.270            0.282            0.302
+  economic_split mean        0.547            0.519            0.506
+  ideology_strength mean     0.604            0.625            0.630
+  -------------------------  ---------------  ---------------  ---------------
+
+The v26_dominant cluster is sharply bounded: nearly all v26 wins occur at
+pool_committed_split ≤ 0.378 with mean 0.202 — the low end of the PRIM
+box. v27_dominant cases span the full committed_split range [0.248, 0.526]
+with a soft gap separating the two outcome groups near committed_split
+~0.25--0.30.
+
+The contested zone is distinguished not by committed_split level (mean
+0.378, comparable to v27_dominant at 0.390) but by higher
+pool_ideology_strength (mean 0.630) and pool_max_loss_pct (mean 0.302).
+Contested outcomes arise when pools are simultaneously resistant to
+switching (high ideology) and capable of absorbing losses (high
+max_loss_pct), sustaining both chains without either achieving dominance.
 
 **\[TODO: Insert Figure X --- the primary result figure of the paper:
 P(v27_wins) heatmap in the economic_split × pool_committed_split plane
-at median ideology parameters, with Phase 1 grid points overlaid as
-labeled dots and Phase 3 LHS points overlaid as crosses. The boundary
-between green and red regions is the decision surface. This figure
-should be the first one a reader looks at.\]**
+at median ideology parameters (ideology_strength=0.615,
+max_loss_pct=0.276), with Phase 1 grid points overlaid as labeled dots
+and Phase 3 LHS points overlaid as crosses. The boundary between green
+and red regions is the decision surface. This figure should be the first
+one a reader looks at.\]**
 
-**4.10.2 Sensitivity Analysis**
+**4.10.2 Sensitivity Analysis: The Two-Layer Outcome Structure**
 
-Near the decision boundary, small changes in parameter values produce
-large changes in fork outcomes. Sensitivity analysis quantifies which
-parameters are most consequential in this region --- these are the
-parameters that real-world actors should monitor most closely during a
-contentious fork event. Sensitivity is measured as the partial
-derivative of P(v27_wins) with respect to each parameter, evaluated at
-the boundary.
+Phase 3 reveals a previously unresolved distinction between two
+independent outcome layers: (1) whether the new-rules chain wins the
+hashrate war, and (2) whether economic nodes fully migrate to the
+winning chain. These layers are controlled by different parameters and
+are almost entirely decoupled.
+
+**Economic switching within v27_dominant (n=147):**
+
+  ----------------------------------  --------  --------
+  **Metric**                          **Value**
+  full_switch (econ → 100% v27)       28/147    (19%)
+  no_switch (econ stays at 56.7%)     119/147   (81%)
+  full_switch pool_max_loss_pct mean  0.186     max=0.217
+  no_switch pool_max_loss_pct mean    0.291
+  full_switch pool_committed_split    0.386     (indistinguishable
+  no_switch pool_committed_split      0.391      from no_switch)
+  peak price gap (full_switch)        41.5–46.9%
+  ----------------------------------  --------  --------
+
+The critical finding: **pool_committed_split does not separate full_switch
+from no_switch within v27_dominant outcomes** (means 0.386 vs. 0.391 ---
+statistically indistinguishable). Economic adoption is not driven by the
+size of the committed pool coalition. It is driven by pool_max_loss_pct:
+full_switch requires pool_max_loss_pct ≤ ~0.22 (all 28 full_switch cases
+have max_loss_pct in [0.163, 0.217]).
+
+The mechanism: when pool_max_loss_pct is low (~0.186), pools abandon v26
+rapidly after the 2016-block retarget spike, generating a sharp price gap
+of 41--47%. Economic nodes cross their inertia threshold during this
+compressed window and fully migrate to v27. When pool_max_loss_pct is
+higher (~0.291), pools drag out their cascade --- v27 still wins the hash
+war, but the price signal builds too slowly and never triggers economic
+node migration before the run ends (13000s).
+
+**Practical interpretation:** A fork can achieve hashrate dominance without
+achieving economic adoption. In 81% of v27_dominant transition-zone
+scenarios, economic nodes remain at their starting allocation even after
+v27 wins. Full economic migration requires not just committed pool
+hashrate but also low pool loss tolerance --- the factor that determines
+cascade *speed*, not just cascade *direction*.
+
+The low overall full_switch rate in Phase 3 (28/300 = 9.3%) compared to
+lhs_2016_6param (46%) is a consequence of the PRIM box bounds: the
+transition zone constrains pool_max_loss_pct ≥ 0.163, which excludes the
+majority of parameter space where fast cascades and economic adoption are
+possible. The underlying mechanism is unchanged.
 
 **\[TODO: Insert sensitivity table: parameter --- ∂P/∂param at boundary
---- practical interpretation (e.g., "a 5% increase in economic_split
-near the boundary shifts P(v27_wins) by X%"). Expected ordering from
-Phase 1 structure: economic_split most sensitive, pool_committed_split
-second near the Foundry flip-point, ideology × max_loss interaction
-third.\]**
+--- practical interpretation. Expected ordering: pool_committed_split
+most sensitive for hash-war outcome; pool_max_loss_pct most sensitive
+for economic adoption outcome conditional on v27 winning.\]**
 
 **4.10.3 Scenario Archetypes**
 
-Clustering Phase 3 scenarios by outcome profile --- not just win/loss
-but the full time-series of hashrate dynamics, reorg patterns, and price
-trajectory --- identifies qualitatively distinct types of contentious
-fork. The expected archetypes based on Phase 1 dynamics are: (1) fast
-cascade, where economic majority triggers rapid pool switching and the
-fork resolves within a single difficulty epoch; (2) prolonged stalemate,
-where committed pools on both sides sustain parallel chains for multiple
-epochs before ideology constraints are exhausted; and (3) oscillating
-hashrate, where pools switch back and forth multiple times as price
-signals fluctuate, producing the highest reorg counts and greatest
-operational disruption.
+Phase 3 data confirms and refines the three archetype candidates
+identified from Phase 1:
 
-**\[TODO: Insert Figure X --- scenario archetype clustering plot (e.g.,
-t-SNE or PCA of time-series features, colored by archetype label).
-Insert Table X: archetype summary --- name, typical parameter ranges,
-characteristic reorg count, typical cascade duration, policy risk level.
-The oscillating hashrate archetype is likely the most operationally
-dangerous and should be highlighted.\]**
+**(1) Fast cascade** (committed_split ≥ ~0.35, max_loss_pct ≤ ~0.22):
+Pool cascade completes rapidly after retarget spike; economic nodes
+follow within ~3500s lag; price gap exceeds 41%. Represented by
+full_switch outcomes. 28 cases in Phase 3.
 
-Phase 1 provides early archetype candidates. The sweep_0020 scenario (13
-reorgs, near-threshold committed_split, econ=0.70) is a candidate
-oscillating hashrate case. The purely_rational scenarios (0--2 reorgs,
-rapid convergence) anchor the fast cascade archetype. The
-ideological_war scenarios with near-equal hashrate anchor the prolonged
-stalemate archetype. Phase 3 dense sampling will establish precise
-parameter boundaries for each archetype.
+**(2) Hash-war victory without economic adoption** (committed_split ≥
+~0.30, max_loss_pct ~0.22--0.40): v27 wins the hashrate war but
+economic nodes never migrate. The cascade is slower (pools more
+resistant); price signal insufficient for economic inertia threshold.
+The majority of v27_dominant outcomes in the transition zone. 119 cases.
 
-**\[PENDING DATA --- Full archetype clustering requires Phase 3. Add
-this to the compute queue: Phase 3 LHS (\~100--150 scenarios on full
-network, bounds from PRIM output). This is the final major compute
-dependency for the paper.\]**
+**(3) Contested / prolonged stalemate** (ideology_strength ≥ ~0.63,
+max_loss_pct ≥ ~0.30): Both sides sustain viable chains throughout the
+simulation. High ideology × high loss tolerance prevents cascade
+completion. 76 cases --- the highest rate of any Phase 3 sweep to date
+(25.3%), reflecting concentration in the uncertainty zone.
+
+**(4) v26 retains dominance** (committed_split ≤ ~0.25): Committed v27
+pool coalition below the flip-point; retarget spike does not produce
+sufficient cascade momentum. 77 cases.
+
+Phase 1 archetype candidates remain valid: the sweep_0020 scenario (13
+reorgs, near-threshold committed_split, econ=0.70) anchors the contested
+archetype. Fast-cascade and hash-war-only archetypes are now
+quantitatively distinguished by pool_max_loss_pct ≤ vs. > 0.22.
+
+**\[TODO: Insert Figure X --- scenario archetype clustering plot (t-SNE
+or PCA of time-series features, colored by archetype label). Insert
+Table X: archetype summary --- name, typical parameter ranges (from
+Phase 3 data above), characteristic reorg count, typical cascade
+duration, policy risk level. Note archetype (2) as the new finding from
+Phase 3 not anticipated from Phase 1.\]**
 
 **Compute Queue --- Scenarios Required to Complete This Section**
 
@@ -1149,9 +1259,15 @@ fill all \[PENDING DATA\] placeholders in this results section:
     econ=0.78), identical across 144-block and 2016-block regimes.
     §4.11.1 filled.
 
-7.  targeted_sweep5_lite re-run (after role-name fix) --- fills lite
+7.  ~~Phase 3 LHS dense transition zone (300 scenarios, lite network,
+    2016-block)~~ --- **COMPLETE.** lhs_2016_phase3 (n=300) finished
+    April 2026. Results: 49% v27_dominant, 25.7% v26_dominant, 25.3%
+    contested. Key finding: two-layer outcome structure (hash-war vs.
+    economic adoption decoupled by pool_max_loss_pct). §4.10 filled.
+
+8.  targeted_sweep5_lite re-run (after role-name fix) --- fills lite
     network comparison if included. LOWER PRIORITY --- can be deferred
-    to Phase 2 if lite comparison is not load-bearing.
+    if lite comparison is not load-bearing.
 
 **Any sweep not on this list is Phase 2 work. Do not queue additional
 runs unless a specific \[PENDING DATA\] placeholder cannot be filled

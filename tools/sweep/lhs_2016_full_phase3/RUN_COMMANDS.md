@@ -40,7 +40,7 @@ minikube start \
   --driver=docker \
   --cpus=no-limit \
   --memory=no-limit \
-  --max-pods=1800 \
+  --extra-config=kubelet.maxPods=1800 \
   --pod-network-cidr=10.244.0.0/16 \
   --extra-config=controller-manager.node-cidr-mask-size=20 \
   --extra-config=kubelet.cgroup-driver=cgroupfs \

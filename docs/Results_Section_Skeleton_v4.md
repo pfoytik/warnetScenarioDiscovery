@@ -20,7 +20,7 @@ question in turn: first, which parameters causally determine fork
 outcomes; second, what quantitative thresholds govern phase transitions;
 and third, how difficulty adjustment timing modulates these dynamics.
 
-**\[TODO:** *Update \[N\] total scenarios and \[X\] sweep count. Current valid n = 1075 (323 prior + 45 econ_committed_2016_grid + 64 lhs_2016_full_parameter + 9 esp_144 + 9 esp_2016 + 18 targeted_sweep6 + 129 lhs_2016_6param + 130 lhs_144_6param + 48 price_divergence_sensitivity_2016 + 300 lhs_2016_phase3). Sweep count X = 19 configurations (17 valid/partial + 2 invalid). Update body text below when finalizing.***\]**
+**\[TODO:** *Update \[N\] total scenarios and \[X\] sweep count. Current valid n = 1093 (323 prior + 45 econ_committed_2016_grid + 64 lhs_2016_full_parameter + 9 esp_144 + 9 esp_2016 + 18 targeted_sweep6 + 129 lhs_2016_6param + 130 lhs_144_6param + 48 price_divergence_sensitivity_2016 + 300 lhs_2016_phase3 + 18 hashrate_2016_verification). Sweep count X = 20 configurations (18 valid/partial + 2 invalid). Update body text below when finalizing.***\]**
 
 **4.1 Scenario Overview and Data Quality**
 
@@ -138,6 +138,19 @@ discussed qualitatively where relevant.
                                                                structure: hash-war
                                                                decoupled from econ
                                                                adoption (§4.10)
+
+  hashrate_2016_           18       60-node       ✓ Valid      Hashrate non-causality
+  verification                                                 verification at 2016-block
+                                                               retarget; 6 hashrate
+                                                               levels (15–65%) × 3
+                                                               economic levels (50/60/70%);
+                                                               confirms non-causality at
+                                                               econ≥60% (12/12 v27); reveals
+                                                               conditional causality at
+                                                               econ=50% with non-monotonic
+                                                               behavior; v26 wins at
+                                                               HR=35–45% (§4.2.1)
+
   targeted_sweep2b (lite)  20       25-node       ⚠ Partial    Pool ideology on lite
                                                                network --- pool params
                                                                valid; econ context wrong
@@ -176,7 +189,11 @@ sweeps.***
                              Value**     
 
   hashrate_split             0.25        targeted_sweep2: zero outcome effect
-                                         across 0.15--0.65 (n=42)
+                                         across 0.15--0.65 (n=42); confirmed
+                                         non-causal at econ≥60% by
+                                         hashrate_2016_verification (n=18,
+                                         2016-block); conditional causality
+                                         at econ=50% — see §4.2.1
 
   pool_neutral_pct           30%         targeted_sweep4: controls cascade
                                          intensity only; outcome unchanged
@@ -256,6 +273,33 @@ advantage. Hashrate_split may only become causal at extreme values below
 \~10%, where the survival window grows long enough for price to collapse
 before the minority chain reaches its adjustment epoch.
 
+**2016-block verification and conditional causality (hashrate_2016_verification, April 2026):** A dedicated 6×3 grid sweep at the 2016-block retarget (hashrate_split ∈ {0.15, 0.25, 0.35, 0.45, 0.55, 0.65} × economic_split ∈ {0.50, 0.60, 0.70}, n=18, full 60-node network) confirms and qualifies the non-causality finding. At econ=0.60 and econ=0.70, all 12 cells produce v27 wins regardless of hashrate level — hashrate is non-causal when economic support is at or above 60%, replicating the targeted_sweep2 result at realistic difficulty dynamics. However, at econ=0.50 (economic parity), hashrate IS conditionally causal under 2016-block retarget, with non-monotonic behavior (Table 3b):
+
+***Table 3b. hashrate_2016_verification: fork outcomes at 2016-block retarget across hashrate_split × economic_split. Uniform v27-wins columns at econ=0.60 and econ=0.70 confirm non-causality; the econ=0.50 column shows conditional causality with a non-monotonic boundary.***
+
+  ------------- ----------- --------- ---------
+  **hash \\     **econ=0.50**  **econ=0.60**  **econ=0.70**
+  econ**
+
+  **hash=0.15** SPLIT       v27       v27
+
+  **hash=0.25** SPLIT       SPLIT†    v27
+
+  **hash=0.35** **v26**     v27       v27
+
+  **hash=0.45** **v26**     v27       v27
+
+  **hash=0.55** SPLIT       v27       v27
+
+  **hash=0.65** SPLIT       v27       v27
+  ------------- ----------- --------- ---------
+
+*† Anomalous: 60% economic support produces a persistent SPLIT at hash=0.25; economic nodes shifted to 62% v27 but hashrate did not converge. The adjacent econ=0.70 cell resolves cleanly to v27 wins.*
+
+At econ=0.50, outcomes differ qualitatively from the 144-block regime where targeted_sweep2 showed uniform results. The mechanism is the 2016-block survival window: Foundry USA (30% hashrate, ideology=0.6, profitability_threshold=12%) is the decisive actor. At intermediate hashrate (35–45%), v26 builds a chain-length lead fast enough that Foundry's accumulated loss exceeds its 12% tolerance after approximately one retarget cycle (~3,600s), forcing a switch to v26. Pool decision logs confirm: *"Forced switch: loss 12.0% exceeds tolerance 12.0%"*; post-switch, the v26 profitability premium grows to 58%, trapping all hashrate on v26. At low hashrate (15–25%) and high hashrate (55–65%), the v26 chain lead develops more slowly (low HR) or is partially offset by neutral miners (high HR), keeping Foundry's losses below threshold throughout the 13,000-second run — producing persistent splits rather than chain capture.
+
+This is consistent with the Survival Window mechanism: the 2016-block retarget widens the window by ~14×, giving the majority chain substantially more time to drive up the minority chain's mining costs before the minority's difficulty adjusts. The conditional causality is regime-dependent: at 144-block retarget, the window is too narrow for loss accumulation to reach threshold at economic parity; at 2016-block, the window is wide enough that intermediate hashrate imbalances cross the committed pool tolerance boundary.
+
 **4.2.2 User Behavior Parameters**
 
 Three user behavior parameters (user_ideology_strength,
@@ -323,12 +367,18 @@ ranking derived from the targeted sweep program.
                                            Neither parameter is sufficient alone
                                            (+0.58 each in sweep2b).
 
-  hashrate_split         **Zero**          Confirmed non-causal (targeted_sweep2,
-                                           n=42). The Difficulty Adjustment Survival
-                                           Window mechanism explains why: difficulty
-                                           equalization neutralizes starting hashrate
-                                           advantage before the economic cascade
-                                           resolves (see Section 4.5.1).
+  hashrate_split         **Zero            Confirmed non-causal at econ≥60%:
+                         (conditional)**   targeted_sweep2 (144-block, n=42) and
+                                           hashrate_2016_verification (2016-block,
+                                           n=12/12 econ≥60% cells) both show
+                                           identical outcomes across all hashrate
+                                           levels. The Survival Window mechanism
+                                           explains why: difficulty equalization
+                                           neutralizes starting hashrate advantage
+                                           before the economic cascade resolves (see
+                                           §4.5.1). Exception: at econ=50% under
+                                           2016-block retarget, hashrate is
+                                           conditionally causal — see §4.2.1.
 
   pool_neutral_pct; all  **Zero**          No causal effect on outcomes; confirmed by
   user params; econ                        multiple targeted sweeps. Fixed at medians

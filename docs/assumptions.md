@@ -400,59 +400,307 @@ so reported thresholds are upper bounds.
 
 ---
 
-## 8. Phase 2 Findings: Emergent Thresholds and Interaction Effects
+## 8. Phase 2 Findings: Confirmed Emergent Behavior
 
-Phase 2 scenario discovery analysis (see `phase2_scenario_discovery_preliminary.md`)
-identified emergent behavior that may be artifacts of the assumptions above.
+Phase 2 scenario discovery analysis (n=268 144-block, n=298 2016-block, full 60-node
+network) confirmed or explained the emergent behavior noted in earlier preliminary work.
 
-### 8.1 The ~65% Economic Support Threshold
+### 8.1 The Inversion Zone — Confirmed and Mechanistically Explained
 
-**Observation:** At approximately 65% economic support, the effect of additional
-v27 hashrate on fork outcomes **reverses direction**:
-- Below 65%: more v27 hashrate helps v27 win (+15-19% effect)
-- Above 65%: more v27 hashrate hurts v27 win (-15% effect, "inversion zone")
+**Observation:** At `economic_split` ≈ 0.60–0.70, increasing `pool_committed_split`
+in favor of v27 *reduces* v27's win probability (Table 4, §4.3.1). A 4-percentage-point
+shift from `pool_committed_split=0.20` to `0.30` converts a v27 win to a v26 win at
+these economic levels.
 
-**Potential model-dependent causes:**
+**Status: CONFIRMED — mechanism identified.** This is not a model artifact. The
+inversion is caused by the Foundry flip-point (§4.3.2): below `pool_committed_split ≈
+0.214`, Foundry USA (~30% hashrate) is assigned v26-committed ideology and is
+*economically trapped* by the v27 price premium. Its forced exit triggers a neutral
+pool cascade. Above the flip-point, Foundry shifts to v27-committed ideology, which
+simultaneously purifies the v26 defending block (AntPool + F2Pool, ~33% combined
+hashrate) and removes the cascade trigger. The mechanism is confirmed by pool decision
+logs showing forced-switch threshold crossings.
 
-| Assumption | How it could create the threshold |
-|------------|-----------------------------------|
-| 2.2 Price oracle economic weight (0.50) | At 65% economic support, price advantage may cross a critical value that triggers different pool behavior |
-| 2.4 Max price divergence (±20%) | Ceiling effects may create nonlinearities when price approaches the cap |
-| 4.2 Economic switching threshold formula | The `ideology_strength × 2.0` multiplier creates specific trigger points |
-| 3.1 Pool profitability at assumed 50% hashrate | Actual hashrate divergence not reflected in decisions creates artifacts |
+**Assumptions that modulate the threshold value (but not the mechanism):** 2.2
+(oracle weights), 3.1 (fog-of-war at 50%), and pool calibration all affect the
+specific `pool_committed_split` value at which the flip occurs, not the structural
+existence of the inversion.
 
-**Status:** Unclear whether this is a fundamental dynamic or model artifact.
-Sensitivity analysis recommended (vary 2.2, 2.4, 4.2 parameters and observe
-whether threshold moves, persists, or disappears).
+### 8.2 Hashrate Non-Causality — Confirmed with Qualified Exception
 
-### 8.2 hashrate_split × economic_split Interaction (Simpson's Paradox)
+**Observation:** `hashrate_split` shows zero independent causal effect at `economic_split
+≥ 0.60` across both retarget regimes (targeted_sweep2, n=42, 144-block; hashrate_2016_
+verification, n=12/12 cells at econ≥0.60, 2016-block). Identical columns across all
+hashrate levels in targeted_sweep2 Table 3 confirm the non-causality result cleanly.
 
-**Observation:** The `hashrate_split` parameter shows no statistically significant
-main effect at 2016-block conditions (p=0.86), consistent with Phase 1 findings.
-However, stratified analysis reveals opposite effects at different economic levels
-that cancel out in aggregate (Simpson's paradox).
+**Exception:** At `economic_split = 0.50` under 2016-block retarget, hashrate is
+conditionally causal with a non-monotonic pattern (Table 3b). The mechanism: at
+economic parity, intermediate hashrate levels (35–45%) cause Foundry's accumulated
+mining losses to cross its tolerance threshold before the simulation ends, forcing a
+switch that the low- and high-hashrate cases do not trigger within the same window.
 
-**Implication:** Parameters identified as "non-causal" based on main effects may
-still have significant interaction effects. Future sweeps should test interaction
-terms explicitly, not just main effects.
+**Assumption dependence:** See §9.2 — assumption 3.1 (fog-of-war) strengthens this
+finding; with an actual-hashrate feedback loop, some residual hashrate causality may
+persist above `economic_split = 0.60`.
 
-### 8.3 Regime-Dependent Parameter Importance
+### 8.3 Causal Rank Reversal — Confirmed on Full Network (n=566 total)
 
-**Observation:** `pool_committed_split` importance nearly triples between 144-block
-(11.7%) and 2016-block (29.0%) regimes. This suggests parameter importance is
-regime-dependent — findings from fast-retarget experiments may not generalize to
-realistic Bitcoin timing.
+**Observation:** `pool_committed_split` importance rises from 11.3% (144-block,
+dominant parameter: `economic_split` at 77.2%) to 52.8% (2016-block, dominant
+parameter: `pool_committed_split`; `economic_split` drops to 20.2%). RF OOB accuracy:
+80.0% (144-block), 83.2% (2016-block). Contentiousness 2× higher at 2016-block
+(mean 0.271 vs. 0.132).
 
-**Implication:** All threshold claims should be validated at 2016-block conditions.
-The 144-block regime is useful for rapid exploration but not for calibrated claims.
+**Status: CONFIRMED** on full 60-node network with no quantization artifact. The
+rank reversal is the direction-of-dominance change; the specific importance percentages
+carry the oracle-weight caveat in §9.1.
 
 ---
 
-## 9. Cross-References
+## 9. Bias Assessment
+
+This section classifies the primary findings by their vulnerability to modeling bias
+(artifacts of simulation design choices) and sampling bias (artifacts of how the
+parameter space was explored). This is distinct from the assumption catalogue above:
+assumptions document what the model does; this section assesses whether the findings
+derived from it could be artefacts of those choices.
+
+---
+
+### 9.1 Modeling Bias Risks
+
+#### MB-1: User node null result is partially tautological
+
+**Finding at risk:** "User nodes have no causal influence on fork outcomes."
+
+**Bias mechanism:** The price oracle (`combined_factor`) computes `economic_weight`
+exclusively from exchange and institutional `custody_btc` values. User node custody is
+not included in the formula by design. Consequently, the finding that user nodes cannot
+shift the economic price signal is guaranteed by the oracle structure before any sweep
+runs — it is not discovered from simulation data.
+
+**What is genuinely discovered:** That user nodes cannot shift outcomes through their
+hashrate contribution (~11.75% of total) under any tested parameter configuration.
+This result is not tautological — it depends on the hashrate being insufficient to
+change block production enough to reverse the cascade, and is confirmed by an exact
+null (zero variation across all 36 scenarios in targeted_sweep5).
+
+**How to frame it:** The hashrate-pathway null is fully defensible. The economic-weight-
+pathway null should be framed as a structural consequence of the weight ratio (2197:1),
+not as an independently discovered fact. The User-PRIM result quantifies the ceiling;
+it does not test whether the ceiling is correctly placed.
+
+---
+
+#### MB-2: Assumed 50/50 hashrate strengthens hashrate non-causality
+
+**Finding at risk:** "Hashrate_split has no causal effect on fork outcomes at econ ≥ 0.60."
+
+**Bias mechanism:** Assumption 3.1 computes pool profitability at an assumed 50%
+hashrate on each fork regardless of actual distribution. This prevents the direct
+feedback loop (minority hashrate → lower revenue → pool switches → further minority
+hashrate) from activating. In a model where pools used actual observed hashrate,
+some residual hashrate causality would persist even above the cascade threshold because
+each pool's profitability signal would include information about the current distribution.
+
+**Degree of risk:** Moderate. The difficulty adjustment survival window mechanism
+(§4.5.1) provides an independent, model-agnostic reason for hashrate non-causality:
+difficulty equalizes block rates before the economic cascade resolves at any hashrate
+split above approximately 10%. The fog-of-war assumption amplifies this but does not
+create it. The conditional causality at `econ=0.50` under 2016-block retarget — where
+the survival window is long — confirms that the residual causality exists in the right
+conditions.
+
+**How to frame it:** Report the non-causality with the 50/50 assumption stated as a
+condition. The finding is: "Under the fog-of-war profitability model, hashrate is non-
+causal at econ ≥ 0.60." Not: "Hashrate is non-causal in Bitcoin fork dynamics."
+
+---
+
+#### MB-3: Oracle weights structurally privilege economic_split
+
+**Finding at risk:** "Economic_split is the dominant predictor of fork outcomes (77.2%
+RF importance at 144-block)."
+
+**Bias mechanism:** The price oracle assigns a fixed 0.5 coefficient to economic weight
+versus 0.3 for chain weight and 0.2 for hashrate weight. By structural construction,
+economic_split has the largest leverage over price, and price drives all pool and economic
+node decisions. The high RF importance of `economic_split` is partially produced by
+this design choice, not solely by the underlying fork dynamics.
+
+**Degree of risk:** Low for the direction (economic factors dominate), moderate for
+the magnitude (77.2% specifically). The oracle weights were calibrated against
+Bitcoin's custody-driven valuation, not chosen to produce a desired result. The
+finding that economic factors dominate is consistent across both retarget regimes
+and multiple analytical methods.
+
+**How to frame it:** "Under a custody-weighted price oracle calibrated to 2026
+Bitcoin market structure, economic alignment is the dominant predictor at 144-block
+retarget." Not: "Economic alignment is unconditionally dominant in Bitcoin fork
+outcomes."
+
+---
+
+#### MB-4: Specific threshold values are calibration-specific
+
+**Finding at risk:** Foundry flip-point (~0.214), economic override threshold (~0.82),
+ideology×max_loss product diagonal (~0.16–0.20).
+
+**Bias mechanism:** These threshold values derive from specific calibration choices:
+Foundry holding ~30% total hashrate, `pool_neutral_pct = 30%`, block subsidy at
+3.125 BTC, mining cost at $100k/block, and price oracle weights as above. The Foundry
+flip-point formula is `pool_committed_split × 0.70 > 0.15`, which is entirely
+determined by the Foundry hashrate share (30%) and the neutral pool fraction (30%).
+A consolidation event placing one pool at 40% hashrate shifts the flip-point without
+changing the mechanism.
+
+**How to frame it:** Threshold values apply to the modeled 2026 Bitcoin pool
+landscape. The mechanisms that produce the thresholds are general; the specific
+numbers are not. Both must be stated in any public claim.
+
+---
+
+#### MB-5: ±20% divergence cap bounds all findings
+
+**Finding at risk:** All threshold findings — they all operate within the ±20%
+maximum price differential.
+
+**Bias mechanism:** Real fork events (BCH/BTC) have produced price divergences of
+80–95% over months. At larger divergences, the dynamics change qualitatively: the
+losing chain's token may collapse before its difficulty adjustment fires, making
+hashrate suddenly causal (no token value = no mining incentive before the survival
+window closes). The ±20% cap may exclude the regime most relevant to long-run fork
+survival.
+
+**How to frame it:** All findings are bounded to the short-to-medium-run regime
+(weeks to months post-fork, before extreme divergence). Long-run dynamics under
+larger divergences are not modeled.
+
+---
+
+### 9.2 Sampling Bias Risks
+
+#### SB-1: Economic friction parameters confirmed non-causal on n=4 (weakest null result)
+
+**Finding at risk:** "`econ_inertia` and `econ_switching_threshold` are non-causal."
+
+**Bias mechanism:** The full-network confirmation of this null result rests on
+`targeted_sweep3b` with only 4 scenarios. The earlier lite-network sweep (n=16) was
+invalidated by a role-name parameter bug. No sweep has tested these parameters across
+a range of `pool_committed_split` values or under 2016-block retarget. The non-
+causality claim is thin: 4 data points at one specific parameter combination.
+
+**Risk level:** High. This is the least well-supported null result in the paper.
+If these parameters were re-tested at 2016-block retarget or near the Foundry
+flip-point boundary, they could show conditional causality analogous to the
+`hashrate_split` finding at `econ=0.50`.
+
+**How to frame it:** "Not confirmed causal in initial full-network testing; full
+validation at 2016-block retarget pending." Should not appear in the confirmed
+non-causal parameter table without this caveat.
+
+---
+
+#### SB-2: pool_max_loss_pct ≤ 0.217 threshold derived from lite network
+
+**Finding at risk:** "Full economic migration occurs when `pool_max_loss_pct ≤ 0.217`."
+
+**Bias mechanism:** This threshold was established from Phase 3 lite-network data,
+which has the documented economic node quantization artifact (~4 nodes, step-function
+thresholds rather than smooth variation). Phase 3b (full 60-node network, currently
+running) is the validation test. Until Phase 3b results are incorporated, this
+threshold is a working estimate, not a confirmed result.
+
+**Risk level:** Medium. The Phase 3b design specifically targets this finding's
+validation. The quantization artifact is documented and its direction is understood
+(creates sharper thresholds than the continuous full-network response).
+
+---
+
+#### SB-3: 144-block logistic regression is structurally unreliable
+
+**Finding at risk:** Any interaction-based mechanistic claims derived from 144-block
+logistic regression.
+
+**Bias mechanism:** The 144-block LR has cross-validated accuracy of 59.8% (only 10%
+above chance) and inverted coefficient signs for several terms relative to the 2016-
+block fit. The 144-block dataset also contains the lite-network quantization artifact
+in some sweeps. The RF importance scores at 144-block are valid (80.0% OOB accuracy);
+the LR is not. No regression-based mechanism claims should be applied to 144-block
+dynamics.
+
+---
+
+#### SB-4: Phase 3 LHS concentrated in transition zone — accuracy may not generalize
+
+**Finding at risk:** "83.2% RF OOB accuracy at 2016-block" as a characterization of
+model predictability.
+
+**Bias mechanism:** The Phase 3 LHS samples were drawn from within the PRIM
+uncertainty bounds — the parameter region specifically identified as having close to
+50/50 outcomes. An RF evaluated on data concentrated in the uncertain transition zone
+will report lower accuracy than one evaluated on uniformly distributed data (where
+most scenarios have unambiguous outcomes). The 83.2% figure is an accurate
+characterization of transition-zone predictability; it does not represent full-
+parameter-space predictability, which is likely higher.
+
+---
+
+#### SB-5: Early LHS hashrate confound was identified and corrected — but signals general risk
+
+**Finding at risk:** Any result from pre-correction LHS sweeps (these have been
+excluded from the analysis).
+
+**Bias mechanism:** The hashrate confound (apparent r=0.83 in early LHS, shown to
+be a sampling artifact by targeted sweeps) was caught because targeted sweeps were
+run specifically to verify. Parameters that only show effects in combination with
+other parameters that were fixed early in the elimination sequence could be invisible
+to subsequent LHS analysis. The elimination program was thorough but sequentially
+constructed.
+
+**Note:** This is a historical risk, not a current one. The confound was identified
+and the affected data excluded. It is documented here because the same risk applies
+to any parameter fixed based on LHS correlations without independent targeted
+verification.
+
+---
+
+### 9.3 Bias Summary and Defensibility Assessment
+
+| Finding | Modeling Bias | Sampling Bias | Defensibility |
+|---------|:-------------:|:-------------:|---------------|
+| Inversion zone / non-monotonic boundary | Low | None | **Full** — mechanism confirmed in logs, LHS gap clean |
+| Causal rank reversal (direction) | Moderate (oracle weights) | None | **Full with oracle caveat** |
+| Importance percentages (77.2%, 52.8%) | Moderate | Some (LHS concentration) | Qualified |
+| Hashrate non-causality at econ ≥ 0.60 | Moderate (assumption 3.1) | None | **Full with fog-of-war caveat** |
+| Conditional hashrate causality at econ=0.50 | Moderate | Moderate (small grid) | Qualified |
+| ideology × max_loss product structure | None | None | **Full** |
+| Specific threshold values (0.214, 0.82, 0.16–0.20) | **High** (calibration-specific) | None | Mechanism full; values qualified |
+| Economic override above ~0.82 | Moderate (oracle weights) | None | **Full within ±20% cap** |
+| Contentiousness 2× higher at 2016-block | None | None | **Full** |
+| User node hashrate pathway null | None | None | **Full** |
+| User node economic pathway null | **High** (partially tautological) | None | Structural ceiling only |
+| econ friction params non-causal | None | **High** (n=4) | Weak — needs 2016-block retest |
+| pool_max_loss_pct ≤ 0.217 threshold | None | **High** (lite network) | Pending Phase 3b |
+| 144-block logistic regression | None | **High** (unreliable fit) | Not defensible |
+| Framework as null-result detector | None | None | **Full** |
+
+**Defensibility key:**
+- **Full** — supported by multiple independent lines of evidence, mechanism confirmed, not sensitive to contested modeling choices
+- **Full with [caveat]** — finding is robust but the stated condition limits its scope
+- **Qualified** — finding is likely correct but the specific value or magnitude could shift with different assumptions or more data
+- **Pending** — awaiting Phase 3b full-network validation
+- **Not defensible** — should not be cited; methodology insufficient
+
+---
+
+## 10. Cross-References
 
 | Document | Purpose |
 |----------|---------|
-| `phase2_scenario_discovery_preliminary.md` | PRIM bounds, feature importance, regime comparison, hashrate validation |
-| `esp_matrix.md` | Economic Self-Sustaining Point analysis |
-| `Methodology.md` (in paper/) | Complete methodology including Phase 2 Section 13 |
-| `tools/sweep/SWEEP_FINDINGS.md` | Phase 1 sweep results and parameter elimination |
+| `docs/section_3_methodology.md` | Complete methodology including Phase 2 Section 13 |
+| `docs/section_4_2_parameter_causality.md` | Parameter elimination program; hashrate confound; non-causal parameter table |
+| `docs/section_4_3_foundry_flippoint.md` | Inversion zone mechanism; threshold summary table |
+| `docs/section_4_8_boundary_fitting.md` | RF feature importance; logistic regression; PRIM bounds |
+| `docs/section_4_11_user_prim.md` | User-PRIM null result; weight ratio ceiling |
+| `tools/sweep/SWEEP_FINDINGS.md` | Phase 1 sweep results and parameter elimination detail |

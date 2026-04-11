@@ -1484,8 +1484,17 @@ class PartitionMinerWithPools(Commander):
                 self.options.economic_scenario
             )
 
+            # Read user_custody_fraction from per-scenario config entry if present.
+            # Omitting it (None) leaves user node weights at their calibrated values,
+            # reproducing all prior sweep results exactly.
+            scenario_cfg = econ_config.get(self.options.economic_scenario, {})
+            user_custody_fraction = scenario_cfg.get('user_custody_fraction', None)
+
             if economic_profiles:
-                self.economic_strategy = EconomicNodeStrategy(economic_profiles)
+                self.economic_strategy = EconomicNodeStrategy(
+                    economic_profiles,
+                    user_custody_fraction=user_custody_fraction,
+                )
 
                 # Calculate initial economic allocation (nodes start on their partition's fork)
                 self.current_v27_economic, self.current_v26_economic = \

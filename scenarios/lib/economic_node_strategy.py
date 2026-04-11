@@ -131,14 +131,45 @@ class EconomicNodeStrategy:
     3. Inertia (switching costs: stay on current fork unless advantage is large)
     """
 
-    def __init__(self, nodes: List[EconomicNodeProfile]):
+    def __init__(self, nodes: List[EconomicNodeProfile], user_custody_fraction: Optional[float] = None):
         """
         Initialize with node profiles.
 
         Args:
             nodes: List of economic/user node profiles
+            user_custody_fraction: Optional fraction of total economic weight to assign to
+                user nodes collectively (0.0–1.0). When None or 0.0, user node weights are
+                used as-is from custody_btc/consensus_weight (current calibrated values,
+                which are negligible relative to exchange/institutional nodes). Setting this
+                to e.g. 0.35 rescales user node weights so they represent 35% of total
+                economic weight, regardless of their raw custody values.
+
+                Backwards compatibility: default None leaves all weights unchanged,
+                reproducing all prior sweep results exactly.
         """
         self.nodes = {n.node_id: n for n in nodes}
+
+        # Compute user weight scale factor from user_custody_fraction.
+        # Scale is applied per-node in _node_weight() for USER-type nodes only.
+        # Formula: scale = (ucf * W_econ) / ((1 - ucf) * W_user_raw)
+        # where W_econ = sum of raw ECONOMIC weights, W_user_raw = sum of raw USER weights.
+        # At scale=1.0 (default), behaviour is identical to all prior runs.
+        self.user_weight_scale = 1.0
+        if user_custody_fraction is not None and user_custody_fraction > 0.0:
+            raw_econ_total = sum(
+                (n.consensus_weight if n.consensus_weight > 0 else n.custody_btc)
+                for n in nodes if n.node_type == NodeType.ECONOMIC
+            )
+            raw_user_total = sum(
+                (n.consensus_weight if n.consensus_weight > 0 else n.custody_btc)
+                for n in nodes if n.node_type == NodeType.USER
+            )
+            if raw_user_total > 0 and raw_econ_total > 0 and user_custody_fraction < 1.0:
+                self.user_weight_scale = (
+                    user_custody_fraction * raw_econ_total
+                ) / (
+                    (1.0 - user_custody_fraction) * raw_user_total
+                )
 
         # Current fork allocation per node
         self.current_allocation: Dict[str, Optional[str]] = {}
@@ -168,8 +199,15 @@ class EconomicNodeStrategy:
         Uses consensus_weight when set; falls back to custody_btc for networks
         (e.g. realistic-economy-v2) that omit the pre-computed consensus_weight
         field and only carry raw custody_btc in node metadata.
+
+        For USER-type nodes, applies self.user_weight_scale when a
+        user_custody_fraction was specified at construction time. Scale is 1.0
+        by default, leaving all prior results reproducible.
         """
-        return node.consensus_weight if node.consensus_weight > 0 else node.custody_btc
+        base = node.consensus_weight if node.consensus_weight > 0 else node.custody_btc
+        if node.node_type == NodeType.USER and self.user_weight_scale != 1.0:
+            return base * self.user_weight_scale
+        return base
 
     def make_decision(
         self,

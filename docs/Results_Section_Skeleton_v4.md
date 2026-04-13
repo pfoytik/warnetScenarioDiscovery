@@ -20,7 +20,7 @@ question in turn: first, which parameters causally determine fork
 outcomes; second, what quantitative thresholds govern phase transitions;
 and third, how difficulty adjustment timing modulates these dynamics.
 
-**\[TODO:** *Update \[N\] total scenarios and \[X\] sweep count. Current valid n = 1093 (323 prior + 45 econ_committed_2016_grid + 64 lhs_2016_full_parameter + 9 esp_144 + 9 esp_2016 + 18 targeted_sweep6 + 129 lhs_2016_6param + 130 lhs_144_6param + 48 price_divergence_sensitivity_2016 + 300 lhs_2016_phase3 + 18 hashrate_2016_verification). Sweep count X = 20 configurations (18 valid/partial + 2 invalid). Update body text below when finalizing.***\]**
+**\[TODO:** *Update \[N\] total scenarios and \[X\] sweep count. Current valid n = 1385 (323 prior + 45 econ_committed_2016_grid + 64 lhs_2016_full_parameter + 9 esp_144 + 9 esp_2016 + 18 targeted_sweep6 + 129 lhs_2016_6param + 130 lhs_144_6param + 48 price_divergence_sensitivity_2016 + 300 lhs_2016_phase3 + 18 hashrate_2016_verification + 292 lhs_2016_full_phase3). Sweep count X = 21 configurations (19 valid/partial + 2 invalid). Update body text below when finalizing.***\]**
 
 **4.1 Scenario Overview and Data Quality**
 
@@ -138,6 +138,18 @@ discussed qualitatively where relevant.
                                                                structure: hash-war
                                                                decoupled from econ
                                                                adoption (§4.10)
+
+  lhs_2016_full_phase3     292/300  60-node       ✓ Valid      Full-network equivalent of
+                                                               lhs_2016_phase3; same PRIM
+                                                               bounds; economic_split
+                                                               dominates within zone
+                                                               (sep=0.164, threshold
+                                                               ~0.563), reversing lite
+                                                               result; 67.8% v26_dom /
+                                                               24.3% v27_dom / 7.9%
+                                                               contested; full_switch =
+                                                               v27_dominant in 100% of
+                                                               cases (§4.10.4)
 
   hashrate_2016_           18       60-node       ✓ Valid      Hashrate non-causality
   verification                                                 verification at 2016-block
@@ -1289,6 +1301,48 @@ Phase 3 data above), characteristic reorg count, typical cascade
 duration, policy risk level. Note archetype (2) as the new finding from
 Phase 3 not anticipated from Phase 1.\]**
 
+**4.10.4 Full-Network Validation: economic_split Dominates Within the Transition Zone**
+
+The Phase 3 lite-network result identified pool_committed_split as the dominant predictor within the PRIM uncertainty zone. To test whether this reflects a genuine network dynamic or a lite-network quantization artifact, `lhs_2016_full_phase3` replicated the identical PRIM bounds on the full 60-node network (24 economic nodes, ~4% resolution per node vs. 25% on lite).
+
+**Outcome distribution (n=292):**
+
+  ---------------  -----  ------
+  **Outcome**      **n**  **%**
+  v26_dominant     198    67.8%
+  v27_dominant     71     24.3%
+  contested        23     7.9%
+  ---------------  -----  ------
+
+**Feature importance within the transition zone (full network):**
+
+  ----------------------  ----------  ----------------  ----------------
+  **Parameter**           **Sep.**    **Direction**     **Est. threshold**
+  **economic_split**      **0.164**   v27 when higher   **~0.563**
+  pool_committed_split    0.055       v27 when higher   ~0.349
+  pool_max_loss_pct       0.020       v27 when lower    ~0.273
+  pool_ideology_strength  0.016       v27 when lower    ~0.609
+  ----------------------  ----------  ----------------  ----------------
+
+**economic_split is the dominant predictor on the full network** (sep=0.164 vs pool_committed_split sep=0.055 — a 3× gap), directly reversing the lite-network result. The threshold of ~0.563 (v27_dominant mean=0.645 vs v26_dominant mean=0.481) identifies the critical economic support level within the transition zone.
+
+The v26-heavy outcome distribution (67.8% v26_dominant vs 25.7% on lite) reflects a structural mismatch between the PRIM box calibration and the full-network transition zone. The lite network's quantization compressed economic_split values toward the center of the distribution, making the transition zone appear to sit at lower economic support. On the full network, the same PRIM bounds are mostly below the ~0.563 threshold → clean v26_dominant. A refined sweep targeting econ ∈ [0.50, 0.65] would better characterize the full-network boundary.
+
+**Per-outcome parameter means (full network):**
+
+  -------------------------  ---------------  ---------------  ---------------
+  **Metric**                 **v27_dom**      **v26_dom**      **contested**
+                             **(n=71)**       **(n=198)**      **(n=23)**
+  economic_split mean        0.645            0.481            0.590
+  pool_committed_split mean  0.376            0.321            0.380
+  pool_max_loss_pct mean     0.263            0.283            0.323
+  ideology_strength mean     0.601            0.617            0.675
+  -------------------------  ---------------  ---------------  ---------------
+
+**Full economic switching is perfectly predictive:** all 71 full_switch scenarios are v27_dominant (100%); no contested or v26_dominant outcome co-occurs with full_switch. The contested zone (7.9%, vs 25.3% on lite) is confined to near-threshold scenarios where high ideology × max_loss prevents cascade completion despite economic support near ~0.563.
+
+**Implication for regime comparison:** The prior claim that pool_committed_split dominates at 2016-block (finding 15, lhs_2016_full_parameter, n=64, full parameter space) and the lite Phase 3 finding are both real but reflect different regions of parameter space. Over the *full* parameter space, pool_committed_split is dominant because many v26 wins occur at very low committed_split (clean outcomes outside the transition zone). *Within* the transition zone on the full network, economic_split takes over as the primary separator. The two findings are complementary: pool_committed_split determines whether a scenario reaches the contested region; within that region, economic_split determines the outcome.
+
 **Compute Queue --- Scenarios Required to Complete This Section**
 
 The following and ONLY the following additional sweeps are needed to
@@ -1314,6 +1368,15 @@ fill all \[PENDING DATA\] placeholders in this results section:
     April 2026. Results: 49% v27_dominant, 25.7% v26_dominant, 25.3%
     contested. Key finding: two-layer outcome structure (hash-war vs.
     economic adoption decoupled by pool_max_loss_pct). §4.10 filled.
+
+8.  ~~Full-network Phase 3 (292/300 scenarios, 60-node, same PRIM
+    bounds)~~ --- **COMPLETE.** lhs_2016_full_phase3 finished April
+    2026. Key finding: economic_split dominates within the transition
+    zone on the full network (sep=0.164 vs committed_split sep=0.055),
+    reversing the lite-network result. 67.8% v26_dominant. §4.10.4
+    filled. Note: PRIM box not optimally targeted for full network —
+    consider Phase 3b sweep at econ ∈ [0.50, 0.65] for sharper boundary
+    characterization.
 
 8.  targeted_sweep5_lite re-run (after role-name fix) --- fills lite
     network comparison if included. LOWER PRIORITY --- can be deferred

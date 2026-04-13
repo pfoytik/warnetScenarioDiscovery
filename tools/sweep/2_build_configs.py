@@ -214,7 +214,7 @@ def create_pool_scenario(scenario: Dict[str, Any], pools: List[tuple] = None) ->
 
 def create_economic_scenario(scenario: Dict[str, Any]) -> Dict[str, Any]:
     """Create economic scenario config from parameters"""
-    return {
+    cfg = {
         "description": f"Economic scenario for {scenario['scenario_id']}",
         "economic_defaults": {
             "fork_preference": "neutral",
@@ -233,6 +233,11 @@ def create_economic_scenario(scenario: Dict[str, Any]) -> Dict[str, Any]:
             "max_loss_pct": round(min(0.40, scenario["user_ideology_strength"] * 0.6), 3),
         }
     }
+    # Inject user_custody_fraction only when explicitly set — omitting it from the
+    # config leaves EconomicNodeStrategy at scale=1.0, reproducing all prior results.
+    if scenario.get("user_custody_fraction") is not None:
+        cfg["user_custody_fraction"] = round(float(scenario["user_custody_fraction"]), 6)
+    return cfg
 
 
 def create_network_config(scenario: Dict[str, Any]) -> Dict[str, Any]:
@@ -356,6 +361,33 @@ def apply_scenario_to_base_network(base_network: Dict, scenario: Dict) -> Dict:
             else:
                 econ_node['image'] = {'tag': '26.0'}
             v27_custody_acc += custody
+
+    # --- Assign user node image tags based on user_split (optional) ---
+    # user_split controls what fraction of user custody weight starts on v27.
+    # Mirrors the economic_split assignment above. When user_split is absent from
+    # the scenario, user nodes keep their original image tags from network.yaml —
+    # preserving backwards compatibility with all prior sweeps.
+    user_split = scenario.get('user_split', None)
+    if user_split is not None:
+        user_roles = {'power_user', 'casual_user', 'power_user_aggregate', 'casual_user_aggregate'}
+        user_nodes = [n for n in nodes if n.get('metadata', {}).get('role') in user_roles]
+        total_user_custody = sum(n['metadata'].get('custody_btc', 0) for n in user_nodes)
+        if total_user_custody > 0:
+            user_nodes_sorted = sorted(
+                user_nodes,
+                key=lambda n: n['metadata'].get('custody_btc', 0),
+                reverse=True
+            )
+            v27_user_target = total_user_custody * float(user_split)
+            v27_user_acc = 0.0
+            for user_node in user_nodes_sorted:
+                custody = user_node['metadata'].get('custody_btc', 0)
+                midpoint = v27_user_acc + custody / 2
+                if midpoint < v27_user_target:
+                    user_node['image'] = {'tag': '27.0'}
+                else:
+                    user_node['image'] = {'tag': '26.0'}
+                v27_user_acc += custody
 
     # --- Compute neutral economic node assignments ---
     # Neutral nodes (ideology=0, fork_preference=neutral) switch on price alone.

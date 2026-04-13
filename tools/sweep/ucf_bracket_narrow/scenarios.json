@@ -1,0 +1,194 @@
+{
+  "metadata": {
+    "type": "targeted_grid",
+    "name": "ucf_bracket_narrow",
+    "description": "2-scenario binary-search probe to narrow the UCF reversal threshold from (0.35, 0.65) established by ucf_threshold_probe.\nKNOWN BOUNDS (cumulative): - ucf=0.20, split=0.50 \u2192 v27 wins  (ucf_threshold_probe sweep_0000) - ucf=0.35, split=0.50 \u2192 v27 wins  (ucf_threshold_probe sweep_0001) - ucf=0.65, split=0.50 \u2192 v26 wins  (user_weight_mini_test sweep_0002, reversal)\nThreshold is in (0.35, 0.65). This probe places two points to tighten the bracket: - ucf=0.50 (binary midpoint): splits the interval in half - ucf=0.57 (upper-range probe): tests whether the threshold is near the high end\nDECISION TABLE:\n  ucf=0.50   ucf=0.57   \u2192 interpretation\n  v27 wins   v27 wins   \u2192 threshold \u2208 (0.57, 0.65) \u2014 pinned near upper bound\n  v27 wins   v26 wins   \u2192 threshold \u2208 (0.50, 0.57) \u2014 well-bounded, reportable\n  v26 wins   v26 wins   \u2192 threshold \u2208 (0.35, 0.50) \u2014 midpoint or below (second point redundant)\n\nuser_split fixed at 0.50 (neutral) \u2014 adversarial dilution case, same as all prior probes. All other parameters identical to ucf_threshold_probe for direct comparability.\nRUNTIME: 1 namespace, ~7.2 hours sequential (2 \u00d7 3.6 hrs). NOTE: ucf=0.50 is a grid member of user_weight_threshold.yaml; results feed directly into the full 30-scenario run.\n",
+    "spec_file": "specs/ucf_bracket_narrow.yaml",
+    "base_network": "full",
+    "n_samples": 2,
+    "n_parameters": 16,
+    "grid_axes": {
+      "user_custody_fraction": [
+        0.5,
+        0.57
+      ]
+    },
+    "fixed_parameters": {
+      "economic_split": 0.6,
+      "pool_committed_split": 0.35,
+      "pool_ideology_strength": 0.62,
+      "pool_max_loss_pct": 0.28,
+      "pool_neutral_pct": 30.0,
+      "hashrate_split": 0.25,
+      "pool_profitability_threshold": 0.16,
+      "solo_miner_hashrate": 0.085,
+      "econ_ideology_strength": 0.4,
+      "econ_switching_threshold": 0.1,
+      "econ_inertia": 0.05,
+      "user_ideology_strength": 0.49,
+      "user_switching_threshold": 0.12,
+      "transaction_velocity": 0.5,
+      "economic_nodes_per_partition": 2,
+      "user_nodes_per_partition": 6,
+      "user_split": 0.5
+    },
+    "parameters": [
+      {
+        "name": "economic_split",
+        "min": 0.0,
+        "max": 1.0,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "hashrate_split",
+        "min": 0.0,
+        "max": 1.0,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_ideology_strength",
+        "min": 0.1,
+        "max": 0.9,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_profitability_threshold",
+        "min": 0.02,
+        "max": 0.3,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_max_loss_pct",
+        "min": 0.02,
+        "max": 0.5,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_committed_split",
+        "min": 0.0,
+        "max": 1.0,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "pool_neutral_pct",
+        "min": 10.0,
+        "max": 50.0,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "econ_ideology_strength",
+        "min": 0.0,
+        "max": 0.8,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "econ_switching_threshold",
+        "min": 0.02,
+        "max": 0.25,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "econ_inertia",
+        "min": 0.05,
+        "max": 0.3,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "user_ideology_strength",
+        "min": 0.1,
+        "max": 0.9,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "user_switching_threshold",
+        "min": 0.05,
+        "max": 0.2,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "transaction_velocity",
+        "min": 0.1,
+        "max": 0.9,
+        "type": "continuous",
+        "role": "fixed"
+      },
+      {
+        "name": "user_nodes_per_partition",
+        "min": 2,
+        "max": 10,
+        "type": "discrete",
+        "role": "fixed"
+      },
+      {
+        "name": "economic_nodes_per_partition",
+        "min": 1,
+        "max": 6,
+        "type": "discrete",
+        "role": "fixed"
+      },
+      {
+        "name": "solo_miner_hashrate",
+        "min": 0.02,
+        "max": 0.15,
+        "type": "continuous",
+        "role": "fixed"
+      }
+    ]
+  },
+  "scenarios": [
+    {
+      "scenario_id": "sweep_0000",
+      "economic_split": 0.6,
+      "pool_committed_split": 0.35,
+      "pool_ideology_strength": 0.62,
+      "pool_max_loss_pct": 0.28,
+      "pool_neutral_pct": 30.0,
+      "hashrate_split": 0.25,
+      "pool_profitability_threshold": 0.16,
+      "solo_miner_hashrate": 0.085,
+      "econ_ideology_strength": 0.4,
+      "econ_switching_threshold": 0.1,
+      "econ_inertia": 0.05,
+      "user_ideology_strength": 0.49,
+      "user_switching_threshold": 0.12,
+      "transaction_velocity": 0.5,
+      "economic_nodes_per_partition": 2,
+      "user_nodes_per_partition": 6,
+      "user_split": 0.5,
+      "user_custody_fraction": 0.5
+    },
+    {
+      "scenario_id": "sweep_0001",
+      "economic_split": 0.6,
+      "pool_committed_split": 0.35,
+      "pool_ideology_strength": 0.62,
+      "pool_max_loss_pct": 0.28,
+      "pool_neutral_pct": 30.0,
+      "hashrate_split": 0.25,
+      "pool_profitability_threshold": 0.16,
+      "solo_miner_hashrate": 0.085,
+      "econ_ideology_strength": 0.4,
+      "econ_switching_threshold": 0.1,
+      "econ_inertia": 0.05,
+      "user_ideology_strength": 0.49,
+      "user_switching_threshold": 0.12,
+      "transaction_velocity": 0.5,
+      "economic_nodes_per_partition": 2,
+      "user_nodes_per_partition": 6,
+      "user_split": 0.5,
+      "user_custody_fraction": 0.57
+    }
+  ]
+}

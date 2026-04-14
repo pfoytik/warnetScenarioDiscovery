@@ -1,0 +1,71 @@
+name: user_weight_threshold
+description: >
+  Threshold sweep varying user node economic weight fraction and initial user fork
+  alignment to find where user nodes transition from structurally irrelevant to
+  causally influential on fork outcomes.
+
+  MOTIVATION:
+  All prior sweeps calibrate user node custody_btc against exchange/institutional
+  proof-of-reserve data, producing a 2197:1 economic weight ratio (user nodes
+  negligible). Real-world data suggests individual self-custody holders control
+  ~65.9% of circulating supply (River Financial / Glassnode, Feb 2026). This sweep
+  tests whether the user null result (bias ratio 1.256 from User-PRIM, Phase 3) is
+  a calibration artifact or a structural finding.
+
+  CONCEPTUAL FRAMING:
+  - Prior sweeps (all existing data): exchange-mediated price discovery — only liquid,
+    exchange-held Bitcoin participates in price signaling.
+  - This sweep: cold-storage activation — user_custody_fraction represents the fraction
+    of self-custodied BTC whose holders actively signal fork preference. At 0.35,
+    roughly half of the estimated self-custody fraction is engaged; at 0.65, the
+    realistic upper bound of active individual participation.
+
+  DESIGN:
+  - 6x5 grid = 30 scenarios
+  - Pool parameters fixed at PRIM uncertainty zone midpoints (contested transition region)
+  - economic_split fixed at 0.60 (inversion zone — maximum sensitivity to new signals)
+  - user_custody_fraction: 6 levels covering current calibration through realistic range
+  - user_split: 5 levels spanning minority through majority v27 user alignment
+
+  EXPECTED RUNTIME (12 namespaces, large servers):
+  - 30 scenarios / 12 namespaces = ~3 scenarios per namespace
+  - ~3.6 hours per scenario (2016-block retarget)
+  - ~10.8 hours wall-clock
+
+  DECISION RULE FOR PHASE 2:
+  Proceed to lhs_user_weight_prim.yaml if:
+    - Outcomes differ across user_split levels at any user_custody_fraction < 0.40, OR
+    - Non-monotonic patterns observed (not a clean step threshold)
+  Skip Phase 2 if:
+    - Null holds uniformly across all user_custody_fraction levels including 0.65
+
+network: full
+retarget_interval: 2016
+duration: 13000
+
+# Pool parameters fixed at PRIM uncertainty zone midpoints
+# economic_split fixed at 0.60 — inversion zone, highest sensitivity to new weight signals
+fixed:
+  economic_split: 0.60
+  pool_committed_split: 0.35          # near Foundry flip-point, contested region
+  pool_ideology_strength: 0.62        # PRIM zone midpoint
+  pool_max_loss_pct: 0.28             # PRIM zone midpoint
+  pool_neutral_pct: 30.0
+  hashrate_split: 0.25
+  pool_profitability_threshold: 0.16
+  solo_miner_hashrate: 0.085
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.10
+  econ_inertia: 0.05
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  transaction_velocity: 0.50
+  economic_nodes_per_partition: 2
+  user_nodes_per_partition: 6
+
+# 6x5 grid = 30 scenarios
+# user_custody_fraction: current calibration (~0%) through realistic self-custody range (65%)
+# user_split: fraction of user custody weight that starts on v27
+grid:
+  user_custody_fraction: [0.01, 0.10, 0.20, 0.35, 0.50, 0.65]
+  user_split:            [0.30, 0.40, 0.50, 0.60, 0.70]

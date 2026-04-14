@@ -1,0 +1,58 @@
+name: user_weight_mini_test
+description: >
+  4-scenario diagnostic test (2×2 grid) for the user_custody_fraction implementation.
+
+  QUESTION: Does the user null result (bias ratio 1.256 from User-PRIM) break when
+  user nodes are assigned realistic cold-storage economic weight?
+
+  DESIGN:
+  - ucf=0.01 vs ucf=0.65: current negligible calibration vs realistic upper bound
+  - split=0.50 vs split=0.70: neutral vs v27-leaning user population
+  - Pool and econ parameters fixed at PRIM uncertainty zone midpoints
+  - economic_split=0.60 (inversion zone — maximum sensitivity to new weight signals)
+
+  INTERPRETATION:
+  - If sweep_0000 and sweep_0001 give v26-wins (null holds at current calibration) and
+    sweep_0002/0003 give different outcomes: threshold found, proceed to Phase 1 full run.
+  - If all four give identical outcomes: null appears robust, revisit Phase 1 priority.
+  - Non-monotonic patterns (e.g., 0002=v26 but 0003=v27) are the most interesting finding.
+
+  RUNTIME: 4 scenarios
+  - 1 namespace: 2 scenarios sequential → ~7.2 hours (recommended: run sweep_0000,0001)
+  - 2 namespaces: 4 scenarios, 2 per namespace → ~7.2 hours total
+
+  GRID LAYOUT (user_custody_fraction × user_split):
+  - sweep_0000: ucf=0.01, split=0.50  ← baseline, replicate prior null
+  - sweep_0001: ucf=0.01, split=0.70  ← baseline with v27-lean users
+  - sweep_0002: ucf=0.65, split=0.50  ← max weight, neutral user population
+  - sweep_0003: ucf=0.65, split=0.70  ← max weight, v27-leaning (most likely to break null)
+
+network: full
+retarget_interval: 2016
+duration: 13000
+
+# Pool parameters fixed at PRIM uncertainty zone midpoints
+# economic_split=0.60 — inversion zone, highest sensitivity to new weight signals
+fixed:
+  economic_split: 0.60
+  pool_committed_split: 0.35          # near Foundry flip-point, contested region
+  pool_ideology_strength: 0.62        # PRIM zone midpoint
+  pool_max_loss_pct: 0.28             # PRIM zone midpoint
+  pool_neutral_pct: 30.0
+  hashrate_split: 0.25
+  pool_profitability_threshold: 0.16
+  solo_miner_hashrate: 0.085
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.10
+  econ_inertia: 0.05
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  transaction_velocity: 0.50
+  economic_nodes_per_partition: 2
+  user_nodes_per_partition: 6
+
+# 2×2 = 4 scenarios
+# Same parameter values as user_weight_threshold.yaml extremes
+grid:
+  user_custody_fraction: [0.01, 0.65]
+  user_split:            [0.50, 0.70]

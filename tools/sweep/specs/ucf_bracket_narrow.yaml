@@ -1,0 +1,54 @@
+name: ucf_bracket_narrow
+description: >
+  2-scenario binary-search probe to narrow the UCF reversal threshold from
+  (0.35, 0.65) established by ucf_threshold_probe.
+
+  KNOWN BOUNDS (cumulative):
+  - ucf=0.20, split=0.50 → v27 wins  (ucf_threshold_probe sweep_0000)
+  - ucf=0.35, split=0.50 → v27 wins  (ucf_threshold_probe sweep_0001)
+  - ucf=0.65, split=0.50 → v26 wins  (user_weight_mini_test sweep_0002, reversal)
+
+  Threshold is in (0.35, 0.65). This probe places two points to tighten the bracket:
+  - ucf=0.50 (binary midpoint): splits the interval in half
+  - ucf=0.57 (upper-range probe): tests whether the threshold is near the high end
+
+  DECISION TABLE:
+    ucf=0.50   ucf=0.57   → interpretation
+    v27 wins   v27 wins   → threshold ∈ (0.57, 0.65) — pinned near upper bound
+    v27 wins   v26 wins   → threshold ∈ (0.50, 0.57) — well-bounded, reportable
+    v26 wins   v26 wins   → threshold ∈ (0.35, 0.50) — midpoint or below (second point redundant)
+
+  user_split fixed at 0.50 (neutral) — adversarial dilution case, same as all prior probes.
+  All other parameters identical to ucf_threshold_probe for direct comparability.
+
+  RUNTIME: 1 namespace, ~7.2 hours sequential (2 × 3.6 hrs).
+  NOTE: ucf=0.50 is a grid member of user_weight_threshold.yaml; results feed directly
+  into the full 30-scenario run.
+
+network: full
+retarget_interval: 2016
+duration: 13000
+
+# All parameters identical to ucf_threshold_probe / user_weight_mini_test
+fixed:
+  economic_split: 0.60
+  pool_committed_split: 0.35          # near Foundry flip-point, contested region
+  pool_ideology_strength: 0.62        # PRIM zone midpoint
+  pool_max_loss_pct: 0.28             # PRIM zone midpoint
+  pool_neutral_pct: 30.0
+  hashrate_split: 0.25
+  pool_profitability_threshold: 0.16
+  solo_miner_hashrate: 0.085
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.10
+  econ_inertia: 0.05
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  transaction_velocity: 0.50
+  economic_nodes_per_partition: 2
+  user_nodes_per_partition: 6
+  user_split: 0.50                    # neutral users — adversarial dilution case
+
+# 2 scenarios — binary midpoint + upper-range probe
+grid:
+  user_custody_fraction: [0.50, 0.57]

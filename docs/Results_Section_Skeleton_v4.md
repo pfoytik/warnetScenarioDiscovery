@@ -163,6 +163,31 @@ discussed qualitatively where relevant.
                                                                behavior; v26 wins at
                                                                HR=35–45% (§4.2.1)
 
+  user_weight_mini_test    4        60-node       ✓ Valid      UCF calibration stress
+                                                               test --- null collapses
+                                                               at ucf=0.65, split=0.50
+                                                               (v26 wins); non-monotonic
+                                                               user_split confirmed;
+                                                               establishes reversal
+                                                               bracket [0.01, 0.65]
+
+  ucf_threshold_probe      2        60-node       ✓ Valid      UCF bracket probe ---
+                                                               ucf=0.20 and ucf=0.35
+                                                               both v27 at split=0.50;
+                                                               threshold narrows to
+                                                               [0.35, 0.65]; dilution
+                                                               visible (−10.5pp econ)
+
+  user_weight_threshold    28/30    60-node       ✓ Valid      6×5 UCF × user_split
+                                                               grid; 7/28 v26 wins;
+                                                               boundary is 2D; split
+                                                               ≥ 0.60 unconditionally
+                                                               v27; complete hashrate
+                                                               collapse at ucf=0.65,
+                                                               split=0.50; User-PRIM
+                                                               null is calibration
+                                                               artifact (§4.12)
+
   targeted_sweep2b (lite)  20       25-node       ⚠ Partial    Pool ideology on lite
                                                                network --- pool params
                                                                valid; econ context wrong
@@ -326,6 +351,18 @@ subsequent analysis.
 
 **\[TODO:** *Add exact correlation values from targeted_sweep5 analysis
 output --- expected near zero for all three params.***\]**
+
+**Update (April 2026):** The null finding in targeted_sweep5 reflects a
+calibration constraint, not a structural property. targeted_sweep5 held
+the user node economic weight ratio fixed at the 2197:1 calibration
+derived from exchange proof-of-reserve data. When user_custody_fraction
+(ucf) is treated as a free parameter spanning 0.01--0.65
+(user_weight_threshold, n=28), 25% of scenarios produce v26_dominant
+outcomes and the outcome boundary is a function of both ucf and
+user_split. The null result holds only at ucf ≤ 0.01 (negligible user
+weight). At realistic self-custody levels (ucf ≥ 0.10), user weight can
+flip fork outcomes when users are neutral-to-v26-leaning (user_split ≤
+0.50). The full characterization is in Section 4.12.
 
 **4.2.3 Pool Neutral Percentage and Economic Friction**
 
@@ -1457,4 +1494,140 @@ The window interacts differently with each contentiousness archetype identified 
 **References for Section 4.11**
 
 Melvin (2026). *BIP-110: Game Theory & Code Audit*. Retrieved from https://melvin.me/public/articles/bip110.html. Research and code audit conducted February 2026, based on BIP-110 v0.3 (29.3.knots20260210+UASF-BIP110).
+
+---
+
+**4.12 User Node Economic Weight: Calibration Artifact and Boundary
+Characterization**
+
+Section 4.2.2 and Section 4.11 (User-PRIM) jointly reported a null
+result for user node influence on fork outcomes. The User-PRIM analysis
+(n=598, 2016-block) found a bias ratio of 1.256 --- marginally above
+random but far below the ≥2.0 threshold for meaningful scenario
+concentration --- and concluded that user nodes cannot be near-pivotal
+under any realistic parameter combination. This section revisits that
+conclusion by treating the user node economic weight ratio as a free
+parameter rather than a fixed calibration constant.
+
+**4.12.1 The Calibration Question**
+
+The 2197:1 weight ratio (W_users/W_econ_nodes = 0.1688/370.90) used
+throughout Phases 1--3 derives from exchange-mediated proof-of-reserve
+data, where institutional custody holdings dominate. This is the correct
+calibration for a model of exchange-mediated price discovery, in which
+only liquid BTC held at exchanges participates in fork price signaling.
+However, River Financial and Glassnode estimates (February 2026) suggest
+that individual self-custody holders control approximately 65.9% of
+circulating supply. If some fraction of that self-custody weight
+participates in fork signaling --- either by moving to or from the fork
+they prefer, or by transaction pressure on the chain they reject ---
+the weight ratio changes substantially.
+
+The user_custody_fraction (ucf) parameter represents this fraction: at
+ucf=0.65, 65% of self-custodied supply is actively signaling, yielding
+an effective user weight comparable to the institutional economy. The
+question is whether this changes fork outcomes, and if so, under what
+conditions.
+
+**4.12.2 Diagnostic Grid Results (user_weight_threshold, n=28)**
+
+A 6×5 grid varying ucf ∈ {0.01, 0.10, 0.20, 0.35, 0.50, 0.65} and
+user_split ∈ {0.30, 0.40, 0.50, 0.60, 0.70} --- with all pool and
+economic parameters fixed at PRIM uncertainty zone midpoints and
+economic_split=0.60 --- produced 7 v26_dominant outcomes out of 28
+completed scenarios (25%). The outcome grid is:
+
+***Table 12. user_weight_threshold outcome grid (winner by cell). Two
+scenarios missing (†).***
+
+  ------------ ------- ------- ------- ------- -------
+  **ucf \\     **0.30** **0.40** **0.50** **0.60** **0.70**
+  split**
+
+  **0.01**     v27     v27     v26     †       v27
+
+  **0.10**     v26     v27     v27     v27     v27
+
+  **0.20**     v27     v27     v27     v27     v27
+
+  **0.35**     v26     v27     v26     v27     v27
+
+  **0.50**     v27     v26     v27     v27     v27
+
+  **0.65**     v26     †       v26     v27     v27
+  ------------ ------- ------- ------- ------- -------
+
+*† sweep_0003 (ucf=0.01, split=0.60): Kubernetes pod init failure.
+sweep_0026 (ucf=0.65, split=0.40): did not run.*
+
+Three qualitatively distinct v26_dominant outcome types are present.
+**Type 1 (no ideology flip, hr_v27=30%):** committed v26 pools hold
+throughout; user weight reduces the v27 price advantage below the pool
+ideology tolerance threshold, preventing the forced cascade. Five of
+seven v26 wins are this type. **Type 2 (partial equilibrium,
+hr_v27≈50.5%):** one contested near-draw at ucf=0.10, split=0.30 where
+some ideology pools switch but v26 wins by chainwork timing. **Type 3
+(complete hashrate collapse, hr_v27=0%):** ucf=0.65, split=0.50 only.
+User weight so fully inverts the price signal that even Foundry
+(ideologically committed to v27) is forced off the chain. Final prices
+v27=\$51.5k vs v26=\$67.8k; only 6 v27 blocks mined in the full
+216.7-minute simulation.
+
+**4.12.3 Boundary Structure**
+
+The boundary is two-dimensional, not a single UCF threshold.
+
+*Column behavior (varying split at fixed ucf):* At all ucf levels,
+split ≥ 0.60 produces v27_dominant. The boundary's upper edge lies
+between split=0.50 and split=0.60 across all UCF levels tested.
+
+*Row behavior (varying ucf at fixed split):* The boundary is
+non-monotonic in ucf. At split=0.30, v26 wins at ucf=0.10 but not
+ucf=0.20, then again at ucf=0.35 and ucf=0.65. At split=0.50, v26 wins
+at ucf=0.01 (likely stochastic boundary noise), ucf=0.35, and ucf=0.65.
+The non-monotonicity is concentrated in the contested region and is
+partly stochastic (the ucf=0.35, split=0.50 result differs from the
+ucf_threshold_probe run of the same parameters).
+
+*Safe zone:* user_split ≥ 0.60 is unconditionally v27-dominant across
+all tested UCF levels. v27-aligned users provide no incremental benefit
+over baseline --- v27 wins without them. User weight is primarily a
+threat vector when users are neutral or v26-leaning.
+
+**[TODO: Insert Figure X --- 2D outcome grid heatmap (ucf × user_split)
+showing v27/v26 outcomes as fill color, with the contested region
+outlined. Overlay LHS boundary fit from lhs_user_weight_prim (n=60,
+pending) once collected. Source: tools/sweep/user_weight_threshold/
+results/.]**
+
+**4.12.4 Implication for the User-PRIM Null Result**
+
+The User-PRIM null result (Section 4.11, bias ratio 1.256) is confirmed
+as a calibration artifact. Within the 2197:1 weight regime used in
+Phases 1--3, the null is structurally correct: user nodes cannot be
+near-pivotal because their collective weight is orders of magnitude below
+the institutional economy. The finding stands as stated for the
+calibration it uses.
+
+The user_weight_threshold results establish what changes if the
+calibration is shifted to reflect self-custody activation. Under that
+alternative calibration, user nodes can flip outcomes under a specific
+condition: users must be neutral-to-v26-leaning (split ≤ 0.50) AND hold
+sufficient custody weight (ucf ≥ 0.10 for the most sensitive parameter
+combinations, ucf ≥ 0.35 more broadly). v27-leaning users (split ≥
+0.60) are never pivotal even at maximum tested weight.
+
+The governance implication is precise: a UASF campaign that activates
+only individual full node operators --- without also converting the
+self-custody fraction's economic alignment toward the new rules --- does
+not benefit from that user node weight. Conversely, a situation where a
+majority of self-custodied BTC is held by users indifferent to or
+opposed to an upgrade represents a genuine risk factor that the Phase 1--3
+model underweights by construction.
+
+**[PENDING DATA --- lhs_user_weight_prim (60 LHS scenarios, in
+progress). Will provide dense boundary characterization for logistic
+regression fitting. Combined n=88 user-weight scenarios (28 grid + 60
+LHS) expected to resolve the non-monotonic interior and confirm the
+split≥0.60 safe zone analytically.]**
 

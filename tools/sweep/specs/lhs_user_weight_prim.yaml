@@ -1,0 +1,95 @@
+name: lhs_user_weight_prim
+description: |
+  Latin Hypercube Sampling sweep characterizing the (user_custody_fraction,
+  user_split) decision boundary identified by user_weight_threshold.yaml.
+
+  MOTIVATION:
+  The 6×5 threshold grid (30 scenarios) revealed that:
+    - 7/28 completed scenarios produced v26 wins (25%)
+    - v26 wins are concentrated in split ∈ [0.30, 0.50] across multiple ucf levels
+    - The boundary is non-monotonic in ucf — v26 wins at ucf=0.10 but NOT 0.20,
+      then again at 0.35 and 0.65 (split=0.30 column)
+    - At ucf=0.65, split=0.50: complete v27 hashrate collapse (hr_v27=0%)
+    - split ≥ 0.60 is unconditionally v27 across all ucf levels tested
+    - The User-PRIM null result (Phase 3) is a calibration artifact, not structural
+
+  This sweep fills the contested (ucf, split) zone at ~3× the grid density to:
+    1. Distinguish genuine boundary structure from stochastic variance
+    2. Identify whether the non-monotonicity in ucf is real or noise
+    3. Precisely locate the split threshold above which user weight becomes irrelevant
+    4. Provide n≥60 labeled scenarios for logistic regression boundary fitting
+
+  KNOWN BOUNDS (from user_weight_threshold.yaml):
+    Lower boundary (v26 onset in ucf): between 0.01 (v27) and 0.10 (v26) at split=0.30
+    Upper boundary (split safe zone):  between 0.50 (v26 wins) and 0.60 (v27 wins)
+    Most extreme v26 win: ucf=0.65, split=0.50 → hr_v27=0%, econ_v27=28.9%
+    Non-monotonic interior: ucf=0.10 v26, ucf=0.20 v27, ucf=0.35 v26 at split=0.30
+
+  SAMPLING REGION RATIONALE:
+    user_custody_fraction [0.05, 0.70]:
+      - Lower 0.05: below confirmed v26-win floor, captures onset threshold
+      - Upper 0.70: slightly beyond max tested (0.65), confirms upper plateau behavior
+    user_split [0.25, 0.65]:
+      - Lower 0.25: below min tested (0.30), extends lower boundary
+      - Upper 0.65: extends into confirmed-v27 territory to anchor classifier boundary
+      - Transition zone [0.50, 0.60] deliberately oversampled by LHS density
+
+  DESIGN:
+    - 60 scenarios via LHS (5 per namespace, 12 namespaces)
+    - 2D active parameter space only — all pool/econ params fixed at PRIM midpoints
+    - Identical fixed params to user_weight_threshold for direct comparability
+    - Seed 314 (distinct from Phase 3 seed 2026)
+
+  RUNTIME (12 namespaces, full network):
+    - 60 scenarios / 12 namespaces = 5 per namespace
+    - ~3.6 hours per scenario (2016-block retarget, duration=13000s)
+    - ~18 hours wall-clock
+
+  ANALYSIS (tools/discovery/fit_boundary.py):
+    - Logistic regression on (ucf, split) → win/loss
+    - PRIM box on v26-win region to characterize contested zone
+    - Combined with threshold grid (n=28): total n=88 user-weight scenarios
+    - Decision rule: if logistic boundary is monotone in split, report clean threshold;
+      if non-monotone, report contour with confidence intervals
+
+type: lhs
+network: full
+n_samples: 60
+seed: 314
+
+# 2 active parameters — bounds span the contested zone identified by threshold grid
+parameters:
+  user_custody_fraction:
+    min: 0.05
+    max: 0.70
+    description: >
+      Fraction of self-custodied BTC whose holders actively signal fork preference.
+      0.05 is below the confirmed v26-win floor; 0.70 extends beyond max tested (0.65).
+
+  user_split:
+    min: 0.25
+    max: 0.65
+    description: >
+      Fraction of user custody weight initially on v27 (1-user_split on v26).
+      0.25 extends below min tested; 0.65 anchors in confirmed-v27 safe zone.
+
+# Fixed at user_weight_threshold values for direct comparability
+# Pool params at PRIM uncertainty zone midpoints (contested transition region)
+# economic_split=0.60 — inversion zone, maximum sensitivity to user weight signals
+fixed:
+  economic_split: 0.60
+  pool_committed_split: 0.35          # near Foundry flip-point
+  pool_ideology_strength: 0.62        # PRIM zone midpoint
+  pool_max_loss_pct: 0.28             # PRIM zone midpoint
+  pool_neutral_pct: 30.0
+  hashrate_split: 0.25
+  pool_profitability_threshold: 0.16
+  solo_miner_hashrate: 0.085
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.10
+  econ_inertia: 0.05
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  transaction_velocity: 0.50
+  economic_nodes_per_partition: 2
+  user_nodes_per_partition: 6

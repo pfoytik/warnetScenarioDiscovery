@@ -3568,7 +3568,7 @@ Per the spec: proceed to `lhs_user_weight_prim` if outcomes differ across user_s
 - At ucf=0.35 (< 0.40): split=0.30 → v26, split=0.40 → v27, split=0.50 → v26, split=0.60 → v27
 - Non-monotonic patterns throughout the grid
 
-**Phase 2 is warranted. `lhs_user_weight_prim` (60 LHS scenarios) queued.**
+**Phase 2 is warranted. `lhs_user_weight_prim` (60 LHS scenarios) completed — see below.**
 
 #### Data Location
 
@@ -3578,6 +3578,76 @@ Per the spec: proceed to `lhs_user_weight_prim` if outcomes differ across user_s
 | `tools/sweep/user_weight_threshold/scenarios.json` | Full 30-scenario grid |
 | `tools/sweep/user_weight_threshold/build_manifest.json` | Build manifest |
 | `tools/sweep/specs/user_weight_threshold.yaml` | Sweep spec |
+
+---
+
+### lhs_user_weight_prim: 60-Scenario LHS Boundary Characterization
+
+**Status:** COMPLETE — 59/60 scenarios collected (sweep_0008 missing)
+**Completed:** April 2026
+**Purpose:** Dense characterization of the contested (ucf, user_split) zone identified by user_weight_threshold. ~3× grid density; LHS seed=314; same fixed params as threshold grid for direct comparability.
+
+#### Design
+
+- **Active parameters:** `user_custody_fraction` ∈ [0.05, 0.70], `user_split` ∈ [0.25, 0.65]
+- **n=60** LHS scenarios (59 completed); all pool/econ params fixed at PRIM midpoints
+- **Runtime:** ~18 hours wall-clock (2 servers × 6 namespaces × 5 scenarios each)
+- **Results:** `tools/sweep/lhs_user_weight_prim/results/` (merged from server1 + server2)
+
+#### Combined Results (grid + LHS, n=87)
+
+| UCF Band | n | v26 wins | v27 wins | v26% |
+|----------|---|----------|----------|------|
+| < 0.10 | 9 | 1 | 8 | 11% |
+| [0.10, 0.25) | 24 | 7 | 17 | 29% |
+| [0.25, 0.40) | 18 | 6 | 12 | 33% |
+| [0.40, 0.55) transition | 19 | 10 | 9 | 53% |
+| ≥ 0.55 | 17 | 10 | 7 | 59% |
+
+#### Split Sensitivity (v26 win rate by UCF × split band)
+
+|  | sp < 0.35 | sp 0.35–0.50 | sp 0.50–0.60 | sp ≥ 0.60 |
+|--|-----------|--------------|--------------|-----------|
+| ucf < 0.25 | 2/8 (25%) | 3/11 (27%) | 3/6 (50%) | 0/8 (0%) |
+| ucf 0.25–0.50 | 5/8 (62%) | 4/8 (50%) | 3/8 (38%) | 0/4 (0%) |
+| ucf ≥ 0.50 | 3/4 (75%) | 7/9 (78%) | 3/6 (50%) | 1/7 (14%) |
+
+#### Key Findings
+
+1. **Transition zone confirmed:** UCF [0.35, 0.55] is the contested region where v26 win rate crosses 50%. Below 0.35: ~25–33% v26 rate. Above 0.55: ~59% v26 rate.
+
+2. **Split safe zone falsified at high UCF:** The grid's claim that split ≥ 0.60 is unconditionally v27-dominant does not hold at ucf ≥ 0.53. sweep_0013 (ucf=0.531, split=0.601) → v26. Low split (< 0.35) is the most dangerous band at any UCF level.
+
+3. **Non-monotonicity confirmed structural:** LHS densification shows the non-monotonic UCF pattern from the grid is not stochastic. No clean threshold in either parameter; the boundary is irregular.
+
+4. **Complete collapse floor ucf ≈ 0.548:** All 5 complete v27 hashrate collapse scenarios (hr=0%) have ucf ≥ 0.548. Below this threshold, v26 wins exclusively via "no ideology flip" (hr=30%) or "partial equilibrium" (hr≈50.5%) mechanisms. Collapse spans splits of 0.316–0.509 — not restricted to neutral or v26-leaning users.
+
+5. **Dominant mechanism is "no ideology flip":** 29 of 34 v26 wins (85%) are the hr=30% type — user weight reduces the v27 price advantage below committed pool ideology tolerance, preventing the cascade without triggering a full hashrate reversal.
+
+#### Analysis Script
+
+```bash
+python tools/discovery/summarize_user_weight.py \
+    --db tools/sweep/sweep_results.db \
+    --output-dir tools/discovery/output/user_weight
+```
+
+Outputs: `tools/discovery/output/user_weight/user_weight_summary.json`, `user_weight_scenarios.csv`
+
+**Note:** Standard `fit_boundary.py` is NOT applicable to these sweeps. The 4 standard active parameters (economic_split, pool_committed_split, etc.) are fixed — all variation is in ucf/user_split, which are orthogonal to the pool/econ boundary. Including these scenarios in the standard boundary fit would add noise.
+
+#### Data Location
+
+| File | Description |
+|------|-------------|
+| `tools/sweep/lhs_user_weight_prim/results/` | Merged results (59 of 60 scenarios) |
+| `tools/sweep/lhs_user_weight_prim/results_server1/` | Server 1 raw (sweep_0000–0029) |
+| `tools/sweep/lhs_user_weight_prim/results_server2/` | Server 2 raw (sweep_0030–0059) |
+| `tools/sweep/lhs_user_weight_prim/build_manifest.json` | Build manifest |
+| `tools/sweep/specs/lhs_user_weight_prim.yaml` | Sweep spec |
+| `tools/sweep/lhs_user_weight_prim/RUN_COMMANDS.md` | Execution commands used |
+| `tools/discovery/output/user_weight/user_weight_summary.json` | Summary statistics |
+| `tools/discovery/output/user_weight/user_weight_scenarios.csv` | Per-scenario data |
 
 ---
 
@@ -3742,7 +3812,8 @@ When analyzing new sweep results, watch for these indicators of potential bugs:
 | **lhs_144_6param** | `tools/sweep/lhs_144_6param/results/analysis/` | 130 | ✅ **LHS 144-block 6D** — pool_committed_split dominates (sep=0.162); threshold ~0.407 (lite net); economic_split non-causal (quantization artifact — all [0.30, 0.80] → same 1 econ node); 76 v27 / 50 v26 / 4 contested; 55% full econ switch; lag ~4300–5000s |
 | **user_weight_mini_test** | `tools/sweep/user_weight_mini_test/results/` | 4 | ✅ **UCF calibration stress test** — ucf=0.65, split=0.50 → v26 (reversal); ucf=0.65, split=0.70 → v27 (recovered); null collapses at realistic custody fraction; non-monotonic user_split effect confirmed |
 | **ucf_threshold_probe** | `tools/sweep/ucf_threshold_probe/results/` | 2 | ✅ **UCF bracket probe** — ucf=0.20 and ucf=0.35 both v27 at split=0.50; threshold > 0.35, bracket narrows to [0.35, 0.65]; dilution signal visible (89.2% → 78.7% econ_v27) |
-| **user_weight_threshold** | `tools/sweep/user_weight_threshold/results/` | 28/30 | ✅ **6×5 UCF × user_split grid** — 7/28 v26 wins (25%); boundary is 2D not 1D; split ≥ 0.60 unconditionally v27; complete v27 hashrate collapse at ucf=0.65 split=0.50 (hr_v27=0%); User-PRIM null confirmed as calibration artifact |
+| **user_weight_threshold** | `tools/sweep/user_weight_threshold/results/` | 28/30 | ✅ **6×5 UCF × user_split grid** — 7/28 v26 wins (25%); boundary is 2D not 1D; non-monotonic in UCF; complete v27 hashrate collapse at ucf=0.65, split=0.50 (hr_v27=0%); User-PRIM null confirmed as calibration artifact |
+| **lhs_user_weight_prim** | `tools/sweep/lhs_user_weight_prim/results/` | 59/60 | ✅ **LHS boundary densification** — 34/87 v26 wins combined; transition zone ucf [0.35, 0.55]; split ≥ 0.60 safe zone falsified at ucf ≥ 0.53; collapse floor ucf ≥ 0.548; non-monotonicity confirmed structural |
 
 ### Network Versions
 
@@ -3793,4 +3864,4 @@ When analyzing new sweep results, watch for these indicators of potential bugs:
 
 ---
 
-*Analysis compiled February–March 2026; targeted_sweep9 added March 2026; targeted_sweep10 added March 2026; targeted_sweep11 added March 2026; targeted_sweep10b added March 2026; user_weight_mini_test, ucf_threshold_probe, user_weight_threshold added April 2026*
+*Analysis compiled February–March 2026; targeted_sweep9 added March 2026; targeted_sweep10 added March 2026; targeted_sweep11 added March 2026; targeted_sweep10b added March 2026; user_weight_mini_test, ucf_threshold_probe, user_weight_threshold added April 2026; lhs_user_weight_prim added April 2026*

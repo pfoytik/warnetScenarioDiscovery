@@ -1,0 +1,22 @@
+{
+  "n_total": 87,
+  "n_v26": 34,
+  "n_v27": 53,
+  "sweeps": [
+    "user_weight_threshold",
+    "lhs_user_weight_prim"
+  ],
+  "onset_ucf": 0.01,
+  "transition_zone_ucf": [
+    0.35,
+    0.55
+  ],
+  "collapse_threshold_ucf": 0.548,
+  "v26_win_region": {
+    "ucf_min": 0.01,
+    "ucf_max": 0.6915,
+    "split_min": 0.2608,
+    "split_max": 0.6012
+  },
+  "split_safe_zone_note": "split >= 0.60 mostly safe for v27 but fails at UCF >= 0.531"
+}

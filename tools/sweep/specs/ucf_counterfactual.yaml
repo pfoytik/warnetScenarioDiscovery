@@ -1,0 +1,102 @@
+name: ucf_counterfactual
+description: |
+  Counterfactual confirmation sweep: for each unique user_split value that produced
+  a v26_dominant outcome in user_weight_threshold or lhs_user_weight_prim, re-run
+  with user_custody_fraction set to near-zero (0.001) — negligible user weight.
+
+  RESEARCH QUESTION:
+  Are the 34 v26 wins in the user-weight sweeps caused by user weight activation,
+  or are they baseline PRIM-zone outcomes that would occur regardless of UCF?
+
+  DESIGN:
+  - 30 scenarios: one per unique user_split value from the 34 v26 wins
+    (5 split values appear at multiple UCF levels and are deduplicated)
+  - user_custody_fraction fixed at 0.001 (negligible — effectively the
+    pre-activation calibration; user weight is ~0.001 × 65.9% of circulating
+    supply ≈ 0.07% active, well below any threshold of influence)
+  - All pool/econ params fixed at PRIM midpoints — identical to user_weight sweeps
+  - economic_split=0.60, pool_committed_split=0.35: same contested baseline
+
+  INTERPRETATION:
+  For each scenario:
+    - Counterfactual = v27 → the original v26 win IS user-weight-caused (flip confirmed)
+    - Counterfactual = v26 → the outcome is a PRIM baseline effect; user weight
+      was not causal (the parameter combination favors v26 regardless)
+
+  EXPECTED RESULT:
+  Scenarios at higher user_split (sp ≥ 0.50) are likely v27 at UCF=0.001 —
+  those v26 wins were user-caused. Scenarios at lower split (sp < 0.35) may
+  stay v26 — the PRIM midpoints may inherently favor v26 at low user_split.
+  The transition point in split where baseline flips from v27 to v26 will
+  cleanly separate the two populations.
+
+  COMBINED WITH ORIGINAL DATA:
+  Cross-reference with user_weight_threshold and lhs_user_weight_prim to produce
+  a table mapping each of the 34 original v26 wins to:
+    [UCF=0 baseline] × [UCF=actual result] → causal classification
+
+  RUNTIME (1 server, 6 namespaces):
+  - 30 scenarios / 6 namespaces = 5 per namespace
+  - ~3.6 hours per scenario (2016-block retarget, duration=13000s)
+  - ~18 hours wall-clock
+
+network: full
+retarget_interval: 2016
+duration: 13000
+
+fixed:
+  # Near-zero UCF — negligible user weight; effectively pre-activation calibration
+  user_custody_fraction: 0.001
+
+  # PRIM midpoints — identical to user_weight_threshold and lhs_user_weight_prim
+  economic_split: 0.60
+  pool_committed_split: 0.35
+  pool_ideology_strength: 0.62
+  pool_max_loss_pct: 0.28
+  pool_neutral_pct: 30.0
+  hashrate_split: 0.25
+  pool_profitability_threshold: 0.16
+  solo_miner_hashrate: 0.085
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.10
+  econ_inertia: 0.05
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  transaction_velocity: 0.50
+  economic_nodes_per_partition: 2
+  user_nodes_per_partition: 6
+
+# One scenario per unique user_split value from the 34 v26 wins
+# Sorted ascending; spans the full range of splits that produced v26 outcomes
+grid:
+  user_split:
+    - 0.2608   # lhs sweep_0052 (ucf=0.499)
+    - 0.2881   # lhs sweep_0003 (ucf=0.221)
+    - 0.2975   # lhs sweep_0058 (ucf=0.376)
+    - 0.3000   # grid (ucf=0.10, 0.35, 0.65)
+    - 0.3163   # lhs sweep_0043 (ucf=0.548, complete collapse)
+    - 0.3213   # lhs sweep_0041 (ucf=0.416)
+    - 0.3401   # lhs sweep_0034 (ucf=0.319)
+    - 0.3458   # lhs sweep_0018 (ucf=0.692, complete collapse)
+    - 0.3717   # lhs sweep_0022 (ucf=0.599)
+    - 0.3940   # lhs sweep_0017 (ucf=0.483)
+    - 0.4000   # grid sweep_0021 (ucf=0.50)
+    - 0.4030   # lhs sweep_0033 (ucf=0.518)
+    - 0.4047   # lhs sweep_0027 (ucf=0.226)
+    - 0.4101   # lhs sweep_0029 (ucf=0.628)
+    - 0.4226   # lhs sweep_0028 (ucf=0.637, complete collapse)
+    - 0.4242   # lhs sweep_0037 (ucf=0.353)
+    - 0.4408   # lhs sweep_0054 (ucf=0.407)
+    - 0.4554   # lhs sweep_0016 (ucf=0.147)
+    - 0.4628   # lhs sweep_0012 (ucf=0.575)
+    - 0.4689   # lhs sweep_0047 (ucf=0.591)
+    - 0.4828   # lhs sweep_0049 (ucf=0.189)
+    - 0.4887   # lhs sweep_0045 (ucf=0.426)
+    - 0.5000   # grid (ucf=0.01, 0.35, 0.65)
+    - 0.5094   # lhs sweep_0053 (ucf=0.680, complete collapse)
+    - 0.5142   # lhs sweep_0038 (ucf=0.193)
+    - 0.5217   # lhs sweep_0040 (ucf=0.452)
+    - 0.5299   # lhs sweep_0057 (ucf=0.611)
+    - 0.5407   # lhs sweep_0055 (ucf=0.373)
+    - 0.5482   # lhs sweep_0048 (ucf=0.171)
+    - 0.6012   # lhs sweep_0013 (ucf=0.531) — safe-zone falsification case

@@ -65,6 +65,10 @@ CREATE TABLE IF NOT EXISTS scenarios (
     economic_nodes_per_partition INTEGER,
     solo_miner_hashrate REAL,
 
+    -- User weight parameters (user_weight_* sweeps only)
+    user_custody_fraction REAL,  -- fraction of self-custodied BTC actively signaling fork preference
+    user_split REAL,             -- fraction of user custody weight on v27 (0=all v26, 1=all v27)
+
     -- Primary outputs
     outcome TEXT,  -- 'v27_dominant', 'v26_dominant', 'contested'
     winning_fork TEXT,  -- 'v27', 'v26', 'contested'
@@ -441,6 +445,16 @@ SWEEP_METADATA = {
         'network_type': 'full',
         'description': 'Replay of realistic_sweep3 for validation'
     },
+    'user_weight_threshold': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'full',
+        'description': '6×5 grid sweep (ucf × user_split) — identifies 2D fork outcome boundary; 7/28 v26 wins concentrated in split∈[0.30,0.50]; non-monotonic in ucf'
+    },
+    'lhs_user_weight_prim': {
+        'sweep_type': 'lhs',
+        'network_type': 'full',
+        'description': '60-scenario LHS boundary characterization in (ucf, user_split) space — densifies contested zone from threshold grid; confirms non-monotonicity and falsifies split≥0.60 safe-zone assumption'
+    },
 }
 
 
@@ -598,6 +612,7 @@ def import_sweep(conn: sqlite3.Connection, sweep_name: str, csv_path: Path,
                     user_ideology_strength, user_switching_threshold,
                     transaction_velocity, user_nodes_per_partition,
                     economic_nodes_per_partition, solo_miner_hashrate,
+                    user_custody_fraction, user_split,
                     outcome, winning_fork,
                     v27_hash_share, v27_block_share,
                     final_v27_hashrate, final_v26_hashrate,
@@ -614,6 +629,7 @@ def import_sweep(conn: sqlite3.Connection, sweep_name: str, csv_path: Path,
                     cascade_time_s, econ_lag_s, peak_price_gap_pct
                 ) VALUES (
                     ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                    ?, ?,
                     ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
                     ?, ?, ?, ?, ?, ?, ?,
                     ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
@@ -636,6 +652,8 @@ def import_sweep(conn: sqlite3.Connection, sweep_name: str, csv_path: Path,
                 int(row.get('user_nodes_per_partition') or 0),
                 int(row.get('economic_nodes_per_partition') or 0),
                 float(row.get('solo_miner_hashrate') or 0),
+                opt_float('user_custody_fraction'),
+                opt_float('user_split'),
                 row.get('outcome', ''),
                 row.get('winning_fork', ''),
                 float(row.get('v27_hash_share') or 0),

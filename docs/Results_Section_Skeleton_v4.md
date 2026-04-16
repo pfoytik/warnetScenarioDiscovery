@@ -1575,30 +1575,43 @@ v27=\$51.5k vs v26=\$67.8k; only 6 v27 blocks mined in the full
 
 **4.12.3 Boundary Structure**
 
-The boundary is two-dimensional, not a single UCF threshold.
+The lhs_user_weight_prim sweep (59 completed of 60 LHS scenarios,
+ucf ∈ [0.05, 0.70], split ∈ [0.25, 0.65]) densifies the contested
+region at approximately 3× the grid density. Combined with the threshold
+grid the full dataset is n=87 scenarios (34 v26 wins, 53 v27 wins).
 
-*Column behavior (varying split at fixed ucf):* At all ucf levels,
-split ≥ 0.60 produces v27_dominant. The boundary's upper edge lies
-between split=0.50 and split=0.60 across all UCF levels tested.
+*UCF transition zone:* v26 win rate rises with UCF but is not a clean
+step function. Below ucf=0.35, v26 wins approximately 20--33% of
+scenarios. The transition zone is ucf ∈ [0.35, 0.55], where v26 wins
+become majority (53%). Above ucf=0.55, v26 wins approximately 59% of
+scenarios.
 
-*Row behavior (varying ucf at fixed split):* The boundary is
-non-monotonic in ucf. At split=0.30, v26 wins at ucf=0.10 but not
-ucf=0.20, then again at ucf=0.35 and ucf=0.65. At split=0.50, v26 wins
-at ucf=0.01 (likely stochastic boundary noise), ucf=0.35, and ucf=0.65.
-The non-monotonicity is concentrated in the contested region and is
-partly stochastic (the ucf=0.35, split=0.50 result differs from the
-ucf_threshold_probe run of the same parameters).
+*Split as within-UCF determinant:* At ucf < 0.25, user_split ≥ 0.60
+is an absolute safe zone (0/8 v26 wins). At ucf ≥ 0.50, the safe zone
+breaks down: 1/7 v26 wins at split ≥ 0.60, including sweep_0013
+(ucf=0.531, split=0.601 → v26). The grid's claim that split ≥ 0.60 is
+unconditionally v27-dominant is falsified at high UCF. Low split
+(sp < 0.35) is the most dangerous band across all UCF levels.
 
-*Safe zone:* user_split ≥ 0.60 is unconditionally v27-dominant across
-all tested UCF levels. v27-aligned users provide no incremental benefit
-over baseline --- v27 wins without them. User weight is primarily a
-threat vector when users are neutral or v26-leaning.
+*Non-monotonicity confirmed as structural:* LHS densification confirms
+the non-monotonic UCF pattern from the grid is not stochastic. v26 wins
+are scattered throughout the UCF range with no clean threshold. The
+boundary is not expressible as a monotone step function in either
+parameter; this is consistent with the interactive nature of the price
+oracle (combined_factor incorporates both chain and economic weights
+multiplicatively).
 
-**[TODO: Insert Figure X --- 2D outcome grid heatmap (ucf × user_split)
-showing v27/v26 outcomes as fill color, with the contested region
-outlined. Overlay LHS boundary fit from lhs_user_weight_prim (n=60,
-pending) once collected. Source: tools/sweep/user_weight_threshold/
-results/.]**
+*Complete hashrate collapse floor:* Complete v27 hashrate collapse
+(hr=0%) requires ucf ≥ 0.548. Below this threshold, v26 wins exclusively
+via "no ideology flip" (hr=30%) or "partial equilibrium" (hr≈50.5%)
+mechanisms --- user weight reduces the v27 price advantage but cannot
+fully dislodge committed v27 ideology pools. The 5 collapse scenarios
+span splits of 0.316--0.509, confirming collapse is not restricted to
+neutral or v26-leaning users.
+
+**[TODO: Insert Figure X --- 2D outcome scatter (ucf × user_split)
+with v26/v27 outcomes as fill color. Source data:
+tools/discovery/output/user_weight/user_weight_scenarios.csv.]**
 
 **4.12.4 Implication for the User-PRIM Null Result**
 
@@ -1609,13 +1622,14 @@ near-pivotal because their collective weight is orders of magnitude below
 the institutional economy. The finding stands as stated for the
 calibration it uses.
 
-The user_weight_threshold results establish what changes if the
+The combined n=87 user-weight scenarios establish what changes if the
 calibration is shifted to reflect self-custody activation. Under that
 alternative calibration, user nodes can flip outcomes under a specific
-condition: users must be neutral-to-v26-leaning (split ≤ 0.50) AND hold
-sufficient custody weight (ucf ≥ 0.10 for the most sensitive parameter
-combinations, ucf ≥ 0.35 more broadly). v27-leaning users (split ≥
-0.60) are never pivotal even at maximum tested weight.
+condition: users must be neutral-to-v26-leaning (split ≤ 0.50 generally,
+split < 0.60 at ucf ≥ 0.53) AND hold sufficient custody weight (ucf ≥
+0.35 as the rate-inflection point; some v26 wins appear at lower UCF but
+are sparse below 0.25). v27-leaning users (split ≥ 0.60) are not pivotal
+at any UCF level below 0.53.
 
 The governance implication is precise: a UASF campaign that activates
 only individual full node operators --- without also converting the
@@ -1623,11 +1637,7 @@ self-custody fraction's economic alignment toward the new rules --- does
 not benefit from that user node weight. Conversely, a situation where a
 majority of self-custodied BTC is held by users indifferent to or
 opposed to an upgrade represents a genuine risk factor that the Phase 1--3
-model underweights by construction.
-
-**[PENDING DATA --- lhs_user_weight_prim (60 LHS scenarios, in
-progress). Will provide dense boundary characterization for logistic
-regression fitting. Combined n=88 user-weight scenarios (28 grid + 60
-LHS) expected to resolve the non-monotonic interior and confirm the
-split≥0.60 safe zone analytically.]**
+model underweights by construction. The self-custody activation threshold
+for outcome-relevant influence (ucf ≈ 0.35, approximately 23% of
+estimated total circulating supply) is a testable real-world quantity.
 

@@ -1,0 +1,41 @@
+# Scenario Parameters
+
+All parameters varied across experiments in the warnetScenarioDiscovery project.
+
+| Parameter | Category | What It Controls | Range / Values |
+|---|---|---|---|
+| `v27_pool_hashrate_pct` | Hashrate | % of pool hashrate on v27 fork | 15–85% |
+| `hashrate_split` | Hashrate | Fraction of initial hashrate on v27 | 0.0–1.0 |
+| `solo_miner_hashrate` | Hashrate | Hashrate % per solo miner node | 0.02–0.15 |
+| `pool_ideology_committed` | Pool Behavior | Ideology strength for committed pools | 0.7–1.0 |
+| `pool_ideology_moderate` | Pool Behavior | Ideology strength for moderate pools | 0.3–0.7 |
+| `pool_ideology_rational` | Pool Behavior | Ideology strength for rational pools | 0.0–0.3 |
+| `pool_profitability_threshold` | Pool Behavior | Min profit advantage needed to switch forks | 0.02–0.30 |
+| `pool_max_loss_committed` | Pool Behavior | Max revenue loss committed pools will accept | 0.30–0.80 |
+| `pool_max_loss_moderate` | Pool Behavior | Max revenue loss moderate pools will accept | 0.10–0.40 |
+| `pool_committed_split` | Pool Behavior | Fraction of committed pool hashrate preferring v27 | 0.0–1.0 |
+| `pool_neutral_pct` | Pool Behavior | % of pools that are neutral/rational | 10–50% |
+| `pool_scenario` | Pool Behavior | Named pool scenario preset | `realistic_current`, `ideological_fork_war`, `purely_rational`, `weak_resistance` |
+| `economic_split` | Economic Nodes | Fraction of economic custody starting on v27 | 0.0–1.0 |
+| `v27_volume_weight` | Economic Nodes | Fraction of transaction volume on v27 | 0.2–0.8 |
+| `econ_ideology_strength` | Economic Nodes | How much economic nodes sacrifice for ideology | 0.0–0.8 |
+| `econ_switching_threshold` | Economic Nodes | Min price advantage for economic nodes to switch | 0.02–0.25 |
+| `econ_inertia` | Economic Nodes | Resistance to switching forks | 0.05–0.30 |
+| `exchange_ideology` | Economic Nodes | Ideology strength for exchanges specifically | 0.0–0.4 |
+| `institution_ideology` | Economic Nodes | Ideology strength for institutional holders | 0.1–0.8 |
+| `exchange_max_loss` | Economic Nodes | Max loss % exchanges will accept | 0.02–0.15 |
+| `economic_nodes_per_partition` | Network Structure | Number of economic/exchange nodes per partition | 1–6 |
+| `user_ideology_strength` | User Nodes | How much users sacrifice for ideology | 0.1–0.9 |
+| `user_switching_threshold` | User Nodes | Min price advantage for users to switch | 0.05–0.20 |
+| `power_user_ideology` | User Nodes | Ideology strength for power users/developers | 0.5–0.95 |
+| `casual_user_ideology` | User Nodes | Ideology strength for casual users | 0.0–0.5 |
+| `user_max_loss` | User Nodes | Max loss % users will accept | 0.10–0.50 |
+| `user_nodes_per_partition` | Network Structure | Number of user nodes per partition | 2–10 |
+| `power_user_count_multiplier` | Network Structure | Multiplier on number of power users | 0.5–2.0 |
+| `transaction_velocity` | Economics | Fee-generating transaction rate | 0.1–0.9 |
+| `economic_scenario` | Scenario Preset | Named economic node scenario | `realistic_current`, `ideological_split`, `purely_rational`, `strong_v26_resistance`, `asymmetric_balanced`, `asymmetric_extreme` |
+| `chain_weight_coef` | Price Model | Weight of block production rate in price | 0.1–0.33 |
+| `economic_weight_coef` | Price Model | Weight of economic custody in price | 0.2–0.7 |
+| `hashrate_weight_coef` | Price Model | Weight of hashrate concentration in price | 0.2–0.6 |
+| `fork_type` | Scenario | Type of fork being simulated | `hard_fork`, `contentious_soft_fork`, `non_contentious_soft_fork` |
+| `random_seed` | Stochastic | Controls stochastic variation across repeated runs | integer |

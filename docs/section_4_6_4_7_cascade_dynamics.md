@@ -1,0 +1,141 @@
+# Section 4.6–4.7 — Cascade Dynamics and Real-World Implications
+
+**Draft:** May 2, 2026
+**Status:** DRAFT — complete. Numbers from Results_Section_Skeleton_v4.md, phase3_results.md, price_divergence_sensitivity_2016 sweep.
+
+---
+
+## 4.6 Fork Dynamics and Cascade Signatures
+
+The preceding sections characterize fork outcomes in terms of which fork wins and which parameters determine that result. This section examines *how* forks develop: the time-series signatures of cascade events, the price divergence patterns that drive pool switching, and the governance risk structure of the inversion zone.
+
+---
+
+### 4.6.1 Clean Outcomes vs. Cascade Events
+
+Fork outcomes separate into two qualitatively distinct dynamic types based on the relationship between economic weight and pool commitment at the start of the simulation.
+
+**Clean outcomes** occur when one fork dominates both economic and hashrate dimensions simultaneously — either econ_split is above the economic override threshold (~0.82) or below the cascade floor (~0.45), or pool_committed_split is far from the inversion boundary. In clean outcomes, the losing fork loses hashrate rapidly with zero or minimal reorg events. Neutral pools follow the economic signal immediately; committed pools on the losing side exhaust their loss tolerance within the first retarget epoch without generating competitive dynamics. The simulation resolves in one direction without meaningful contest.
+
+**Cascade events** occur when the economic cascade mechanism is active — economic majority overcoming an initial hashrate deficit, or committed pool ideology sustaining a minority chain long enough for the price signal to develop. Cascade scenarios exhibit a characteristic signature: elevated reorg counts (typically 5–13 reorgs), a period of competitive mining on both chains, followed by rapid hashrate consolidation on the winning fork as neutral pools respond to the completed price divergence. In targeted sweep data, scenarios with 5 or more reorgs show an 86% v27 win rate when economic_split is above the cascade threshold, reflecting the systematic relationship between cascade activity and economic majority outcome.
+
+The reverse cascade is the most striking single data point in the sweep program: sweep_0007 (starting hashrate = 90% v27, economic_split = 7% v27) results in v26 winning after 7 reorgs. A fork beginning with 90% of the network hashrate on the new-rules chain is nevertheless defeated when 93% of economic activity remains on the old-rules chain. This scenario directly demonstrates that hashrate majority is neither necessary nor sufficient for fork victory — the economic signal drives all neutral pools off the majority-hashrate chain within the simulation window.
+
+**[FIGURE PLACEHOLDER: Reorg count distribution — histogram of reorg events by outcome category (clean v27, clean v26, cascade v27, cascade v26). Source: targeted sweep data. See writing_plan.md §Figures.]**
+
+---
+
+### 4.6.2 Price Divergence Patterns
+
+Token prices for each fork diverge from the common base price ($60,000) as economic nodes shift their transaction routing and custodial commitment. The magnitude and direction of divergence varies predictably across outcome categories:
+
+- **Decisive v27 wins (high econ, high committed_split):** winning fork reaches $64,000–$72,000; losing fork falls to $48,000–$56,000. Divergence develops quickly and sustains.
+- **Decisive v26 wins:** symmetric price pattern with directions reversed.
+- **Contested outcomes:** both forks hover near $57,000–$62,000 throughout. Fewer economic nodes have switched, price divergence never exceeds the switching threshold of remaining nodes, and the fork persists without resolution.
+
+Price divergence magnitude correlates with cascade completeness: longer stalemates produce less divergence because fewer economic nodes have switched. This relationship is bidirectional — less divergence means fewer nodes cross their switching threshold, which means less divergence, producing a self-reinforcing equilibrium in contested scenarios.
+
+**[FIGURE PLACEHOLDER: Price divergence time-series for 2–3 representative scenarios — clean win, cascade win, and contested. Source: scenario time-series data. See writing_plan.md §Figures.]**
+
+**Price divergence cap sensitivity.** The sensitivity of outcomes to the model's ±20% price divergence cap was tested via the `price_divergence_sensitivity_2016` sweep, running the same 12-scenario parameter grid at cap levels of ±10%, ±20%, ±30%, and ±40% (n=48 total). Table 11 summarizes the results.
+
+**Table 11. price_divergence_sensitivity_2016: outcomes across price cap levels for fixed 12-scenario grid (2016-block retarget).**
+
+| Cap level | v27 wins | v26 wins | Contested | Key finding |
+|-----------|:--------:|:--------:|:---------:|-------------|
+| ±10% | 5 | 3 | 4 | Cap binds: natural equilibrium gap is 13–16% in high-parameter scenarios; suppressing it to ±10% reduces pool loss pressure, enabling 3 v26 wins |
+| ±20% | 3 | 0 | 9 | Cap no longer binds; stalled pool dynamics dominate |
+| ±30% | 0 | 0 | 12 | Maximum stall: pool commitment insufficient to complete cascade at any cap level |
+| ±40% | 8 | 0 | 4 | v27 wins via hardware-speed artifact: fast-server scenarios completed 2016-block retarget epoch within run window; slow-hardware scenarios remained contested |
+
+The ±10% level is the only cap at which the price bound is causally active: natural price equilibria in these high-parameter scenarios would reach 13–16% divergence, so capping at ±10% artificially suppresses pool loss pressure and permits 3 v26 wins that would not occur at the correct cap level. Above ±10%, the cap is slack and outcomes are governed entirely by pool and economic dynamics.
+
+The ±30% result isolates the pool commitment regime: in this 12-scenario grid, pool ideology and loss tolerance parameters are structurally insufficient to complete the cascade regardless of how large the price signal is allowed to grow. Increasing the cap further (±40%) does not change the dynamics — what changes outcomes at ±40% is a hardware timing artifact, not pool behavior. The contested zone in this grid is parameter-locked, not cap-locked.
+
+Economic node switching behavior is invariant across all cap levels: 100% no-switch at every tested cap. The ideology/inertia dead zone permanently locks economic nodes in these scenarios regardless of price signal magnitude, confirming that the contested and v26-dominant outcomes in the inversion zone are not artifacts of the ±20% cap choice.
+
+---
+
+### 4.6.3 Cascade Timing and the Economic Lag
+
+Cascade timing — the elapsed simulation time from fork inception to pool hashrate consolidation — varies substantially across scenarios. The primary determinant is the `pool_ideology_strength × pool_max_loss_pct` product (Section 4.3.3), not the economic or hashrate parameters:
+
+- **Standard cascades** (low ideology × max_loss product): complete in approximately 700 seconds from fork inception. Committed v26 pools exhaust their loss tolerance quickly, neutral pools follow the price signal, and the fork resolves within the first retarget epoch.
+- **High-resistance cascades** (ideology=0.80 + max_loss=0.35): complete in 10,920 seconds — approximately 15× longer. Committed pools delay capitulation without changing the ultimate outcome when econ_split is above the economic override threshold (~0.82).
+
+This range — 700s to 10,920s — represents the window of maximum real-world disruption. During this window, two competing chains are actively mining, exchanges face deposit/withdrawal decisions under price uncertainty, and users cannot be confident which chain their transactions will persist on.
+
+**The economic lag** is the additional delay between pool cascade completion and full economic node migration. In Phase 3 full-switch cases (n=28), the pool cascade fires first at mean t=3,298s, with economic nodes responding approximately 3,506s later (mean econ switch time = 6,804s). The price gap magnitude at the time of economic switching is 41–47% in full-switch cases, versus 12–18% in no-switch cases — the gap must reach and sustain the higher range to cross economic node switching thresholds.
+
+At 144-block retarget, the timing pattern inverts: the pool cascade completes earlier (~1,815s mean) because the shorter survival window accelerates loss accumulation, but the economic lag extends to ~4,300–5,000s because economic nodes process the price signal gradually over the remaining 11,000+ seconds of the simulation. Full-switch rates are higher at 144-block (55% vs. 46% in lhs_2016_6param), but the lag between pool resolution and economic adoption is 2–3× longer.
+
+**The econ lag as an observable signal.** The consistent ~3,500s lag at 2016-block between pool cascade completion and economic adoption implies a real-world monitoring indicator: if a contentious fork has resolved at the pool hashrate level (one chain has achieved clear dominance) but exchange-level activity has not yet migrated, the fork is approximately halfway through its resolution process. The absence of economic migration within a characteristic lag window after hashrate consolidation is a signal that the price gap was insufficient to trigger full adoption — placing the scenario in the no-switch regime regardless of the hashrate outcome.
+
+---
+
+### 4.6.4 The Inversion Zone as Governance Risk
+
+The inversion zone — economic_split ∈ [0.55, 0.78], pool_committed_split ∈ [0.30, 0.75] — represents a qualitatively distinct risk regime beyond what binary outcome classification captures. Within this zone, the fork outcome is determined not by aggregate economic or hashrate majority but by which side controls the structurally pivotal pool — Foundry USA in the modeled 2026 Bitcoin landscape. This creates three governance-specific hazards.
+
+**Discontinuous outcome reversals.** A 4-percentage-point shift in pool_committed_split — from 0.20 to 0.30, crossing the ~0.214 Foundry flip-point — reverses the fork outcome entirely at econ=0.60–0.70. No continuous signal tracks this transition: aggregate hashrate shares on each side shift gradually while the underlying pivotal pool assignment changes discontinuously. A governance actor monitoring hashrate totals rather than per-pool ideological positions will not observe the approaching reversal.
+
+**Misleading aggregate statistics.** Within the inversion zone, the side with higher aggregate economic support can lose, and the side with higher aggregate hashrate can lose, simultaneously. The winning condition is possession of the pivotal pool's commitment — a structural property invisible to aggregate monitoring. This is the practical implication of the E×C synergy term (+1.231) in the logistic regression: the two parameters are not independently predictive, so neither economic weight nor committed hashrate alone provides reliable forward guidance on outcome within this zone.
+
+**Extended contentiousness.** Inversion zone scenarios have higher mean contentiousness than clean-outcome scenarios. The contested cluster in Phase 3 (Section 4.9) is specifically characterized by high ideology × max_loss parameters within the inversion zone's economic and committed-split ranges. These are the scenarios where pools are committed enough to sustain a genuine fork without being forced out, and loss-tolerant enough that economic pressure alone cannot complete the cascade. The result is a sustained dual-chain situation — the operationally riskiest outcome for exchange infrastructure, wallet software, and users attempting to transact.
+
+---
+
+## 4.7 Implications for Real-World Fork Assessment
+
+The findings above suggest a structured reassessment of how fork risk is conventionally analyzed. The standard framing — "does the new version have majority hashrate support?" — addresses a parameter that is confirmed non-causal at realistic economic support levels (Section 4.2.1) and that becomes actively misleading within the inversion zone (Section 4.6.4). Three alternative questions better track the operative causal structure.
+
+---
+
+### 4.7.1 Three Operational Monitoring Questions
+
+**Question 1: What fraction of economically significant Bitcoin activity is committed to each fork?**
+
+`economic_split` is the dominant causal parameter at 144-block retarget and a critical threshold parameter at 2016-block. The economic threshold at ~0.50 is a hard floor: below it, no cascade is possible. The economic override at ~0.82 is a hard ceiling: above it, pool ideology becomes irrelevant to the final outcome. The entire operative parameter space lies between these bounds, making economic weight the primary quantity to assess.
+
+Operationally, this corresponds to: which exchanges have committed to listing and supporting v27 deposits and withdrawals? Which custodians (institutional asset managers, ETF providers) are processing redemptions on v27? Which payment processors are routing v27 transactions? These are public or semi-public decisions — exchanges announce chain support policies, ETF providers publish their fork handling procedures, and on-chain transaction patterns reveal which UTXO sets are being spent on which chain. The fraction of circulating supply being actively transacted on each fork, weighted by entity economic significance, is an estimable quantity from public data.
+
+**Question 2: Which major mining pools are ideologically committed versus profit-maximizing, and what is each committed pool's switching cost threshold?**
+
+`pool_committed_split` is the dominant causal parameter at 2016-block retarget. Its threshold (~0.296 in the Phase 3 transition zone) is not determined by the total fraction of committed hashrate but by the structure of *which pools* are committed and at what ideological strength. The Foundry flip-point finding demonstrates that the identity of the pivotal pool — the largest single actor whose ideological assignment determines cascade direction — matters more than aggregate committed shares.
+
+Operationally, pools' fork positions are partially observable from their public communications, social media statements, and block attribution data. Pool operators have historically been willing to signal their fork positions publicly (as in the SegWit2x signaling period). The more difficult estimation is `ideology_strength × max_loss_pct` — how much revenue loss a committed pool will accept before switching. Calibration against observed pool behavior during BCH and BSV fork events could provide empirical bounds; this remains an open research question.
+
+**Question 3: Has the fork crossed the economic override threshold (~0.82), and if not, is the largest committed pool on the v27 or v26 side?**
+
+This is the decision tree that the findings support:
+
+- If `economic_split ≥ 0.82`: pool ideology is irrelevant to the final outcome. Monitor cascade timing (determined by ideology × max_loss) but not outcome direction.
+- If `economic_split ∈ [0.50, 0.82]`: identify which side the largest committed pool (Foundry or equivalent) is assigned to relative to the ~0.214 flip-point. This single structural question determines whether the inversion zone is active and which direction it tilts the outcome.
+- If `economic_split ≤ 0.50`: no cascade is possible; v26 wins regardless of pool configuration.
+
+---
+
+### 4.7.2 The Econ Lag as a Real-Time Fork Indicator
+
+The economic lag (~3,500s at 2016-block between pool cascade and economic node migration) provides a measurable real-time indicator of fork resolution stage. In practice this would manifest as:
+
+- **Pool cascade completion** is visible on-chain: hashrate from attributed pools concentrates rapidly on one chain, and competing chain block production slows or stops.
+- **Economic adoption** is visible at exchanges: the under-supported fork's deposit/withdrawal volumes drop, price divergence stabilizes at 41–47% (full-switch regime) or plateaus at 12–18% (no-switch regime), and custodial balance migration becomes observable in UTXO analysis.
+
+The price gap magnitude at the time of economic switching is a diagnostic: gaps of 41–47% indicate the full-switch regime is active; gaps of 12–18% indicate no-switch. A fork that resolves at the pool level but shows only 12–18% price divergence is likely in the no-switch regime — economic adoption will not complete, and the winning chain will hold its hashrate advantage without full economic migration.
+
+---
+
+### 4.7.3 What the Findings Do Not Support
+
+The three monitoring questions above are bounded by the model's structural assumptions and calibration constraints. Several conventional claims about Bitcoin fork governance are neither supported nor refuted by these findings.
+
+**The role of user-activated soft forks (UASF).** The User-PRIM analysis (Section 4.11) confirms that user nodes have no structural capacity to shift outcomes in the 2016-block regime under any tested parameter configuration. This does not mean UASF narratives are wrong in principle — it means that the operative mechanism of UASF (user nodes refusing to relay or build on non-compliant blocks) does not translate into a pivotal causal pathway in the modeled parameter space, given the 2197:1 economic weight ratio between institutional actors and user nodes. A UASF campaign that successfully shifts exchange and custodian positions — moving `economic_split` — would be causal. One that operates only through user node behavior would not.
+
+**Fork outcomes beyond the ±20% price divergence regime.** All threshold findings are bounded by the model's ±20% maximum price divergence cap. Real fork events (BCH/BTC, BCH/BSV) have produced divergences of 80–95% over months. Under larger divergences, the dynamics change qualitatively: the losing chain's token may collapse before its difficulty adjustment fires, making hashrate suddenly causal in a way the model does not capture. The findings characterize short-to-medium-run fork dynamics; long-run dynamics under extreme divergence remain outside the model's scope.
+
+**Threshold values as precise predictions.** The specific thresholds identified — ~0.50 economic floor, ~0.82 override, ~0.214 Foundry flip-point, ~0.296 committed_split transition zone — are calibrated to the modeled 2026 Bitcoin pool distribution and price oracle weights. The mechanisms that produce these thresholds are general; the specific numbers are not. A mining landscape with a different pool size distribution shifts the flip-point. A different economic weight coefficient shifts the economic thresholds. These findings establish the structure of fork dynamics and the identity of the operative parameters, not a universal quantitative prediction.
+
+---
+
+*Section 4.6–4.7 ends. Next: Section 4.9 — Phase 3: The Two-Layer Outcome Structure.*

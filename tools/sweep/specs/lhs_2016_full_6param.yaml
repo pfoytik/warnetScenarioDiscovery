@@ -1,0 +1,106 @@
+name: lhs_2016_full_6param
+description: |
+  Large-scale unbiased Latin Hypercube Sampling sweep — 2016-block retarget,
+  full 60-node network, 6 active parameters.
+
+  PURPOSE:
+    All prior 6-parameter LHS sweeps (lhs_2016_6param, lhs_144_6param) used the
+    25-node lite network, which introduces ~25% economic_split quantization (2 nodes
+    per partition). This sweep provides the first large-scale unbiased full-network
+    LHS at 2016-block retarget — the regime where pool_committed_split dominates and
+    all primary paper findings originate.
+
+  PRIMARY GOALS:
+    1. Confirm causal rank reversal (pool_committed_split dominant at 2016-block) on
+       unbiased full-network data without quantization artifact
+    2. Confirm non-causality of pool_profitability_threshold and solo_miner_hashrate
+       on full network (currently only validated on lite via lhs_2016_6param)
+    3. Re-derive PRIM uncertainty box from full-network data for a potential Phase 3c
+       sweep (see section_4_10.md §4.10.3)
+    4. Provide robust Random Forest and logistic regression boundary fits from a
+       large unbiased full-network dataset (n=360 vs. n=64 in lhs_2016_full_parameter)
+
+  PARAMETER RANGES:
+    Ranges are slightly wider than lhs_2016_6param to capture clean-outcome zones on
+    both sides of the thresholds, giving PRIM data on both sides of all boundaries:
+    - economic_split extended to [0.25, 0.95] (was [0.30, 0.80]) to bracket the
+      cascade floor (~0.50) and economic override (~0.82) within the sample
+    - pool_ideology_strength and pool_max_loss_pct slightly widened for the same reason
+
+  DESIGN:
+    720 scenarios via LHS (60 per namespace, 12 namespaces)
+    Split across 2 servers: Server 1 handles ns-0 to ns-5 (sweep_0000–sweep_0359),
+    Server 2 handles ns-6 to ns-11 (sweep_0360–sweep_0719)
+    Seed 2026 for consistency with Phase 3 sweeps
+
+  RUNTIME ESTIMATE:
+    ~35 min/scenario × 60 scenarios = ~35 hrs per namespace (run in parallel)
+    Both servers finish simultaneously in ~35 hrs
+
+  FOLLOW-ON:
+    After analysis, re-derive full-network PRIM uncertainty box from this dataset
+    (targeting econ ∈ [0.50, 0.65]) and use as bounds for Phase 3c sweep.
+    See section_4_10.md §4.10.3 for motivation.
+
+type: lhs
+network: full
+n_samples: 720
+seed: 2026
+
+parameters:
+  economic_split:
+    min: 0.25
+    max: 0.95
+    description: >
+      Fraction of economic node weight initially on v27. Extended range brackets
+      the cascade floor (~0.50) and economic override threshold (~0.82).
+
+  pool_committed_split:
+    min: 0.10
+    max: 0.70
+    description: >
+      Fraction of committed (non-neutral) pool hashrate on v27. Covers the
+      Foundry flip-point (~0.214) and Phase 3 transition zone (~0.296).
+
+  pool_ideology_strength:
+    min: 0.20
+    max: 0.90
+    description: >
+      How strongly committed pools weight ideology vs profitability. Slightly
+      wider than prior sweeps to capture near-zero ideology behavior.
+
+  pool_max_loss_pct:
+    min: 0.05
+    max: 0.45
+    description: >
+      Maximum revenue loss committed pools tolerate before switching forks.
+      Brackets the full_switch threshold (~0.22) and contested zone boundary (~0.30).
+
+  pool_profitability_threshold:
+    min: 0.08
+    max: 0.28
+    description: >
+      Minimum profit advantage required for neutral pools to consider switching.
+      Previously confirmed non-causal on lite network (lhs_2016_6param, sep=0.011);
+      this sweep validates on full network.
+
+  solo_miner_hashrate:
+    min: 0.00
+    max: 0.15
+    description: >
+      Fraction of total hashrate from solo miners acting independently of pool ideology.
+      Previously confirmed non-causal on lite network (lhs_2016_6param, sep≈0);
+      this sweep validates on full network.
+
+# Fixed parameters — confirmed non-causal in prior sweeps
+fixed:
+  hashrate_split: 0.25
+  pool_neutral_pct: 30.0
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.10
+  econ_inertia: 0.05
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  transaction_velocity: 0.5

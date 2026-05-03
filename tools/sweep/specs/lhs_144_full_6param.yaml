@@ -1,0 +1,97 @@
+name: lhs_144_full_6param
+description: |
+  Large-scale unbiased Latin Hypercube Sampling sweep — 144-block retarget,
+  full 60-node network, 6 active parameters.
+
+  PURPOSE:
+    The 144-block causal rank finding (economic_split dominant at 77.2% RF importance)
+    currently rests on full-network targeted sweeps plus lhs_144_6param which used the
+    lite network and carries the economic_split quantization artifact documented in
+    section_4_4.md §4.4.4. This sweep provides the first large-scale unbiased full-network
+    LHS at 144-block retarget, filling the one remaining clean-network gap in the regime
+    comparison.
+
+  PRIMARY GOALS:
+    1. Confirm economic_split dominance at 144-block on unbiased full-network data —
+       removes the quantization artifact caveat from the regime comparison finding
+    2. Provide a matched full-network pair with lhs_2016_full_6param for direct
+       regime comparison at equal sample size and network fidelity
+    3. Confirm non-causality of pool_profitability_threshold and solo_miner_hashrate
+       at 144-block on full network
+    4. Enable robust 144-block PRIM boundary fitting — previously impossible due to
+       lite-network quantization (documented: "Full-network grid data is too
+       non-uniform for PRIM box-finding" in section_4_8.md)
+
+  PARAMETER RANGES:
+    Identical to lhs_2016_full_6param for direct matched-pair regime comparison.
+    Same seed (2026) and same n_samples (360) for statistical equivalence.
+
+  DESIGN:
+    360 scenarios via LHS (60 per namespace, 6 namespaces)
+    Split across 2 servers: Server 1 handles ns-0 to ns-2, Server 2 handles ns-3 to ns-5
+    Seed 2026 matches lhs_2016_full_6param — same LHS sample structure, different retarget
+
+  RUNTIME ESTIMATE:
+    ~20 min/scenario × 60 scenarios = ~20 hrs per namespace (run in parallel)
+    144-block scenarios complete faster than 2016-block; retarget fires earlier
+
+type: lhs
+network: full
+n_samples: 360
+seed: 2026
+
+parameters:
+  economic_split:
+    min: 0.25
+    max: 0.95
+    description: >
+      Fraction of economic node weight initially on v27. Identical range to
+      lhs_2016_full_6param for direct regime comparison.
+
+  pool_committed_split:
+    min: 0.10
+    max: 0.70
+    description: >
+      Fraction of committed (non-neutral) pool hashrate on v27. At 144-block
+      retarget, this parameter is secondary to economic_split but included to
+      confirm non-dominance on full-network data.
+
+  pool_ideology_strength:
+    min: 0.20
+    max: 0.90
+    description: >
+      How strongly committed pools weight ideology vs profitability.
+
+  pool_max_loss_pct:
+    min: 0.05
+    max: 0.45
+    description: >
+      Maximum revenue loss committed pools tolerate before switching forks.
+
+  pool_profitability_threshold:
+    min: 0.08
+    max: 0.28
+    description: >
+      Minimum profit advantage required for neutral pools to consider switching.
+      Non-causal at 2016-block on lite (lhs_2016_6param); this sweep tests at
+      144-block on full network.
+
+  solo_miner_hashrate:
+    min: 0.00
+    max: 0.15
+    description: >
+      Fraction of total hashrate from solo miners acting independently.
+      Non-causal at 2016-block on lite; this sweep tests at 144-block on full network.
+
+# Fixed parameters — confirmed non-causal in prior sweeps
+fixed:
+  hashrate_split: 0.25
+  pool_neutral_pct: 30.0
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.10
+  econ_inertia: 0.05
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  transaction_velocity: 0.5

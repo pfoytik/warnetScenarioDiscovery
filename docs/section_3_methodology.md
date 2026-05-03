@@ -758,18 +758,3 @@ python fit_boundary.py --db ../sweep/sweep_results.db --mode uncertainty
 # Compare 144-block vs 2016-block regimes
 python fit_boundary.py --db ../sweep/sweep_results.db --compare-regimes
 ```
-
-### 13.8 Status and Next Steps
-
-Phase 2 analysis is complete. Phase 3 is in progress:
-
-- **Phase 3 LHS sweep (lhs_2016_full_phase3):** RUNNING — 300 scenarios, full 60-node
-  network, 2016-block retarget, Latin Hypercube samples drawn from PRIM uncertainty
-  bounds. Running across 12 namespaces on two servers.
-- **User-PRIM analysis:** COMPLETE — null result. User nodes are not pivotal under any
-  tested 2016-block parameter configuration (bias ratio 1.256; threshold ~2.0). See
-  `tools/discovery/output/user_prim/`.
-- **Inversion zone mechanism:** Explained by the Foundry flip-point (§4.3.2); no further
-  sweep required.
-- **Fixed parameter validation at 2016-block:** Absorbed into Phase 3 LHS design; results
-  pending collection.

@@ -54,6 +54,8 @@ The ±30% result isolates the pool commitment regime: in this 12-scenario grid, 
 
 Economic node switching behavior is invariant across all cap levels: 100% no-switch at every tested cap. The ideology/inertia dead zone permanently locks economic nodes in these scenarios regardless of price signal magnitude, confirming that the contested and v26-dominant outcomes in the inversion zone are not artifacts of the ±20% cap choice.
 
+**Price floor from static custody (model limitation).** The cap sensitivity analysis characterizes the upper bound of price divergence; a complementary constraint operates at the lower bound. The price oracle's `economic_weight` component is driven by static `custody_btc` assignments and does not respond to chain liveness — a chain producing zero blocks retains its full custody-based price floor. In early sweep data (sweep10, econ=0.70, 144-block), a chain with 0% hashrate for 600 seconds experienced only a ~6% price drop rather than the rapid collapse a fully dynamic model would produce. The practical consequence is that the model understates minority-chain price collapse in ghost-town scenarios: when one chain loses all block production, the opposing chain's price advantage builds more slowly than real market dynamics would generate, slightly delaying neutral pool migration and making clean-outcome thresholds marginally harder to cross. This conservative bias is consistent with the ±20% cap finding above — both model choices err toward understating the speed of price resolution rather than overstating it. The full bias assessment is documented in `assumptions.md §2.8`.
+
 ---
 
 ### 4.6.3 Cascade Timing and the Economic Lag

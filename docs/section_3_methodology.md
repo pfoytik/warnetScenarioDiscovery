@@ -322,6 +322,43 @@ Price is capped at `base_price ± 20%` (max_divergence). The economic weight
 component dominates (coefficient 0.5 vs. 0.3 for chain and 0.2 for hashrate),
 reflecting Bitcoin's custody-driven valuation.
 
+### Literature basis for the price model
+
+The three-factor linear model was designed in dialogue with the cryptocurrency
+economics literature. Three papers directly informed modeling choices:
+
+**Factor weighting and custody dominance.** Kristoufek (2015) uses wavelet
+coherence analysis to show that Bitcoin custody and transaction volume signals
+are the primary drivers of price, leading price changes by days to weeks relative
+to hashrate signals. This supports the model's economic weight coefficient (0.5)
+exceeding the hashrate coefficient (0.2) and the chain-weight coefficient (0.3).
+The contemporaneous (non-lagged) coupling used here is a simplification; the
+model's `price_oracle.md` documents an exponential moving average variant that
+would more closely match Kristoufek's observed lag structure.
+
+**Coordination tipping point and linear vs. nonlinear mapping.** Biais et al.
+(2019) prove a "blockchain folk theorem": fork games contain a coordination
+tipping point past which rational economic actors rapidly abandon the minority
+chain rather than tolerating sustained price disadvantage. A strictly linear
+factor mapping (as implemented) understates the steepness of this tipping
+behavior near threshold. The linear model is retained for parameter transparency
+and sweep comparability; a sigmoid variant (`factor_mapping: sigmoid`) is
+documented in `price_oracle.md` as a higher-realism alternative calibrated to
+the Biais et al. threshold result.
+
+**Asymmetric price floor and mining cost basis.** Hayes (2019) shows empirically
+that Bitcoin price converges toward the marginal cost of production, implying
+that the minority chain — with lower difficulty and therefore lower mining cost —
+should have a structurally lower price floor than the majority chain. The current
+symmetric ±20% cap does not reflect this asymmetry. The simplification is
+conservative: it understates minority-chain price collapse, making clean-outcome
+thresholds slightly harder to cross than a cost-floor model would predict.
+
+> **References:**
+> Kristoufek, L. (2015). What are the main drivers of the Bitcoin price? Evidence from wavelet coherence analysis. *PLOS ONE, 10*(4).
+> Biais, B., Bisi, C., Bouvard, M., & Casamatta, C. (2019). The Blockchain Folk Theorem. *Review of Financial Studies, 32*(5), 1662–1715.
+> Hayes, A. S. (2019). Bitcoin price and its marginal cost of production: support for a fundamental value. *Applied Economics Letters, 26*(7), 554–560.
+
 ### Feedback loop
 
 The price oracle is at the center of a feedback loop:
@@ -530,10 +567,10 @@ anchors.
 |------------|-------------|
 | Pool profitability uses `assumed_fork_hashrate=50.0` | Pool decisions are not affected by the fork's current hashrate share, only by price and fees. Prevents circular dependency. |
 | Max price divergence capped at ±20% | Extreme scenarios (one fork near-worthless) are not modeled. |
+| Economic weight (`custody_btc`) is static with respect to chain liveness | A chain producing zero blocks retains its full custody-based price floor. Real exchanges would halt withdrawals and begin custody migration faster than static weight captures. This is conservative: it understates minority-chain price collapse, making clean-outcome thresholds slightly harder to cross than a cost-floor model would predict. See `assumptions.md §2.8` and the price divergence discussion in §4.6.2. |
 | Block subsidy fixed at 3.125 BTC | Post-halving regime; no halving event during a run. |
 | Mining cost fixed at $100,000/block | Same cost on both forks; does not vary with difficulty. |
 | Once committed pools are forced to switch, they rarely switch back | No mechanism makes the preferred fork more profitable after a forced switch without an external price reversal. |
-| User node parameters have zero measured causal effect on outcomes | See `targeted_sweep4`. User ideology and thresholds do not change which fork wins. |
 | Network topology is static during the simulation | Partition membership is fixed; dynamic switching requires `--enable-dynamic-switching`. |
 
 ---
@@ -567,21 +604,18 @@ Phase 1 sweeps identified four parameters with causal influence on fork outcomes
 | `pool_ideology_strength` | How strongly committed pools weight ideology vs profit | 0.0–1.0 |
 | `pool_max_loss_pct` | Maximum revenue loss committed pools tolerate for ideology | 0.0–1.0 |
 
-The remaining parameters were fixed at median values after Phase 1 sweeps showed
-no measurable causal effect on outcomes:
+The remaining parameters were fixed at median values after targeted sweeps and LHS analysis confirmed no measurable causal effect on outcomes at either retarget regime:
 
-| Fixed Parameter | Value | Validation Status |
-|-----------------|-------|-------------------|
-| `hashrate_split` | 0.25 | Validated at 144-block; **unvalidated at 2016-block** |
-| `pool_neutral_pct` | 30.0 | Validated at 144-block |
-| `econ_inertia` | 0.17 | Validated at 144-block |
-| `econ_switching_threshold` | 0.14 | Validated at 144-block |
-| `user_ideology_strength` | 0.49 | Validated at 144-block |
-| `user_switching_threshold` | 0.12 | Validated at 144-block |
-| `solo_miner_hashrate` | 0.085 | Validated at 144-block |
-
-**Warning:** Non-causality findings are from 144-block retarget conditions only.
-A verification sweep at 2016-block conditions is recommended before generalizing.
+| Fixed Parameter | Fixed Value | Validation Sweep(s) |
+|-----------------|:-----------:|---------------------|
+| `hashrate_split` | 0.25 | `targeted_sweep2` (144-block, n=42); `hashrate_2016_verification` (2016-block, n=18). Non-causal at econ≥0.60; conditional causality at econ=0.50 under 2016-block retarget — see §4.2.1 and §4.5. |
+| `pool_neutral_pct` | 30.0 | `targeted_sweep4` (n=35): controls cascade duration only; outcome unchanged across neutral_pct ∈ [10%, 50%]. |
+| `econ_inertia` | 0.17 | `targeted_sweep3b` (n=4): no effect on full 60-node network. |
+| `econ_switching_threshold` | 0.14 | `targeted_sweep3b` (n=4): no effect on full 60-node network. |
+| `user_ideology_strength` | 0.49 | `targeted_sweep5` (n=36): Spearman r = 0.000. |
+| `user_switching_threshold` | 0.12 | `targeted_sweep5` (n=36): Spearman r = 0.000. |
+| `pool_profitability_threshold` | 0.16 | `lhs_2016_6param` (2016-block, n=129): separation = 0.011 across [0.08, 0.28]. |
+| `solo_miner_hashrate` | 0.085 | `lhs_2016_6param` (2016-block, n=129): separation ≈ 0 across [0.00, 0.15]. |
 
 ### 13.3 Difficulty Retarget Regimes
 

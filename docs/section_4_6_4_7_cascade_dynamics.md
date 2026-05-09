@@ -37,7 +37,15 @@ Token prices for each fork diverge from the common base price ($60,000) as econo
 
 Price divergence magnitude correlates with cascade completeness: longer stalemates produce less divergence because fewer economic nodes have switched. This relationship is bidirectional — less divergence means fewer nodes cross their switching threshold, which means less divergence, producing a self-reinforcing equilibrium in contested scenarios.
 
-**[FIGURE PLACEHOLDER: Price divergence time-series for 2–3 representative scenarios — clean win, cascade win, and contested. Source: scenario time-series data. See writing_plan.md §Figures.]**
+**Figure Y — Price Divergence Time-Series by Outcome Category.** Each column shows one representative scenario; top row shows the full simulation; bottom row zooms to the first 2,000 blocks to show initial switching dynamics. Blue = v27 price, red = v26 price, dotted line = base price ($60k). Dashed vertical lines mark 2016-block retarget epochs. X-axis in simulation blocks (2-second interval); see §4.6.3 for real-world translation and its limits.
+
+*Left column — Clean Win (v26-dominant):* `econ=0.28`, `pool_committed=0.18`, 0 reorg events. Price separation is immediate — v26 rises to $65k, v27 falls to $55k within the first ~100 blocks. The simulation terminates at ~900 blocks when v27 loses all block production. The zoomed panel (first 200 blocks) confirms there is no competitive phase: prices diverge monotonically from the first block with no reversion.
+
+*Center column — Cascade Win (v27-dominant):* `econ=0.60`, `pool_committed=0.48`, 10 reorg events. The zoomed panel shows the cascade structure clearly: prices hold near $60k for the first ~500 blocks while committed pools sustain both chains, then diverge sharply between blocks 500–1,500 as neutral pool defection accelerates. By block 2,000 the divergence is substantially complete. The full panel shows the final settled state — v27 at $71k, v26 at $48k — sustained for the remaining ~4,500 blocks after cascade completion.
+
+*Right column — Contested Outcome:* `econ=0.60`, `pool_committed=0.43`, 5 reorg events. Both prices remain within 5% of $60k for the full 6,500-block simulation window. The zoomed panel shows early reorg activity produces minor price oscillation but no sustained divergence. Neither chain accumulates enough price advantage to push neutral pools decisively — the self-reinforcing equilibrium described above is visible: insufficient divergence → no additional pool switching → continued insufficient divergence. Final prices: v27 $61k, v26 $58k.
+
+Source: individual scenario time-series from `realistic_sweep2/sweep_0041`, `lhs_2016_full_parameter/sweep_0002`, and `econ_committed_2016_grid/sweep_0021`. See `docs/figures/fig_price_divergence_timeseries.png`.
 
 **Price divergence cap sensitivity.** The sensitivity of outcomes to the model's ±20% price divergence cap was tested via the `price_divergence_sensitivity_2016` sweep, running the same 12-scenario parameter grid at cap levels of ±10%, ±20%, ±30%, and ±40% (n=48 total). Table 11 summarizes the results.
 

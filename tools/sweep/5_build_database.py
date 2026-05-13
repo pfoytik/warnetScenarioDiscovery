@@ -445,6 +445,11 @@ SWEEP_METADATA = {
         'network_type': 'full',
         'description': 'Replay of realistic_sweep3 for validation'
     },
+    'lhs_2016_full_6param': {
+        'sweep_type': 'lhs',
+        'network_type': 'full',
+        'description': '6D LHS at 2016-block retarget on full 60-node network (n=692/720) — wide-range unbiased sweep; economic_split dominant globally (sep=0.266, threshold≈0.61); pool_profitability_threshold and solo_miner_hashrate confirmed non-causal on full network'
+    },
     'user_weight_threshold': {
         'sweep_type': 'targeted_grid',
         'network_type': 'full',

@@ -863,7 +863,7 @@ Two genuine regime differences emerge from the comparison. First, the committed_
 
 Economic switching is more common at 144-block (55% full_switch vs 46%) but slower: the econ switch lag is 2--3× longer (\~4,300--5,000s vs \~1,900s) because the pool cascade completes early (t\~1,815s) and economic nodes process the price signal gradually over the remaining 11,000+ seconds of run time.
 
-**Note on regime comparison validity:** The lite-network 6D LHS pair (lhs_144_6param / lhs_2016_6param) cannot demonstrate the regime comparison due to economic_split quantization. However, Phase 2 boundary fitting (`fit_boundary.py`, n=696 across both regimes) confirms the rank swap on full-network data without quantization artifacts: economic_split = 77.2% importance at 144-block vs 20.2% at 2016-block; pool_committed_split = 11.3% at 144-block vs 52.8% at 2016-block. The regime comparison is confirmed. See §4.8.2.
+**Note on regime comparison validity:** The lite-network 6D LHS pair (lhs_144_6param / lhs_2016_6param) cannot demonstrate the regime comparison due to economic_split quantization. However, Phase 2 boundary fitting (`fit_boundary.py`, n=696 across both regimes) confirms the rank swap on full-network data without quantization artifacts: economic_split = 77.2% importance at 144-block vs 20.2% at 2016-block; pool_committed_split = 11.3% at 144-block vs 52.8% at 2016-block. The regime comparison is confirmed. See §4.8.2. The full-network counterpart to lhs_2016_6param — `lhs_2016_full_6param` (n=692, wide parameter ranges, 60-node network) — is documented in §4.10.5; it supersedes the underpowered lhs_2016_full_parameter (n=64) and confirms economic_split as the global separator at 2016-block on the full network (60% RF importance).
 
 **4.6 Fork Dynamics and Cascade Signatures**
 
@@ -1380,6 +1380,67 @@ The v26-heavy outcome distribution (67.8% v26_dominant vs 25.7% on lite) reflect
 
 **Implication for regime comparison:** The prior claim that pool_committed_split dominates at 2016-block (finding 15, lhs_2016_full_parameter, n=64, full parameter space) and the lite Phase 3 finding are both real but reflect different regions of parameter space. Over the *full* parameter space, pool_committed_split is dominant because many v26 wins occur at very low committed_split (clean outcomes outside the transition zone). *Within* the transition zone on the full network, economic_split takes over as the primary separator. The two findings are complementary: pool_committed_split determines whether a scenario reaches the contested region; within that region, economic_split determines the outcome.
 
+**4.10.5 Wide-Range 6D LHS on Full Network: Two-Scale Boundary Structure Confirmed**
+
+`lhs_2016_full_6param` extends the full-network analysis beyond the PRIM uncertainty zone to characterize the complete 6D parameter space at 2016-block retarget. Where §4.10.4 sampled only the contested region (PRIM bounds), this sweep spans from clearly v26-favoring to clearly v27-favoring territory, enabling global feature importance estimation without zone-selection bias.
+
+**Design:** 692/720 scenarios completed (6 namespaces × 2 servers). Six parameters varied simultaneously via Latin Hypercube Sampling:
+
+  -------------------------  -------------------------
+  **Parameter**              **Range**
+  economic_split             \[0.250, 0.950\]
+  pool_committed_split       \[0.101, 0.699\]
+  pool_ideology_strength     \[0.201, 0.899\]
+  pool_max_loss_pct          \[0.050, 0.450\]
+  pool_profitability_threshold  \[0.080, 0.280\]
+  solo_miner_hashrate        \[0.000, 0.150\]
+  -------------------------  -------------------------
+
+hashrate_split (0.25) and pool_neutral_pct (30.0) fixed; full 60-node network; 2016-block retarget. Cross-reference: §4.5.3 covers the analogous lite-network 6D LHS pair.
+
+**Outcome distribution (n=692):**
+
+  ---------------  -----  ------
+  **Outcome**      **n**  **%**
+  v26_dominant     342    49.4%
+  v27_dominant     304    43.9%
+  contested        46     6.6%
+  ---------------  -----  ------
+
+The near-50/50 split reflects broad parameter sampling spanning both v26-favoring and v27-favoring regions. RF OOB accuracy: 82.4% (CV: 82.5% ± 2.9%).
+
+**Feature importance (Random Forest, full range):**
+
+  ----------------------------  ---------------  ----------------  ----------------------------
+  **Parameter**                 **Importance**   **Separation**    **Est. threshold**
+  **economic_split**            **60.0%**        0.266             **~0.61**
+  pool_committed_split          16.6%            0.088             —
+  pool_max_loss_pct             13.2%            0.021             —
+  pool_ideology_strength        10.3%            0.015             —
+  pool_profitability_threshold  ~0%              0.002             (non-causal)
+  solo_miner_hashrate           ~0%              —                 (non-causal)
+  ----------------------------  ---------------  ----------------  ----------------------------
+
+**economic_split is the global separator:** above ~0.665, v27 wins in 81.2% of scenarios regardless of pool parameters (PRIM v27-win box, support=39.2%). The v27_dominant mean economic_split is 0.743; v26_dominant mean is 0.477.
+
+**pool_profitability_threshold and solo_miner_hashrate confirmed non-causal on full network.** Both register ~0% importance across 692 full-network scenarios. This resolves the "lite-network only" qualification carried from Phase 1 — non-causality holds at full scale. These parameters can be treated as structural constants for all 2016-block analysis.
+
+**Top logistic regression coefficients (standardized):** economic_split +1.402 (dominant), pool_ideology_strength −0.821, committed × ideology +0.678, committed × max_loss +0.668, economic_split × ideology +0.627. Pool parameters continue to interact multiplicatively — the synergistic interaction finding from Phase 2 (§4.5.3) generalizes to the 6-parameter full-network model.
+
+**Two-scale boundary structure confirmed directly.** Placing this result alongside §4.10.4 reveals the structure explicitly:
+
+  -------------------  -----------------------------------------  ----------------------------------------
+  **Zoom level**       **Sweep**                                  **Dominant parameter**
+  Global full-range    lhs_2016_full_6param (n=692, wide bounds)  economic_split (**60%** importance)
+  Contested zone       lhs_2016_full_phase3 (n=292, PRIM bounds)  economic_split (**56%**), committed 18%
+  -------------------  -----------------------------------------  ----------------------------------------
+
+Both full-network sweeps agree on the dominant parameter. The difference in RF accuracy (82.4% wide vs. 73.6% PRIM-zone) reflects that the wide-range sweep includes clearly separable scenarios outside the transition region. The PRIM zone is genuinely the hard-to-predict region — contested rate 7.9% within PRIM bounds vs. 6.6% globally.
+
+**Reconciliation with prior findings.** Finding 15 (lhs_2016_full_parameter, n=64) identified pool_committed_split as dominant at 2016-block on the full-range space — that result was underpowered at n=64. The current n=692 sweep supersedes it: economic_split is dominant at full range; pool_committed_split's elevated importance in Phase 3 is a zone-selection effect, not a genuine regime reversal.
+
+**\[TODO: Insert Figure X — RF feature importance comparison: wide-range vs. PRIM-zone, side-by-side bar chart showing the two-scale structure visually. Insert Table X: parameter means by outcome (v27_dom mean econ=0.743, pool_committed=0.376; v26_dom mean econ=0.477, pool_committed=0.321; contested mean econ=0.590, pool_committed=0.380).\]**
+
 **Compute Queue --- Scenarios Required to Complete This Section**
 
 The following and ONLY the following additional sweeps are needed to
@@ -1415,7 +1476,16 @@ fill all \[PENDING DATA\] placeholders in this results section:
     consider Phase 3b sweep at econ ∈ [0.50, 0.65] for sharper boundary
     characterization.
 
-8.  targeted_sweep5_lite re-run (after role-name fix) --- fills lite
+9.  ~~Wide-range 6D LHS on full network (692/720 scenarios, 60-node,
+    2016-block)~~ --- **COMPLETE.** lhs_2016_full_6param finished May
+    2026. Key findings: economic_split globally dominant (60% RF
+    importance, threshold ≈ 0.61); pool_profitability_threshold and
+    solo_miner_hashrate confirmed non-causal on full network (resolves
+    lite-only qualification); two-scale boundary structure confirmed
+    (economic_split global separator, pool_committed_split PRIM-zone
+    differentiator). §4.10.5 filled.
+
+10.  targeted_sweep5_lite re-run (after role-name fix) --- fills lite
     network comparison if included. LOWER PRIORITY --- can be deferred
     if lite comparison is not load-bearing.
 

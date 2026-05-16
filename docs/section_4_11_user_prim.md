@@ -93,4 +93,4 @@ The User-PRIM analysis validates the Scenario Potential framework as a null-resu
 
 ---
 
-*Section 4.11 ends. Next: Section 4.9 — Phase 3: The Two-Layer Outcome Structure (after Phase 3b data collection, ~April 12).*
+*Section 4.11 ends. Next: Section 4.12 — Scenario Potential: Pool Coalition and Economic Actor Leverage.*

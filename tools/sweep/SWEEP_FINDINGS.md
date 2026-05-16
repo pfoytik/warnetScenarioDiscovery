@@ -1,5 +1,133 @@
 # Parameter Sweep Findings - Combined Analysis
 
+---
+
+## TLDR: Main Findings
+
+Twenty numbered findings emerged across the full research program. Ordered by causal logic, not discovery date.
+
+---
+
+**F1 — hashrate_split has no independent causal effect**
+Varying hashrate_split across 0.15–0.65 in a controlled grid produced identical outcomes at every economic level. The earlier strong correlation (Spearman r=+0.83) was a sampling confound: LHS scenarios with high hashrate also happened to have favorable pool commitment and economic conditions. Hashrate is conditionally causal only at exact economic parity (econ=0.50) under 2016-block retarget.
+→ See: [targeted_sweep2: Hashrate × Economic Decision Surface](#targeted_sweep2-hashrate--economic-decision-surface)
+
+---
+
+**F2 — pool_neutral_pct controls cascade intensity, not outcome**
+Varying neutral pool percentage from 10–50% changes how fast the cascade completes but not who wins. The inversion zone persists even when the v26-committed block collapses from 36% to 8% of total hashrate.
+→ See: [Executive Summary](#executive-summary) (finding 5), targeted_sweep3_neutral_pct section
+
+---
+
+**F3 — pool_committed_split has a non-monotonic (inversion zone) effect**
+At moderate economic levels (econ ≈ 0.60–0.70), increasing committed pool hashrate for v27 can *hurt* v27 — it raises the profitability bar that v26-committed Foundry must clear, flipping the outcome. The Foundry flip-point (~0.214 committed split) is the structural boundary governing this inversion.
+→ See: [targeted_sweep1: Economic × Committed Split Grid](#targeted_sweep1-economic--committed-split-grid)
+
+---
+
+**F4 — The difficulty retarget is the primary cascade trigger, not price**
+Even at 144-block retarget, the cascade fires in three phases driven by difficulty adjustment math: (1) initial split, (2) v26 difficulty drops first pulling all pools temporarily, (3) v27 retargets to extreme low difficulty forcing committed v26 pools off via loss > tolerance. Price signals are secondary amplifiers.
+→ See: [Executive Summary](#executive-summary) (finding 8), [Difficulty Adjustment Survival Window](#difficulty-adjustment-survival-window)
+
+---
+
+**F5 — 2016-block retarget is a qualitatively different regime**
+Without the retarget profit spike arriving within the run window, cascades stall at partial equilibrium. The "stuck contested" state at ~50/35 hashrate is the realistic baseline for most real-world forks. Crucially: the stuck state *does* resolve — after ~8,100s (4,050 blocks) when the first retarget fires.
+→ See: [Executive Summary](#executive-summary) (findings 6, 7), targeted_sweep8/sweep9 sections
+
+---
+
+**F6 — Economic thresholds differ sharply by retarget regime**
+144-block threshold ≈ 0.29; baseline 2016-block threshold ∈ (0.51, 0.55). The sigmoid oracle (perfect price information) lowers the 2016-block threshold by ~0.20 units. The retarget interval does not change the fundamental causal structure but shifts where the thresholds sit.
+→ See: [Executive Summary](#executive-summary) (finding 11)
+
+---
+
+**F7 — The Economic Self-Sustaining Point (ESP) is econ ≈ 0.74, invariant to retarget regime**
+The outcome flips winner-takes-all between econ=0.70 (v26_dominant) and econ=0.78 (v27_dominant) at both 144-block and 2016-block retarget. The same ESP threshold applies regardless of difficulty adjustment timing — difficulty adjustment timing does not affect the minimum economic majority required for UASF activation.
+→ See: [targeted_sweep7_esp: Economic Self-Sustaining Point (ESP)](#targeted_sweep7_esp-economic-self-sustaining-point-esp)
+
+---
+
+**F8 — Economic override is total at econ ≥ 0.82 — pool ideology delays but cannot prevent v27 victory**
+All 27 cells of the ideology × max_loss × econ grid above econ=0.82 produce v27_dominant. Cascade timing varies substantially (700–10,920 simulation-seconds / ~350–5,460 blocks) with ideology and loss tolerance, but the outcome is invariant. Above the override threshold, no pool configuration can sustain v26.
+→ See: [targeted_sweep6_econ_override: Economic Override of Pool Ideology](#targeted_sweep6_econ_override-economic-override-of-pool-ideology)
+
+---
+
+**F9 — pool_profitability_threshold and solo_miner_hashrate are non-causal**
+Both parameters confirmed non-causal at 2016-block retarget (lhs_2016_6param, sep ≤ 0.011) and at 144-block retarget (lhs_144_6param, sep ≈ 0). Confirmed on full network via lhs_2016_full_6param (near-zero RF importance). These parameters are excluded from boundary fitting and PRIM inputs.
+→ See: [lhs_2016_6param: Unbiased 6D Feature Importance at 2016-Block Retarget](#lhs_2016_6param-unbiased-6d-feature-importance-at-2016-block-retarget), [lhs_2016_full_6param](#lhs_2016_full_6param-wide-range-6d-lhs-on-full-network-at-2016-block-retarget)
+
+---
+
+**F10 — The price divergence cap (±10%) binds in some scenarios but is not the primary cause of the inversion threshold**
+Economic nodes never switch at any cap level (±10%–±40%) — the permanent lock is confirmed. The ±10% cap does bind in high-parameter scenarios (natural equilibrium would reach 13–16%), enabling 3 v26_dominant outcomes that would otherwise be v27. Above 10%, outcomes reflect pool dynamics, not cap constraints.
+→ See: [price_divergence_sensitivity_2016: Price Cap Is Not the Cause of the Inversion Threshold](#price_divergence_sensitivity_2016-price-cap-is-not-the-cause-of-the-inversion-threshold)
+
+---
+
+**F11 — Causal rank reversal confirmed: economic_split dominates at 144-block; pool_committed_split dominates at 2016-block (on comparable datasets)**
+RF feature importance on full-network scenarios (n=268 at 144-block, n=298 at 2016-block): economic_split = 77.2% dominant at 144-block; pool_committed_split = 52.8% dominant at 2016-block. The two parameters swap rank positions entirely between regimes. 2016-block dynamics are *more* predictable (OOB 83.2% vs 80.0%).
+→ See: [Phase 2: Boundary Fitting](#phase-2-boundary-fitting)
+
+---
+
+**F12 — At 2016-block full-range, economic_split is the global separator (60% RF importance)**
+lhs_2016_full_6param (n=692, full 60-node network) shows economic_split dominates globally: 60.0% importance vs pool_committed_split 16.6%. PRIM v27 box: economic_split ≥ 0.665 wins 81% of scenarios regardless of pool parameters. This is the full-range global picture; pool_committed_split takes over *within* the contested transition zone (F13).
+→ See: [lhs_2016_full_6param: Wide-Range 6D LHS on Full Network at 2016-Block Retarget](#lhs_2016_full_6param-wide-range-6d-lhs-on-full-network-at-2016-block-retarget)
+
+---
+
+**F13 — Within the PRIM transition zone, pool_committed_split dominates on the lite network; economic_split dominates on the full network**
+lhs_2016_phase3 (n=300 lite): pool_committed_split sep=0.188 (dominant, 6.7× next parameter). lhs_2016_full_phase3 (n=292 full): economic_split sep=0.164 (dominant, 3× next parameter), threshold ≈ 0.563. These are not contradictory: the lite network's economic quantization (2 nodes, 25% resolution) placed the PRIM box below the full-network economic threshold. Both results describe the same boundary at different zoom levels.
+→ See: [lhs_2016_phase3: Dense Transition Zone Sampling (Phase 3)](#lhs_2016_phase3-dense-transition-zone-sampling-phase-3), [lhs_2016_full_phase3: Full-Network Phase 3](#lhs_2016_full_phase3-full-network-phase-3--prim-transition-zone-on-60-node-network)
+
+---
+
+**F14 — Fork outcomes operate on two independent layers: the hash war and the economic adoption layer**
+Within v27-dominant transition zone scenarios, which fork wins the hashrate war (Layer 1) is controlled by pool_committed_split; whether economic nodes fully migrate to the winning chain (Layer 2) is controlled by pool_max_loss_pct. The two layers are decoupled: pool_committed_split means for full_switch vs. no_switch are 0.386 and 0.391 — statistically indistinguishable. 81% of v27 hash-war wins do NOT result in full economic adoption.
+→ See: [lhs_2016_phase3: Dense Transition Zone Sampling (Phase 3)](#lhs_2016_phase3-dense-transition-zone-sampling-phase-3) (Key Findings)
+
+---
+
+**F15 — Full economic adoption requires pool_max_loss_pct ≤ ~0.22 — a sharp absolute threshold**
+All 28 full_switch outcomes in Phase 3 have max_loss_pct ∈ [0.163, 0.217]. No scenario with max_loss_pct > 0.217 achieves full economic migration even when v27 decisively wins the hashrate war. The mechanism: low loss tolerance forces committed v26 pools to flip rapidly after the retarget spike, generating a 41–47% price gap that crosses economic node switching thresholds. High loss tolerance slows the cascade enough that the price signal never reaches that magnitude.
+→ See: [lhs_2016_phase3: Dense Transition Zone Sampling (Phase 3)](#lhs_2016_phase3-dense-transition-zone-sampling-phase-3) (Key Findings)
+
+---
+
+**F16 — The contested stalemate archetype requires high ideology AND high loss tolerance simultaneously**
+Contested outcomes cluster at pool_ideology_strength mean=0.630 and pool_max_loss_pct mean=0.302 — the highest of any outcome class. pool_committed_split mean (0.378) is nearly identical to v27-dominant (0.390): contested scenarios have enough committed hashrate to compete but not enough economic pressure to force resolution. This conjunction of three conditions (committed hashrate near threshold + high ideology + high loss tolerance) makes genuine contested outcomes rare (~2% of unbiased full-network sample).
+→ See: [lhs_2016_phase3: Dense Transition Zone Sampling (Phase 3)](#lhs_2016_phase3-dense-transition-zone-sampling-phase-3) (Key Findings)
+
+---
+
+**F17 — The E×C interaction dominates the logistic regression: economic support and pool commitment are synergistic**
+The largest logistic regression coefficient at 2016-block is the economic_split × pool_committed_split interaction (+1.231) — a factor of 2× over any other term. The two parameters co-determine outcomes rather than contributing additively. Secondary interactions: C×I (+0.504) amplifies committed hashrate with ideology; E×M (−0.618) captures an antagonism where high loss tolerance resists economic pressure.
+→ See: [Phase 2: Boundary Fitting](#phase-2-boundary-fitting) (Logistic Regression section)
+
+---
+
+**F18 — 2016-block regime produces 2.1× more on-chain disruption than 144-block**
+Mean contentiousness: 0.271 at 2016-block vs 0.132 at 144-block. Maximum disruption occurs not at decisive v27 wins but at intermediate committed_split — pools committed enough to sustain a real fork but not enough to resolve it. The high-chaos PRIM box (committed [0.25, 0.57], econ [0.34, 0.78]) identifies the parameter region a governance actor should most want to avoid.
+→ See: [Phase 2: Boundary Fitting](#phase-2-boundary-fitting) (Contentiousness comparison)
+
+---
+
+**F19 — User nodes cannot be structurally pivotal at any tested parameter combination (null result)**
+User-PRIM bias ratio = 1.256 — marginally above chance, far below the ≥2.0 threshold for meaningful concentration. The structural ceiling is set by the 2197:1 economic weight ratio (W_users/W_total = 0.169/370.90). The UASF governance implication: campaigns succeed by persuading exchanges and custodians, not by increasing individual full node operator counts.
+→ See: User-PRIM analysis (`tools/discovery/user_prim.py`, `tools/discovery/output/user_prim/`)
+
+---
+
+**F20 — Two-scale structure: economic_split is the global separator; pool_committed_split is the transition-zone separator**
+These are not contradictory findings from different sweeps — they describe the same decision boundary at different zoom levels. Over the full parameter range, economic_split determines whether a scenario reaches the contested region at all (clean v26 wins at low econ dominate the distribution). Within the contested transition zone, pool_committed_split (lite network) or economic_split near its threshold (full network) determines the direction. Finding 15 (n=64, underpowered) is superseded by Finding 20 (n=692).
+→ See: [lhs_2016_full_6param: Wide-Range 6D LHS on Full Network at 2016-Block Retarget](#lhs_2016_full_6param-wide-range-6d-lhs-on-full-network-at-2016-block-retarget)
+
+---
+
 ## Research Direction and Modeling Philosophy
 
 ### Research phases

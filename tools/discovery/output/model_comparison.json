@@ -2,7 +2,9 @@
   "validation_warnings": [
     "Parameter non-causality findings are from 144-block retarget conditions.",
     "hashrate_split non-causality is UNVALIDATED at 2016-block retarget.",
-    "A verification sweep (hashrate \u00d7 economic at 2016-block) is recommended."
+    "A verification sweep (hashrate \u00d7 economic at 2016-block) is recommended.",
+    "pool_profitability_threshold and solo_miner_hashrate confirmed non-causal at BOTH retarget regimes (lhs_2016_6param n=129, lhs_144_6param n=130).",
+    "NOTE: lhs_144_6param economic_split is a quantization artifact on the lite network \u2014 all econ [0.30,0.80] map to the same node. economic_split signal at 144-block comes from full-network sweeps only."
   ],
   "fixed_params_status": {
     "hashrate_split": "UNVALIDATED at 2016-block",
@@ -11,23 +13,23 @@
     "econ_friction": "UNVALIDATED at 2016-block"
   },
   "logistic_regression": {
-    "cv_accuracy": 0.5742830712303422,
+    "cv_accuracy": 0.5975128468653648,
     "top_features": {
-      "pool_ideology_strength*pool_max_loss_pct": -1.5631185498190494,
-      "economic_split": 0.7453722382520038,
-      "pool_committed_split": 0.6237859512277032,
-      "economic_split*pool_committed_split": 0.12104787152160314,
-      "economic_split*pool_max_loss_pct": -0.10977518256452416
+      "economic_split*pool_max_loss_pct": 0.9145593423950913,
+      "pool_committed_split": 0.7577439915437431,
+      "pool_ideology_strength*pool_max_loss_pct": -0.6541238842933665,
+      "pool_max_loss_pct": -0.6426380412353088,
+      "pool_committed_split*pool_ideology_strength": 0.4800253230518844
     }
   },
   "random_forest": {
-    "cv_accuracy": 0.8377428307123035,
-    "oob_accuracy": 0.8146551724137931,
+    "cv_accuracy": 0.6796505652620761,
+    "oob_accuracy": 0.764367816091954,
     "top_features": {
-      "economic_split": 0.7418122188635223,
-      "pool_committed_split": 0.11671339508820404,
-      "pool_max_loss_pct": 0.08073226189729896,
-      "pool_ideology_strength": 0.06074212415097463
+      "economic_split": 0.3635081758731957,
+      "pool_committed_split": 0.3360610779889123,
+      "pool_max_loss_pct": 0.16137561397217548,
+      "pool_ideology_strength": 0.1390551321657164
     }
   },
   "prim_outcome": {
@@ -36,11 +38,11 @@
       "bounds": {
         "economic_split": {
           "min": 0.0,
-          "max": 0.82
+          "max": 0.95
         },
         "pool_committed_split": {
           "min": 0.0,
-          "max": 0.5
+          "max": 0.75
         },
         "pool_ideology_strength": {
           "min": 0.0,
@@ -48,21 +50,21 @@
         },
         "pool_max_loss_pct": {
           "min": 0.0,
-          "max": 0.26
+          "max": 0.35
         }
       },
-      "support": 0.8793103448275862,
-      "mean": 0.44607843137254904,
-      "n_samples": 204,
+      "support": 0.9022988505747126,
+      "mean": 0.589171974522293,
+      "n_samples": 628,
       "trajectory": [
         {
           "support": 1.0,
-          "mean": 0.4396551724137931,
-          "n_samples": 232,
+          "mean": 0.5847701149425287,
+          "n_samples": 696,
           "bounds": {
             "economic_split": {
               "min": 0.0,
-              "max": 0.82
+              "max": 0.95
             },
             "pool_committed_split": {
               "min": 0.0,
@@ -79,13 +81,13 @@
           }
         },
         {
-          "support": 0.9655172413793104,
-          "mean": 0.4419642857142857,
-          "n_samples": 224,
+          "support": 0.9497126436781609,
+          "mean": 0.5869894099848714,
+          "n_samples": 661,
           "bounds": {
             "economic_split": {
               "min": 0.0,
-              "max": 0.82
+              "max": 0.95
             },
             "pool_committed_split": {
               "min": 0.0,
@@ -97,22 +99,22 @@
             },
             "pool_max_loss_pct": {
               "min": 0.0,
-              "max": 0.26
+              "max": 0.380575
             }
           }
         },
         {
-          "support": 0.9224137931034483,
-          "mean": 0.4439252336448598,
-          "n_samples": 214,
+          "support": 0.9022988505747126,
+          "mean": 0.589171974522293,
+          "n_samples": 628,
           "bounds": {
             "economic_split": {
               "min": 0.0,
-              "max": 0.82
+              "max": 0.95
             },
             "pool_committed_split": {
               "min": 0.0,
-              "max": 0.58
+              "max": 0.75
             },
             "pool_ideology_strength": {
               "min": 0.0,
@@ -120,30 +122,7 @@
             },
             "pool_max_loss_pct": {
               "min": 0.0,
-              "max": 0.26
-            }
-          }
-        },
-        {
-          "support": 0.8793103448275862,
-          "mean": 0.44607843137254904,
-          "n_samples": 204,
-          "bounds": {
-            "economic_split": {
-              "min": 0.0,
-              "max": 0.82
-            },
-            "pool_committed_split": {
-              "min": 0.0,
-              "max": 0.5
-            },
-            "pool_ideology_strength": {
-              "min": 0.0,
-              "max": 0.8
-            },
-            "pool_max_loss_pct": {
-              "min": 0.0,
-              "max": 0.26
+              "max": 0.35
             }
           }
         }
@@ -156,33 +135,33 @@
       "bounds": {
         "economic_split": {
           "min": 0.0,
-          "max": 0.82
+          "max": 0.95
         },
         "pool_committed_split": {
           "min": 0.0,
-          "max": 0.58
+          "max": 0.75
         },
         "pool_ideology_strength": {
           "min": 0.0,
-          "max": 0.51
+          "max": 0.8
         },
         "pool_max_loss_pct": {
           "min": 0.0,
-          "max": 0.26
+          "max": 0.45
         }
       },
-      "support": 0.896551724137931,
-      "mean": 0.28012504661112586,
-      "n_samples": 208,
+      "support": 1.0,
+      "mean": 0.13526730488079605,
+      "n_samples": 696,
       "trajectory": [
         {
           "support": 1.0,
-          "mean": 0.27499430895918286,
-          "n_samples": 232,
+          "mean": 0.13526730488079605,
+          "n_samples": 696,
           "bounds": {
             "economic_split": {
               "min": 0.0,
-              "max": 0.82
+              "max": 0.95
             },
             "pool_committed_split": {
               "min": 0.0,
@@ -197,75 +176,6 @@
               "max": 0.45
             }
           }
-        },
-        {
-          "support": 0.9568965517241379,
-          "mean": 0.2778674771212085,
-          "n_samples": 222,
-          "bounds": {
-            "economic_split": {
-              "min": 0.0,
-              "max": 0.82
-            },
-            "pool_committed_split": {
-              "min": 0.0,
-              "max": 0.75
-            },
-            "pool_ideology_strength": {
-              "min": 0.0,
-              "max": 0.51
-            },
-            "pool_max_loss_pct": {
-              "min": 0.0,
-              "max": 0.45
-            }
-          }
-        },
-        {
-          "support": 0.9396551724137931,
-          "mean": 0.2797523497544037,
-          "n_samples": 218,
-          "bounds": {
-            "economic_split": {
-              "min": 0.0,
-              "max": 0.82
-            },
-            "pool_committed_split": {
-              "min": 0.0,
-              "max": 0.75
-            },
-            "pool_ideology_strength": {
-              "min": 0.0,
-              "max": 0.51
-            },
-            "pool_max_loss_pct": {
-              "min": 0.0,
-              "max": 0.26
-            }
-          }
-        },
-        {
-          "support": 0.896551724137931,
-          "mean": 0.28012504661112586,
-          "n_samples": 208,
-          "bounds": {
-            "economic_split": {
-              "min": 0.0,
-              "max": 0.82
-            },
-            "pool_committed_split": {
-              "min": 0.0,
-              "max": 0.58
-            },
-            "pool_ideology_strength": {
-              "min": 0.0,
-              "max": 0.51
-            },
-            "pool_max_loss_pct": {
-              "min": 0.0,
-              "max": 0.26
-            }
-          }
         }
       ]
     }
@@ -274,19 +184,19 @@
     "bounds": {
       "economic_split": {
         "min": 0.0,
-        "max": 0.82
+        "max": 0.95
       },
       "pool_committed_split": {
         "min": 0.0,
-        "max": 0.5
+        "max": 0.75
       },
       "pool_ideology_strength": {
         "min": 0.0,
-        "max": 0.51
+        "max": 0.8
       },
       "pool_max_loss_pct": {
         "min": 0.0,
-        "max": 0.26
+        "max": 0.35
       }
     },
     "description": "Intersection of outcome-uncertainty and high-contentiousness zones"
@@ -301,29 +211,29 @@
         },
         "pool_committed_split": {
           "min": 0.0,
-          "max": 0.5
+          "max": 0.51397
         },
         "pool_ideology_strength": {
           "min": 0.0,
-          "max": 0.8
+          "max": 0.766875
         },
         "pool_max_loss_pct": {
           "min": 0.0,
-          "max": 0.26
+          "max": 0.45
         }
       },
-      "support": 0.8793103448275862,
-      "mean": 0.44607843137254904,
-      "n_samples": 204,
+      "support": 0.7169540229885057,
+      "mean": 0.5150300601202404,
+      "n_samples": 499,
       "trajectory": [
         {
           "support": 1.0,
-          "mean": 0.4396551724137931,
-          "n_samples": 232,
+          "mean": 0.5847701149425287,
+          "n_samples": 696,
           "bounds": {
             "economic_split": {
               "min": 0.0,
-              "max": 0.82
+              "max": 0.95
             },
             "pool_committed_split": {
               "min": 0.0,
@@ -338,20 +248,20 @@
               "max": 0.45
             }
           },
-          "uncertainty": 0.8793103448275862
+          "uncertainty": 0.8304597701149425
         },
         {
-          "support": 0.9655172413793104,
-          "mean": 0.4419642857142857,
-          "n_samples": 224,
+          "support": 0.9497126436781609,
+          "mean": 0.5718608169440242,
+          "n_samples": 661,
           "bounds": {
             "economic_split": {
               "min": 0.0,
-              "max": 0.82
+              "max": 0.95
             },
             "pool_committed_split": {
               "min": 0.0,
-              "max": 0.75
+              "max": 0.6562250000000001
             },
             "pool_ideology_strength": {
               "min": 0.0,
@@ -359,15 +269,63 @@
             },
             "pool_max_loss_pct": {
               "min": 0.0,
-              "max": 0.26
+              "max": 0.45
             }
           },
-          "uncertainty": 0.8839285714285714
+          "uncertainty": 0.8562783661119515
         },
         {
-          "support": 0.9224137931034483,
-          "mean": 0.4439252336448598,
-          "n_samples": 214,
+          "support": 0.9209770114942529,
+          "mean": 0.5585023400936038,
+          "n_samples": 641,
+          "bounds": {
+            "economic_split": {
+              "min": 0.0,
+              "max": 0.82
+            },
+            "pool_committed_split": {
+              "min": 0.0,
+              "max": 0.6562250000000001
+            },
+            "pool_ideology_strength": {
+              "min": 0.0,
+              "max": 0.8
+            },
+            "pool_max_loss_pct": {
+              "min": 0.0,
+              "max": 0.45
+            }
+          },
+          "uncertainty": 0.8829953198127924
+        },
+        {
+          "support": 0.875,
+          "mean": 0.5500821018062397,
+          "n_samples": 609,
+          "bounds": {
+            "economic_split": {
+              "min": 0.0,
+              "max": 0.82
+            },
+            "pool_committed_split": {
+              "min": 0.0,
+              "max": 0.6166
+            },
+            "pool_ideology_strength": {
+              "min": 0.0,
+              "max": 0.8
+            },
+            "pool_max_loss_pct": {
+              "min": 0.0,
+              "max": 0.45
+            }
+          },
+          "uncertainty": 0.8998357963875205
+        },
+        {
+          "support": 0.8390804597701149,
+          "mean": 0.5325342465753424,
+          "n_samples": 584,
           "bounds": {
             "economic_split": {
               "min": 0.0,
@@ -383,15 +341,15 @@
             },
             "pool_max_loss_pct": {
               "min": 0.0,
-              "max": 0.26
+              "max": 0.45
             }
           },
-          "uncertainty": 0.8878504672897196
+          "uncertainty": 0.9349315068493151
         },
         {
-          "support": 0.8793103448275862,
-          "mean": 0.44607843137254904,
-          "n_samples": 204,
+          "support": 0.7959770114942529,
+          "mean": 0.51985559566787,
+          "n_samples": 554,
           "bounds": {
             "economic_split": {
               "min": 0.0,
@@ -399,7 +357,7 @@
             },
             "pool_committed_split": {
               "min": 0.0,
-              "max": 0.5
+              "max": 0.5449100000000002
             },
             "pool_ideology_strength": {
               "min": 0.0,
@@ -407,13 +365,61 @@
             },
             "pool_max_loss_pct": {
               "min": 0.0,
-              "max": 0.26
+              "max": 0.45
             }
           },
-          "uncertainty": 0.8921568627450981
+          "uncertainty": 0.96028880866426
+        },
+        {
+          "support": 0.7557471264367817,
+          "mean": 0.5171102661596958,
+          "n_samples": 526,
+          "bounds": {
+            "economic_split": {
+              "min": 0.0,
+              "max": 0.82
+            },
+            "pool_committed_split": {
+              "min": 0.0,
+              "max": 0.51397
+            },
+            "pool_ideology_strength": {
+              "min": 0.0,
+              "max": 0.8
+            },
+            "pool_max_loss_pct": {
+              "min": 0.0,
+              "max": 0.45
+            }
+          },
+          "uncertainty": 0.9657794676806084
+        },
+        {
+          "support": 0.7169540229885057,
+          "mean": 0.5150300601202404,
+          "n_samples": 499,
+          "bounds": {
+            "economic_split": {
+              "min": 0.0,
+              "max": 0.82
+            },
+            "pool_committed_split": {
+              "min": 0.0,
+              "max": 0.51397
+            },
+            "pool_ideology_strength": {
+              "min": 0.0,
+              "max": 0.766875
+            },
+            "pool_max_loss_pct": {
+              "min": 0.0,
+              "max": 0.45
+            }
+          },
+          "uncertainty": 0.9699398797595191
         }
       ],
-      "uncertainty": 0.8921568627450981
+      "uncertainty": 0.9699398797595191
     },
     "description": "Region where outcome is closest to 50/50 (maximum uncertainty)"
   }

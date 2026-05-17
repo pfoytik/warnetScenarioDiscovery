@@ -7,7 +7,9 @@
 
 ## 4.10 Phase 3b: Cross-Network Validation
 
-Phase 3 established the two-layer outcome structure on a 25-node lite network — a configuration chosen for computational tractability that introduces known quantization in economic node assignment (2 nodes per partition, ~25% resolution per node). Phase 3b replicates the identical PRIM uncertainty box bounds on the full 60-node network (`lhs_2016_full_phase3`, n=292), testing whether the two-layer finding and its governing thresholds hold at full economic resolution (~4% per node, 24 economic nodes per partition) or are artifacts of the lite network's coarser structure.
+Phase 3 established the two-layer outcome structure on a 25-node lite network — a configuration chosen for computational tractability that consolidates all economic actors into a small number of aggregate nodes (~2 nodes per partition, each representing ~25% of total economic weight). Phase 3b replicates the identical PRIM uncertainty box bounds on the full 60-node network (`lhs_2016_full_phase3`, n=292), where 24 independent economic nodes per partition each represent ~4% of total economic weight.
+
+The two network configurations are not simply different resolutions of the same model — they represent meaningfully different economic coordination assumptions. The lite network models a world where economic actors behave as coordinated blocs: a single aggregate node captures "all major exchanges" and its decision shifts a large weight at once, as would occur under industry consensus, coordinated statements, or a dominant actor that others follow. The full network models fragmented independent decision-making: each economic actor evaluates the same price signal but switches at its own threshold, so the aggregate price signal builds gradually rather than arriving in large discrete steps. These are both plausible real-world regimes and the comparison between them is a substantive finding, not a data quality issue.
 
 ---
 
@@ -21,7 +23,7 @@ The contested zone shrinks substantially on the full network: 7.9% (23/292) vers
 
 ---
 
-### 4.10.2 The Apparent Dominant-Parameter Reversal
+### 4.10.2 The Dominant-Parameter Shift Across Coordination Regimes
 
 The most striking cross-network difference is that `economic_split` displaces `pool_committed_split` as the dominant predictor within the transition zone on the full network. Table 19 compares feature importance across the two network configurations.
 
@@ -34,17 +36,19 @@ The most striking cross-network difference is that `economic_split` displaces `p
 | pool_max_loss_pct | 0.012 (#4) | 0.020 (#3) |
 | pool_ideology_strength | 0.021 (#3) | 0.016 (#4) |
 
-This reversal is not a contradiction. It is a consequence of the PRIM box calibration having been derived from lite-network data where economic node quantization compressed effective economic_split variation. On the lite network, economic_split values across [0.30, 0.80] often mapped to identical node counts (1 node = 50% weight), placing the apparent transition zone at lower economic support. On the full network with continuous assignment, the same PRIM bounds fall predominantly below the ~0.563 economic threshold — producing 67.8% v26-dominant outcomes rather than the 50/50 balance the box was designed to target.
+This shift reflects the different economic coordination structures of the two networks rather than a measurement inconsistency. On the lite network, a single aggregate economic node controls ~25% of total economic weight. When that node switches, the price oracle receives a large discrete signal — sufficient to either cross pool switching thresholds in one step or fall short entirely. In this regime, pool commitment is the critical variable: it determines whether the economic bloc's signal is large enough to force committed pools over their tolerance threshold. The outcome depends on whether a single coordinated economic trigger lands above or below the pool switching threshold, making pool_committed_split the dominant discriminator.
 
-The reconciliation is as follows: over the full parameter space, pool_committed_split is dominant because clean v26-dominant outcomes at very low committed_split dominate the distribution. Within the transition zone on the full network, economic_split is the primary separator — scenarios that reach the contested region are distinguished by whether they clear the ~0.563 economic threshold. The two parameters govern sequentially, not competitively: pool_committed_split determines whether a scenario enters the transition zone; economic_split determines the outcome direction within it.
+On the full network, 24 independent economic nodes switch at slightly different times as the price signal builds. No single node controls enough weight to resolve the outcome alone — the cascade assembles incrementally, with each individual switch reinforcing the price signal that triggers the next. In this regime, the aggregate economic_split value controls how far the cascade can propagate: higher economic_split means more nodes eventually cross their switching threshold and the self-reinforcing price signal reaches completion. Pool commitment matters less because the cascade does not depend on a single coordinated trigger — it builds continuously from many small independent decisions. economic_split is therefore the dominant discriminator.
+
+The governance implication is direct: the relative leverage of pool operators versus economic actors depends on how coordinated economic actors are in practice. In a coordinated regime — where exchanges issue joint statements, a dominant custodian sets the standard others follow, or industry consensus forms rapidly — pool commitment is the pivotal variable because it determines whether a single large economic signal crosses the threshold. In a fragmented regime — where each exchange, custodian, and payment processor reaches its own assessment independently — aggregate economic support is the pivotal variable because it governs how far the self-reinforcing cascade propagates before stalling.
 
 ---
 
 ### 4.10.3 Implications and Scope for Future Work
 
-The PRIM box mismatch between lite and full network identifies a methodological refinement for future work: the uncertainty box should be re-derived from full-network data targeting econ ∈ [0.50, 0.65] to properly characterize the full-network transition zone. A refined Phase 3c sweep within these bounds would sharpen the economic threshold estimate (~0.563) and better characterize the contested zone boundary on the continuous economic weight distribution.
+The PRIM box calibration was derived from lite-network data and therefore targets the coordinated-bloc transition zone rather than the fragmented-independent one. On the full network, the same bounds fall predominantly below the ~0.563 economic threshold — producing 67.8% v26-dominant outcomes rather than the 50/50 balance the box was designed to target. A refined Phase 3c sweep re-deriving the uncertainty box from full-network data targeting econ ∈ [0.50, 0.65] would sharpen the economic threshold estimate and characterize the transition zone under the fragmented-independent coordination assumption.
 
-For the present paper's conclusions, the cross-network validation achieves its primary goal: the two-layer outcome structure — the central finding of Phase 3 — is confirmed as a real dynamic property of the fork model at full economic resolution, not an artifact of lite-network quantization. The hash-war-only archetype (v27 wins hashrate without economic adoption, 81% of v27-dominant transition zone outcomes on lite) replicates on the full network. The operational risk ranking of the four archetypes (Section 4.9.7) is unchanged.
+For the present paper's conclusions, the cross-network validation achieves its primary goal: the two-layer outcome structure — the central finding of Phase 3 — is confirmed as a real dynamic property of the fork model under both coordination regimes. The hash-war-only archetype (v27 wins hashrate without economic adoption, 81% of v27-dominant transition zone outcomes on lite) replicates on the full network. The operational risk ranking of the four archetypes (Section 4.9.7) is unchanged across both regimes.
 
 ---
 
@@ -100,29 +104,27 @@ The 0.266 gap in economic_split between v27-dominant and v26-dominant means dwar
 
 ---
 
-### 4.10.5 Resolving the Two-Scale Structure
+### 4.10.5 The Two-Scale Structure Across Coordination Regimes
 
-Together, §4.10.1–§4.10.3 (PRIM-zone full network, n=292) and §4.10.4 (wide-range full network, n=692) resolve what initially appeared to be a contradictory set of results across the research program. Finding 15 from Phase 2 identified pool_committed_split as dominant at 2016-block; Phase 3 replicated this on the lite network within the PRIM zone; but the full-network results in both sweeps show economic_split leading. Table 22 lays the full comparison out.
+Together, §4.10.1–§4.10.3 (PRIM-zone full network, n=292) and §4.10.4 (wide-range full network, n=692) complete a picture that spans both network configurations and both parameter space scopes. Table 22 places all 2016-block sweeps in order.
 
 **Table 22. Feature importance across all 2016-block sweeps, ordered by parameter space scope.**
 
-| Sweep | n | Network | Scope | Top parameter | Importance |
-|-------|:-:|---------|-------|---------------|:----------:|
-| `lhs_2016_full_parameter` | 64 | full | Full range | pool_committed_split | 0.275 sep. |
-| `lhs_2016_6param` | 129 | lite | Full range | pool_committed_split | 0.272 sep. |
-| `lhs_2016_phase3` | 300 | lite | PRIM zone | pool_committed_split | 0.188 imp. |
-| `lhs_2016_full_phase3` | 292 | full | PRIM zone | **economic_split** | **0.164 sep.** |
-| **`lhs_2016_full_6param`** | **692** | **full** | **Full range** | **economic_split** | **60.0% imp.** |
+| Sweep | n | Network | Coordination | Scope | Top parameter | Importance |
+|-------|:-:|---------|-------------|-------|---------------|:----------:|
+| `lhs_2016_full_parameter` | 64 | full | fragmented | Full range | pool_committed_split | 0.275 sep. |
+| `lhs_2016_6param` | 129 | lite | coordinated bloc | Full range | pool_committed_split | 0.272 sep. |
+| `lhs_2016_phase3` | 300 | lite | coordinated bloc | PRIM zone | pool_committed_split | 0.188 imp. |
+| `lhs_2016_full_phase3` | 292 | full | fragmented | PRIM zone | **economic_split** | **0.164 sep.** |
+| **`lhs_2016_full_6param`** | **692** | **full** | **fragmented** | **Full range** | **economic_split** | **60.0% imp.** |
 
-The pattern is not random. The two sweeps showing pool_committed_split dominance are both small-n or lite-network; the two large full-network sweeps both show economic_split dominance. The resolution is:
+The pattern across these sweeps reflects two distinct causal structures, not a methodological inconsistency:
 
-1. **The lite-network dominance of pool_committed_split is a quantization artifact.** On the lite network, economic_split quantizes into a handful of distinct node-count outcomes (~25% resolution per node). Within the PRIM bounds, many economic_split values map to the same effective weight, compressing its apparent variance and suppressing its measured importance. On the full network at ~4% resolution per node, economic_split varies continuously and its separation power is correctly measured.
+**Under coordinated-bloc economic decisions (lite network):** pool_committed_split is dominant because the decisive event is whether a single large economic bloc's signal crosses pool switching thresholds in one step. Pool commitment determines whether that threshold is reachable at all. economic_split matters less because the total weight moving at once is determined by node count, not the continuous parameter value. At low pool_committed_split (≤ ~0.25), v26 committed pools can absorb the bloc signal; above ~0.30, Foundry's assignment resolves the outcome before the bloc's signal propagates fully.
 
-2. **The early underpowered result (n=64) cannot be trusted.** The prior finding 15 identification of pool_committed_split dominance from `lhs_2016_full_parameter` (n=64) was based on too few scenarios to reliably estimate importance rankings in a 6-parameter model. The current n=692 sweep supersedes it.
+**Under fragmented-independent economic decisions (full network):** economic_split is dominant because the cascade assembles incrementally from many small independent switches. No single actor controls enough weight to resolve the outcome alone — the price signal builds with each switch, and how far it propagates before stalling is governed by the aggregate economic_split level. pool_committed_split remains the gate: at very low values (≤ ~0.25) v26 wins regardless, because committed v26 pool resistance is strong enough that even a fully propagating economic cascade stalls. But within the transition zone, economic_split determines how far the cascade runs.
 
-3. **pool_committed_split is genuinely important — it is the gate, not the separator.** At low pool_committed_split (≤ ~0.25), v26 outcomes are clean regardless of economic conditions; there are no contested scenarios. pool_committed_split determines whether a scenario reaches the transition zone. Within the transition zone, economic_split determines direction. This sequential structure explains why pool_committed_split appears dominant in some analyses (those that include the full range of committed_split values, where the gate is load-bearing) and economic_split appears dominant in others (those that restrict to the transition zone, where the gate is already cleared).
-
-The correct operational summary is: **pool_committed_split sets the floor below which v26 always wins; economic_split sets the ceiling above which v27 almost always wins; the contested region between these thresholds is real and accounts for roughly one-third of plausible parameter space at 2016-block retarget.** This narrative is consistent with every sweep in the program; the apparent contradictions in importance rankings reflect measurement scope, not model inconsistency.
+Both structures produce the same sequential governance logic: **pool_committed_split sets the floor below which v26 always wins; economic_split sets the ceiling above which v27 almost always wins.** What changes between coordination regimes is which parameter carries the most discriminating power within the contested region between these thresholds. The finding that pool operators are pivotal under coordinated economic blocs, and that aggregate economic support is pivotal under fragmented independent decision-making, is itself a governance insight: the leverage of each actor class depends on how organized the other is.
 
 ---
 

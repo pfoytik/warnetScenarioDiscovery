@@ -105,7 +105,21 @@ PRIM_BOX = {
 
 RF_N_ESTIMATORS = 600
 RF_RANDOM_STATE = 42
-GRADIENT_DELTA  = 0.01   # step size for numerical gradient computation
+GRADIENT_DELTA  = 0.02   # step size for numerical gradient computation
+#
+# Sensitivity analysis (delta_test2.py, n=401, RF n_estimators=200):
+#   delta=0.001: 57.1% zero-gradient scenarios — too small, nudge misses tree thresholds
+#   delta=0.005: 30.9% zeros, r=0.83 vs 0.010 — slightly too small
+#   delta=0.010: 22.7% zeros, r=0.75 vs 0.020 — acceptable but underestimates near-boundary
+#   delta=0.020: 17.0% zeros, r=0.75 vs 0.010 — best balance, selected
+#   delta=0.050: 5.5%  zeros, r=0.44 vs 0.010 — too large, averages over multiple thresholds
+#
+# The RF probability surface is piecewise constant (600 tree votes), so the
+# "true" derivative is undefined between split thresholds and infinite at them.
+# The finite-difference estimate approximates the local gradient by spanning
+# enough split thresholds to get a stable aggregate signal without blurring
+# across distant boundaries. 0.02 spans ~10-20 thresholds on average given
+# n=590 scenarios over committed_split range [0.10, 0.70].
 DPI = 300
 
 
@@ -194,32 +208,36 @@ def compute_contentiousness(df: pd.DataFrame) -> np.ndarray:
 # Scenario Potential computation
 # =============================================================================
 
+def _gradient(rf: RandomForestClassifier, X: np.ndarray, param_idx: int) -> np.ndarray:
+    """
+    Vectorized centered finite-difference gradient of P(v27_win) with respect
+    to one parameter column, evaluated at every row of X simultaneously.
+    Both nudged arrays are scored in a single batch predict_proba call each.
+    """
+    X_lo = X.copy()
+    X_hi = X.copy()
+    X_lo[:, param_idx] = np.clip(X[:, param_idx] - GRADIENT_DELTA, 0.0, 1.0)
+    X_hi[:, param_idx] = np.clip(X[:, param_idx] + GRADIENT_DELTA, 0.0, 1.0)
+    p_lo = rf.predict_proba(X_lo)[:, 1]
+    p_hi = rf.predict_proba(X_hi)[:, 1]
+    step = X_hi[:, param_idx] - X_lo[:, param_idx]
+    return np.abs(p_hi - p_lo) / np.where(step > 0, step, 1.0)
+
+
 def compute_sp_pools(df: pd.DataFrame, rf: RandomForestClassifier) -> np.ndarray:
     """
     SP_pools — RF probability gradient with respect to pool_committed_split.
 
-    For each scenario, numerically estimate |dP(v27_win)/d(pool_committed_split)|
-    at that scenario's parameter values. High gradient = small change in committed
-    hashrate structure flips the predicted outcome. Peaks near the committed_split
-    decision boundary.
+    Vectorized centered finite difference: two batch predict_proba calls cover
+    the entire dataset. High gradient = small change in committed hashrate
+    structure flips the predicted outcome. Peaks near the committed_split
+    decision boundary (~0.296 transition zone, ~0.214 Foundry flip-point).
 
     Result is min-max normalized to [0, 1] across the dataset.
     """
     X = df[ACTIVE_PARAMS].values
     committed_idx = ACTIVE_PARAMS.index('pool_committed_split')
-
-    sp = np.zeros(len(df))
-    for i, row in enumerate(X):
-        x_lo = row.copy()
-        x_hi = row.copy()
-        x_lo[committed_idx] = max(0.0, row[committed_idx] - GRADIENT_DELTA)
-        x_hi[committed_idx] = min(1.0, row[committed_idx] + GRADIENT_DELTA)
-        p_lo = rf.predict_proba(x_lo.reshape(1, -1))[0, 1]
-        p_hi = rf.predict_proba(x_hi.reshape(1, -1))[0, 1]
-        step = x_hi[committed_idx] - x_lo[committed_idx]
-        sp[i] = abs(p_hi - p_lo) / step if step > 0 else 0.0
-
-    # Min-max normalize
+    sp = _gradient(rf, X, committed_idx)
     lo, hi = sp.min(), sp.max()
     return (sp - lo) / (hi - lo) if hi > lo else np.zeros_like(sp)
 
@@ -243,28 +261,16 @@ def compute_sp_economic(df: pd.DataFrame, rf: RandomForestClassifier) -> np.ndar
     X = df[ACTIVE_PARAMS].values
     econ_idx = ACTIVE_PARAMS.index('economic_split')
 
-    # Raw gradient
-    grad = np.zeros(len(df))
-    for i, row in enumerate(X):
-        x_lo = row.copy()
-        x_hi = row.copy()
-        x_lo[econ_idx] = max(0.0, row[econ_idx] - GRADIENT_DELTA)
-        x_hi[econ_idx] = min(1.0, row[econ_idx] + GRADIENT_DELTA)
-        p_lo = rf.predict_proba(x_lo.reshape(1, -1))[0, 1]
-        p_hi = rf.predict_proba(x_hi.reshape(1, -1))[0, 1]
-        step = x_hi[econ_idx] - x_lo[econ_idx]
-        grad[i] = abs(p_hi - p_lo) / step if step > 0 else 0.0
+    # Raw gradient — vectorized
+    grad = _gradient(rf, X, econ_idx)
 
     # Inversion zone gate: triangular, peaks at ESP, 0 at zone boundaries
-    econ_vals = df['economic_split'].values
-    gate = np.zeros(len(df))
-    for i, e in enumerate(econ_vals):
-        if e < ECON_CASCADE_FLOOR or e > ECON_OVERRIDE:
-            gate[i] = 0.0   # structurally determined — no economic leverage
-        elif e <= ECON_ESP:
-            gate[i] = (e - ECON_CASCADE_FLOOR) / (ECON_ESP - ECON_CASCADE_FLOOR)
-        else:
-            gate[i] = (ECON_OVERRIDE - e) / (ECON_OVERRIDE - ECON_ESP)
+    # Vectorized: rising ramp below ESP, falling ramp above, clipped to [0,1]
+    e = df['economic_split'].values
+    rising  = (e - ECON_CASCADE_FLOOR) / (ECON_ESP - ECON_CASCADE_FLOOR)
+    falling = (ECON_OVERRIDE - e)      / (ECON_OVERRIDE - ECON_ESP)
+    gate = np.where(e <= ECON_ESP, rising, falling)
+    gate = np.clip(gate, 0.0, 1.0)   # zero outside [CASCADE_FLOOR, OVERRIDE]
 
     sp = grad * gate
 

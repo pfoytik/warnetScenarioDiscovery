@@ -49,7 +49,9 @@ This threshold — approximately 0.214 — is the Foundry flip-point. Its effect
 
 The governance implication is direct: the decisive question in a contentious fork is not whether v27 holds an aggregate economic majority, but which specific large pools are on which side and what their switching costs are. A 4-percentage-point shift in pool_committed_split — from 0.20 to 0.30 — converts Foundry from "economically trapped on v27" to "ideologically committed to v27 but surrounded by a now-strengthened v26 block," reversing the fork outcome entirely.
 
-**[FIGURE PLACEHOLDER: Two-panel schematic of pool assignment at commit=0.20 vs commit=0.30 showing Foundry's position relative to the flip-point boundary, with the resulting hashrate blocks on each side. See writing_plan.md §Figures.]**
+![Pool Assignment Schematic at Foundry Flip-Point](figures/fig_pool_assignment_schematic.png)
+
+*Two-panel pool assignment schematic at the Foundry flip-point. Left: pool_committed_split=0.20 — Foundry is economically trapped and forced to switch to v27, leaving AntPool+F2Pool (~33%) as the v26 committed bloc. Right: pool_committed_split=0.30 — Foundry shifts to v27-committed; the v26 bloc (AntPool+F2Pool, ~33%) is now undiluted and sufficient to resist the cascade at moderate economic support levels (econ=0.60–0.70).*
 
 The flip-point is confirmed by unbiased Latin Hypercube Sampling at 2016-block retarget (lhs_2016_full_parameter, n=64): all 12 v26_dominant cases have pool_committed_split ≤ 0.246, and all 52 v27_dominant cases have pool_committed_split ≥ 0.260. The gap between 0.247 and 0.259 is clean — no scenarios fall in this range — confirming the structural nature of the threshold rather than a smooth probability gradient.
 

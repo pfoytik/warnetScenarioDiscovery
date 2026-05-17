@@ -77,7 +77,9 @@ A sensitivity check across three λ configurations confirms the finding is not a
 
 The box size and Z_user concentration shift as the weighting changes, but the bias ratio does not materially improve. The near-unity bias ratio under the default weighting (λ1=0.5, λ2=1.0) is the primary result; the alternative weightings confirm it is not sensitive to that specific choice.
 
-**[FIGURE PLACEHOLDER: SP_user distribution by outcome type and Z_user scatter plot (SP_user vs. contentiousness) with User-PRIM box boundary overlaid. Source: `tools/discovery/output/user_prim/`. See writing_plan.md §Figures.]**
+![SP_user Distribution by Outcome Type](figures/fig_sp_user_distribution.png)
+
+![Z_user Scatter Plot](figures/fig_z_user_scatter.png)
 
 ---
 

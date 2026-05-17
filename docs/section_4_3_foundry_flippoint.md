@@ -7,7 +7,7 @@
 
 ## 4.3 Causal Parameters and Decision Boundary
 
-After eliminating non-causal parameters (Section 4.2), fork outcomes are determined by three active parameters: `economic_split` (the fraction of Bitcoin economic activity — custody, transaction volume, exchange liquidity — denominated on the v27 fork), `pool_committed_split` (the fraction of mining hashrate held by ideologically committed pools), and the interaction of `pool_ideology_strength` and `pool_max_loss_pct` (jointly determining whether a committed pool will switch under economic pressure). This section maps the joint decision boundary across these three parameters and identifies the structural mechanisms governing each.
+After eliminating non-causal parameters (Section 4.2), fork outcomes are determined by three active parameters: `economic_split` (the fraction of Bitcoin economic activity — custody, transaction volume, exchange liquidity — denominated on the v27 fork), `pool_committed_split` (the fraction of non-neutral committed pool hashrate ideologically assigned to v27; the complement (1 − pool_committed_split) is v26-committed, reflecting v26's status as the incumbent chain that committed pools default to before a new fork activates), and the interaction of `pool_ideology_strength` and `pool_max_loss_pct` (jointly determining whether a committed pool will switch under economic pressure). This section maps the joint decision boundary across these three parameters and identifies the structural mechanisms governing each.
 
 ---
 

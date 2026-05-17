@@ -531,6 +531,16 @@ The scenario runs on a tick-based loop. In each iteration:
 
 ---
 
+### 10.1 Stochastic Elements and Noise Floor
+
+Block production is the **only stochastic process** in the simulation. The probability that a block is mined on a given fork in a given tick is drawn from a Bernoulli distribution with parameter `tick_interval / expected_block_interval` (see §5). All other decisions — pool fork selection, economic node switching, price updates — are deterministic threshold functions: given the same price signal and parameter values, they produce the same output on every run.
+
+This matters for interpreting results: outcome variance across repeated runs at identical parameters reflects mining stochasticity alone, not behavioral randomness. The empirical magnitude of this variance is quantified in §4.2 via the `balanced_baseline` sweep (n=27 runs at symmetric starting conditions with no committed pool ideology): block share variance was σ = 3.3% across runs, with zero cascades and zero reorgs triggered. This establishes 3.3% as the noise floor — any block share shift exceeding this threshold reflects active parameter influence rather than mining variance. All systematic effects documented in §4.3–4.12 produce shifts of 15–50%, an order of magnitude above this baseline.
+
+Because all decision processes are deterministic, repeated runs at the same parameters do not require averaging across replicates for significance — a single run resolves the outcome once mining stochasticity has had time to play out. The `balanced_baseline` result additionally confirms that neither fork holds a structural simulation advantage at symmetric starting conditions, ruling out asymmetric bias in the block production implementation.
+
+---
+
 ## 11. Scenario Configuration
 
 ### Pool scenarios (`mining_pools_config.yaml`)
@@ -600,7 +610,7 @@ Phase 1 sweeps identified four parameters with causal influence on fork outcomes
 | Parameter | Description | Tested Range |
 |-----------|-------------|--------------|
 | `economic_split` | Fraction of economic node weight initially on v27 | 0.0–1.0 |
-| `pool_committed_split` | Fraction of committed (non-neutral) pool hashrate on v27 | 0.0–1.0 |
+| `pool_committed_split` | Fraction of committed (non-neutral) pool hashrate ideologically assigned to v27; complement (1 − value) is v26-committed. v26 is the incumbent, so low values represent a pool landscape dominated by v26-ideological commitment. | 0.0–1.0 |
 | `pool_ideology_strength` | How strongly committed pools weight ideology vs profit | 0.0–1.0 |
 | `pool_max_loss_pct` | Maximum revenue loss committed pools tolerate for ideology | 0.0–1.0 |
 

@@ -301,10 +301,10 @@ This means 87% of the lhs_144_6param economic_split samples are informationally 
 ### 7.1 Score Definition
 
 ```
-contentiousness = 0.3 × reorgs_normalized
-              + 0.3 × reorg_mass_normalized
-              + 0.2 × (1 - cascade_time_normalized)
-              + 0.2 × |economic_lag_normalized|
+contentiousness = 0.25 × reorgs_normalized
+              + 0.25 × reorg_mass_normalized
+              + 0.25 × (1 - cascade_time_normalized)
+              + 0.25 × |economic_lag_normalized|
 ```
 
 Range: 0.0 (clean, instant activation) → ~0.5 (severe, prolonged fork)

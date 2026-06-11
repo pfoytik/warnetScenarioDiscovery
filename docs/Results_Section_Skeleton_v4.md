@@ -1119,8 +1119,8 @@ clustering.
 The contentiousness score is computed as a weighted combination of four
 components, each normalized to \[0, 1\] within the dataset:
 
-> contentiousness = 0.3 × norm(total_reorgs) + 0.3 × norm(reorg_mass)
-> + 0.2 × norm_inv(cascade_time_s) + 0.2 × norm(|econ_lag_s|)
+> contentiousness = 0.25 × norm(total_reorgs) + 0.25 × norm(reorg_mass)
+> + 0.25 × norm_inv(cascade_time_s) + 0.25 × norm(|econ_lag_s|)
 
 where norm_inv indicates that faster cascade completion (shorter time)
 is more contentious, reflecting scenarios where rapid hashrate

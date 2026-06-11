@@ -55,7 +55,7 @@
 - Figure [4.6.1]: Reorg count distribution — `docs/figures/fig_reorg_distribution.png`
 - Figure [4.6.2]: Price divergence time-series — `docs/figures/fig_price_divergence_timeseries.png`
 - Figure Z (§4.8.3): PRIM peeling trajectory — `docs/figures/fig_prim_peeling_trajectory.png`
-- Figure W (§4.8.5): Decision boundary visualization — `docs/figures/fig_decision_boundary_full.png`
+- Figure W (§4.8.5): Decision boundary visualization — `docs/figures/fig_decision_boundary_equal_weights.png`
 - Figure [4.11a]: SP_user distribution by outcome — `docs/figures/fig_sp_user_distribution.png`
 - Figure [4.11b]: Z_user scatter plot — `docs/figures/fig_z_user_scatter.png`
 - Figure AA (§4.12.2): Joint governance leverage surface — `docs/figures/fig_sp_surface.png`
@@ -528,9 +528,9 @@ Maximum contentiousness occurs at intermediate committed_split — pools committ
 
 ### 4.8.5 Decision Boundary Visualization
 
-![2016-block Decision Boundary](figures/fig_decision_boundary_full.png)
+![2016-block Decision Boundary](figures/fig_decision_boundary_equal_weights.png)
 
-RF probability surface (P(v27 win); n=587, OOB accuracy 80.1%) for four parameter projections. Dominant E×C panel (60% of figure width) annotates: cascade floor (E≈0.50), economic override threshold (E≈0.82), Foundry flip-point (C≈0.214), inversion zone bracket, and PRIM uncertainty box overlay. Supporting panels: E×M, C×I, I×M.
+RF probability surface (P(v27 win); n=590, OOB accuracy 79.8%) for four parameter projections. Dominant E×C panel (60% of figure width) annotates: cascade floor (E≈0.50), economic override threshold (E≈0.82), Foundry flip-point (C≈0.214), inversion zone bracket, and PRIM uncertainty box overlay. Supporting panels: E×M, C×I, I×M. Contentiousness score uses equal 0.25 weights.
 
 ### 4.8.6 Global Full-Network Feature Importance: The Two-Scale Structure
 

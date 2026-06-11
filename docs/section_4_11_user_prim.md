@@ -95,4 +95,31 @@ The User-PRIM analysis validates the Scenario Potential framework as a null-resu
 
 ---
 
+### 4.11.5 Conditions for User Node Effect: Empirical Definition
+
+A counterfactual analysis comparing `lhs_user_weight_prim` (varying `user_custody_fraction`) against `ucf_counterfactual` (near-zero `user_custody_fraction` = 0.001) at identical base parameters (E=0.60, C=0.35) identified 24 scenarios where the outcome flipped — the closest empirical estimate of "user nodes had a measurable effect." These scenarios define the joint conditions required.
+
+**Four necessary conditions (all must hold simultaneously):**
+
+1. **Economic split in the inversion zone** — `economic_split` ∈ [0.50, 0.82]. Below the cascade floor or above the economic override threshold, the economic layer is structurally decisive and user weight cannot bridge the gap. All 24 flip-scenarios occurred at E=0.60.
+
+2. **Pool committed split near the decision boundary** — `pool_committed_split` near or below the transition threshold (~0.296), placing pool dynamics near their own switching point. When pool and economic layers are simultaneously near their respective thresholds (the "double marginal" condition), the marginal contribution of user weight becomes relatively larger.
+
+3. **User custody fraction above ~0.14** — Below this value the 2197:1 weight ratio is insurmountable. The `user_weight_threshold` sweep confirms the effect first appears at `user_custody_fraction` ≈ 0.14–0.15. At ucf=0.01, only an exact user_split=0.50 scenario (mathematical 50/50) is affected.
+
+4. **User split sufficiently asymmetric** — `user_split` must be far enough from 0.50 that users provide net directional weight rather than canceling. When user_split ≈ 0.50, users neutralize themselves regardless of custody fraction. In the flip-scenarios, the majority had user_split in the range 0.26–0.55, biased toward v26, providing net v26 economic weight.
+
+**Two mechanisms by which the effect operates:**
+
+| Mechanism | Approx. count | Signature |
+|-----------|:---:|-----------|
+| **Marginal weight** — user weight tips economic balance just past a threshold; no cascade fires | ~20 | `econ_switched=0`, `econ_delta≈0`, final v27 economic share ~50–62% |
+| **Cascade trigger** — user weight is large enough to trigger a v26 economic cascade | ~4 | `econ_delta` strongly negative (−20 to −28%), final v27 economic share ~25–30% |
+
+The cascade-trigger mechanism requires extreme conditions: `user_custody_fraction` > 0.55 combined with `user_split` < 0.40. The marginal weight mechanism is the dominant pathway for the ~20 scenarios where user nodes had a practical effect.
+
+**Implication for governance:** User nodes can influence fork outcomes, but only within a narrow jointly-constrained parameter region — not across broad parameter space. This is consistent with the User-PRIM null result (Section 4.11.3): the effect exists but is too localized to concentrate as a PRIM box, and requires a level of user economic weight (ucf > 0.14) substantially above the realistic baseline implied by the 2197:1 weight ratio.
+
+---
+
 *Section 4.11 ends. Next: Section 4.12 — Scenario Potential: Pool Coalition and Economic Actor Leverage.*

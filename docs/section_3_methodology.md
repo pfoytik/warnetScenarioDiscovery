@@ -440,6 +440,8 @@ A node's contribution to `economic_weight` is its `custody_btc` (or
 `consensus_weight` if pre-computed). The aggregate weight on each fork is summed
 across all nodes and normalized to a 0–1 fraction for the price oracle.
 
+**Scope note — custody and volume as a unified abstraction.** In practice, a node's real-world governance influence derives from two distinct signals: *custody* (the stock of Bitcoin held, representing latent economic stake) and *volume* (daily transaction flow, representing active market participation). The model does not distinguish between these two channels — `economic_weight` abstracts over both. The `custody_btc` field is the primary weight input, with `daily_volume_btc` entering through the `consensus_weight` formula `(0.7 × custody + 0.3 × volume) / 10000`, but the model does not separately attribute outcomes to custody-driven vs. volume-driven effects. Sensitivity analysis confirms that varying the custody/volume ratio from 1.0/0.0 to 0.0/1.0 does not change the categorical weight shares across node classes or shift the key outcome thresholds, because the rank ordering of economic nodes by custody and volume is strongly correlated in the network (major exchanges hold both the most BTC and the highest daily volume). This abstraction is appropriate for the research question — fork outcome sensitivity to aggregate economic alignment — but would require decomposition in future work examining the distinct governance roles of active transactors versus passive custodians.
+
 ### Transaction velocity and fees
 
 In addition to price support, economic nodes generate fee demand. A node's

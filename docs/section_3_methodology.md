@@ -480,6 +480,14 @@ parameter ranges tested — the small economic weight and small hashrate contrib
 mean that even large shifts in user behavior do not change which fork wins. See
 `targeted_sweep4` findings in `tools/sweep/SWEEP_FINDINGS.md`.
 
+### Future work — custody migration and class boundary dissolution
+
+The current model treats user nodes and economic nodes as fixed classes with independent weights. This is appropriate for the research question as stated, but it does not capture a qualitatively different governance scenario: a **mass self-custody migration** in which Bitcoin holders withdraw BTC from exchanges at scale, shifting custody weight from the economic node class to the user node class. This mechanism has real-world precedent — exchange outflows following the FTX collapse in November 2022 transferred an estimated 100,000–200,000 BTC into self-custody within weeks.
+
+In such a scenario, exchange nodes would *lose* economic weight as users *gain* it, making the transfer zero-sum rather than additive. If self-custody holders running full validation nodes came to collectively hold a plurality of Bitcoin economic weight, they would effectively become the decisive economic actor class — replacing exchanges as the primary fork signal. The governance implication would be significant: fork outcomes would shift from being dominated by a small number of large institutional actors to being determined by a large, potentially fragmented population of individual holders.
+
+This is testable within the existing simulation framework by extending the `user_custody_fraction` parameter to simultaneously scale down exchange `custody_btc` values — a zero-sum custody transfer sweep. The `lhs_user_weight_prim` sweep explored the additive direction (scaling user weight up without reducing exchange weight) and found outcome effects beginning at ucf ≈ 0.14. A zero-sum transfer sweep would find lower threshold values, since exchange weight would be simultaneously weakened. This represents a high-priority future experiment given its direct relevance to UASF governance theory and the observed trend toward self-custody adoption in Bitcoin markets.
+
 ---
 
 ## 9. Fee Oracle

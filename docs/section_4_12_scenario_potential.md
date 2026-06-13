@@ -43,6 +43,8 @@ Contentiousness enters with a lower weight (0.5) because it is a precondition �
 
 Source: `tools/discovery/scenario_potential.py`. Dataset: n=590 scenarios, 15 sweeps, 2016-block retarget, RF OOB accuracy 79.8%.
 
+**Contrast with SP_user (§4.11.0).** SP_pools and SP_economic are empirical — derived from simulation data via RF gradient. SP_user is analytic — derived from the network weight structure via a distance-to-threshold formula, because user parameters produce zero variation in RF predictions and the gradient approach would return identically zero everywhere. The framework uses the appropriate method for each actor class depending on whether the actor has measurable causal effect in the data.
+
 ---
 
 ### 4.12.2 The Joint Governance Leverage Surface
@@ -114,6 +116,31 @@ The surprise rankings reveal two distinct archetypes:
 **Archetype B — High leverage, v26 wins unexpectedly (rank 2).** Rank 2 (E=0.761, C=0.247, Z_joint=1.902) is the most analytically interesting case in the dataset: economic support is deep in the inversion zone, committed split is above the Foundry flip-point, both SP scores are near-maximum, yet v26 prevails. This is a genuine surprise — governance leverage was maximally available to both pool coalitions and economic actors favoring v27, and the outcome went the other way. The ideology × max_loss interaction is the mechanism: pool ideology was strong enough to hold v26 pools in place through the simulation window despite the structural disadvantage. This scenario has the highest surprise score among v26_dominant outcomes (surprise=0.862) and represents the most operationally disruptive governance configuration in the dataset — maximum leverage, unexpected direction.
 
 Ranks 8 and 9 (both from `targeted_sweep10_econ_threshold_2016`) are notable for appearing at E=0.500 and E=0.350 — below or at the cascade floor where SP_economic is gated to zero. These are high-surprise v27 wins driven entirely by SP_pools: committed split at C=0.350 is well above the Foundry flip-point, and pool cascade dynamics resolved the outcome cleanly despite low economic support. They illustrate that pool-only leverage (without economic co-activation) can still produce decisive outcomes when committed_split is sufficiently above threshold.
+
+### 4.12.4a Surprise PRIM: Parameter Region of Maximum Unexpected Resolution
+
+PRIM peeling applied to the surprise score identifies the parameter subspace where governance leverage is high but outcomes resolve decisively — the region most likely to produce unexpected fork conclusions.
+
+![Surprise PRIM Figure](figures/fig_surprise_prim.png)
+
+**Figure AC — Surprise PRIM analysis across the E×C parameter projection.** Main panel: each scenario plotted at (economic_split, pool_committed_split) colored by surprise score (plasma colormap; brighter = higher surprise). White stars mark the top-15 scenarios by surprise. The cyan box is the Surprise PRIM discovered region; the blue dashed box is the standard contentiousness PRIM box for reference. Structural thresholds annotated as in prior figures. Top-right: PRIM peeling trajectory showing mean surprise concentration as box shrinks (orange = trajectory, gray dashed = dataset mean, cyan = final box size). Bottom-right: surprise score distributions by outcome class with in-box scenarios overlaid as dots. Right panel: parallel coordinates of the top-15 surprise scenarios colored by outcome. Source: `tools/discovery/output/sp/sp_scores.csv`.
+
+**Surprise PRIM discovered box:**
+
+| Parameter | Min | Max |
+|-----------|-----|-----|
+| `economic_split` | 0.35 | 0.78 |
+| `pool_committed_split` | 0.15 | 0.58 |
+| `pool_ideology_strength` | 0.51 | 0.77 |
+| `pool_max_loss_pct` | 0.17 | 0.35 |
+
+**Box statistics:** n=264 scenarios (44.7% of dataset), mean surprise = 0.126 vs. dataset mean 0.091 — lift of 1.38×. Outcome distribution inside box: 131 v26_dominant (49.6%), 115 v27_dominant (43.6%), 18 contested (6.8%).
+
+The Surprise PRIM box is substantially larger and less concentrated than the contentiousness PRIM box (n=229, 38.8%), reflecting the structural tension in the surprise definition: scenarios with high governance leverage tend to be contested, which reduces the clean-resolution component of the surprise score. The two requirements — high Z_joint and decisive outcome — partially oppose each other, making concentration harder to achieve through peeling.
+
+The `pool_ideology_strength` bounds [0.51, 0.77] are the most distinctive feature of the Surprise PRIM box relative to the contentiousness box. This narrow ideology band corresponds to pools with sufficient commitment to create structural leverage (high enough ideology to resist switching purely on profitability) but not so extreme that outcomes are locked in by ideology alone. It is the regime where pool decisions are genuinely pivotal — and where decisive resolutions are therefore structurally surprising.
+
+The near-equal outcome split inside the box (131 v26 vs. 115 v27) confirms these are genuinely uncertain-leverage scenarios that happened to resolve cleanly — not scenarios where one fork was structurally favored. The surprise PRIM box identifies where a governance analyst or practitioner should expect the least predictability from observable parameters: high leverage, aligned conditions for either fork, yet decisive resolution.
 
 ---
 

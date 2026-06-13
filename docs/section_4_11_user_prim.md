@@ -13,6 +13,27 @@ This section reports the User-PRIM analysis: a governance-adapted Z-PRIM algorit
 
 ---
 
+### 4.11.0 SP_user Definition and Method
+
+**SP_user** is computed differently from SP_pools and SP_economic (§4.12.1). Rather than using an RF probability gradient, SP_user uses an **analytic distance-to-threshold** formula:
+
+```
+SP_user(x) = W_users / (|economic_split - nearest_threshold| × W_total + W_users)
+```
+
+Where:
+- `W_users` = total consensus weight of all user nodes (0.1688)
+- `W_total` = total network consensus weight (370.90)
+- `nearest_threshold` = closest value in {k/24 : k = 1..23} to the scenario's `economic_split` — the assignment thresholds at which one additional economic node flips from v26 to v27
+
+This formula approaches 1 when `economic_split` is exactly at an assignment threshold (user weight could theoretically bridge the marginal gap) and approaches 0 when `economic_split` is far from all thresholds (the economic margin is orders of magnitude larger than user weight).
+
+**Why a different method from SP_pools/SP_economic?** SP_pools and SP_economic measure sensitivity of the RF's predicted outcome probability — they require a trained classifier and operate on the model's learned decision surface. SP_user cannot use this approach because user parameters (`user_ideology_strength`, `user_switching_threshold`) produce zero variation in RF predictions: the model correctly learns that user parameters have no causal effect, so the RF gradient with respect to any user parameter is identically zero everywhere. The distance-to-threshold formula instead measures the structural proximity of the economic assignment to a boundary where user weight *could* matter — a theoretically motivated upper bound rather than an empirically estimated effect.
+
+This is an important methodological distinction: SP_pools and SP_economic are **empirical** (derived from simulation data via RF gradient), while SP_user is **analytic** (derived from the network weight structure directly). The contrast is intentional — it demonstrates that the framework can accommodate actor classes at both ends of the leverage spectrum, using the appropriate method for each. Source: `tools/discovery/user_prim.py` (`compute_sp_user()`).
+
+---
+
 ### 4.11.1 Structural Ceiling from Weight Ratio
 
 The upper bound on user node pivotality is set analytically before any simulation data is examined. In the simulation network, user nodes carry a combined economic weight of W_users = 0.1688 against a total network weight of W_total = 370.90 — a 2197:1 ratio. This ratio is not a calibration choice but a structural consequence of the model's representation of Bitcoin's economic geography: exchanges, custodians, and payment processors collectively hold vastly more economic weight than individual full node operators.

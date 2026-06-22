@@ -768,25 +768,25 @@ Fork outcomes are determined by two causal pathways: pool commitment cascade (po
 
 **Framework validation:** User-PRIM correctly distinguishes actor classes with and without structural governance leverage. A bias ratio near 1.0 is the correct output for an actor class with negligible economic weight — and finding it is a contribution rather than a failure of the method.
 
-*Section 4.11 ends. Next: §4.12 — Scenario Potential: Pool Coalition and Economic Actor Leverage.*
+*Section 4.11 ends. Next: §4.12 — Outcome Sensitivity: Pool Coalition and Economic Actor Leverage.*
 
 ---
 
-## 4.12 Scenario Potential: Pool Coalition and Economic Actor Leverage
+## 4.12 Outcome Sensitivity: Pool Coalition and Economic Actor Leverage
 
-§4.11 recovered a structural null for user nodes. This section applies the same framework to the two actor classes that *do* determine outcomes — mining pool coalitions and economic nodes — producing a quantified governance leverage map.
+§4.11 recovered a structural null for user nodes. This section applies the same framework to the two actor classes that *do* determine outcomes — mining pool coalitions and economic nodes — producing a quantified governance leverage map using RF probability gradient measures.
 
 Dataset: n=590 scenarios, 15 sweeps, 2016-block retarget, RF OOB accuracy 79.8%.
 
-### 4.12.1 SP_pools and SP_economic: Definitions
+### 4.12.1 d_pools and d_economic: Definitions
 
-**SP_pools:** RF probability gradient with respect to pool_committed_split. Peaks near committed_split decision boundary (~0.296 in Phase 3 transition zone, ~0.214 at Foundry flip-point). Approaches zero in clean-outcome regions.
+**d_pools:** RF probability gradient with respect to pool_committed_split. Peaks near committed_split decision boundary (~0.296 in Phase 3 transition zone, ~0.214 at Foundry flip-point). Approaches zero in clean-outcome regions.
 
-**SP_economic:** RF probability gradient with respect to economic_split, gated by a triangular function equal to 1.0 at ESP (~0.74), decaying linearly to 0 at cascade floor (E=0.50) and economic override (E=0.82), and identically 0 outside [0.50, 0.82]. The gate encodes the structural finding that economic actor leverage is structurally zero outside the inversion zone.
+**d_economic:** RF probability gradient with respect to economic_split, gated by a triangular function equal to 1.0 at ESP (~0.74), decaying linearly to 0 at cascade floor (E=0.50) and economic override (E=0.82), and identically 0 outside [0.50, 0.82]. The gate encodes the structural finding that economic actor leverage is structurally zero outside the inversion zone.
 
 **Joint governance leverage score:**
 ```
-Z_joint = SP_pools + SP_economic + 0.5 × contentiousness
+Z_joint = d_pools + d_economic + 0.5 × contentiousness
 ```
 Contentiousness enters at lower weight (0.5) — it is a precondition (outcome must be in play), not the primary leverage measure. `surprise = Z_joint × (1 − outcome_certainty)` identifies high-leverage scenarios that resolved cleanly anyway.
 
@@ -798,14 +798,14 @@ Both scores min-max normalized to [0, 1] across the dataset.
 
 Highest Z_joint values concentrate in a narrow band at the intersection of two boundaries: economic_split near the ESP (0.70–0.78) AND pool_committed_split near the Foundry flip-point (0.20–0.26). This intersection is the maximum governance leverage region.
 
-SP_economic is highest for contested and v27-dominant outcomes, lowest for v26-dominant (which tend to occur below the cascade floor where the gate function zeros out SP_economic). SP_pools is nearly equal across all three outcome classes — the committed_split threshold is equally sharp from both sides.
+d_economic is highest for contested and v27-dominant outcomes, lowest for v26-dominant (which tend to occur below the cascade floor where the gate function zeros out d_economic). d_pools is nearly equal across all three outcome classes — the committed_split threshold is equally sharp from both sides.
 
 ### 4.12.3 Top Leverage Scenarios
 
 **Table 22. Top-10 scenarios by joint governance leverage (Z_joint).**
 
-| Rank | Sweep | E | C | I | M | Outcome | SP_pools | SP_econ | Z_joint |
-|:----:|-------|:---:|:---:|:---:|:---:|---------|:--------:|:-------:|:-------:|
+| Rank | Sweep | E | C | I | M | Outcome | d_pools | d_econ | Z_joint |
+|:----:|-------|:---:|:---:|:---:|:---:|---------|:-------:|:------:|:-------:|
 | 1 | targeted_sweep7_esp_2016 | 0.780 | 0.214 | 0.510 | 0.260 | v27_dominant | 0.868 | 0.812 | 1.912 |
 | 2 | lhs_2016_full_phase3_merged | 0.696 | 0.248 | 0.522 | 0.272 | v27_dominant | 0.908 | 0.384 | 1.553 |
 | 3 | lhs_2016_full_phase3_merged | 0.693 | 0.252 | 0.653 | 0.176 | v26_dominant | 1.000 | 0.480 | 1.508 |
@@ -817,13 +817,13 @@ SP_economic is highest for contested and v27-dominant outcomes, lowest for v26-d
 | 9 | lhs_2016_full_phase3_merged | 0.666 | 0.348 | 0.721 | 0.174 | v27_dominant | 0.044 | 0.917 | 1.232 |
 | 10 | lhs_2016_6param | 0.426 | 0.261 | 0.655 | 0.117 | v27_dominant | 0.868 | 0.000 | 1.224 |
 
-Rank 1 (`targeted_sweep7_esp_2016`, E=0.780, C=0.214): sits at the ESP × Foundry flip-point intersection. Both SP scores simultaneously near-maximum (SP_pools=0.868, SP_econ=0.812). This is the highest governance leverage point in the entire 590-scenario dataset.
+Rank 1 (`targeted_sweep7_esp_2016`, E=0.780, C=0.214): sits at the ESP × Foundry flip-point intersection. Both gradient scores simultaneously near-maximum (d_pools=0.868, d_econ=0.812). This is the highest governance leverage point in the entire 590-scenario dataset.
 
-Ranks 3–4: v26_dominant outcomes with SP_pools ≥ 0.801 and SP_econ ≥ 0.480, E solidly within inversion zone, C above Foundry flip-point. High leverage did not produce v27 win — ideology × max_loss interaction prevented cascade completion despite structural preconditions for v27 win. High leverage identifies sensitivity to actor decisions, not which decision was made.
+Ranks 3–4: v26_dominant outcomes with d_pools ≥ 0.801 and d_econ ≥ 0.480, E solidly within inversion zone, C above Foundry flip-point. High leverage did not produce v27 win — ideology × max_loss interaction prevented cascade completion despite structural preconditions for v27 win. High leverage identifies sensitivity to actor decisions, not which decision was made.
 
-Rank 6: SP_pools ≈ 0 but SP_economic = 1.000. Pool structure not at threshold; exchange custody decisions are maximally pivotal.
+Rank 6: d_pools ≈ 0 but d_economic = 1.000. Pool structure not at threshold; exchange custody decisions are maximally pivotal.
 
-Rank 10 note: E=0.426 is below the stated cascade floor (~0.50), yet produces v27_dominant outcome and SP_economic=0.000 (gate correctly zeroes out). The v27 outcome at below-cascade-floor economic support warrants a note — either the cascade floor has some softness at this specific parameter combination, or this is a stochastic anomaly. Flag for sensitivity check before submission.
+Rank 10 note: E=0.426 is below the stated cascade floor (~0.50), yet produces v27_dominant outcome and d_economic=0.000 (gate correctly zeroes out). The v27 outcome at below-cascade-floor economic support warrants a note — either the cascade floor has some softness at this specific parameter combination, or this is a stochastic anomaly. Flag for sensitivity check before submission.
 
 ### 4.12.4 Surprise Scenarios: High Leverage, Clean Resolution
 
@@ -852,18 +852,24 @@ Rank 8 (contested, E=0.656, C=0.346): highest-surprise contested scenario. The c
 
 ![Top-15 Scenarios Parallel Coordinates](figures/fig_sp_top_scenarios.png)
 
-### 4.12.5 Framework Validation: Comparing SP Across Actor Classes
+---
 
-**Table 24. Scenario Potential framework comparison across actor classes.**
-
-| Actor class | Structural weight | Max SP achievable | Bias ratio (PRIM) | Interpretation |
-|-------------|:-----------------:|:-----------------:|:-----------------:|----------------|
-| User nodes | W/W_total = 0.046% | ~0.05% | 1.256 | Structural null — weight ratio forecloses pivotality |
-| Pool coalitions | Controls ~75% of hashrate | SP_pools max = 1.000 | — | Pivotal near committed_split thresholds |
-| Economic nodes | Controls price signal | SP_economic max = 1.000 | — | Pivotal within inversion zone [0.50, 0.82] |
-
-**Governance implication:** A coordination campaign for v27 activation achieves maximum leverage when it targets the inversion zone simultaneously across both actor classes — pool operators near the Foundry flip-point (C ≈ 0.21–0.30) AND economic actors near the ESP (E ≈ 0.70–0.78). Campaigns outside these ranges target parameter regions where additional effort produces near-zero marginal governance leverage. The SP surface maps where effort translates into outcome influence and where it does not.
+*Section 4.12 ends. Next: §4.13 — Scenario Potential Framework: Cross-Actor Leverage Comparison.*
 
 ---
 
-*Results section (§4.1–§4.12) ends. Next: §5 — Economic Analysis.*
+## 4.13 Scenario Potential Framework: Cross-Actor Leverage Comparison
+
+**Table 24. Actor leverage comparison across the Scenario Potential framework.**
+
+| Actor class | Structural weight | Measure | Max value | Bias ratio (PRIM) | Interpretation |
+|-------------|:-----------------:|---------|:---------:|:-----------------:|----------------|
+| User nodes | W/W_total = 0.046% | SP_user (analytic) | ~0.05% | 1.256 | Structural null — weight ratio forecloses pivotality |
+| Pool coalitions | Controls ~75% of hashrate | d_pools (RF gradient) | 1.000 | — | Pivotal near committed_split thresholds |
+| Economic nodes | Controls price signal | d_economic (RF gradient) | 1.000 | — | Pivotal within inversion zone [0.50, 0.82] |
+
+**Governance implication:** A coordination campaign for v27 activation achieves maximum leverage when it targets the inversion zone simultaneously across both actor classes — pool operators near the Foundry flip-point (C ≈ 0.21–0.30) AND economic actors near the ESP (E ≈ 0.70–0.78). Campaigns outside these ranges target parameter regions where additional effort produces near-zero marginal governance leverage. The sensitivity surface maps where effort translates into outcome influence and where it does not.
+
+---
+
+*Results section (§4.1–§4.13) ends. Next: §5 — Economic Analysis.*

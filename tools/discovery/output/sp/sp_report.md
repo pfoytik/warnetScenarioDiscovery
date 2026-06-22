@@ -1,4 +1,4 @@
-# Scenario Potential Report — SP_pools and SP_economic
+# Outcome Sensitivity Report — d_pools and d_economic
 
 **Dataset:** n=590 scenarios, 15 sweeps, 2016-block retarget
 **RF OOB accuracy:** 79.8%
@@ -7,23 +7,23 @@
 
 | Score | Mean | Median | Max | Std |
 |-------|:----:|:------:|:---:|:---:|
-| sp_pools | 0.130 | 0.053 | 1.000 | 0.191 |
-| sp_economic | 0.066 | 0.005 | 1.000 | 0.140 |
+| d_pools | 0.130 | 0.053 | 1.000 | 0.191 |
+| d_economic | 0.066 | 0.005 | 1.000 | 0.140 |
 | z_joint | 0.364 | 0.308 | 1.918 | 0.303 |
 | surprise | 0.091 | 0.029 | 1.048 | 0.144 |
 
-## Mean SP by Outcome
+## Mean Gradient by Outcome
 
-| Outcome | n | Mean SP_pools | Mean SP_economic | Mean Z_joint |
-|---------|:-:|:-------------:|:----------------:|:------------:|
+| Outcome | n | Mean d_pools | Mean d_economic | Mean Z_joint |
+|---------|:-:|:------------:|:---------------:|:------------:|
 | v27_dominant | 271 | 0.124 | 0.073 | 0.514 |
 | v26_dominant | 264 | 0.138 | 0.054 | 0.229 |
 | contested | 55 | 0.121 | 0.095 | 0.266 |
 
 ## Top-10 Scenarios by Joint Governance Leverage (Z_joint)
 
-| Rank | Sweep | Scenario | E | C | I | M | Outcome | SP_pools | SP_econ | Z_joint |
-|:----:|-------|----------|:-:|:-:|:-:|:-:|---------|:--------:|:-------:|:-------:|
+| Rank | Sweep | Scenario | E | C | I | M | Outcome | d_pools | d_econ | Z_joint |
+|:----:|-------|----------|:-:|:-:|:-:|:-:|---------|:-------:|:------:|:-------:|
 | 1 | targeted_sweep7_esp_2016 | sweep_0007 | 0.780 | 0.214 | 0.510 | 0.260 | v27_dominant | 0.719 | 0.966 | 1.918 |
 | 2 | lhs_2016_full_phase3_merged | sweep_0117 | 0.761 | 0.247 | 0.582 | 0.196 | v26_dominant | 0.948 | 0.903 | 1.902 |
 | 3 | committed_2016_high_econ | sweep_0000 | 0.780 | 0.200 | 0.510 | 0.260 | v26_dominant | 0.696 | 1.000 | 1.785 |
@@ -55,12 +55,12 @@ decisively anyway — the 'least expected' outcomes.
 
 ## Structural Notes
 
-**SP_pools** peaks near pool_committed_split ≈ 0.296 (Phase 3 transition threshold)
+**d_pools** peaks near pool_committed_split ≈ 0.296 (Phase 3 transition threshold)
 and ≈ 0.214 (Foundry flip-point). It is computed as the RF probability gradient
 |dP(v27_win)/d(pool_committed_split)| — how rapidly the predicted outcome changes
 with a small shift in committed pool hashrate.
 
-**SP_economic** is gated to zero outside the inversion zone [0.50, 0.82].
+**d_economic** is gated to zero outside the inversion zone [0.50, 0.82].
 Outside this range the outcome is structurally determined regardless of exchange
 or custodian custody decisions. Within the zone it peaks near the ESP (≈0.74),
 where a small shift in economic custody crosses the self-sustaining threshold.

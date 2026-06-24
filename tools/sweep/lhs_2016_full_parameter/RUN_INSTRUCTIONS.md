@@ -60,9 +60,9 @@ python 3_run_sweep.py \
 |-----------|-------|
 | Total scenarios | 64 |
 | Scenarios per namespace | 16 |
-| Runtime per scenario | ~35 min |
-| Runtime per namespace | ~9.5 hours |
-| Runtime (4 namespaces parallel) | ~9.5 hours |
+| Duration per scenario | 13,000s (3.6 hours) |
+| Runtime per namespace | ~60 hours (2.5 days) |
+| Runtime (4 namespaces parallel) | ~60 hours (2.5 days) |
 
 ### LHS Parameters (Varied)
 

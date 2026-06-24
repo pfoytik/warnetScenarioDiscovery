@@ -39,6 +39,7 @@ import argparse
 import copy
 import json
 import os
+import random
 import shutil
 import subprocess
 import sys
@@ -123,12 +124,22 @@ def create_pool_scenario(scenario: Dict[str, Any], pools: List[tuple] = None) ->
         total_hashrate = sum(p[2] for p in pools) or 100.0
         cumulative_hashrate = 0
 
-        for pool_tuple in pools:
+        # Arm A: compositional mode — shuffle pool order before assignment so that
+        # pool IDENTITY is decoupled from the aggregate hashrate scalar.
+        # composition_seed controls the shuffle; absent = deterministic order (default).
+        pool_list = list(pools)
+        composition_seed = scenario.get("composition_seed")
+        if composition_seed is not None:
+            rng = random.Random(composition_seed)
+            rng.shuffle(pool_list)
+
+        for pool_tuple in pool_list:
             if len(pool_tuple) == 5:
                 pool_id, pool_name, hashrate, _net_pref, initial_fork = pool_tuple
             else:
                 pool_id, pool_name, hashrate = pool_tuple[:3]
                 initial_fork = "v27"
+
 
             # Dynamic fork_preference assignment using cumulative hashrate position
             midpoint = (cumulative_hashrate + hashrate / 2) / total_hashrate

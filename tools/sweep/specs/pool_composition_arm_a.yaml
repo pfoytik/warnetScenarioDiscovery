@@ -1,0 +1,107 @@
+name: pool_composition_arm_a
+description: |
+  Arm A: Pool Composition Decoupling Sweep
+
+  PURPOSE: In all prior sweeps, pool_committed_split is a scalar that assigns pools
+  in deterministic hashrate order (Foundry first, then AntPool, etc.). This means
+  pool composition (which specific pools are committed) is fully determined by the
+  aggregate scalar C — you cannot disentangle "Foundry committed vs. not" from
+  "total committed hashrate fraction".
+
+  This sweep holds the aggregate committed hashrate fraction (C) fixed at several
+  key values while randomly varying WHICH pools constitute that committed fraction.
+  The composition is controlled by a per-scenario `composition_seed` that shuffles
+  pool order before the cumulative hashrate assignment.
+
+  RESEARCH QUESTION: Does outcome (v27 win/loss) depend on the IDENTITY of committed
+  pools (e.g., Foundry specifically) or just on the TOTAL hashrate fraction committed?
+  If composition identity matters, d_pools will vary across scenarios at the same C.
+  If only aggregate hashrate matters, all compositions at the same C will produce
+  the same outcome.
+
+  DESIGN:
+  - 4 economic_split values × 7 pool_committed_split values = 28 parameter points
+  - 6 random compositions per parameter point = 168 scenarios total
+  - Split: server1 runs scenarios 0-83, server2 runs scenarios 84-167
+  - Duration: 13000s (one full 2016-block retarget cycle + buffer)
+  - Network: lite (fast, validated against full network in prior sweeps)
+
+  KEY C VALUES:
+  - 0.10: well below Foundry flip-point (C=0.214) — no single large pool commits
+  - 0.15: approaching Foundry flip-point
+  - 0.214: Foundry flip-point — in deterministic order, exactly Foundry commits
+  - 0.25: above Foundry flip-point, below AntPool midpoint
+  - 0.30: Foundry + partial AntPool in deterministic order
+  - 0.40: Foundry + AntPool + partial ViaBTC in deterministic order
+  - 0.50: majority committed
+
+  KEY E VALUES (inversion zone coverage):
+  - 0.55: above cascade floor, low leverage
+  - 0.65: mid inversion zone
+  - 0.74: ESP — maximum economic leverage
+  - 0.78: near economic override
+
+  EXPECTED SIGNAL:
+  At C=0.214 with deterministic ordering, outcome is always Foundry-committed = v27.
+  With random composition at C=0.214, sometimes Foundry is NOT committed to v27 —
+  expect outcome variance showing Foundry identity effect.
+
+  METADATA:
+  Each scenario carries:
+    - composition_seed: int — RNG seed for pool shuffle
+    - composition_index: int — which of the 6 compositions this is (0-5)
+    - committed_hashrate_actual: float — realized committed hashrate after shuffle/assign
+    - committed_pool_ids: list — which pool IDs ended up v27-committed
+
+  RUN COMMANDS (on production servers):
+  Server 1 (scenarios 0-83):
+    cd tools/sweep
+    python 3_run_sweep.py \
+      --input pool_composition_arm_a/build_manifest_server1.json \
+      --results-dir pool_composition_arm_a/results \
+      --duration 13000 --retarget-interval 2016 --interval 2 \
+      --namespace arm-a-s1 --parallel 6
+
+  Server 2 (scenarios 84-167):
+    cd tools/sweep
+    python 3_run_sweep.py \
+      --input pool_composition_arm_a/build_manifest_server2.json \
+      --results-dir pool_composition_arm_a/results \
+      --duration 13000 --retarget-interval 2016 --interval 2 \
+      --namespace arm-a-s2 --parallel 6
+
+  TIMING: 84 scenarios ÷ 6 parallel = 14 batches × ~3.6h = ~50h wall-clock per server.
+  Both servers run simultaneously — all 168 scenarios complete in ~50 hours.
+
+  COLLECTION:
+    rsync -av server1:~/warnetScenarioDiscovery/tools/sweep/pool_composition_arm_a/results/ \
+      tools/sweep/pool_composition_arm_a/results/
+    rsync -av server2:~/warnetScenarioDiscovery/tools/sweep/pool_composition_arm_a/results/ \
+      tools/sweep/pool_composition_arm_a/results/
+
+type: compositional_grid
+network: lite
+n_scenarios: 168
+
+# E × C grid
+economic_split_values: [0.55, 0.65, 0.74, 0.78]
+pool_committed_split_values: [0.10, 0.15, 0.214, 0.25, 0.30, 0.40, 0.50]
+compositions_per_point: 6
+base_composition_seed: 1000
+
+# Fixed parameters (validated from prior sweeps)
+fixed:
+  hashrate_split: 0.25
+  pool_neutral_pct: 30.0
+  pool_profitability_threshold: 0.16
+  pool_ideology_strength: 0.51       # mid-ideology band (highest surprise concentration)
+  pool_max_loss_pct: 0.26            # mid-max_loss (highest surprise concentration)
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.10
+  econ_inertia: 0.05
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  transaction_velocity: 0.5
+  solo_miner_hashrate: 0.085

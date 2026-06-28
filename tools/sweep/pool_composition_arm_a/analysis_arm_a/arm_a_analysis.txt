@@ -1,0 +1,262 @@
+======================================================================
+POOL COMPOSITION ARM A — ANALYSIS REPORT
+Scenarios: 168 / 168  (server1 complete, server2 pending)
+======================================================================
+=== OVERALL SUMMARY ===
+Total scenarios: 168
+  v27 win:   51 (30.4%)
+  v26 win:   70 (41.7%)
+  contested: 47 (28.0%)
+
+By economic_split (E):
+  E=0.55:  38.1% v27 win (n=42)
+  E=0.65:  19.0% v27 win (n=42)
+  E=0.74:  31.0% v27 win (n=42)
+  E=0.78:  33.3% v27 win (n=42)
+
+By pool_committed_split (C):
+  C=0.100:   0.0% v27 win (n=24)
+  C=0.150:   8.3% v27 win (n=24)
+  C=0.214:   0.0% v27 win (n=24)
+  C=0.250:  16.7% v27 win (n=24)
+  C=0.300:  41.7% v27 win (n=24)
+  C=0.400:  75.0% v27 win (n=24)
+  C=0.500:  70.8% v27 win (n=24)
+
+
+=== WIN RATE GRID: v27 win% by (E, C) ===
+(Arm A: all 168 scenarios, 6 compositions per cell)
+
+   E\C  C=0.100  C=0.150  C=0.214  C=0.250  C=0.300  C=0.400  C=0.500
+---------------------------------------------------------------------
+  0.55    0.0%(6)   16.7%(6)    0.0%(6)   16.7%(6)   50.0%(6)  100.0%(6)   83.3%(6)
+  0.65    0.0%(6)    0.0%(6)    0.0%(6)    0.0%(6)   50.0%(6)   50.0%(6)   33.3%(6)
+  0.74    0.0%(6)   16.7%(6)    0.0%(6)   16.7%(6)   16.7%(6)   83.3%(6)   83.3%(6)
+  0.78    0.0%(6)    0.0%(6)    0.0%(6)   33.3%(6)   50.0%(6)   66.7%(6)   83.3%(6)
+
+=== OUTCOME VARIANCE ACROSS COMPOSITIONS ===
+(Does composition matter? High variance = yes, low = no)
+
+    E      C  Outcomes (per composition)                Variance?
+----------------------------------------------------------------------
+ 0.55  0.100  v26 v26 v26 v26 v26 v26                   all v26
+ 0.55  0.150  v27 con v26 v26 v26 v26                   YES — split
+ 0.55  0.214  con con con v26 v26 con                   all v26
+ 0.55  0.250  con v26 con v27 v26 con                   YES — split
+ 0.55  0.300  con con v27 con v27 v27                   YES — split
+ 0.55  0.400  v27 v27 v27 v27 v27 v27                   all v27
+ 0.55  0.500  con v27 v27 v27 v27 v27                   YES — split
+ 0.65  0.100  con v26 v26 v26 v26 v26                   all v26
+ 0.65  0.150  v26 v26 v26 v26 v26 v26                   all v26
+ 0.65  0.214  v26 con v26 v26 con con                   all v26
+ 0.65  0.250  con v26 con con v26 con                   all v26
+ 0.65  0.300  v27 v27 con con v26 v27                   YES — split
+ 0.65  0.400  v27 con con v26 v27 v27                   YES — split
+ 0.65  0.500  v27 v27 con con con con                   YES — split
+ 0.74  0.100  v26 v26 v26 v26 v26 v26                   all v26
+ 0.74  0.150  con v26 v26 v26 con v27                   YES — split
+ 0.74  0.214  v26 con con v26 v26 v26                   all v26
+ 0.74  0.250  v26 v26 con v27 v26 con                   YES — split
+ 0.74  0.300  v26 v26 con con v26 v27                   YES — split
+ 0.74  0.400  v27 v27 v26 v27 v27 v27                   YES — split
+ 0.74  0.500  v27 v27 con v27 v27 v27                   YES — split
+ 0.78  0.100  v26 v26 v26 con v26 v26                   all v26
+ 0.78  0.150  con v26 con v26 con con                   all v26
+ 0.78  0.214  v26 con v26 v26 v26 v26                   all v26
+ 0.78  0.250  v26 v26 con v27 v26 v27                   YES — split
+ 0.78  0.300  con v27 v27 con v27 v26                   YES — split
+ 0.78  0.400  v26 v27 v26 v27 v27 v27                   YES — split
+ 0.78  0.500  v27 v27 con v27 v27 v27                   YES — split
+
+=== FOUNDRY IDENTITY ANALYSIS ===
+(Does Foundry specifically being committed change outcomes?)
+
+     C          With Foundry       Without Foundry    Diff
+------------------------------------------------------------
+ 0.100              -- (n=0)           0.0% (n=24)       --
+ 0.150              -- (n=0)           8.3% (n=24)       --
+ 0.214              -- (n=0)           0.0% (n=24)       --
+ 0.250           12.5% (n=8)          18.8% (n=16)    -6.3%
+ 0.300           25.0% (n=4)          45.0% (n=20)   -20.0%
+ 0.400          100.0% (n=3)          71.4% (n=21)   +28.6%
+ 0.500           75.0% (n=4)          70.0% (n=20)    +5.0%
+
+By E × Foundry presence:
+    E          With Foundry       Without Foundry    Diff
+-------------------------------------------------------
+ 0.55           50.0% (n=2)          37.5% (n=40)   +12.5%
+ 0.65           20.0% (n=5)          18.9% (n=37)    +1.1%
+ 0.74           60.0% (n=5)          27.0% (n=37)   +33.0%
+ 0.78           42.9% (n=7)          31.4% (n=35)   +11.5%
+
+=== ACTUAL COMMITTED HASHRATE vs OUTCOME ===
+(Realized hashrate after composition shuffle, binned)
+
+            Bin     n   v27 win%   v26 win%   contested%
+-------------------------------------------------------
+[0.00, 0.05)    20       5.0%      95.0%         0.0%
+[0.05, 0.10)    15      13.3%      53.3%        33.3%
+[0.10, 0.15)    32       3.1%      50.0%        46.9%
+[0.15, 0.20)    23      13.0%      65.2%        21.7%
+[0.20, 0.25)    27      55.6%      14.8%        29.6%
+[0.25, 0.30)    25      36.0%      32.0%        32.0%
+[0.30, 0.35)    13      69.2%       0.0%        30.8%
+[0.35, 0.40)    11      81.8%       0.0%        18.2%
+[0.40, 0.50)     2     100.0%       0.0%         0.0%
+
+=== PER-POOL WIN RATE WHEN POOL IS COMMITTED ===
+(Across all E×C cells; reveals which pool's commitment predicts v27 win)
+
+Pool                    Committed       Not Committed     Delta   Avg actual C
+--------------------------------------------------------------------------------
+antpool              53.1% (n=32)       25.0% (n=136)    +28.1%          0.268
+f2pool               50.0% (n=38)       24.6% (n=130)    +25.4%          0.254
+viabtc               50.0% (n=32)       25.7% (n=136)    +24.3%          0.242
+foundryusa           42.1% (n=19)       28.9% (n=149)    +13.2%          0.302
+marapool             37.8% (n=37)       28.2% (n=131)     +9.6%          0.220
+luxor                37.5% (n=48)       27.5% (n=120)    +10.0%          0.205
+sbicrypto            35.7% (n=42)       28.6% (n=126)     +7.1%          0.215
+ocean                34.8% (n=46)       28.7% (n=122)     +6.1%          0.221
+binancepool          34.3% (n=35)       29.3% (n=133)     +5.0%          0.211
+braiinspool          31.6% (n=38)       30.0% (n=130)     +1.6%          0.176
+
+=== BIG POOL EFFECT (Foundry/AntPool/ViaBTC) ===
+
+ # big pools committed     n   v27 win%
+------------------------------------------
+                     0    88      14.8%
+                     1    77      45.5%
+                     2     3     100.0%
+
+=== COMPOSITION CONSISTENCY: WHERE OUTCOMES SPLIT ===
+(Cells where not all 6 compositions agree on outcome)
+
+E=0.55 C=0.150:
+  comp=0 seed=1006  actual_C=0.196  outcome=v27_win      pools=[antpool] 
+  comp=1 seed=1007  actual_C=0.116  outcome=contested    pools=[viabtc] 
+  comp=2 seed=1008  actual_C=0.102  outcome=v26_win      pools=[binancepool] 
+  comp=3 seed=1009  actual_C=0.000  outcome=v26_win      pools=[(none)] 
+  comp=4 seed=1010  actual_C=0.196  outcome=v26_win      pools=[antpool] 
+  comp=5 seed=1011  actual_C=0.102  outcome=v26_win      pools=[binancepool] 
+
+E=0.55 C=0.250:
+  comp=0 seed=1018  actual_C=0.114  outcome=contested    pools=[f2pool] 
+  comp=1 seed=1019  actual_C=0.152  outcome=v26_win      pools=[braiinspool+luxor+marapool+ocean] 
+  comp=2 seed=1020  actual_C=0.210  outcome=contested    pools=[antpool+ocean] 
+  comp=3 seed=1021  actual_C=0.230  outcome=v27_win      pools=[f2pool+viabtc] 
+  comp=4 seed=1022  actual_C=0.273  outcome=v26_win      pools=[foundryusa] FOUNDRY
+  comp=5 seed=1023  actual_C=0.168  outcome=contested    pools=[braiinspool+f2pool+luxor] 
+
+E=0.55 C=0.300:
+  comp=0 seed=1024  actual_C=0.210  outcome=contested    pools=[antpool+ocean] 
+  comp=1 seed=1025  actual_C=0.163  outcome=contested    pools=[binancepool+ocean+sbicrypto] 
+  comp=2 seed=1026  actual_C=0.196  outcome=v27_win      pools=[antpool] 
+  comp=3 seed=1027  actual_C=0.216  outcome=contested    pools=[binancepool+f2pool] 
+  comp=4 seed=1028  actual_C=0.210  outcome=v27_win      pools=[antpool+braiinspool] 
+  comp=5 seed=1029  actual_C=0.202  outcome=v27_win      pools=[luxor+sbicrypto+viabtc] 
+
+E=0.55 C=0.500:
+  comp=0 seed=1036  actual_C=0.250  outcome=contested    pools=[antpool+braiinspool+luxor] 
+  comp=1 seed=1037  actual_C=0.410  outcome=v27_win      pools=[antpool+braiinspool+f2pool+luxor+sbicrypto] 
+  comp=2 seed=1038  actual_C=0.355  outcome=v27_win      pools=[binancepool+f2pool+luxor+marapool+ocean] 
+  comp=3 seed=1039  actual_C=0.313  outcome=v27_win      pools=[braiinspool+f2pool+luxor+marapool+ocean+sbicrypto] 
+  comp=4 seed=1040  actual_C=0.250  outcome=v27_win      pools=[antpool+braiinspool+luxor] 
+  comp=5 seed=1041  actual_C=0.388  outcome=v27_win      pools=[f2pool+foundryusa] FOUNDRY
+
+E=0.65 C=0.300:
+  comp=0 seed=1066  actual_C=0.102  outcome=v27_win      pools=[binancepool] 
+  comp=1 seed=1067  actual_C=0.334  outcome=v27_win      pools=[braiinspool+foundryusa+sbicrypto] FOUNDRY
+  comp=2 seed=1068  actual_C=0.098  outcome=contested    pools=[braiinspool+marapool] 
+  comp=3 seed=1069  actual_C=0.263  outcome=contested    pools=[binancepool+f2pool+sbicrypto] 
+  comp=4 seed=1070  actual_C=0.138  outcome=v26_win      pools=[luxor+marapool+ocean] 
+  comp=5 seed=1071  actual_C=0.098  outcome=v27_win      pools=[braiinspool+marapool] 
+
+E=0.65 C=0.400:
+  comp=0 seed=1072  actual_C=0.287  outcome=v27_win      pools=[binancepool+luxor+marapool+ocean+sbicrypto] 
+  comp=1 seed=1073  actual_C=0.212  outcome=contested    pools=[braiinspool+f2pool+marapool] 
+  comp=2 seed=1074  actual_C=0.215  outcome=contested    pools=[f2pool+luxor+ocean+sbicrypto] 
+  comp=3 seed=1075  actual_C=0.253  outcome=v26_win      pools=[f2pool+luxor+marapool+ocean] 
+  comp=4 seed=1076  actual_C=0.259  outcome=v27_win      pools=[braiinspool+f2pool+ocean+viabtc] 
+  comp=5 seed=1077  actual_C=0.364  outcome=v27_win      pools=[antpool+f2pool+luxor+ocean] 
+
+E=0.65 C=0.500:
+  comp=0 seed=1078  actual_C=0.316  outcome=v27_win      pools=[binancepool+marapool+ocean+viabtc] 
+  comp=1 seed=1079  actual_C=0.386  outcome=v27_win      pools=[antpool+braiinspool+ocean+sbicrypto+viabtc] 
+  comp=2 seed=1080  actual_C=0.348  outcome=contested    pools=[binancepool+marapool+sbicrypto+viabtc] 
+  comp=3 seed=1081  actual_C=0.300  outcome=contested    pools=[braiinspool+luxor+marapool+sbicrypto+viabtc] 
+  comp=4 seed=1082  actual_C=0.375  outcome=contested    pools=[f2pool+marapool+ocean+sbicrypto+viabtc] 
+  comp=5 seed=1083  actual_C=0.338  outcome=contested    pools=[antpool+binancepool+luxor] 
+
+E=0.74 C=0.150:
+  comp=0 seed=1090  actual_C=0.124  outcome=contested    pools=[luxor+marapool] 
+  comp=1 seed=1091  actual_C=0.143  outcome=v26_win      pools=[braiinspool+f2pool+ocean] 
+  comp=2 seed=1092  actual_C=0.000  outcome=v26_win      pools=[(none)] 
+  comp=3 seed=1093  actual_C=0.014  outcome=v26_win      pools=[ocean] 
+  comp=4 seed=1094  actual_C=0.102  outcome=contested    pools=[binancepool] 
+  comp=5 seed=1095  actual_C=0.000  outcome=v27_win      pools=[(none)] 
+
+E=0.74 C=0.250:
+  comp=0 seed=1102  actual_C=0.200  outcome=v26_win      pools=[binancepool+marapool+ocean] 
+  comp=1 seed=1103  actual_C=0.170  outcome=v26_win      pools=[luxor+ocean+viabtc] 
+  comp=2 seed=1104  actual_C=0.218  outcome=contested    pools=[binancepool+viabtc] 
+  comp=3 seed=1105  actual_C=0.273  outcome=v27_win      pools=[foundryusa] FOUNDRY
+  comp=4 seed=1106  actual_C=0.210  outcome=v26_win      pools=[antpool+braiinspool] 
+  comp=5 seed=1107  actual_C=0.273  outcome=contested    pools=[foundryusa] FOUNDRY
+
+E=0.74 C=0.300:
+  comp=0 seed=1108  actual_C=0.196  outcome=v26_win      pools=[antpool] 
+  comp=1 seed=1109  actual_C=0.218  outcome=v26_win      pools=[binancepool+viabtc] 
+  comp=2 seed=1110  actual_C=0.245  outcome=contested    pools=[f2pool+ocean+viabtc] 
+  comp=3 seed=1111  actual_C=0.102  outcome=contested    pools=[binancepool] 
+  comp=4 seed=1112  actual_C=0.273  outcome=v26_win      pools=[foundryusa] FOUNDRY
+  comp=5 seed=1113  actual_C=0.216  outcome=v27_win      pools=[binancepool+f2pool] 
+
+E=0.74 C=0.400:
+  comp=0 seed=1114  actual_C=0.375  outcome=v27_win      pools=[binancepool+foundryusa] FOUNDRY
+  comp=1 seed=1115  actual_C=0.213  outcome=v27_win      pools=[f2pool+marapool+ocean] 
+  comp=2 seed=1116  actual_C=0.298  outcome=v26_win      pools=[antpool+binancepool] 
+  comp=3 seed=1117  actual_C=0.282  outcome=v27_win      pools=[antpool+luxor+sbicrypto] 
+  comp=4 seed=1118  actual_C=0.230  outcome=v27_win      pools=[f2pool+viabtc] 
+  comp=5 seed=1119  actual_C=0.236  outcome=v27_win      pools=[antpool+luxor] 
+
+E=0.74 C=0.500:
+  comp=0 seed=1120  actual_C=0.328  outcome=v27_win      pools=[foundryusa+luxor+ocean] FOUNDRY
+  comp=1 seed=1121  actual_C=0.427  outcome=v27_win      pools=[antpool+binancepool+f2pool+ocean] 
+  comp=2 seed=1122  actual_C=0.394  outcome=contested    pools=[antpool+f2pool+marapool] 
+  comp=3 seed=1123  actual_C=0.351  outcome=v27_win      pools=[antpool+luxor+viabtc] 
+  comp=4 seed=1124  actual_C=0.317  outcome=v27_win      pools=[f2pool+luxor+sbicrypto+viabtc] 
+  comp=5 seed=1125  actual_C=0.368  outcome=v27_win      pools=[braiinspool+f2pool+luxor+marapool+viabtc] 
+
+E=0.78 C=0.250:
+  comp=0 seed=1144  actual_C=0.170  outcome=v26_win      pools=[luxor+marapool+sbicrypto] 
+  comp=1 seed=1145  actual_C=0.216  outcome=v26_win      pools=[binancepool+f2pool] 
+  comp=2 seed=1146  actual_C=0.273  outcome=contested    pools=[foundryusa] FOUNDRY
+  comp=3 seed=1147  actual_C=0.210  outcome=v27_win      pools=[antpool+ocean] 
+  comp=4 seed=1148  actual_C=0.138  outcome=v26_win      pools=[luxor+marapool+ocean] 
+  comp=5 seed=1149  actual_C=0.202  outcome=v27_win      pools=[luxor+sbicrypto+viabtc] 
+
+E=0.78 C=0.300:
+  comp=0 seed=1150  actual_C=0.273  outcome=contested    pools=[foundryusa] FOUNDRY
+  comp=1 seed=1151  actual_C=0.186  outcome=v27_win      pools=[binancepool+marapool] 
+  comp=2 seed=1152  actual_C=0.098  outcome=v27_win      pools=[braiinspool+marapool] 
+  comp=3 seed=1153  actual_C=0.313  outcome=contested    pools=[foundryusa+luxor] FOUNDRY
+  comp=4 seed=1154  actual_C=0.242  outcome=v27_win      pools=[antpool+sbicrypto] 
+  comp=5 seed=1155  actual_C=0.259  outcome=v26_win      pools=[f2pool+marapool+ocean+sbicrypto] 
+
+E=0.78 C=0.400:
+  comp=0 seed=1156  actual_C=0.286  outcome=v26_win      pools=[luxor+marapool+sbicrypto+viabtc] 
+  comp=1 seed=1157  actual_C=0.357  outcome=v27_win      pools=[foundryusa+marapool] FOUNDRY
+  comp=2 seed=1158  actual_C=0.271  outcome=v26_win      pools=[antpool+braiinspool+ocean+sbicrypto] 
+  comp=3 seed=1159  actual_C=0.236  outcome=v27_win      pools=[antpool+luxor] 
+  comp=4 seed=1160  actual_C=0.218  outcome=v27_win      pools=[binancepool+viabtc] 
+  comp=5 seed=1161  actual_C=0.273  outcome=v27_win      pools=[foundryusa] FOUNDRY
+
+E=0.78 C=0.500:
+  comp=0 seed=1162  actual_C=0.340  outcome=v27_win      pools=[antpool+braiinspool+ocean+viabtc] 
+  comp=1 seed=1163  actual_C=0.320  outcome=v27_win      pools=[foundryusa+sbicrypto] FOUNDRY
+  comp=2 seed=1164  actual_C=0.288  outcome=contested    pools=[foundryusa+ocean] FOUNDRY
+  comp=3 seed=1165  actual_C=0.270  outcome=v27_win      pools=[f2pool+luxor+viabtc] 
+  comp=4 seed=1166  actual_C=0.218  outcome=v27_win      pools=[binancepool+viabtc] 
+  comp=5 seed=1167  actual_C=0.371  outcome=v27_win      pools=[antpool+f2pool+ocean+sbicrypto] 
+
+

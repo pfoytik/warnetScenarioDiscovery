@@ -1,0 +1,94 @@
+name: pool_composition_arm_b
+description: |
+  Arm B: Pool Composition Decoupling Sweep — Full Network Sensitivity Replication
+
+  PURPOSE:
+    Arm A (pool_composition_arm_a) ran the pool composition decoupling sweep on the
+    lite 25-node network, where economic_split has only ~25% resolution (2 economic
+    nodes per partition). Prior work (F13, F19, F20) established that on the lite
+    network, pool_committed_split dominates the transition zone, but on the full
+    60-node network (~4% resolution), economic_split reverses to become dominant.
+
+    Arm B runs the identical parameter grid on the full 60-node network to test:
+      1. Does the pool composition identity effect (large vs. small pool identity)
+         survive on the full network, or does it dissolve when economic conditions
+         are properly resolved?
+      2. Does the retarget race mechanism remain the primary driver, or does the
+         BTC price premium from economic_split overwhelm pool composition effects?
+      3. Are the quantitative thresholds (C=0.30 crossover, E=0.65 cold zone) stable
+         across network sizes?
+
+  DESIGN:
+    Identical to Arm A: same 4E × 7C × 6 compositions = 168 scenarios
+    Same composition seeds (base_composition_seed: 1000) — enables direct
+    scenario-level comparison between lite (arm_a) and full (arm_b) outcomes.
+    Only change: network: full (60 nodes, 24 economic nodes, ~4% resolution)
+
+    Split: server1 runs scenarios 0-83 (namespaces armb-0 to armb-5),
+           server2 runs scenarios 84-167 (namespaces armb-6 to armb-11)
+    14 scenarios per namespace, running sequentially.
+
+  KEY C VALUES (same as Arm A):
+    0.10, 0.15, 0.214, 0.25, 0.30, 0.40, 0.50
+
+  KEY E VALUES (same as Arm A — inversion zone coverage):
+    0.55, 0.65, 0.74, 0.78
+
+  EXPECTED SIGNAL:
+    If pool identity effects are lite-network artifacts: win rate grid should
+    collapse toward monotone in C, with E becoming the dominant predictor.
+    If pool identity effects are real: big_pool_committed_count and Foundry/AntPool
+    presence should remain predictive beyond what aggregate C explains.
+
+    Direct comparison metric: for each (E, C, composition_seed) triple, compare
+    arm_a outcome vs arm_b outcome. Agreement rate quantifies how much the
+    lite/full difference matters for this specific parameter region.
+
+  TIMING ESTIMATE:
+    ~216.7 min per scenario (same as arm_a — full network is not faster)
+    14 scenarios × 216.7 min = 50.5 hours per namespace
+    All 12 namespaces run in parallel → ~50 hours wall-clock total
+
+  RUN COMMANDS (on production servers):
+  Server 1 (scenarios 0-83, namespaces armb-0 to armb-5):
+    See RUN_INSTRUCTIONS.md for per-namespace commands
+
+  Server 2 (scenarios 84-167, namespaces armb-6 to armb-11):
+    See RUN_INSTRUCTIONS.md for per-namespace commands
+
+  COLLECTION:
+    rsync -av server1:~/warnetScenarioDiscovery/tools/sweep/pool_composition_arm_b/results_server1/ \
+      tools/sweep/pool_composition_arm_b/results_server1/
+    rsync -av server2:~/warnetScenarioDiscovery/tools/sweep/pool_composition_arm_b/results_server2/ \
+      tools/sweep/pool_composition_arm_b/results_server2/
+
+type: compositional_grid
+network: full
+n_scenarios: 168
+
+# E × C grid — identical to Arm A
+economic_split_values: [0.55, 0.65, 0.74, 0.78]
+pool_committed_split_values: [0.10, 0.15, 0.214, 0.25, 0.30, 0.40, 0.50]
+compositions_per_point: 6
+base_composition_seed: 1000   # same as arm_a — enables direct scenario-level comparison
+
+# Fixed parameters — same as Arm A except network
+# Note: economic_nodes_per_partition and user_nodes_per_partition are
+# ignored when using a base network template (full network node layout
+# is fixed by networks/realistic-economy-v2/network.yaml).
+# They are retained here for schema consistency only.
+fixed:
+  hashrate_split: 0.25
+  pool_neutral_pct: 30.0
+  pool_profitability_threshold: 0.16
+  pool_ideology_strength: 0.51
+  pool_max_loss_pct: 0.26
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.10
+  econ_inertia: 0.05
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  user_nodes_per_partition: 6        # ignored for full network base template
+  economic_nodes_per_partition: 2    # ignored for full network base template
+  transaction_velocity: 0.5
+  solo_miner_hashrate: 0.085

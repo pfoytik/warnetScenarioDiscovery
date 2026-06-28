@@ -20,9 +20,9 @@ Varying neutral pool percentage from 10–50% changes how fast the cascade compl
 
 ---
 
-**F3 — pool_committed_split has a non-monotonic (inversion zone) effect**
-At moderate economic levels (econ ≈ 0.60–0.70), increasing committed pool hashrate for v27 can *hurt* v27 — it raises the profitability bar that v26-committed Foundry must clear, flipping the outcome. The Foundry flip-point (~0.214 committed split) is the structural boundary governing this inversion.
-→ See: [targeted_sweep1: Economic × Committed Split Grid](#targeted_sweep1-economic--committed-split-grid)
+**F3 — pool_committed_split has a non-monotonic (inversion zone) effect — driven by Foundry identity in deterministic ordering**
+At moderate economic levels (econ ≈ 0.60–0.70), increasing committed pool hashrate for v27 can *hurt* v27 — it raises the profitability bar that v26-committed Foundry must clear, flipping the outcome. The Foundry flip-point (~0.214 committed split) is the structural boundary governing this inversion. F21 shows that the alternating v27/v26/v27 pattern at E=0.60 disappears under random composition: without Foundry in the committed set, E=0.65 is uniformly weak for v27 across all C values with no inversion.
+→ See: [targeted_sweep1: Economic × Committed Split Grid](#targeted_sweep1-economic--committed-split-grid), [pool_composition_arm_a: Pool Composition Decoupling](#pool_composition_arm_a-pool-composition-decoupling)
 
 ---
 
@@ -44,9 +44,9 @@ Without the retarget profit spike arriving within the run window, cascades stall
 
 ---
 
-**F7 — The Economic Self-Sustaining Point (ESP) is econ ≈ 0.74, invariant to retarget regime**
-The outcome flips winner-takes-all between econ=0.70 (v26_dominant) and econ=0.78 (v27_dominant) at both 144-block and 2016-block retarget. The same ESP threshold applies regardless of difficulty adjustment timing — difficulty adjustment timing does not affect the minimum economic majority required for UASF activation.
-→ See: [targeted_sweep7_esp: Economic Self-Sustaining Point (ESP)](#targeted_sweep7_esp-economic-self-sustaining-point-esp)
+**F7 — The Economic Self-Sustaining Point (ESP) is econ ≈ 0.74, invariant to retarget regime — but contingent on Foundry specifically committing**
+The outcome flips winner-takes-all between econ=0.70 (v26_dominant) and econ=0.78 (v27_dominant) at both 144-block and 2016-block retarget when C=0.214 in deterministic pool order (i.e., Foundry commits). F21 shows this flip disappears entirely with random compositions at C=0.214 — E=0.78 produces 0/6 v27 wins when Foundry is not in the committed set. The ESP is a threshold on Foundry identity, not on the scalar committed fraction alone.
+→ See: [targeted_sweep7_esp: Economic Self-Sustaining Point (ESP)](#targeted_sweep7_esp-economic-self-sustaining-point-esp), [pool_composition_arm_a: Pool Composition Decoupling](#pool_composition_arm_a-pool-composition-decoupling)
 
 ---
 
@@ -125,6 +125,12 @@ User-PRIM bias ratio = 1.256 — marginally above chance, far below the ≥2.0 t
 **F20 — Two-scale structure: economic_split is the global separator; pool_committed_split is the transition-zone separator**
 These are not contradictory findings from different sweeps — they describe the same decision boundary at different zoom levels. Over the full parameter range, economic_split determines whether a scenario reaches the contested region at all (clean v26 wins at low econ dominate the distribution). Within the contested transition zone, pool_committed_split (lite network) or economic_split near its threshold (full network) determines the direction. Finding 15 (n=64, underpowered) is superseded by Finding 20 (n=692).
 → See: [lhs_2016_full_6param: Wide-Range 6D LHS on Full Network at 2016-Block Retarget](#lhs_2016_full_6param-wide-range-6d-lhs-on-full-network-at-2016-block-retarget)
+
+---
+
+**F21 — pool_committed_split is a Foundry-identity proxy, not a true scalar threshold (2026-06-28)**
+The `pool_composition_arm_a` sweep (168 scenarios, 4E × 7C × 6 random compositions) held the aggregate target committed fraction fixed while randomly shuffling which pools constitute it. Key results: (1) At C=0.214 with random compositions, Foundry is never in the committed set (smaller pools fill the quota first, averaging 0.146 actual committed hashrate); all 24 scenarios lose — the prior ESP flip at E=0.78, C=0.214 disappears entirely. (2) At target C=0.30, where deterministic ordering gives a 100% v27 win rate, random compositions produce only 50% — the actual realized hashrate averages 0.202, far below the deterministic expectation. (3) The true threshold is at actual realized committed hashrate ≈ 0.20, not at the scalar target C. (4) Big pool identity explains substantial residual variance beyond actual hashrate: 0 big pools (Foundry/AntPool/ViaBTC) committed → 14.8% v27 win; 1 big pool → 45.5%; 2 big pools → 100%. (5) The inversion zone non-monotonicity (F3) is Foundry-driven and vanishes without deterministic ordering — E=0.65 is uniformly weak for v27 rather than alternating. The scalar `pool_committed_split` parameter in the prior model implicitly encoded Foundry identity and should be replaced by actual committed hashrate plus a big-pool indicator for boundary fitting.
+→ See: [pool_composition_arm_a: Pool Composition Decoupling](#pool_composition_arm_a-pool-composition-decoupling)
 
 ---
 
@@ -4096,4 +4102,132 @@ When analyzing new sweep results, watch for these indicators of potential bugs:
 
 ---
 
-*Analysis compiled February–March 2026; targeted_sweep9 added March 2026; targeted_sweep10 added March 2026; targeted_sweep11 added March 2026; targeted_sweep10b added March 2026; user_weight_mini_test, ucf_threshold_probe, user_weight_threshold added April 2026; lhs_user_weight_prim added April 2026; lhs_2016_full_6param added May 2026*
+*Analysis compiled February–March 2026; targeted_sweep9 added March 2026; targeted_sweep10 added March 2026; targeted_sweep11 added March 2026; targeted_sweep10b added March 2026; user_weight_mini_test, ucf_threshold_probe, user_weight_threshold added April 2026; lhs_user_weight_prim added April 2026; lhs_2016_full_6param added May 2026; pool_composition_arm_a added June 2026*
+
+---
+
+### pool_composition_arm_a: Pool Composition Decoupling
+
+**Research question:** Does fork outcome depend on WHICH pools are committed to v27, or only on the TOTAL committed hashrate fraction? In all prior sweeps, `pool_committed_split` is a scalar that assigns pools in deterministic hashrate order (Foundry first, then AntPool, ViaBTC, etc.). This sweep holds the aggregate target C fixed while randomly shuffling pool order via `composition_seed`, decoupling pool identity from aggregate committed fraction.
+
+**Design:** 4 E values × 7 C values × 6 random compositions = 168 scenarios, lite network, 13,000s duration, 2016-block retarget. Server 1 (ns-0 through ns-5, sweep_0000–0083) and Server 2 (ns-6 through ns-11, sweep_0084–0167) results both stored in `results_server1/`. All 168 scenarios completed, 0 failures.
+
+**E values:** 0.55, 0.65, 0.74, 0.78 — spanning low-moderate, inversion zone, ESP, and above-ESP  
+**C values:** 0.10, 0.15, 0.214, 0.25, 0.30, 0.40, 0.50 — spanning below to above Foundry flip-point  
+**Fixed params:** Same as all lite sweeps (ideology=0.51, max_loss=0.26, neutral_pct=30, hashrate_split=0.25)
+
+**Pool universe:** antpool, binancepool, braiinspool, f2pool, foundryusa, luxor, marapool, ocean, sbicrypto, viabtc
+
+#### Overall Results
+
+| Outcome | n | % |
+|---------|---|---|
+| v27_dominant | 51 | 30.4% |
+| v26_dominant | 70 | 41.7% |
+| contested | 47 | 28.0% |
+
+#### Win Rate Grid (v27% at each E × C cell, n=6 compositions each)
+
+| E \ C | 0.10 | 0.15 | 0.214 | 0.25 | 0.30 | 0.40 | 0.50 |
+|-------|------|------|-------|------|------|------|------|
+| 0.55 | 0% | 17% | 0% | 17% | 50% | **100%** | 83% |
+| 0.65 | 0% | 0% | 0% | 0% | 50% | 50% | 33% |
+| 0.74 | 0% | 17% | 0% | 17% | 17% | 83% | 83% |
+| 0.78 | 0% | 0% | 0% | 33% | 50% | 67% | 83% |
+
+#### Key Findings
+
+**1. C=0.214 always loses (0/24 v27 wins across all E values)**
+
+At the target C=0.214 "Foundry flip-point", random compositions never include Foundry. Smaller pools fill the quota first; the mean actual realized committed hashrate at C=0.214 is only 0.146. Without Foundry, C=0.214 provides insufficient committed hashrate to trigger any cascade. Prior result: deterministic ordering at C=0.214 gives v27_dominant at E=0.78 (ESP). Arm A result: 0/6 at E=0.78, C=0.214. The ESP flip-point requires Foundry specifically.
+
+**2. Deterministic ordering over-predicts v27 wins at C=0.20–0.30**
+
+At C=0.30 (target), prior sweeps with deterministic ordering produced 100% v27 wins at E=0.55 and E=0.78 (committed_2016_mid_econ, committed_2016_high_econ). Arm A random compositions at C=0.30 produce only 50% at both those E values. The actual realized committed hashrate at C=0.30 target averages 0.202 (range 0.098–0.334). The 100% deterministic win was driven by predictably committing Foundry+partial-AntPool in order.
+
+**3. Actual realized committed hashrate is a sharper predictor than target C**
+
+| Actual hashrate bin | n | v27 win% |
+|---------------------|---|----------|
+| [0.00, 0.05) | 20 | 5% |
+| [0.05, 0.10) | 15 | 13% |
+| [0.10, 0.15) | 32 | 3% |
+| [0.15, 0.20) | 23 | 13% |
+| **[0.20, 0.25)** | **27** | **56%** ← threshold |
+| [0.25, 0.30) | 25 | 36% |
+| [0.30, 0.35) | 13 | 69% |
+| [0.35, 0.40) | 11 | 82% |
+| [0.40, 0.50) | 2 | 100% |
+
+The transition from ~10% to ~56% win rate occurs at actual committed hashrate ≈ 0.20. This is the true threshold; the scalar target C is a noisy proxy that conflates pool identity with hashrate quantity.
+
+**4. Big pool identity effect is large**
+
+| Big pools (Foundry/AntPool/ViaBTC) committed | n | v27 win% |
+|----------------------------------------------|---|----------|
+| 0 | 88 | 14.8% |
+| 1 | 77 | 45.5% |
+| 2 | 3 | 100.0% |
+
+**5. Per-pool win rate when committed (ranked)**
+
+| Pool | v27 win% (committed) | v27 win% (not committed) | Δ |
+|------|----------------------|--------------------------|---|
+| antpool | 53.1% (n=32) | 25.0% (n=136) | +28.1% |
+| f2pool | 50.0% (n=38) | 24.6% (n=130) | +25.4% |
+| viabtc | 50.0% (n=32) | 25.7% (n=136) | +24.3% |
+| foundryusa | 42.1% (n=19) | 28.9% (n=149) | +13.2% |
+| marapool | 37.8% (n=37) | 28.2% (n=131) | +9.6% |
+| luxor | 37.5% (n=48) | 27.5% (n=120) | +10.0% |
+
+Foundry ranks 4th by per-pool win rate despite being the namesake of the "Foundry flip-point". AntPool, f2pool, and ViaBTC all show larger individual effects — likely because their commitment brings a larger, more reliable actual hashrate chunk to the v27 side.
+
+**6. Foundry identity effect at C=0.40 vs C=0.30 shows reversal**
+
+At C=0.40: Foundry committed → 100% v27 win (n=3); no Foundry → 71.4% (n=21). Δ=+28.6%.  
+At C=0.30: Foundry committed → 25% (n=4); no Foundry → 45% (n=20). Δ=−20%.
+
+The reversal at C=0.30 occurs because Foundry alone (actual C≈0.273) is below the ~0.20 transition threshold, whereas multi-pool non-Foundry compositions that win at C=0.30 achieve higher actual committed hashrate through combinations.
+
+**7. The inversion zone (F3) restructures without deterministic ordering**
+
+Prior deterministic result at E=0.60: C=0.20→v27, C=0.30→v26, C=0.38→v27 (alternating). The alternating pattern is caused by Foundry being above/below its flip-point. Arm A at E=0.65 (nearest E): no alternation — outcomes are 0%, 0%, 0%, 0%, 50%, 50%, 33% monotonically (with a slight drop at C=0.50, possibly a weak echo of the inversion). Without Foundry in the committed set at the critical C=0.20 level, the "good" v27 win from the inversion zone disappears entirely.
+
+**8. E=0.65 is anomalously weak in both deterministic and random ordering**
+
+E=0.65 wins only 19% overall vs 30–38% at other E values. This holds in both the prior LHS (5/7 at C~0.40, deterministic) and Arm A (3/6 at C=0.40, random). The E=0.65 weakness is not a Foundry artifact — it is structurally robust.
+
+**9. Composition variance across the 6 cells**
+
+15 of 28 (E, C) cells show mixed outcomes across their 6 compositions — confirming that composition identity does change outcomes in the C=0.15–0.40 transition zone. The driver is predominantly the realized actual hashrate variation across compositions, not pure pool identity independent of hashrate.
+
+#### Comparison with Prior Decision Boundary
+
+| Prior claim | Arm A verdict |
+|-------------|---------------|
+| ESP at E≈0.74 when C=0.214 | **Contingent on Foundry.** 0/6 wins at E=0.78, C=0.214 without Foundry. |
+| C=0.214 is the structural committed threshold | **Foundry identity effect.** Scalar 0.214 meaningless without Foundry specifically. |
+| C≥0.30 → reliable v27 win at high E (deterministic) | **Overestimates by ~50pp.** Only 50% at target C=0.30 with random compositions. |
+| Inversion zone non-monotonicity at E≈0.60–0.70 | **Foundry-driven, vanishes with random composition.** |
+| C≥0.40 → v27 dominant | **Robust.** Confirmed under random composition (67–100% at E=0.55/0.74/0.78). |
+| `pool_committed_split` is the 2016-block dominant predictor | **Refines to: actual committed hashrate + big-pool indicator.** The scalar target C is a noisy proxy. |
+
+#### Model Revision Recommendation
+
+Replace scalar `pool_committed_split` as a predictor with:
+1. **`committed_hashrate_actual`** — the realized fraction after composition assignment (threshold ≈ 0.20)
+2. **`big_pool_committed` (binary)** — whether ≥1 of {Foundry, AntPool, ViaBTC} is committed (~3× win rate multiplier)
+
+The logistic regression interaction term `economic_split × pool_committed_split` (+1.231, F17) should be re-estimated with `committed_hashrate_actual` replacing `pool_committed_split` — expect the coefficient to strengthen since the noise from identity-vs-hashrate conflation is removed.
+
+#### Output Files
+
+| File | Contents |
+|------|----------|
+| `tools/sweep/pool_composition_arm_a/results_server1/` | Raw results, 12 namespaces |
+| `tools/sweep/pool_composition_arm_a/analysis_arm_a/arm_a_analysis.txt` | Full text report |
+| `tools/sweep/pool_composition_arm_a/analysis_arm_a/arm_a_results.csv` | Per-scenario merged data |
+| `tools/sweep/pool_composition_arm_a/results_server1/analysis/sweep_data.csv` | Standard format for DB tooling |
+| `tools/sweep/pool_composition_arm_a/analyze_arm_a.py` | Analysis script |
+| `tools/sweep/pool_composition_arm_a/import_arm_a.py` | DB import script (extends schema) |
+| DB: sweep_id=67, sweep_name='pool_composition_arm_a' | Extra columns: composition_seed, composition_index, committed_hashrate_actual, committed_pool_ids, foundry_committed, big_pool_committed_count |

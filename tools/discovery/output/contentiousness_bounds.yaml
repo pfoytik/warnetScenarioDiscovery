@@ -1,23 +1,23 @@
 description: PRIM box for high contentiousness
 method: prim
-support: 1.0
-mean_target: 0.13526730488079605
-n_samples: 696
+support: 0.5
+mean_target: 0.3516179794006349
+n_samples: 149
 validation_warning: Fixed params validated at 144-block only; hashrate_split unvalidated
   at 2016-block
 parameters:
   economic_split:
-    min: 0.0
-    max: 0.95
+    min: 0.3379
+    max: 0.7956
   pool_committed_split:
-    min: 0.0
-    max: 0.75
+    min: 0.2533
+    max: 0.6728
   pool_ideology_strength:
-    min: 0.0
-    max: 0.8
+    min: 0.3006
+    max: 0.7074
   pool_max_loss_pct:
-    min: 0.0
-    max: 0.45
+    min: 0.1014
+    max: 0.3168
 fixed_parameters:
   hashrate_split: 0.25
   pool_neutral_pct: 30.0

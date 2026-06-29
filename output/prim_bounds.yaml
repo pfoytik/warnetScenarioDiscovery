@@ -1,23 +1,23 @@
 description: PRIM box for v27 win probability
 method: prim
-support: 0.17736486486486486
-mean_target: 0.7904761904761904
-n_samples: 105
+support: 0.3916184971098266
+mean_target: 0.8118081180811808
+n_samples: 271
 validation_warning: Fixed params validated at 144-block only; hashrate_split unvalidated
   at 2016-block
 parameters:
   economic_split:
-    min: 0.5737
-    max: 0.7788
+    min: 0.6645
+    max: 0.95
   pool_committed_split:
-    min: 0.2596
-    max: 0.5259
+    min: 0.101
+    max: 0.699
   pool_ideology_strength:
-    min: 0.4514
-    max: 0.745
+    min: 0.201
+    max: 0.899
   pool_max_loss_pct:
-    min: 0.1756
-    max: 0.3509
+    min: 0.05
+    max: 0.4295
 fixed_parameters:
   hashrate_split: 0.25
   pool_neutral_pct: 30.0

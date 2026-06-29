@@ -134,6 +134,7 @@ VALID_SWEEPS_2016 = [
     'econ_committed_2016_grid',           # 45 scenarios: 5×9 econ × committed grid
     'lhs_2016_full_parameter',            # 64 scenarios: 4D LHS full network
     'lhs_2016_6param',                    # 129 scenarios: 6D LHS lite network
+    'lhs_2016_full_6param',               # 692 scenarios: 6D LHS full network (primary F8 sweep)
     'targeted_sweep7_esp_2016',           # 9 scenarios: ESP boundary at 2016-block
     'targeted_sweep10_econ_threshold_2016',
     'targeted_sweep10b_econ_threshold_2016',

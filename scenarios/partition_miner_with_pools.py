@@ -228,6 +228,14 @@ class PartitionMinerWithPools(Commander):
         parser.add_argument('--reunion-timeout', type=int, default=120,
                           help='Seconds to wait for reorg convergence after reconnection (default 120)')
 
+        # Probabilistic v26 block acceptance by v27 nodes
+        parser.add_argument('--v26-acceptance-probability', type=float, default=0.0,
+                          help='Probability that a v26 block is accepted by v27 nodes (0.0=strict, '
+                               '1.0=fully permissive). Models softfork rules that only apply to a '
+                               'subset of transactions — blocks not containing violating transactions '
+                               'are valid on both chains. E.g., 0.75 = 75%% of v26 blocks comply '
+                               'with v27 rules and propagate to the v27 partition. (default: 0.0)')
+
         # Time-limited UASF (User Activated Soft Fork)
         parser.add_argument('--uasf-duration', type=int, default=None,
                           help='UASF duration in seconds. After this time, v27 nodes stop enforcing strict rules '
@@ -433,6 +441,48 @@ class PartitionMinerWithPools(Commander):
                 )
         except Exception as e:
             self.log.error(f"  [asymmetric] Failed to propagate v27 block to v26 island: {e}")
+
+    def propagate_v26_to_v27(self, miner) -> bool:
+        """
+        After mining a v26 block, probabilistically submit it to the v27 partition.
+
+        Models a softfork where the new rules apply to a specific transaction type
+        rather than all blocks. A v26 block is invalid under v27 rules only if it
+        contains a transaction violating the new constraint. Blocks that happen to
+        contain only compliant transactions are valid on both chains.
+
+        --v26-acceptance-probability controls the fraction of v26 blocks that are
+        compatible (0.0 = strict UASF, all v26 blocks rejected; 1.0 = fully
+        permissive, every v26 block propagates to v27).
+
+        Returns True if the block was accepted by the v27 partition.
+        """
+        p = getattr(self.options, 'v26_acceptance_probability', 0.0)
+        if p <= 0.0 or not self.v27_nodes:
+            return False
+
+        import random as _random
+        if _random.random() > p:
+            # This block contains a transaction violating v27 rules — rejected
+            return False
+
+        # Block is compatible — submit to one v27 bridge node; P2P handles the rest
+        try:
+            block_hash = miner.getbestblockhash()
+            raw_block = miner.getblock(block_hash, 0)
+            bridge_node = self.v27_nodes[0]
+            result = bridge_node.submitblock(raw_block)
+            if result is not None:
+                self.log.debug(
+                    f"  [v26→v27] submitblock returned: {result} "
+                    f"(block {block_hash[:12]})"
+                )
+                return False
+            self.log.debug(f"  [v26→v27] accepted v26 block {block_hash[:12]}")
+            return True
+        except Exception as e:
+            self.log.error(f"  [v26→v27] propagation failed: {e}")
+            return False
 
     def build_partition_peer_lists(self):
         """
@@ -1898,6 +1948,10 @@ class PartitionMinerWithPools(Commander):
 
                             # Asymmetric fork: push v27 blocks into the v26 island
                             self.propagate_to_foreign_accepting(miner, fork_id)
+
+                            # Probabilistic softfork: some v26 blocks comply with v27 rules
+                            if fork_id == 'v26':
+                                self.propagate_v26_to_v27(miner)
 
                             self.blocks_mined[fork_id] += 1
                             new_height = (self.v27_nodes[0].getblockcount() if fork_id == 'v27' and self.v27_nodes

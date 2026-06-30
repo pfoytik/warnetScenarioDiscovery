@@ -535,6 +535,7 @@ def run_scenario(
     use_cost_floor: bool = False,
     cost_floor_margin_buffer: float = 0.05,
     max_price_divergence: float = None,
+    v26_acceptance_probability: float = 0.0,
     namespace: str = "default",
 ) -> bool:
     """Run a single scenario and extract results"""
@@ -608,6 +609,8 @@ def run_scenario(
         cmd.append(f"--cost-floor-margin-buffer={cost_floor_margin_buffer}")
     if max_price_divergence is not None:
         cmd.append(f"--max-price-divergence={max_price_divergence}")
+    if v26_acceptance_probability > 0.0:
+        cmd.append(f"--v26-acceptance-probability={v26_acceptance_probability}")
 
     if dry_run:
         print(f"  [DRY RUN] Would execute:")
@@ -881,9 +884,10 @@ def main():
 
             scenario_start = time.time()
 
-            # Extract random_seed from scenario parameters if present (for baseline tests)
+            # Extract per-scenario parameters
             scenario_params = scenario.get("parameters", scenario)
             random_seed = scenario_params.get("random_seed", None)
+            v26_acceptance_probability = float(scenario_params.get("v26_acceptance_probability", 0.0))
 
             success = run_scenario(
                 scenario_id=scenario_id,
@@ -908,6 +912,7 @@ def main():
                 use_cost_floor=args.use_cost_floor,
                 cost_floor_margin_buffer=args.cost_floor_margin_buffer,
                 max_price_divergence=args.max_price_divergence,
+                v26_acceptance_probability=v26_acceptance_probability,
                 namespace=args.namespace,
             )
 

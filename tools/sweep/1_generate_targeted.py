@@ -65,6 +65,7 @@ REQUIRED_PARAMETERS = {
     "user_nodes_per_partition":    (2,    10,   "discrete"),
     "economic_nodes_per_partition":(1,    6,    "discrete"),
     "solo_miner_hashrate":         (0.02, 0.15, "continuous"),
+    "v26_acceptance_probability":  (0.0,  1.0,  "continuous"),
 }
 
 

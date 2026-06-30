@@ -1,0 +1,106 @@
+name: softfork_rule_strength
+description: |
+  Softfork Rule Strength Sweep
+
+  PURPOSE: All prior sweeps model a strict UASF where v27 nodes reject 100% of v26
+  blocks. This assumes the softfork rule applies to every block (e.g., a rule that
+  changes block header validation). In practice, most softfork rules apply to
+  specific transaction types — a v26 block is invalid under v27 rules only if it
+  contains a transaction violating the new constraint. Blocks without such
+  transactions are valid on both chains.
+
+  v26_acceptance_probability models the fraction of v26 blocks that happen to be
+  compatible with v27 rules (i.e., contain no violating transactions). This is
+  equivalent to the inverse of the "violation rate" of the new rule in the mempool:
+
+    p = 0.00 → 100% of v26 blocks violate v27 rules (strict UASF, baseline)
+    p = 0.25 → 75% of v26 blocks violate v27 rules (highly contentious rule)
+    p = 0.50 → 50% violation rate (moderate contention)
+    p = 0.75 → 25% violation rate (low contention — e.g., rare opcode restriction)
+    p = 0.90 → 10% violation rate (very mild rule)
+    p = 1.00 → 0% violation rate (fully permissive — no real block-level split)
+
+  RESEARCH QUESTION: How does the fraction of v26 blocks accepted by v27 nodes
+  affect fork outcome (v27 win / v26 win / contested) across the economic and
+  committed hashrate parameter space? Specifically:
+
+  1. Does the committed hashrate flip-point shift as p increases?
+     (Easier for v27 to win when it also accepts some v26 blocks)
+  2. Does the economic split threshold change with p?
+     (Economic pressure matters less when chains share more blocks)
+  3. Is there a p* threshold above which the fork dynamics qualitatively change
+     — e.g., where the chainsplit becomes self-healing before the retarget?
+  4. Does the cascade speed (time to v27 dominance) change with p?
+
+  DESIGN:
+  - 6 p values × 4 economic_split values × 4 pool_committed_split values
+  - 96 scenarios total, 8 per namespace, 12 namespaces (6 per server)
+  - Network: lite (fast; full-network scaling validated in prior sweeps)
+  - Duration: 13000s (one full 2016-block retarget cycle + buffer)
+  - All other parameters fixed at validated mid-ideology values
+
+  KEY P VALUES:
+  - 0.00: strict UASF — baseline, consistent with all prior sweeps
+  - 0.10: near-strict — rule touches 90% of blocks (e.g., new sig type on every tx)
+  - 0.25: high contention — 75% block incompatibility rate
+  - 0.50: moderate — 50/50 block compatibility (symmetric contention)
+  - 0.75: low contention — only 25% of blocks conflict (rare violation type)
+  - 1.00: fully permissive — all v26 blocks accepted, pure hashrate/economic split
+
+  KEY E VALUES (inversion zone coverage, matching arm_a for direct comparison):
+  - 0.55: above cascade floor, low economic leverage
+  - 0.65: mid inversion zone
+  - 0.74: ESP — maximum economic leverage point
+  - 0.78: near economic override threshold
+
+  KEY C VALUES (spanning the committed hashrate threshold region):
+  - 0.214: Foundry flip-point — minimum threshold for cascade in prior sweeps
+  - 0.30:  above flip-point, partial AntPool zone
+  - 0.40:  strong commitment — Foundry + AntPool + partial ViaBTC
+  - 0.50:  majority committed
+
+  EXPECTED SIGNALS:
+  - At p=0.00 (strict): replicate prior sweep results for cross-validation
+  - At p=1.00 (permissive): v27 should dominate whenever it has more chainwork,
+    regardless of E or C (chains share all blocks, heavier chain wins automatically)
+  - Intermediate p: expect a monotonic shift in the flip-point — as p increases,
+    lower C values become sufficient for v27 victory (v27 gains chainwork from
+    accepted v26 blocks, weakening the v26 chain's competitive position)
+  - The contested region should shrink as p increases (fewer scenarios where
+    neither chain can accumulate decisive chainwork advantage)
+
+  COMPARISON:
+  Results at p=0.00 should directly replicate arm_a at matching E,C values
+  (same fixed parameters, same network). Use this as internal validation before
+  interpreting p > 0.00 results.
+
+  SERVER SPLIT:
+  - Server 1: namespaces srs-0 to srs-5 (sweep_0000–sweep_0047)
+  - Server 2: namespaces srs-6 to srs-11 (sweep_0048–sweep_0095)
+
+type: grid
+network: lite
+n_scenarios: 96
+
+# Grid axes
+grid:
+  v26_acceptance_probability: [0.00, 0.10, 0.25, 0.50, 0.75, 1.00]
+  economic_split:             [0.55, 0.65, 0.74, 0.78]
+  pool_committed_split:       [0.214, 0.30, 0.40, 0.50]
+
+# Fixed parameters (validated from prior sweeps; matching arm_a fixed values for comparability)
+fixed:
+  hashrate_split: 0.25
+  pool_neutral_pct: 30.0
+  pool_profitability_threshold: 0.16
+  pool_ideology_strength: 0.51
+  pool_max_loss_pct: 0.26
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.10
+  econ_inertia: 0.05
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  transaction_velocity: 0.5
+  solo_miner_hashrate: 0.085

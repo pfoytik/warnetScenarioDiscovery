@@ -1,0 +1,105 @@
+======================================================================
+PARAMETER SWEEP ANALYSIS REPORT
+======================================================================
+
+Total scenarios analyzed: 30
+
+OUTCOME DISTRIBUTION:
+  contested: 1 (3.3%)
+  v26_dominant: 3 (10.0%)
+  v27_dominant: 26 (86.7%)
+
+MOST DISCRIMINATING PARAMETERS:
+(Parameters with largest difference between v27/v26 dominant outcomes)
+
+  1. economic_split
+     Separation: 0.0
+     v27 favored when: lower
+     Estimated threshold: 0.6
+     v27_dominant mean: 0.6
+     v26_dominant mean: 0.6
+
+  2. hashrate_split
+     Separation: 0.0
+     v27 favored when: lower
+     Estimated threshold: 0.25
+     v27_dominant mean: 0.25
+     v26_dominant mean: 0.25
+
+  3. pool_ideology_strength
+     Separation: 0.0
+     v27 favored when: lower
+     Estimated threshold: 0.62
+     v27_dominant mean: 0.62
+     v26_dominant mean: 0.62
+
+  4. pool_profitability_threshold
+     Separation: 0.0
+     v27 favored when: lower
+     Estimated threshold: 0.16
+     v27_dominant mean: 0.16
+     v26_dominant mean: 0.16
+
+  5. pool_max_loss_pct
+     Separation: 0.0
+     v27 favored when: lower
+     Estimated threshold: 0.28
+     v27_dominant mean: 0.28
+     v26_dominant mean: 0.28
+
+ECON SWITCHING TRAJECTORIES:
+(Economic node allocation shift over run duration)
+
+  scenario     econ_outcome   initial%  final%  switch_t  cascade_t   lag_s  peak_gap%
+  ------------------------------------------------------------------------------------
+  sweep_0000   full_switch       62.1%  100.0%      4049       7476   -3427      38.7%
+  sweep_0001   full_switch       62.1%  100.0%      1374       1956    -582      45.0%
+  sweep_0002   full_switch       62.1%  100.0%      1018       1315    -297      48.3%
+  sweep_0003   full_switch       62.1%  100.0%       937       3199   -2262      45.3%
+  sweep_0004   full_switch       62.1%  100.0%      1339       2008    -669      45.3%
+  sweep_0005   full_switch       62.1%   96.1%      2032       6609   -4577      31.8%
+  sweep_0006   full_switch       62.1%  100.0%       611        672     -61      48.2%
+  sweep_0007   full_switch       62.1%  100.0%      2597       3281    -684      45.9%
+  sweep_0008   full_switch       62.1%  100.0%      1591       4420   -2829      41.4%
+  sweep_0009   full_switch       62.1%  100.0%       977       1958    -981      43.9%
+  sweep_0010   full_switch       62.1%  100.0%       992       3217   -2225      42.7%
+  sweep_0011   full_switch       62.1%  100.0%      1314       1982    -668      47.1%
+  sweep_0012   partial_switch    62.1%   65.2%      8878      never     n/a       7.8%
+  sweep_0013   full_switch       62.1%  100.0%      1738       2506    -768      45.5%
+  sweep_0014   full_switch       62.1%  100.0%       675       1363    -688      46.0%
+  sweep_0015   full_switch       62.1%  100.0%       993       1324    -331      45.3%
+  sweep_0016   full_switch       62.1%  100.0%      1873       2550    -677      45.7%
+  sweep_0017   full_switch       62.1%  100.0%       931       2530   -1599      47.8%
+  sweep_0018   full_switch       62.1%  100.0%      1032       1372    -340      47.2%
+  sweep_0019   full_switch       62.1%  100.0%      2686       3229    -543      46.9%
+  sweep_0020   partial_switch    62.1%   62.1%     never      never     n/a       0.0%
+  sweep_0021   full_switch       62.1%  100.0%       708       1614    -906      47.7%
+  sweep_0022   full_switch       62.1%  100.0%      1633       1993    -360      46.7%
+  sweep_0023   partial_switch    62.1%   62.1%     never      never     n/a       0.0%
+  sweep_0024   full_switch       62.2%  100.0%       686       1337    -651      48.0%
+  sweep_0025   full_switch       62.1%  100.0%       360       1346    -986      46.5%
+  sweep_0026   full_switch       62.1%  100.0%      1247       1925    -678      46.9%
+  sweep_0027   partial_switch    62.1%   62.1%     never      never     n/a       0.0%
+  sweep_0028   full_switch       62.1%  100.0%       995       1418    -423      47.4%
+  sweep_0029   full_switch       62.2%  100.0%      1355       1963    -608      47.8%
+
+ECON OUTCOME DISTRIBUTION:
+  full_switch: 26 (87%)
+  partial_switch: 4 (13%)
+
+STRONG CORRELATIONS:
+(Parameters most correlated with v27 hashrate share / econ final)
+
+  economic_split: hash=-0.000  econ=-0.000
+  pool_ideology_strength: hash=-0.000  econ=-0.000
+  pool_profitability_threshold: hash=-0.000  econ=-0.000
+  pool_max_loss_pct: hash=-0.000  econ=-0.000
+  econ_ideology_strength: hash=-0.000  econ=-0.000
+
+KEY INSIGHTS:
+
+  * economic_split is the strongest predictor of fork outcome
+    Threshold around 0.6
+    v27 dominant when lower
+
+======================================================================

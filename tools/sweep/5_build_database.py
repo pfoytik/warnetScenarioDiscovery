@@ -460,6 +460,11 @@ SWEEP_METADATA = {
         'network_type': 'full',
         'description': '60-scenario LHS boundary characterization in (ucf, user_split) space — densifies contested zone from threshold grid; confirms non-monotonicity and falsifies split≥0.60 safe-zone assumption'
     },
+    'pool_composition_arm_b': {
+        'sweep_type': 'compositional_grid',
+        'network_type': 'full',
+        'description': 'Arm B: 4E×7C×6 compositions=168 scenarios on full 60-node network. Tests whether pool identity effect survives full-network resolution. Key findings: E dominant (threshold≈0.681), economic override at E≥0.74 with zero committed HR, C=0.50 inversion at E=0.65 (symmetric commitment hurts v27), AntPool alone (19.25%) no better than small coalitions at same actual HR (22% win rate).'
+    },
 }
 
 

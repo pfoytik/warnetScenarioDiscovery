@@ -465,6 +465,11 @@ SWEEP_METADATA = {
         'network_type': 'full',
         'description': 'Arm B: 4E×7C×6 compositions=168 scenarios on full 60-node network. Tests whether pool identity effect survives full-network resolution. Key findings: E dominant (threshold≈0.681), economic override at E≥0.74 with zero committed HR, C=0.50 inversion at E=0.65 (symmetric commitment hurts v27), AntPool alone (19.25%) no better than small coalitions at same actual HR (22% win rate).'
     },
+    'softfork_rule_strength': {
+        'sweep_type': 'targeted_grid',
+        'network_type': 'lite',
+        'description': '6p×4E×4C=96 scenarios on lite network. Tests how v26_acceptance_probability (fraction of v26 blocks compatible with v27 softfork rules) shifts the committed-hashrate flip-point and economic override threshold. p=0.00 replicates arm_a baseline; p=1.00 is fully permissive (pure hashrate/economic split, no chain divergence).'
+    },
 }
 
 

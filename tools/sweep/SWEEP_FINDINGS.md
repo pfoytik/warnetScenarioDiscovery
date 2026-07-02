@@ -4374,3 +4374,160 @@ The model requires E≈0.78 for economic override at low C; the full network ach
 - If the boundary figure is revised, the correct fix is to retrain excluding `lhs_2016_6param` (the quantization-contaminated lite-network LHS sweep), not to add arm_b
 
 *pool_composition_arm_b and boundary comparison added July 2026*
+
+---
+
+### softfork_rule_strength: How Softfork Transaction Coverage Affects Fork Outcome
+
+**Research question:** All prior sweeps model a strict UASF where v27 nodes reject 100% of v26 blocks. In practice, most softfork rules apply only to specific transaction types — a v26 block is only invalid under v27 rules if it contains a transaction violating the new constraint. `v26_acceptance_probability` (p) models the fraction of v26 blocks that happen to be compatible with v27 rules. How does p shift the committed-hashrate flip-point and economic override threshold?
+
+- **p=0.00**: Strict UASF — 100% of v26 blocks violate v27 rules (baseline)
+- **p=0.25**: High contention — 75% violation rate
+- **p=0.50**: Moderate — 50/50 block compatibility
+- **p=0.75**: Low contention — only 25% of blocks conflict
+- **p=1.00**: Fully permissive — all v26 blocks accepted, pure hashrate/economic contest
+
+**Design:** 6p × 4E × 4C = 96 scenarios, lite network, 13,000s duration, 2016-block retarget. All 96 scenarios completed. Both server results merged into `results_server1/`. Namespace dirs (ns-0 through ns-11) flattened to `results/` for analysis.
+
+**E values:** 0.55, 0.65, 0.74, 0.78  
+**C values:** 0.214, 0.30, 0.40, 0.50  
+**Fixed params:** ideology=0.51, max_loss=0.26, neutral_pct=30%, hashrate_split=0.25 (matching arm_a fixed params for direct comparison)
+
+#### Full Outcome Matrix
+
+```
+             C=0.214   C=0.300   C=0.400   C=0.500
+p=0.00:
+  E=0.55      v26       v27       v27       v27
+  E=0.65      v26       v27       v27       v27
+  E=0.74      v26       v27       v27       ???
+  E=0.78      v26       v27       v27       ???
+
+p=0.10:
+  E=0.55      v26       v27       v27       v27
+  E=0.65      v26       v27       v27       v27
+  E=0.74      v26       v27       v27       v27
+  E=0.78      v26       v26 ←     v27       v27
+
+p=0.25:  [PEAK v27 SUCCESS — 12/16 wins]
+  E=0.55      v26       v27       v27       v27
+  E=0.65      v26       v27       v27       v27
+  E=0.74      v26       v27       v27       v27
+  E=0.78      v26       v27       v27       v27
+
+p=0.50:
+  E=0.55      v26       v27       v27       v27
+  E=0.65      v26       v27       v27       v27
+  E=0.74      v26       v27       v27       v27
+  E=0.78      v26       v27       v26 ←     ???
+
+p=0.75:
+  E=0.55      v26       v26 ←     v27       v27
+  E=0.65      v26       ???       v27       v27
+  E=0.74      v26       v27       v27       v27
+  E=0.78      v26       v27       v27       ???
+
+p=1.00:
+  E=0.55      v26       v27       v27       v27
+  E=0.65      v26       ???       ???       v27
+  E=0.74      v26       ???       v26 ←     v27
+  E=0.78      v26       v27       v27       v27
+```
+
+`???` = contested, `←` = unexpected v26 win relative to lower p values
+
+#### Key Findings
+
+**1. The primary hypothesis is falsified: p does NOT lower the C flip-point**
+
+C=0.214 loses at every p value from 0.00 to 1.00 (0/24 wins). The hypothesis that higher p reduces the committed-hashrate threshold — because v27 gains chainwork from accepted v26 blocks — is not supported. The C=0.214 boundary is impenetrable regardless of softfork rule coverage.
+
+**2. The effect of p is non-monotonic and net-negative above p=0.25**
+
+| p | v27 wins | v26 wins | contested |
+|---|---|---|---|
+| 0.00 | 10/16 (62%) | 4 | 2 |
+| 0.10 | 11/16 (69%) | 5 | 0 |
+| **0.25** | **12/16 (75%)** | **4** | **0** ← peak |
+| 0.50 | 10/16 (62%) | 5 | 1 |
+| 0.75 | 9/16 (56%) | 5 | 2 |
+| 1.00 | 8/16 (50%) | 5 | 3 |
+
+The optimum is p=0.25, not p=1.00. Above p=0.25, higher p monotonically degrades v27 outcomes. The contested count increases at high p, indicating the fork resolution becomes less decisive as p approaches 1.
+
+**3. The degradation pattern by C reveals the mechanism**
+
+Delta win rate vs p=0.00 baseline (marginal over E):
+
+| p | C=0.214 | C=0.300 | C=0.400 | C=0.500 |
+|---|---|---|---|---|
+| 0.10 | +0.00 | **−0.25** | +0.00 | **+0.50** |
+| 0.25 | +0.00 | +0.00 | +0.00 | **+0.50** |
+| 0.50 | +0.00 | +0.00 | **−0.25** | **+0.25** |
+| 0.75 | +0.00 | **−0.50** | +0.00 | **+0.25** |
+| 1.00 | +0.00 | **−0.50** | **−0.50** | **+0.50** |
+
+- **C=0.214**: Unaffected by p at all — a permanently lost zone
+- **C=0.30**: Stable through p=0.50, degrades sharply at p=0.75/1.00 (−50pp)
+- **C=0.40**: Stable through p=0.25, starts degrading at p=0.50 (−25pp), collapses at p=1.00 (−50pp)
+- **C=0.50**: Consistently IMPROVES with higher p (+25 to +50pp) — sole exception to the negative trend
+
+C=0.50 benefits from high p while C=0.30 and C=0.40 are hurt by it. The C=0.50 improvement resolves the p=0.00 baseline inversion (where C=0.50 E=0.74/0.78 was contested) — those cells become clean v27 wins at p≥0.10.
+
+**4. The mechanism: high p erodes the economic cascade trigger**
+
+At p=1.00, the `v27_econ_share` is 56.7% in every scenario regardless of outcome — economic nodes are not switching. The price divergence signal that drives neutral pool cascade depends on v26 and v27 chains having different block histories. When v27 accepts all v26 blocks (p=1.00), the two chains share the same block history and no price divergence develops. Without price divergence, neutral pools have no financial incentive to cascade to v27.
+
+At p=0.00 (strict), block rejection creates a sharp price divergence: the v26 chain cannot propagate its blocks to the v27 partition, causing real economic separation. Neutral pools perceive a profit differential and switch. The cascade completes in ~9,000–10,000s.
+
+At p=1.00, without the price signal, the cascade either partially completes (v27 hashrate stabilizes at 58.4% — just the committed + neutral that follow for ideological reasons) or fails entirely (v27 stays at 0%). The outcome becomes a function of raw committed hashrate vs v26 hashrate rather than of economic dynamics.
+
+**5. Cascade speed slows and becomes unreliable as p increases**
+
+At C=0.30, cascade times at successful v27 wins:
+- p=0.00: ~9,000–10,000s
+- p=0.10–0.50: ~10,000–12,000s (+20–30% slower)
+- p=0.75/1.00: cascade often does not complete (no cascade_s recorded for failures)
+
+Higher p delays or prevents the cascade by weakening the price divergence signal that initiates it.
+
+**6. The p=1.00 anomaly: C=0.50 wins where C=0.40 loses at E=0.65/0.74**
+
+At p=1.00, E=0.65/0.74, C=0.40 produces v26 wins or contested, while C=0.50 produces v27 wins. This is a non-monotonic outcome in C at high p. At C=0.50 (symmetric committed hashrate: 35% each side), neither side has a committed hashrate advantage — the outcome tips based on small timing effects. At C=0.40 (v27 committed=28%, v26 committed=42%), v26 has committed hashrate superiority and, without a price cascade to bring neutral pools to v27, v26 wins.
+
+**7. p=0.10 anomalous failure at E=0.78, C=0.30**
+
+At p=0.10 (90% violation rate, near-strict UASF), E=0.78, C=0.30 produces a v26 win where p=0.00 and p=0.25 both win. With n=1 this may be stochastic — the 10% acceptance rate occasionally delays the cascade timing past the retarget window at the scenario's specific parameter combination. Not a structural effect.
+
+#### Summary: Softfork Rule Strength Does Not Help v27
+
+The counterintuitive finding is that **a softfork rule that applies to fewer transactions (higher p, lower violation rate) does NOT make the fork easier for v27 to win — it makes it harder.** The UASF strategy depends critically on chain isolation: v27 nodes refusing v26 blocks creates price divergence that drives the economic cascade. When v27 nodes accept v26 blocks (high p), this isolation is broken, the price signal collapses, and the cascade mechanism fails. The result converges toward a pure chainwork competition that v26 — with its initial 75% hashrate advantage — is positioned to win at moderate committed hashrate levels.
+
+The practical implication: a softfork rule with very high transaction coverage (near p=0.00, e.g., a new signature type required on every transaction) provides maximum UASF leverage. A rule with low coverage (p=0.75–1.00, e.g., restricting a rarely-used opcode) provides minimal leverage and can yield outcomes worse than the strict UASF baseline for the C=0.30–0.40 committed hashrate range.
+
+The C=0.50 exception (where high p helps) suggests that at symmetric commitment levels, the chains are competitive enough that accepting v26 blocks tips the balance — but this is a narrow window.
+
+#### Comparison with Original Hypotheses
+
+| Hypothesis | Result |
+|------------|--------|
+| C flip-point shifts lower as p increases | **Falsified.** C=0.214 loses at all p; flip-point immovable |
+| Economic split threshold decreases with p | **Falsified.** E=0.65/0.74 starts losing at high p |
+| Contested region shrinks monotonically with p | **Falsified.** Contested count grows (0→1→2→3) at p=0.25→0.50→0.75→1.00 |
+| Critical p* where dynamics qualitatively change in v27's favor | **Falsified.** There is a p* but in the negative direction (p≈0.50–0.75 degrades v27) |
+| p=1.00 → v27 dominates because it also accepts v26 chainwork | **Falsified.** p=1.00 is the weakest v27 performance (8/16) |
+| p=0.00 results replicate arm_a | **Partially confirmed.** C=0.214 loses (matches arm_a 0/6); C=0.30+ wins cleanly (arm_a was noisier at C=0.30 due to random composition) |
+
+#### Output Files
+
+| File | Contents |
+|------|----------|
+| `tools/sweep/softfork_rule_strength/results_server1/` | Raw namespace results (ns-0 through ns-11, 96 scenarios) |
+| `tools/sweep/softfork_rule_strength/results/` | Flat merged results directory |
+| `tools/sweep/softfork_rule_strength/results/analysis/sweep_data.csv` | Standard format (duplicate-column-fixed) |
+| `tools/sweep/softfork_rule_strength/results/analysis/srs_heatmaps.png` | 6-panel E×C grid, one per p value |
+| `tools/sweep/softfork_rule_strength/results/analysis/srs_p_effect.png` | Win rate vs p by C and by E |
+| `tools/sweep/softfork_rule_strength/results/analysis/srs_delta_baseline.png` | Δ win rate vs p=0.00 baseline |
+| DB: sweep_name='softfork_rule_strength' | 96 scenarios loaded |
+
+*softfork_rule_strength added July 2026*

@@ -4231,3 +4231,146 @@ The logistic regression interaction term `economic_split × pool_committed_split
 | `tools/sweep/pool_composition_arm_a/analyze_arm_a.py` | Analysis script |
 | `tools/sweep/pool_composition_arm_a/import_arm_a.py` | DB import script (extends schema) |
 | DB: sweep_id=67, sweep_name='pool_composition_arm_a' | Extra columns: composition_seed, composition_index, committed_hashrate_actual, committed_pool_ids, foundry_committed, big_pool_committed_count |
+
+---
+
+### pool_composition_arm_b: Full-Network Replication of Pool Composition Sweep
+
+**Research question:** Do the arm_a findings (pool identity effect, economic override threshold, C=0.50 inversion) survive at full 60-node network resolution (24 economic nodes, 28 user nodes), eliminating the econ-node quantization artifact present in the lite network?
+
+**Design:** Identical to arm_a but on the full network. 4 E values × 7 C values × 6 random compositions = 168 scenarios targeted; 161 completed (7 failed/missing). Full network, 13,000s duration, 2016-block retarget. Server 1 and Server 2 results merged into `results/` (flat directory).
+
+**E values:** 0.55, 0.65, 0.74, 0.78  
+**C values:** 0.10, 0.15, 0.214, 0.25, 0.30, 0.40, 0.50  
+**Fixed params:** ideology=0.51, max_loss=0.26, neutral_pct=30, hashrate_split=0.25
+
+#### Overall Results
+
+| Outcome | n | % |
+|---------|---|---|
+| v27_dominant | 76 | 47.2% |
+| v26_dominant | 85 | 52.8% |
+
+#### Win Rate Grid (v27% at each E × C cell)
+
+| E \ C | 0.10 | 0.15 | 0.214 | 0.25 | 0.30 | 0.40 | 0.50 |
+|-------|------|------|-------|------|------|------|------|
+| 0.55 | 0% | 0% | 0% | 0% | 0% | 0% | 20% |
+| 0.65 | 0% | 0% | 17% | 50% | 33% | 67% | 0% |
+| 0.74 | **83%** | **100%** | 67% | 50% | 83% | 100% | 100% |
+| 0.78 | **83%** | 33% | 67% | 80% | **100%** | 100% | 83% |
+
+#### Key Findings
+
+**1. Economic override activates cleanly at E≈0.71–0.715 on the full network**
+
+At E=0.74 and E=0.78, v27 wins even at C=0.10 (near-zero committed hashrate): 83% win rate at both. The full network reveals an economic override threshold that was invisible in arm_a — economic pressure alone is sufficient to overcome a v26 hashrate advantage when E≥0.71. No committed hashrate required above this threshold.
+
+**2. E=0.55 spurious wins in arm_a are a quantization artifact**
+
+Arm_a (lite network) showed 38% v27 win rate at E=0.55 — including 100% at C=0.40 and 83% at C=0.50. Arm_b (full network) collapses this to 0–20% across the entire E=0.55 row. The lite network's ~4 discrete econ nodes assigned 56.7% custody to v27 even at nominal E=0.55, creating a false economic advantage. The full 24-node network correctly distributes E=0.55 economic weight and shows it is genuinely insufficient for v27 to overcome the hashrate deficit.
+
+**3. C=0.50 inversion is stronger on the full network**
+
+At E=0.65, C=0.50 produces 0% v27 wins in arm_b vs 33% in arm_a. Symmetric commitment (equal v27/v26 committed pools) hurts v27 more on the full network. The effect is not a lite-network artifact — it is amplified at full resolution. When both sides have 35% committed hashrate, the economic signal at E=0.65 is insufficient to tip the balance and the result is near-deterministically v26-dominant.
+
+**4. Contested zone narrows to a single E band**
+
+On the full network, outcomes are nearly deterministic above and below the override threshold:
+- E≤0.65: contested only in the C=0.25–0.40 sub-range; E=0.55 is total v26 domain
+- E≥0.74: v27 dominant across virtually all C, except isolated low-C noise at E=0.78/C=0.15
+
+The "uncertain zone" from arm_a (spread across all four E levels) compresses to the single E=0.65 row on the full network.
+
+**5. Chi-square significance of arm_a vs arm_b difference**
+
+| E | χ² | p | Significant? |
+|---|---|---|---|
+| 0.55 | 15.40 | 0.0001 | *** arm_a inflated by quantization |
+| 0.65 | 0.35 | 0.555 | No — arms agree |
+| 0.74 | 22.82 | <0.0001 | *** arm_b far higher (economic override) |
+| 0.78 | 16.14 | 0.0001 | *** arm_b far higher (economic override) |
+
+E=0.65 is the only E level where lite and full network produce statistically indistinguishable outcomes.
+
+#### Output Files
+
+| File | Contents |
+|------|----------|
+| `tools/sweep/pool_composition_arm_b/results/` | Flat merged results (161 scenarios) |
+| `tools/sweep/pool_composition_arm_b/results/analysis/sweep_data.csv` | Standard format (duplicate-column-fixed) |
+| DB: sweep_name='pool_composition_arm_b' | 161 scenarios loaded |
+
+---
+
+### pool_composition_arm_a vs arm_b: Boundary Comparison Analysis
+
+**Research question:** How does the economic override threshold and committed-hashrate flip-point shift between the lite network (arm_a, ~4 econ nodes) and the full 60-node network (arm_b, 24 econ nodes)?
+
+**Scripts:**
+- `tools/sweep/compare_arm_boundaries.py` — heatmaps, logistic threshold fits, chi-square tests
+- `tools/discovery/validate_arm_b.py` — out-of-sample validation of 2016-block boundary model on arm_b
+
+**Output:** `tools/sweep/pool_composition_arm_b/boundary_comparison/`, `tools/discovery/output/arm_b_validation/`
+
+#### Economic Override Threshold (E₅₀)
+
+The E value at which v27 win rate crosses 50%, estimated by logistic fit at low C (C≤0.15):
+
+| Network | E₅₀ | 95% CI |
+|---------|------|--------|
+| Arm_a (lite, ~4 nodes) | **No threshold** — win rate never reaches 50% at low C; logistic diverges | — |
+| Arm_b (full, 24 nodes) | **0.715** | [0.641, 0.789] |
+
+Arm_a has no logistic threshold at low C because the lite network never produces consistent v27 wins at C≤0.15 regardless of E. The full network shows a clean sigmoid crossing at E≈0.71–0.715. This economic override threshold was invisible in the lite network due to econ-node quantization.
+
+#### C Flip-Point (C₅₀) by E row
+
+| E | Arm_a C₅₀ | Arm_b C₅₀ | Interpretation |
+|---|---|---|---|
+| 0.55 | 0.299 | no fit (never wins) | Arm_a wins were quantization artifacts |
+| 0.65 | 0.506 | 0.673 (wide CI) | Full network needs more C at contested E |
+| 0.74 | 0.349 | **−0.338** | Full net: economic override → C irrelevant |
+| 0.78 | 0.334 | **+0.039** | Full net: C threshold near-zero, E alone decides |
+
+The negative/near-zero C₅₀ at E=0.74/0.78 in arm_b is the correct answer — once E exceeds the override threshold, any level of committed hashrate produces a v27 majority. The logistic flip-point extrapolates below C=0.
+
+#### Out-of-Sample Validation: Does the 2016-block boundary model predict arm_b?
+
+The existing boundary model (fitted on VALID_SWEEPS_2016, n=990 scenarios) was applied to arm_b as a held-out test set:
+
+| Metric | Logistic | RF |
+|--------|----------|----|
+| Accuracy | 0.702 | 0.683 |
+| Brier score | 0.179 | 0.211 |
+| ROC-AUC | **0.838** | 0.767 |
+
+The model generalizes to arm_b (70% accuracy, AUC=0.84), but with a **systematic bias in two zones**:
+
+**Zone 1 — E=0.55 (model over-predicts v27 by +0.18 to +0.45):**
+The model learned spurious v27 wins at E=0.55 + high C from lite-network training data (`lhs_2016_6param`, 129 scenarios). Arm_b reveals these predictions are wrong — the true v27 win rate at E=0.55 is 0–20%, not 18–55%. This is a training data contamination effect: lite-network scenarios with quantization artifacts inflate model confidence at E=0.55.
+
+**Zone 2 — E=0.74–0.78 at low C (model under-predicts v27 by −0.36 to −0.53):**
+The model predicts 41–53% win probability at (E=0.74, C=0.10–0.15), where arm_b observes 67–100%. The model has not learned the economic override pattern — it requires higher C to compensate for what arm_b demonstrates is unnecessary.
+
+**Economic override threshold mismatch:**
+
+| | E₅₀ at low C |
+|---|---|
+| Boundary model prediction | 0.779 |
+| Arm_b observed | 0.715 |
+| Delta | **−0.064** (model overestimates threshold) |
+
+The model requires E≈0.78 for economic override at low C; the full network achieves it at E≈0.71–0.72. The 0.064 bias traces to lite-network scenarios in the training set.
+
+#### Implication for Paper
+
+**Do not update the primary boundary figures with arm_b data.** Arm_b has a compositional confound (pool identity varies within each C cell), fixes ideology and max_loss (only varies E and C), and is past the April 14 data lock. Pooling it into the boundary fit would introduce new biases while correcting old ones.
+
+**Correct paper treatment:**
+- Report arm_b as independent out-of-sample cross-validation (AUC=0.84)
+- Report the 0.064 E₅₀ overestimate as a known limitation from including lite-network data in the training set (`lhs_2016_6param`)
+- State that the true economic override threshold on the full network is **E≈0.71** rather than the model's E≈0.78
+- If the boundary figure is revised, the correct fix is to retrain excluding `lhs_2016_6param` (the quantization-contaminated lite-network LHS sweep), not to add arm_b
+
+*pool_composition_arm_b and boundary comparison added July 2026*

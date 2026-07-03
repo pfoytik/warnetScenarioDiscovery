@@ -4499,6 +4499,18 @@ At p=1.00, E=0.65/0.74, C=0.40 produces v26 wins or contested, while C=0.50 prod
 
 At p=0.10 (90% violation rate, near-strict UASF), E=0.78, C=0.30 produces a v26 win where p=0.00 and p=0.25 both win. With n=1 this may be stochastic — the 10% acceptance rate occasionally delays the cascade timing past the retarget window at the scenario's specific parameter combination. Not a structural effect.
 
+**8. Reorg severity paradox: v27 wins produce the most disruptive chain reorganizations**
+
+| Outcome | Mean reorgs | Mean reorg_mass (blocks) |
+|---------|-------------|--------------------------|
+| contested | 5.0 | 306 |
+| v26_dominant | 7.4 | 1,025 |
+| **v27_dominant** | **10.0** | **7,831** |
+
+The counterintuitive ordering — contested is the *least* disruptive, v27 wins are the *most* disruptive — reflects the cascade mechanism itself. When v27 wins, the difficulty retarget fires and reorganizes the v26 chain wholesale: every block mined by v26 pools since the fork must be unwound as the v27 chain accumulates chainwork superiority. The reorg mass (~7,831 blocks) represents the depth of that rewind. When v26 wins, the retarget either does not fire or fires modestly (mean 1,025 blocks), as v26 retains the longer chain without a wholesale reorganization. Contested outcomes resolve before a decisive retarget, producing only the minor reorg mass from interleaved block propagation (~306 blocks). The cascade IS the massive reorg event: v27 cannot win without triggering it.
+
+Practical implication: even in scenarios where v27 "succeeds," the Bitcoin network experiences a 7,000+ block reorganization. The least disruptive outcome for the network as a whole is a contested fork. See `srs_pC_heatmap.png` and `srs_pE_heatmap.png` for reorg count and reorg mass across all p×C and p×E combinations.
+
 #### Summary: Softfork Rule Strength Does Not Help v27
 
 The counterintuitive finding is that **a softfork rule that applies to fewer transactions (higher p, lower violation rate) does NOT make the fork easier for v27 to win — it makes it harder.** The UASF strategy depends critically on chain isolation: v27 nodes refusing v26 blocks creates price divergence that drives the economic cascade. When v27 nodes accept v26 blocks (high p), this isolation is broken, the price signal collapses, and the cascade mechanism fails. The result converges toward a pure chainwork competition that v26 — with its initial 75% hashrate advantage — is positioned to win at moderate committed hashrate levels.
@@ -4528,6 +4540,8 @@ The C=0.50 exception (where high p helps) suggests that at symmetric commitment 
 | `tools/sweep/softfork_rule_strength/results/analysis/srs_heatmaps.png` | 6-panel E×C grid, one per p value |
 | `tools/sweep/softfork_rule_strength/results/analysis/srs_p_effect.png` | Win rate vs p by C and by E |
 | `tools/sweep/softfork_rule_strength/results/analysis/srs_delta_baseline.png` | Δ win rate vs p=0.00 baseline |
+| `tools/sweep/softfork_rule_strength/results/analysis/srs_pC_heatmap.png` | 4-panel p×C heatmap: win rate, contested count, reorg count, reorg mass |
+| `tools/sweep/softfork_rule_strength/results/analysis/srs_pE_heatmap.png` | 4-panel p×E heatmap: win rate, contested count, reorg count, reorg mass |
 | DB: sweep_name='softfork_rule_strength' | 96 scenarios loaded |
 
 *softfork_rule_strength added July 2026*

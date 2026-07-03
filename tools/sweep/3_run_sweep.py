@@ -536,6 +536,8 @@ def run_scenario(
     cost_floor_margin_buffer: float = 0.05,
     max_price_divergence: float = None,
     v26_acceptance_probability: float = 0.0,
+    partition_mode: str = "static",
+    fork_heal_exit: bool = False,
     namespace: str = "default",
 ) -> bool:
     """Run a single scenario and extract results"""
@@ -611,6 +613,10 @@ def run_scenario(
         cmd.append(f"--max-price-divergence={max_price_divergence}")
     if v26_acceptance_probability > 0.0:
         cmd.append(f"--v26-acceptance-probability={v26_acceptance_probability}")
+    if partition_mode != "static":
+        cmd.append(f"--partition-mode={partition_mode}")
+    if fork_heal_exit:
+        cmd.append("--fork-heal-exit")
 
     if dry_run:
         print(f"  [DRY RUN] Would execute:")
@@ -888,6 +894,8 @@ def main():
             scenario_params = scenario.get("parameters", scenario)
             random_seed = scenario_params.get("random_seed", None)
             v26_acceptance_probability = float(scenario_params.get("v26_acceptance_probability", 0.0))
+            partition_mode = str(scenario_params.get("partition_mode", "static"))
+            fork_heal_exit = bool(scenario_params.get("fork_heal_exit", False))
 
             success = run_scenario(
                 scenario_id=scenario_id,
@@ -913,6 +921,8 @@ def main():
                 cost_floor_margin_buffer=args.cost_floor_margin_buffer,
                 max_price_divergence=args.max_price_divergence,
                 v26_acceptance_probability=v26_acceptance_probability,
+                partition_mode=partition_mode,
+                fork_heal_exit=fork_heal_exit,
                 namespace=args.namespace,
             )
 

@@ -135,6 +135,16 @@ class PartitionMinerWithPools(Commander):
         self.reunion_completed = False  # Whether reunion has successfully completed
         self.reunion_winner = None  # Winning fork after reunion ('v27' or 'v26')
 
+        # Fork convergence tracking (--fork-heal-exit): did the v27/v26 islands
+        # organically reconverge to the same tip during the run?
+        self.fork_convergence = {
+            'enabled': False,
+            'healed': False,
+            'heal_time_s': None,
+            'v27_blocks_at_heal': None,
+            'v26_blocks_at_heal': None,
+        }
+
         # Time series data for charting
         self.time_series = {
             'timestamps': [],           # elapsed seconds
@@ -282,6 +292,19 @@ class PartitionMinerWithPools(Commander):
         # Debug options
         parser.add_argument('--debug-prices', action='store_true', default=False,
                           help='Enable verbose price calculation debugging')
+
+        # Fork formation / convergence
+        parser.add_argument('--partition-mode', type=str, default='static',
+                          choices=['static', 'unified'],
+                          help='static=structural partition assumed from block 0 (default). '
+                               'unified=both partitions start on the same chain tip — this is '
+                               'informational/logging only, since both islands already share a '
+                               'common ancestor at --start-height before mining begins.')
+        parser.add_argument('--fork-heal-exit', action='store_true', default=False,
+                          help='Exit the mining loop early once the v27 and v26 islands converge '
+                               'to the same tip block hash (organic fork healing). Records '
+                               'fork_convergence.{healed,heal_time_s,v27_blocks_at_heal,v26_blocks_at_heal} '
+                               'in the results.')
 
     def load_network_metadata(self):
         """Load node metadata from network.yaml file or bundled config"""
@@ -483,6 +506,38 @@ class PartitionMinerWithPools(Commander):
         except Exception as e:
             self.log.error(f"  [v26→v27] propagation failed: {e}")
             return False
+
+    def check_fork_healed(self, elapsed: int) -> bool:
+        """
+        Check whether the v27 and v26 islands have organically converged to the
+        same chain tip (used by --fork-heal-exit).
+
+        Returns True (and records fork_convergence state) the first time the
+        two islands' best block hashes match.
+        """
+        if self.fork_convergence['healed'] or not self.v27_nodes or not self.v26_nodes:
+            return self.fork_convergence['healed']
+
+        try:
+            v27_tip = self.v27_nodes[0].getbestblockhash()
+            v26_tip = self.v26_nodes[0].getbestblockhash()
+        except Exception as e:
+            self.log.warning(f"  Could not check fork convergence: {e}")
+            return False
+
+        if v27_tip == v26_tip:
+            self.fork_convergence['healed'] = True
+            self.fork_convergence['heal_time_s'] = elapsed
+            self.fork_convergence['v27_blocks_at_heal'] = self.blocks_mined['v27']
+            self.fork_convergence['v26_blocks_at_heal'] = self.blocks_mined['v26']
+            self.log.info(
+                f"\n{'='*70}\n"
+                f"FORK HEALED at {elapsed}s: v27 and v26 islands converged to {v27_tip[:16]}\n"
+                f"  Blocks at heal: v27={self.blocks_mined['v27']}, v26={self.blocks_mined['v26']}\n"
+                f"{'='*70}"
+            )
+            return True
+        return False
 
     def build_partition_peer_lists(self):
         """
@@ -1410,7 +1465,10 @@ class PartitionMinerWithPools(Commander):
         self.log.info(f"Duration: {self.options.duration}s ({self.options.duration/60:.0f} minutes)")
         self.log.info(f"Pool scenario: {self.options.pool_scenario}")
         self.log.info(f"Economic scenario: {self.options.economic_scenario}")
+        self.log.info(f"Partition mode: {self.options.partition_mode}")
         self.log.info(f"{'='*70}\n")
+
+        self.fork_convergence['enabled'] = self.options.fork_heal_exit
 
         # Initialize oracles
         price_oracle_kwargs = {
@@ -1676,6 +1734,7 @@ class PartitionMinerWithPools(Commander):
         last_price_update = start_time
         last_economic_update = start_time
         last_snapshot = start_time
+        fork_heal_triggered = False
 
         # Initialize time-limited UASF tracking
         if self.options.uasf_duration is not None:
@@ -1958,6 +2017,10 @@ class PartitionMinerWithPools(Commander):
                                           else self.v26_nodes[0].getblockcount() if fork_id == 'v26' and self.v26_nodes
                                           else self.options.start_height + self.blocks_mined[fork_id])
 
+                            if self.options.fork_heal_exit and self.check_fork_healed(elapsed):
+                                fork_heal_triggered = True
+                                break
+
                             # Record block with reorg oracle
                             if self.reorg_oracle:
                                 pool_id = self.get_node_pool_id(miner)
@@ -1999,6 +2062,12 @@ class PartitionMinerWithPools(Commander):
                         except Exception as e:
                             self.log.error(f"Error mining {fork_id} block: {e}")
 
+                    if fork_heal_triggered:
+                        break
+
+                if fork_heal_triggered:
+                    break
+
                 sleep(self.tick_interval)
 
             else:
@@ -2019,6 +2088,9 @@ class PartitionMinerWithPools(Commander):
                     self.propagate_to_foreign_accepting(miner, partition)
 
                     self.blocks_mined[partition] += 1
+
+                    if self.options.fork_heal_exit and self.check_fork_healed(elapsed):
+                        fork_heal_triggered = True
 
                     v27_height = self.v27_nodes[0].getblockcount() if self.v27_nodes else 0
                     v26_height = self.v26_nodes[0].getblockcount() if self.v26_nodes else 0
@@ -2054,6 +2126,9 @@ class PartitionMinerWithPools(Commander):
 
                 except Exception as e:
                     self.log.error(f"Error mining block: {e}")
+
+                if fork_heal_triggered:
+                    break
 
                 sleep(self.options.interval)
 
@@ -2199,6 +2274,8 @@ class PartitionMinerWithPools(Commander):
                     'reorg_metrics_enabled': self.options.enable_reorg_metrics,
                     'interval': self.options.interval,
                     'start_height': self.options.start_height,
+                    'partition_mode': self.options.partition_mode,
+                    'fork_heal_exit': self.options.fork_heal_exit,
                     'uasf_duration': self.options.uasf_duration,
                     'uasf_expiry_action': self.options.uasf_expiry_action if self.options.uasf_duration else None,
                     'uasf_expired': self.uasf_expired,
@@ -2225,6 +2302,7 @@ class PartitionMinerWithPools(Commander):
                     'switches': self.partition_switch_history,
                     'final_partition_state': dict(self.node_current_partition),
                 },
+                'fork_convergence': dict(self.fork_convergence),
             }
 
             # Capture final snapshot

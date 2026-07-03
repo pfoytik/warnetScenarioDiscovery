@@ -108,7 +108,7 @@ All commands run from `~/warnetScenarioDiscovery/`.
 
 ### Server 1
 
-**Pane 0 — namespace fft-0 (sweep_0000,0006,…,0042):**
+**Pane 0 — namespace fft-0 (sweep_0000–sweep_0007):**
 ```bash
 python tools/sweep/3_run_sweep.py \
     --input tools/sweep/fork_formation_threshold/build_manifest_server1.json \
@@ -117,10 +117,10 @@ python tools/sweep/3_run_sweep.py \
     --duration 13000 --retarget-interval 2016 --interval 2 \
     --startup-wait 60 --cooldown 30 \
     --no-auto-restart \
-    --scenarios $(printf "sweep_%04d " $(seq 0 6 42))
+    --scenarios $(printf "sweep_%04d " $(seq 0 7))
 ```
 
-**Pane 1 — namespace fft-1 (sweep_0001,0007,…,0043):**
+**Pane 1 — namespace fft-1 (sweep_0008–sweep_0015):**
 ```bash
 python tools/sweep/3_run_sweep.py \
     --input tools/sweep/fork_formation_threshold/build_manifest_server1.json \
@@ -129,10 +129,10 @@ python tools/sweep/3_run_sweep.py \
     --duration 13000 --retarget-interval 2016 --interval 2 \
     --startup-wait 60 --cooldown 30 \
     --no-auto-restart \
-    --scenarios $(printf "sweep_%04d " $(seq 1 6 43))
+    --scenarios $(printf "sweep_%04d " $(seq 8 15))
 ```
 
-**Pane 2 — namespace fft-2 (sweep_0002,0008,…,0044):**
+**Pane 2 — namespace fft-2 (sweep_0016–sweep_0023):**
 ```bash
 python tools/sweep/3_run_sweep.py \
     --input tools/sweep/fork_formation_threshold/build_manifest_server1.json \
@@ -141,10 +141,10 @@ python tools/sweep/3_run_sweep.py \
     --duration 13000 --retarget-interval 2016 --interval 2 \
     --startup-wait 60 --cooldown 30 \
     --no-auto-restart \
-    --scenarios $(printf "sweep_%04d " $(seq 2 6 44))
+    --scenarios $(printf "sweep_%04d " $(seq 16 23))
 ```
 
-**Pane 3 — namespace fft-3 (sweep_0003,0009,…,0039):**
+**Pane 3 — namespace fft-3 (sweep_0024–sweep_0030):**
 ```bash
 python tools/sweep/3_run_sweep.py \
     --input tools/sweep/fork_formation_threshold/build_manifest_server1.json \
@@ -153,10 +153,10 @@ python tools/sweep/3_run_sweep.py \
     --duration 13000 --retarget-interval 2016 --interval 2 \
     --startup-wait 60 --cooldown 30 \
     --no-auto-restart \
-    --scenarios $(printf "sweep_%04d " $(seq 3 6 39))
+    --scenarios $(printf "sweep_%04d " $(seq 24 30))
 ```
 
-**Pane 4 — namespace fft-4 (sweep_0004,0010,…,0040):**
+**Pane 4 — namespace fft-4 (sweep_0031–sweep_0037):**
 ```bash
 python tools/sweep/3_run_sweep.py \
     --input tools/sweep/fork_formation_threshold/build_manifest_server1.json \
@@ -165,10 +165,10 @@ python tools/sweep/3_run_sweep.py \
     --duration 13000 --retarget-interval 2016 --interval 2 \
     --startup-wait 60 --cooldown 30 \
     --no-auto-restart \
-    --scenarios $(printf "sweep_%04d " $(seq 4 6 40))
+    --scenarios $(printf "sweep_%04d " $(seq 31 37))
 ```
 
-**Pane 5 — namespace fft-5 (sweep_0005,0011,…,0041):**
+**Pane 5 — namespace fft-5 (sweep_0038–sweep_0044):**
 ```bash
 python tools/sweep/3_run_sweep.py \
     --input tools/sweep/fork_formation_threshold/build_manifest_server1.json \
@@ -177,14 +177,14 @@ python tools/sweep/3_run_sweep.py \
     --duration 13000 --retarget-interval 2016 --interval 2 \
     --startup-wait 60 --cooldown 30 \
     --no-auto-restart \
-    --scenarios $(printf "sweep_%04d " $(seq 5 6 41))
+    --scenarios $(printf "sweep_%04d " $(seq 38 44))
 ```
 
 ---
 
 ### Server 2
 
-**Pane 0 — namespace fft-0 (sweep_0045,0051,…,0087):**
+**Pane 0 — namespace fft-0 (sweep_0045–sweep_0052):**
 ```bash
 python tools/sweep/3_run_sweep.py \
     --input tools/sweep/fork_formation_threshold/build_manifest_server2.json \
@@ -193,10 +193,10 @@ python tools/sweep/3_run_sweep.py \
     --duration 13000 --retarget-interval 2016 --interval 2 \
     --startup-wait 60 --cooldown 30 \
     --no-auto-restart \
-    --scenarios $(printf "sweep_%04d " $(seq 45 6 87))
+    --scenarios $(printf "sweep_%04d " $(seq 45 52))
 ```
 
-**Pane 1 — namespace fft-1 (sweep_0046,0052,…,0088):**
+**Pane 1 — namespace fft-1 (sweep_0053–sweep_0060):**
 ```bash
 python tools/sweep/3_run_sweep.py \
     --input tools/sweep/fork_formation_threshold/build_manifest_server2.json \
@@ -205,10 +205,10 @@ python tools/sweep/3_run_sweep.py \
     --duration 13000 --retarget-interval 2016 --interval 2 \
     --startup-wait 60 --cooldown 30 \
     --no-auto-restart \
-    --scenarios $(printf "sweep_%04d " $(seq 46 6 88))
+    --scenarios $(printf "sweep_%04d " $(seq 53 60))
 ```
 
-**Pane 2 — namespace fft-2 (sweep_0047,0053,…,0089):**
+**Pane 2 — namespace fft-2 (sweep_0061–sweep_0068):**
 ```bash
 python tools/sweep/3_run_sweep.py \
     --input tools/sweep/fork_formation_threshold/build_manifest_server2.json \
@@ -217,10 +217,10 @@ python tools/sweep/3_run_sweep.py \
     --duration 13000 --retarget-interval 2016 --interval 2 \
     --startup-wait 60 --cooldown 30 \
     --no-auto-restart \
-    --scenarios $(printf "sweep_%04d " $(seq 47 6 89))
+    --scenarios $(printf "sweep_%04d " $(seq 61 68))
 ```
 
-**Pane 3 — namespace fft-3 (sweep_0048,0054,…,0084):**
+**Pane 3 — namespace fft-3 (sweep_0069–sweep_0075):**
 ```bash
 python tools/sweep/3_run_sweep.py \
     --input tools/sweep/fork_formation_threshold/build_manifest_server2.json \
@@ -229,10 +229,10 @@ python tools/sweep/3_run_sweep.py \
     --duration 13000 --retarget-interval 2016 --interval 2 \
     --startup-wait 60 --cooldown 30 \
     --no-auto-restart \
-    --scenarios $(printf "sweep_%04d " $(seq 48 6 84))
+    --scenarios $(printf "sweep_%04d " $(seq 69 75))
 ```
 
-**Pane 4 — namespace fft-4 (sweep_0049,0055,…,0085):**
+**Pane 4 — namespace fft-4 (sweep_0076–sweep_0082):**
 ```bash
 python tools/sweep/3_run_sweep.py \
     --input tools/sweep/fork_formation_threshold/build_manifest_server2.json \
@@ -241,10 +241,10 @@ python tools/sweep/3_run_sweep.py \
     --duration 13000 --retarget-interval 2016 --interval 2 \
     --startup-wait 60 --cooldown 30 \
     --no-auto-restart \
-    --scenarios $(printf "sweep_%04d " $(seq 49 6 85))
+    --scenarios $(printf "sweep_%04d " $(seq 76 82))
 ```
 
-**Pane 5 — namespace fft-5 (sweep_0050,0056,…,0086):**
+**Pane 5 — namespace fft-5 (sweep_0083–sweep_0089):**
 ```bash
 python tools/sweep/3_run_sweep.py \
     --input tools/sweep/fork_formation_threshold/build_manifest_server2.json \
@@ -253,7 +253,7 @@ python tools/sweep/3_run_sweep.py \
     --duration 13000 --retarget-interval 2016 --interval 2 \
     --startup-wait 60 --cooldown 30 \
     --no-auto-restart \
-    --scenarios $(printf "sweep_%04d " $(seq 50 6 86))
+    --scenarios $(printf "sweep_%04d " $(seq 83 89))
 ```
 
 ---

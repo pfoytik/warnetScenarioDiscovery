@@ -8,7 +8,7 @@
 # SERVER 1
 # ============================================================
 
-# fft-0 — 8 scenarios
+# fft-0 — 8 scenarios (sweep_0000–sweep_0007)
 python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/fork_formation_threshold/build_manifest_server1.json \
   --duration 13000 \
@@ -18,9 +18,10 @@ python3 tools/sweep/3_run_sweep.py \
   --namespace fft-0 \
   --startup-wait 60 \
   --cooldown 30 \
-  --scenarios sweep_0000 sweep_0006 sweep_0012 sweep_0018 sweep_0024 sweep_0030 sweep_0036 sweep_0042
+  --no-auto-restart \
+  --scenarios $(printf "sweep_%04d " $(seq 0 7))
 
-# fft-1 — 8 scenarios
+# fft-1 — 8 scenarios (sweep_0008–sweep_0015)
 python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/fork_formation_threshold/build_manifest_server1.json \
   --duration 13000 \
@@ -30,9 +31,10 @@ python3 tools/sweep/3_run_sweep.py \
   --namespace fft-1 \
   --startup-wait 60 \
   --cooldown 30 \
-  --scenarios sweep_0001 sweep_0007 sweep_0013 sweep_0019 sweep_0025 sweep_0031 sweep_0037 sweep_0043
+  --no-auto-restart \
+  --scenarios $(printf "sweep_%04d " $(seq 8 15))
 
-# fft-2 — 8 scenarios
+# fft-2 — 8 scenarios (sweep_0016–sweep_0023)
 python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/fork_formation_threshold/build_manifest_server1.json \
   --duration 13000 \
@@ -42,9 +44,10 @@ python3 tools/sweep/3_run_sweep.py \
   --namespace fft-2 \
   --startup-wait 60 \
   --cooldown 30 \
-  --scenarios sweep_0002 sweep_0008 sweep_0014 sweep_0020 sweep_0026 sweep_0032 sweep_0038 sweep_0044
+  --no-auto-restart \
+  --scenarios $(printf "sweep_%04d " $(seq 16 23))
 
-# fft-3 — 7 scenarios
+# fft-3 — 7 scenarios (sweep_0024–sweep_0030)
 python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/fork_formation_threshold/build_manifest_server1.json \
   --duration 13000 \
@@ -54,9 +57,10 @@ python3 tools/sweep/3_run_sweep.py \
   --namespace fft-3 \
   --startup-wait 60 \
   --cooldown 30 \
-  --scenarios sweep_0003 sweep_0009 sweep_0015 sweep_0021 sweep_0027 sweep_0033 sweep_0039
+  --no-auto-restart \
+  --scenarios $(printf "sweep_%04d " $(seq 24 30))
 
-# fft-4 — 7 scenarios
+# fft-4 — 7 scenarios (sweep_0031–sweep_0037)
 python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/fork_formation_threshold/build_manifest_server1.json \
   --duration 13000 \
@@ -66,9 +70,10 @@ python3 tools/sweep/3_run_sweep.py \
   --namespace fft-4 \
   --startup-wait 60 \
   --cooldown 30 \
-  --scenarios sweep_0004 sweep_0010 sweep_0016 sweep_0022 sweep_0028 sweep_0034 sweep_0040
+  --no-auto-restart \
+  --scenarios $(printf "sweep_%04d " $(seq 31 37))
 
-# fft-5 — 7 scenarios
+# fft-5 — 7 scenarios (sweep_0038–sweep_0044)
 python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/fork_formation_threshold/build_manifest_server1.json \
   --duration 13000 \
@@ -78,13 +83,14 @@ python3 tools/sweep/3_run_sweep.py \
   --namespace fft-5 \
   --startup-wait 60 \
   --cooldown 30 \
-  --scenarios sweep_0005 sweep_0011 sweep_0017 sweep_0023 sweep_0029 sweep_0035 sweep_0041
+  --no-auto-restart \
+  --scenarios $(printf "sweep_%04d " $(seq 38 44))
 
 # ============================================================
 # SERVER 2
 # ============================================================
 
-# fft-0 — 8 scenarios
+# fft-0 — 8 scenarios (sweep_0045–sweep_0052)
 python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/fork_formation_threshold/build_manifest_server2.json \
   --duration 13000 \
@@ -94,9 +100,10 @@ python3 tools/sweep/3_run_sweep.py \
   --namespace fft-0 \
   --startup-wait 60 \
   --cooldown 30 \
-  --scenarios sweep_0045 sweep_0051 sweep_0057 sweep_0063 sweep_0069 sweep_0075 sweep_0081 sweep_0087
+  --no-auto-restart \
+  --scenarios $(printf "sweep_%04d " $(seq 45 52))
 
-# fft-1 — 8 scenarios
+# fft-1 — 8 scenarios (sweep_0053–sweep_0060)
 python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/fork_formation_threshold/build_manifest_server2.json \
   --duration 13000 \
@@ -106,9 +113,10 @@ python3 tools/sweep/3_run_sweep.py \
   --namespace fft-1 \
   --startup-wait 60 \
   --cooldown 30 \
-  --scenarios sweep_0046 sweep_0052 sweep_0058 sweep_0064 sweep_0070 sweep_0076 sweep_0082 sweep_0088
+  --no-auto-restart \
+  --scenarios $(printf "sweep_%04d " $(seq 53 60))
 
-# fft-2 — 8 scenarios
+# fft-2 — 8 scenarios (sweep_0061–sweep_0068)
 python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/fork_formation_threshold/build_manifest_server2.json \
   --duration 13000 \
@@ -118,9 +126,10 @@ python3 tools/sweep/3_run_sweep.py \
   --namespace fft-2 \
   --startup-wait 60 \
   --cooldown 30 \
-  --scenarios sweep_0047 sweep_0053 sweep_0059 sweep_0065 sweep_0071 sweep_0077 sweep_0083 sweep_0089
+  --no-auto-restart \
+  --scenarios $(printf "sweep_%04d " $(seq 61 68))
 
-# fft-3 — 7 scenarios
+# fft-3 — 7 scenarios (sweep_0069–sweep_0075)
 python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/fork_formation_threshold/build_manifest_server2.json \
   --duration 13000 \
@@ -130,9 +139,10 @@ python3 tools/sweep/3_run_sweep.py \
   --namespace fft-3 \
   --startup-wait 60 \
   --cooldown 30 \
-  --scenarios sweep_0048 sweep_0054 sweep_0060 sweep_0066 sweep_0072 sweep_0078 sweep_0084
+  --no-auto-restart \
+  --scenarios $(printf "sweep_%04d " $(seq 69 75))
 
-# fft-4 — 7 scenarios
+# fft-4 — 7 scenarios (sweep_0076–sweep_0082)
 python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/fork_formation_threshold/build_manifest_server2.json \
   --duration 13000 \
@@ -142,9 +152,10 @@ python3 tools/sweep/3_run_sweep.py \
   --namespace fft-4 \
   --startup-wait 60 \
   --cooldown 30 \
-  --scenarios sweep_0049 sweep_0055 sweep_0061 sweep_0067 sweep_0073 sweep_0079 sweep_0085
+  --no-auto-restart \
+  --scenarios $(printf "sweep_%04d " $(seq 76 82))
 
-# fft-5 — 7 scenarios
+# fft-5 — 7 scenarios (sweep_0083–sweep_0089)
 python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/fork_formation_threshold/build_manifest_server2.json \
   --duration 13000 \
@@ -154,5 +165,5 @@ python3 tools/sweep/3_run_sweep.py \
   --namespace fft-5 \
   --startup-wait 60 \
   --cooldown 30 \
-  --scenarios sweep_0050 sweep_0056 sweep_0062 sweep_0068 sweep_0074 sweep_0080 sweep_0086
-
+  --no-auto-restart \
+  --scenarios $(printf "sweep_%04d " $(seq 83 89))

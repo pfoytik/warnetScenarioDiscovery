@@ -12,7 +12,7 @@
 python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/fork_formation_threshold/build_manifest_server1.json \
   --duration 13000 \
-  --interval 10 \
+  --interval 2 \
   --retarget-interval 2016 \
   --results-dir tools/sweep/fork_formation_threshold/results_server1 \
   --namespace fft-0 \
@@ -24,7 +24,7 @@ python3 tools/sweep/3_run_sweep.py \
 python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/fork_formation_threshold/build_manifest_server1.json \
   --duration 13000 \
-  --interval 10 \
+  --interval 2 \
   --retarget-interval 2016 \
   --results-dir tools/sweep/fork_formation_threshold/results_server1 \
   --namespace fft-1 \
@@ -36,7 +36,7 @@ python3 tools/sweep/3_run_sweep.py \
 python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/fork_formation_threshold/build_manifest_server1.json \
   --duration 13000 \
-  --interval 10 \
+  --interval 2 \
   --retarget-interval 2016 \
   --results-dir tools/sweep/fork_formation_threshold/results_server1 \
   --namespace fft-2 \
@@ -48,7 +48,7 @@ python3 tools/sweep/3_run_sweep.py \
 python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/fork_formation_threshold/build_manifest_server1.json \
   --duration 13000 \
-  --interval 10 \
+  --interval 2 \
   --retarget-interval 2016 \
   --results-dir tools/sweep/fork_formation_threshold/results_server1 \
   --namespace fft-3 \
@@ -60,7 +60,7 @@ python3 tools/sweep/3_run_sweep.py \
 python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/fork_formation_threshold/build_manifest_server1.json \
   --duration 13000 \
-  --interval 10 \
+  --interval 2 \
   --retarget-interval 2016 \
   --results-dir tools/sweep/fork_formation_threshold/results_server1 \
   --namespace fft-4 \
@@ -72,7 +72,7 @@ python3 tools/sweep/3_run_sweep.py \
 python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/fork_formation_threshold/build_manifest_server1.json \
   --duration 13000 \
-  --interval 10 \
+  --interval 2 \
   --retarget-interval 2016 \
   --results-dir tools/sweep/fork_formation_threshold/results_server1 \
   --namespace fft-5 \
@@ -88,7 +88,7 @@ python3 tools/sweep/3_run_sweep.py \
 python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/fork_formation_threshold/build_manifest_server2.json \
   --duration 13000 \
-  --interval 10 \
+  --interval 2 \
   --retarget-interval 2016 \
   --results-dir tools/sweep/fork_formation_threshold/results_server2 \
   --namespace fft-0 \
@@ -100,7 +100,7 @@ python3 tools/sweep/3_run_sweep.py \
 python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/fork_formation_threshold/build_manifest_server2.json \
   --duration 13000 \
-  --interval 10 \
+  --interval 2 \
   --retarget-interval 2016 \
   --results-dir tools/sweep/fork_formation_threshold/results_server2 \
   --namespace fft-1 \
@@ -112,7 +112,7 @@ python3 tools/sweep/3_run_sweep.py \
 python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/fork_formation_threshold/build_manifest_server2.json \
   --duration 13000 \
-  --interval 10 \
+  --interval 2 \
   --retarget-interval 2016 \
   --results-dir tools/sweep/fork_formation_threshold/results_server2 \
   --namespace fft-2 \
@@ -124,7 +124,7 @@ python3 tools/sweep/3_run_sweep.py \
 python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/fork_formation_threshold/build_manifest_server2.json \
   --duration 13000 \
-  --interval 10 \
+  --interval 2 \
   --retarget-interval 2016 \
   --results-dir tools/sweep/fork_formation_threshold/results_server2 \
   --namespace fft-3 \
@@ -136,7 +136,7 @@ python3 tools/sweep/3_run_sweep.py \
 python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/fork_formation_threshold/build_manifest_server2.json \
   --duration 13000 \
-  --interval 10 \
+  --interval 2 \
   --retarget-interval 2016 \
   --results-dir tools/sweep/fork_formation_threshold/results_server2 \
   --namespace fft-4 \
@@ -148,7 +148,7 @@ python3 tools/sweep/3_run_sweep.py \
 python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/fork_formation_threshold/build_manifest_server2.json \
   --duration 13000 \
-  --interval 10 \
+  --interval 2 \
   --retarget-interval 2016 \
   --results-dir tools/sweep/fork_formation_threshold/results_server2 \
   --namespace fft-5 \

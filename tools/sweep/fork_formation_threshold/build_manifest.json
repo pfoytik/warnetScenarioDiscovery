@@ -2,7 +2,7 @@
   "metadata": {
     "type": "targeted_grid",
     "name": "fork_formation_threshold",
-    "description": "Fork Formation Threshold Sweep\n\nPURPOSE: Determine at what violation rate (fraction of v26 blocks that violate v27\nrules) a chainsplit forms and sustains, versus heals organically.\n\nPrior sweep (softfork_rule_strength) assumed a structural partition from block 0\nand measured fork *resolution*. This sweep starts both partitions on the same chain\ntip (partition_mode=unified) and measures fork *formation*: does the v26-produced\nchain diverge far enough to sustain, or do compliant blocks pull the chains back\ntogether before the retarget fires?\n\nThe primary outcome is fork_convergence.healed (True/False). At low violation rates\ncompliant blocks dominate and the fork heals. At high violation rates violating blocks\naccumulate faster than the cross-submitted compliant blocks can overcome. The\nthreshold violation rate is the main result.\n\nRESEARCH QUESTION:\n  At what violation rate does a chainsplit form and sustain at all?\n  How does committed hashrate (C) affect that threshold?\n\nDESIGN:\n- 10 violation rates (0.05\u20131.00) x 3 C values (0.30, 0.40, 0.50) x 3 replications\n- 90 scenarios total, 8 per namespace (6 with 8, 6 with 7), 12 namespaces (6/server)\n- Network: lite, partition_mode=unified (both sides start on same chain tip)\n- Duration: 13000s with --fork-heal-exit (exits early when chains converge)\n- E fixed at 0.65, hashrate fixed at 0.25 (same as all prior sweeps)\n\nKEY VIOLATION RATES (p = 1 - violation_rate):\n  0.05 (p=0.95) \u2014 almost all blocks compliant; fork should heal quickly\n  0.10 (p=0.90) \u2014 10% violating; near-unified chains\n  0.15 (p=0.85) \u2014 15% violating; expected to heal\n  0.20 (p=0.80) \u2014 20% violating; approaching threshold zone\n  0.25 (p=0.75) \u2014 25% violating; threshold candidate\n  0.30 (p=0.70) \u2014 30% violating; threshold candidate\n  0.40 (p=0.60) \u2014 40% violating; likely to sustain\n  0.50 (p=0.50) \u2014 50% violating; symmetric contention\n  0.75 (p=0.25) \u2014 75% violating; peak v27 success in prior sweep\n  1.00 (p=0.00) \u2014 strict UASF baseline; always sustains\n\nSERVER SPLIT:\n  Server 1: namespaces fft-0 to fft-5 (sweep_0000\u2013sweep_0044)\n  Server 2: namespaces fft-0 to fft-5 (sweep_0045\u2013sweep_0089)\n\nNEW OUTCOME FIELDS (vs softfork_rule_strength):\n  fork_convergence.healed        \u2014 True if chains converged organically\n  fork_convergence.heal_time_s   \u2014 Elapsed seconds at convergence\n  fork_convergence.v27_blocks_at_heal\n  fork_convergence.v26_blocks_at_heal\n",
+    "description": "Fork Formation Threshold Sweep\n\nPURPOSE: Determine at what violation rate (fraction of v26 blocks that violate v27\nrules) a chainsplit forms and sustains, versus heals organically.\n\nPrior sweep (softfork_rule_strength) assumed a structural partition from block 0\nand measured fork *resolution*. This sweep starts both partitions on the same chain\ntip (partition_mode=unified) and measures fork *formation*: does the v26-produced\nchain diverge far enough to sustain, or do compliant blocks pull the chains back\ntogether before the retarget fires?\n\nThe primary outcome is fork_convergence.healed (True/False). At low violation rates\ncompliant blocks dominate and the fork heals. At high violation rates violating blocks\naccumulate faster than the cross-submitted compliant blocks can overcome. The\nthreshold violation rate is the main result.\n\nRESEARCH QUESTION:\n  At what violation rate does a chainsplit form and sustain at all?\n  How does committed hashrate (C) affect that threshold?\n\nDESIGN:\n- 10 violation rates (0.05\u20131.00) x 3 C values (0.15, 0.30, 0.60) x 3 replications\n- 90 scenarios total, 8 per namespace (6 with 8, 6 with 7), 12 namespaces (6/server)\n- Network: lite, partition_mode=unified (both sides start on same chain tip)\n- Duration: 13000s with --fork-heal-exit (exits early when chains converge)\n- E fixed at 0.65, hashrate fixed at 0.25 (same as all prior sweeps)\n\nKEY VIOLATION RATES (p = 1 - violation_rate):\n  0.05 (p=0.95) \u2014 almost all blocks compliant; fork should heal quickly\n  0.10 (p=0.90) \u2014 10% violating; near-unified chains\n  0.15 (p=0.85) \u2014 15% violating; expected to heal\n  0.20 (p=0.80) \u2014 20% violating; approaching threshold zone\n  0.25 (p=0.75) \u2014 25% violating; threshold candidate\n  0.30 (p=0.70) \u2014 30% violating; threshold candidate\n  0.40 (p=0.60) \u2014 40% violating; likely to sustain\n  0.50 (p=0.50) \u2014 50% violating; symmetric contention\n  0.75 (p=0.25) \u2014 75% violating; peak v27 success in prior sweep\n  1.00 (p=0.00) \u2014 strict UASF baseline; always sustains\n\nSERVER SPLIT:\n  Server 1: namespaces fft-0 to fft-5 (sweep_0000\u2013sweep_0044)\n  Server 2: namespaces fft-0 to fft-5 (sweep_0045\u2013sweep_0089)\n\nNEW OUTCOME FIELDS (vs softfork_rule_strength):\n  fork_convergence.healed        \u2014 True if chains converged organically\n  fork_convergence.heal_time_s   \u2014 Elapsed seconds at convergence\n  fork_convergence.v27_blocks_at_heal\n  fork_convergence.v26_blocks_at_heal\n",
     "base_network": "lite",
     "n_samples": 90,
     "server": "all",
@@ -21,9 +21,9 @@
         0.0
       ],
       "pool_committed_split": [
+        0.15,
         0.3,
-        0.4,
-        0.5
+        0.6
       ],
       "replications": 3
     },
@@ -71,11 +71,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.95,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 0,
         "violation_rate": 0.05,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0000 (violation_rate=0.05 C=0.15 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0000.yaml",
       "network_path": "networks/sweep_0000/network.yaml",
@@ -101,11 +102,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.95,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 1,
         "violation_rate": 0.05,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0001 (violation_rate=0.05 C=0.15 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0001.yaml",
       "network_path": "networks/sweep_0001/network.yaml",
@@ -131,11 +133,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.95,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 2,
         "violation_rate": 0.05,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0002 (violation_rate=0.05 C=0.15 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0002.yaml",
       "network_path": "networks/sweep_0002/network.yaml",
@@ -161,11 +164,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.95,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 0,
         "violation_rate": 0.05,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0003 (violation_rate=0.05 C=0.3 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0003.yaml",
       "network_path": "networks/sweep_0003/network.yaml",
@@ -191,11 +195,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.95,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 1,
         "violation_rate": 0.05,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0004 (violation_rate=0.05 C=0.3 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0004.yaml",
       "network_path": "networks/sweep_0004/network.yaml",
@@ -221,11 +226,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.95,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 2,
         "violation_rate": 0.05,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0005 (violation_rate=0.05 C=0.3 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0005.yaml",
       "network_path": "networks/sweep_0005/network.yaml",
@@ -251,11 +257,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.95,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 0,
         "violation_rate": 0.05,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0006 (violation_rate=0.05 C=0.6 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0006.yaml",
       "network_path": "networks/sweep_0006/network.yaml",
@@ -281,11 +288,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.95,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 1,
         "violation_rate": 0.05,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0007 (violation_rate=0.05 C=0.6 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0007.yaml",
       "network_path": "networks/sweep_0007/network.yaml",
@@ -311,11 +319,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.95,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 2,
         "violation_rate": 0.05,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0008 (violation_rate=0.05 C=0.6 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0008.yaml",
       "network_path": "networks/sweep_0008/network.yaml",
@@ -341,11 +350,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.9,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 0,
         "violation_rate": 0.1,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0009 (violation_rate=0.1 C=0.15 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0009.yaml",
       "network_path": "networks/sweep_0009/network.yaml",
@@ -371,11 +381,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.9,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 1,
         "violation_rate": 0.1,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0010 (violation_rate=0.1 C=0.15 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0010.yaml",
       "network_path": "networks/sweep_0010/network.yaml",
@@ -401,11 +412,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.9,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 2,
         "violation_rate": 0.1,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0011 (violation_rate=0.1 C=0.15 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0011.yaml",
       "network_path": "networks/sweep_0011/network.yaml",
@@ -431,11 +443,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.9,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 0,
         "violation_rate": 0.1,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0012 (violation_rate=0.1 C=0.3 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0012.yaml",
       "network_path": "networks/sweep_0012/network.yaml",
@@ -461,11 +474,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.9,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 1,
         "violation_rate": 0.1,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0013 (violation_rate=0.1 C=0.3 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0013.yaml",
       "network_path": "networks/sweep_0013/network.yaml",
@@ -491,11 +505,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.9,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 2,
         "violation_rate": 0.1,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0014 (violation_rate=0.1 C=0.3 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0014.yaml",
       "network_path": "networks/sweep_0014/network.yaml",
@@ -521,11 +536,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.9,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 0,
         "violation_rate": 0.1,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0015 (violation_rate=0.1 C=0.6 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0015.yaml",
       "network_path": "networks/sweep_0015/network.yaml",
@@ -551,11 +567,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.9,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 1,
         "violation_rate": 0.1,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0016 (violation_rate=0.1 C=0.6 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0016.yaml",
       "network_path": "networks/sweep_0016/network.yaml",
@@ -581,11 +598,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.9,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 2,
         "violation_rate": 0.1,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0017 (violation_rate=0.1 C=0.6 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0017.yaml",
       "network_path": "networks/sweep_0017/network.yaml",
@@ -611,11 +629,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.85,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 0,
         "violation_rate": 0.15,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0018 (violation_rate=0.15 C=0.15 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0018.yaml",
       "network_path": "networks/sweep_0018/network.yaml",
@@ -641,11 +660,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.85,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 1,
         "violation_rate": 0.15,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0019 (violation_rate=0.15 C=0.15 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0019.yaml",
       "network_path": "networks/sweep_0019/network.yaml",
@@ -671,11 +691,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.85,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 2,
         "violation_rate": 0.15,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0020 (violation_rate=0.15 C=0.15 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0020.yaml",
       "network_path": "networks/sweep_0020/network.yaml",
@@ -701,11 +722,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.85,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 0,
         "violation_rate": 0.15,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0021 (violation_rate=0.15 C=0.3 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0021.yaml",
       "network_path": "networks/sweep_0021/network.yaml",
@@ -731,11 +753,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.85,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 1,
         "violation_rate": 0.15,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0022 (violation_rate=0.15 C=0.3 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0022.yaml",
       "network_path": "networks/sweep_0022/network.yaml",
@@ -761,11 +784,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.85,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 2,
         "violation_rate": 0.15,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0023 (violation_rate=0.15 C=0.3 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0023.yaml",
       "network_path": "networks/sweep_0023/network.yaml",
@@ -791,11 +815,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.85,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 0,
         "violation_rate": 0.15,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0024 (violation_rate=0.15 C=0.6 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0024.yaml",
       "network_path": "networks/sweep_0024/network.yaml",
@@ -821,11 +846,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.85,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 1,
         "violation_rate": 0.15,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0025 (violation_rate=0.15 C=0.6 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0025.yaml",
       "network_path": "networks/sweep_0025/network.yaml",
@@ -851,11 +877,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.85,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 2,
         "violation_rate": 0.15,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0026 (violation_rate=0.15 C=0.6 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0026.yaml",
       "network_path": "networks/sweep_0026/network.yaml",
@@ -881,11 +908,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.8,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 0,
         "violation_rate": 0.2,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0027 (violation_rate=0.2 C=0.15 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0027.yaml",
       "network_path": "networks/sweep_0027/network.yaml",
@@ -911,11 +939,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.8,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 1,
         "violation_rate": 0.2,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0028 (violation_rate=0.2 C=0.15 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0028.yaml",
       "network_path": "networks/sweep_0028/network.yaml",
@@ -941,11 +970,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.8,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 2,
         "violation_rate": 0.2,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0029 (violation_rate=0.2 C=0.15 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0029.yaml",
       "network_path": "networks/sweep_0029/network.yaml",
@@ -971,11 +1001,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.8,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 0,
         "violation_rate": 0.2,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0030 (violation_rate=0.2 C=0.3 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0030.yaml",
       "network_path": "networks/sweep_0030/network.yaml",
@@ -1001,11 +1032,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.8,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 1,
         "violation_rate": 0.2,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0031 (violation_rate=0.2 C=0.3 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0031.yaml",
       "network_path": "networks/sweep_0031/network.yaml",
@@ -1031,11 +1063,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.8,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 2,
         "violation_rate": 0.2,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0032 (violation_rate=0.2 C=0.3 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0032.yaml",
       "network_path": "networks/sweep_0032/network.yaml",
@@ -1061,11 +1094,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.8,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 0,
         "violation_rate": 0.2,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0033 (violation_rate=0.2 C=0.6 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0033.yaml",
       "network_path": "networks/sweep_0033/network.yaml",
@@ -1091,11 +1125,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.8,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 1,
         "violation_rate": 0.2,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0034 (violation_rate=0.2 C=0.6 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0034.yaml",
       "network_path": "networks/sweep_0034/network.yaml",
@@ -1121,11 +1156,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.8,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 2,
         "violation_rate": 0.2,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0035 (violation_rate=0.2 C=0.6 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0035.yaml",
       "network_path": "networks/sweep_0035/network.yaml",
@@ -1151,11 +1187,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.75,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 0,
         "violation_rate": 0.25,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0036 (violation_rate=0.25 C=0.15 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0036.yaml",
       "network_path": "networks/sweep_0036/network.yaml",
@@ -1181,11 +1218,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.75,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 1,
         "violation_rate": 0.25,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0037 (violation_rate=0.25 C=0.15 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0037.yaml",
       "network_path": "networks/sweep_0037/network.yaml",
@@ -1211,11 +1249,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.75,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 2,
         "violation_rate": 0.25,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0038 (violation_rate=0.25 C=0.15 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0038.yaml",
       "network_path": "networks/sweep_0038/network.yaml",
@@ -1241,11 +1280,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.75,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 0,
         "violation_rate": 0.25,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0039 (violation_rate=0.25 C=0.3 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0039.yaml",
       "network_path": "networks/sweep_0039/network.yaml",
@@ -1271,11 +1311,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.75,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 1,
         "violation_rate": 0.25,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0040 (violation_rate=0.25 C=0.3 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0040.yaml",
       "network_path": "networks/sweep_0040/network.yaml",
@@ -1301,11 +1342,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.75,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 2,
         "violation_rate": 0.25,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0041 (violation_rate=0.25 C=0.3 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0041.yaml",
       "network_path": "networks/sweep_0041/network.yaml",
@@ -1331,11 +1373,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.75,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 0,
         "violation_rate": 0.25,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0042 (violation_rate=0.25 C=0.6 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0042.yaml",
       "network_path": "networks/sweep_0042/network.yaml",
@@ -1361,11 +1404,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.75,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 1,
         "violation_rate": 0.25,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0043 (violation_rate=0.25 C=0.6 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0043.yaml",
       "network_path": "networks/sweep_0043/network.yaml",
@@ -1391,11 +1435,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.75,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 2,
         "violation_rate": 0.25,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0044 (violation_rate=0.25 C=0.6 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0044.yaml",
       "network_path": "networks/sweep_0044/network.yaml",
@@ -1421,11 +1466,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.7,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 0,
         "violation_rate": 0.3,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0045 (violation_rate=0.3 C=0.15 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0045.yaml",
       "network_path": "networks/sweep_0045/network.yaml",
@@ -1451,11 +1497,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.7,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 1,
         "violation_rate": 0.3,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0046 (violation_rate=0.3 C=0.15 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0046.yaml",
       "network_path": "networks/sweep_0046/network.yaml",
@@ -1481,11 +1528,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.7,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 2,
         "violation_rate": 0.3,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0047 (violation_rate=0.3 C=0.15 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0047.yaml",
       "network_path": "networks/sweep_0047/network.yaml",
@@ -1511,11 +1559,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.7,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 0,
         "violation_rate": 0.3,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0048 (violation_rate=0.3 C=0.3 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0048.yaml",
       "network_path": "networks/sweep_0048/network.yaml",
@@ -1541,11 +1590,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.7,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 1,
         "violation_rate": 0.3,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0049 (violation_rate=0.3 C=0.3 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0049.yaml",
       "network_path": "networks/sweep_0049/network.yaml",
@@ -1571,11 +1621,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.7,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 2,
         "violation_rate": 0.3,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0050 (violation_rate=0.3 C=0.3 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0050.yaml",
       "network_path": "networks/sweep_0050/network.yaml",
@@ -1601,11 +1652,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.7,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 0,
         "violation_rate": 0.3,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0051 (violation_rate=0.3 C=0.6 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0051.yaml",
       "network_path": "networks/sweep_0051/network.yaml",
@@ -1631,11 +1683,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.7,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 1,
         "violation_rate": 0.3,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0052 (violation_rate=0.3 C=0.6 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0052.yaml",
       "network_path": "networks/sweep_0052/network.yaml",
@@ -1661,11 +1714,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.7,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 2,
         "violation_rate": 0.3,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0053 (violation_rate=0.3 C=0.6 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0053.yaml",
       "network_path": "networks/sweep_0053/network.yaml",
@@ -1691,11 +1745,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.6,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 0,
         "violation_rate": 0.4,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0054 (violation_rate=0.4 C=0.15 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0054.yaml",
       "network_path": "networks/sweep_0054/network.yaml",
@@ -1721,11 +1776,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.6,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 1,
         "violation_rate": 0.4,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0055 (violation_rate=0.4 C=0.15 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0055.yaml",
       "network_path": "networks/sweep_0055/network.yaml",
@@ -1751,11 +1807,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.6,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 2,
         "violation_rate": 0.4,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0056 (violation_rate=0.4 C=0.15 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0056.yaml",
       "network_path": "networks/sweep_0056/network.yaml",
@@ -1781,11 +1838,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.6,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 0,
         "violation_rate": 0.4,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0057 (violation_rate=0.4 C=0.3 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0057.yaml",
       "network_path": "networks/sweep_0057/network.yaml",
@@ -1811,11 +1869,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.6,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 1,
         "violation_rate": 0.4,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0058 (violation_rate=0.4 C=0.3 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0058.yaml",
       "network_path": "networks/sweep_0058/network.yaml",
@@ -1841,11 +1900,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.6,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 2,
         "violation_rate": 0.4,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0059 (violation_rate=0.4 C=0.3 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0059.yaml",
       "network_path": "networks/sweep_0059/network.yaml",
@@ -1871,11 +1931,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.6,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 0,
         "violation_rate": 0.4,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0060 (violation_rate=0.4 C=0.6 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0060.yaml",
       "network_path": "networks/sweep_0060/network.yaml",
@@ -1901,11 +1962,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.6,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 1,
         "violation_rate": 0.4,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0061 (violation_rate=0.4 C=0.6 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0061.yaml",
       "network_path": "networks/sweep_0061/network.yaml",
@@ -1931,11 +1993,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.6,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 2,
         "violation_rate": 0.4,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0062 (violation_rate=0.4 C=0.6 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0062.yaml",
       "network_path": "networks/sweep_0062/network.yaml",
@@ -1961,11 +2024,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.5,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 0,
         "violation_rate": 0.5,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0063 (violation_rate=0.5 C=0.15 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0063.yaml",
       "network_path": "networks/sweep_0063/network.yaml",
@@ -1991,11 +2055,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.5,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 1,
         "violation_rate": 0.5,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0064 (violation_rate=0.5 C=0.15 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0064.yaml",
       "network_path": "networks/sweep_0064/network.yaml",
@@ -2021,11 +2086,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.5,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 2,
         "violation_rate": 0.5,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0065 (violation_rate=0.5 C=0.15 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0065.yaml",
       "network_path": "networks/sweep_0065/network.yaml",
@@ -2051,11 +2117,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.5,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 0,
         "violation_rate": 0.5,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0066 (violation_rate=0.5 C=0.3 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0066.yaml",
       "network_path": "networks/sweep_0066/network.yaml",
@@ -2081,11 +2148,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.5,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 1,
         "violation_rate": 0.5,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0067 (violation_rate=0.5 C=0.3 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0067.yaml",
       "network_path": "networks/sweep_0067/network.yaml",
@@ -2111,11 +2179,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.5,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 2,
         "violation_rate": 0.5,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0068 (violation_rate=0.5 C=0.3 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0068.yaml",
       "network_path": "networks/sweep_0068/network.yaml",
@@ -2141,11 +2210,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.5,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 0,
         "violation_rate": 0.5,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0069 (violation_rate=0.5 C=0.6 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0069.yaml",
       "network_path": "networks/sweep_0069/network.yaml",
@@ -2171,11 +2241,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.5,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 1,
         "violation_rate": 0.5,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0070 (violation_rate=0.5 C=0.6 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0070.yaml",
       "network_path": "networks/sweep_0070/network.yaml",
@@ -2201,11 +2272,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.5,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 2,
         "violation_rate": 0.5,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0071 (violation_rate=0.5 C=0.6 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0071.yaml",
       "network_path": "networks/sweep_0071/network.yaml",
@@ -2231,11 +2303,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.25,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 0,
         "violation_rate": 0.75,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0072 (violation_rate=0.75 C=0.15 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0072.yaml",
       "network_path": "networks/sweep_0072/network.yaml",
@@ -2261,11 +2334,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.25,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 1,
         "violation_rate": 0.75,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0073 (violation_rate=0.75 C=0.15 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0073.yaml",
       "network_path": "networks/sweep_0073/network.yaml",
@@ -2291,11 +2365,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.25,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 2,
         "violation_rate": 0.75,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0074 (violation_rate=0.75 C=0.15 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0074.yaml",
       "network_path": "networks/sweep_0074/network.yaml",
@@ -2321,11 +2396,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.25,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 0,
         "violation_rate": 0.75,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0075 (violation_rate=0.75 C=0.3 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0075.yaml",
       "network_path": "networks/sweep_0075/network.yaml",
@@ -2351,11 +2427,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.25,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 1,
         "violation_rate": 0.75,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0076 (violation_rate=0.75 C=0.3 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0076.yaml",
       "network_path": "networks/sweep_0076/network.yaml",
@@ -2381,11 +2458,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.25,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 2,
         "violation_rate": 0.75,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0077 (violation_rate=0.75 C=0.3 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0077.yaml",
       "network_path": "networks/sweep_0077/network.yaml",
@@ -2411,11 +2489,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.25,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 0,
         "violation_rate": 0.75,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0078 (violation_rate=0.75 C=0.6 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0078.yaml",
       "network_path": "networks/sweep_0078/network.yaml",
@@ -2441,11 +2520,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.25,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 1,
         "violation_rate": 0.75,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0079 (violation_rate=0.75 C=0.6 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0079.yaml",
       "network_path": "networks/sweep_0079/network.yaml",
@@ -2471,11 +2551,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.25,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 2,
         "violation_rate": 0.75,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0080 (violation_rate=0.75 C=0.6 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0080.yaml",
       "network_path": "networks/sweep_0080/network.yaml",
@@ -2501,11 +2582,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.0,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 0,
         "violation_rate": 1.0,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0081 (violation_rate=1.0 C=0.15 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0081.yaml",
       "network_path": "networks/sweep_0081/network.yaml",
@@ -2531,11 +2613,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.0,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 1,
         "violation_rate": 1.0,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0082 (violation_rate=1.0 C=0.15 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0082.yaml",
       "network_path": "networks/sweep_0082/network.yaml",
@@ -2561,11 +2644,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.0,
-        "pool_committed_split": 0.3,
+        "pool_committed_split": 0.15,
         "replication": 2,
         "violation_rate": 1.0,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0083 (violation_rate=1.0 C=0.15 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0083.yaml",
       "network_path": "networks/sweep_0083/network.yaml",
@@ -2591,11 +2675,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.0,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 0,
         "violation_rate": 1.0,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0084 (violation_rate=1.0 C=0.3 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0084.yaml",
       "network_path": "networks/sweep_0084/network.yaml",
@@ -2621,11 +2706,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.0,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 1,
         "violation_rate": 1.0,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0085 (violation_rate=1.0 C=0.3 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0085.yaml",
       "network_path": "networks/sweep_0085/network.yaml",
@@ -2651,11 +2737,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.0,
-        "pool_committed_split": 0.4,
+        "pool_committed_split": 0.3,
         "replication": 2,
         "violation_rate": 1.0,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0086 (violation_rate=1.0 C=0.3 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0086.yaml",
       "network_path": "networks/sweep_0086/network.yaml",
@@ -2681,11 +2768,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.0,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 0,
         "violation_rate": 1.0,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0087 (violation_rate=1.0 C=0.6 rep=0)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0087.yaml",
       "network_path": "networks/sweep_0087/network.yaml",
@@ -2711,11 +2799,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.0,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 1,
         "violation_rate": 1.0,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0088 (violation_rate=1.0 C=0.6 rep=1)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0088.yaml",
       "network_path": "networks/sweep_0088/network.yaml",
@@ -2741,11 +2830,12 @@
         "transaction_velocity": 0.5,
         "solo_miner_hashrate": 0.085,
         "v26_acceptance_probability": 0.0,
-        "pool_committed_split": 0.5,
+        "pool_committed_split": 0.6,
         "replication": 2,
         "violation_rate": 1.0,
         "partition_mode": "unified",
-        "fork_heal_exit": true
+        "fork_heal_exit": true,
+        "description": "Fork formation threshold sweep sweep_0089 (violation_rate=1.0 C=0.6 rep=2)"
       },
       "network_config": "tools/sweep/fork_formation_threshold/configs/network/sweep_0089.yaml",
       "network_path": "networks/sweep_0089/network.yaml",

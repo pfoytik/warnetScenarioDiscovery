@@ -139,6 +139,7 @@ class PartitionMinerWithPools(Commander):
         # organically reconverge to the same tip during the run?
         self.fork_convergence = {
             'enabled': False,
+            'diverged': False,
             'healed': False,
             'heal_time_s': None,
             'v27_blocks_at_heal': None,
@@ -509,11 +510,16 @@ class PartitionMinerWithPools(Commander):
 
     def check_fork_healed(self, elapsed: int) -> bool:
         """
-        Check whether the v27 and v26 islands have organically converged to the
-        same chain tip (used by --fork-heal-exit).
+        Check whether the v27 and v26 islands have organically diverged and then
+        reconverged to the same chain tip (used by --fork-heal-exit).
+
+        A tip match only counts as a "heal" if the two islands were previously
+        observed on different tips — otherwise a scenario that hasn't split yet
+        (e.g. the very first block under partition_mode=unified) would trigger
+        a false-positive heal at elapsed=0.
 
         Returns True (and records fork_convergence state) the first time the
-        two islands' best block hashes match.
+        two islands' best block hashes match again after having diverged.
         """
         if self.fork_convergence['healed'] or not self.v27_nodes or not self.v26_nodes:
             return self.fork_convergence['healed']
@@ -525,19 +531,25 @@ class PartitionMinerWithPools(Commander):
             self.log.warning(f"  Could not check fork convergence: {e}")
             return False
 
-        if v27_tip == v26_tip:
-            self.fork_convergence['healed'] = True
-            self.fork_convergence['heal_time_s'] = elapsed
-            self.fork_convergence['v27_blocks_at_heal'] = self.blocks_mined['v27']
-            self.fork_convergence['v26_blocks_at_heal'] = self.blocks_mined['v26']
-            self.log.info(
-                f"\n{'='*70}\n"
-                f"FORK HEALED at {elapsed}s: v27 and v26 islands converged to {v27_tip[:16]}\n"
-                f"  Blocks at heal: v27={self.blocks_mined['v27']}, v26={self.blocks_mined['v26']}\n"
-                f"{'='*70}"
-            )
-            return True
-        return False
+        if v27_tip != v26_tip:
+            self.fork_convergence['diverged'] = True
+            return False
+
+        if not self.fork_convergence['diverged']:
+            # Tips still match because the islands never split yet — not a heal.
+            return False
+
+        self.fork_convergence['healed'] = True
+        self.fork_convergence['heal_time_s'] = elapsed
+        self.fork_convergence['v27_blocks_at_heal'] = self.blocks_mined['v27']
+        self.fork_convergence['v26_blocks_at_heal'] = self.blocks_mined['v26']
+        self.log.info(
+            f"\n{'='*70}\n"
+            f"FORK HEALED at {elapsed}s: v27 and v26 islands converged to {v27_tip[:16]}\n"
+            f"  Blocks at heal: v27={self.blocks_mined['v27']}, v26={self.blocks_mined['v26']}\n"
+            f"{'='*70}"
+        )
+        return True
 
     def build_partition_peer_lists(self):
         """

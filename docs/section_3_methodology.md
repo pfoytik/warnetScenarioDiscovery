@@ -163,16 +163,42 @@ designated v26 bridge node. P2P propagation within the v26 island handles the
 rest. This replicates the Bitcoin mainnet behavior where a soft-fork compliant
 block is valid on both chains, but the reverse is not.
 
-v26 blocks are never submitted to v27 nodes. v27 nodes maintain their own chain,
-unaware of the v26 chain's progress.
+The treatment of v26 blocks depends on the `--v26-acceptance-probability` flag
+(default 0.0 — strict UASF):
+
+- **Strict mode (`--v26-acceptance-probability 0.0`)**: All v26 blocks violate
+  v27 rules and are never submitted to v27 nodes. v27 nodes maintain a fully
+  independent chain, unaware of v26 progress.
+- **Partial violation mode (`--v26-acceptance-probability p > 0.0`)**: Each v26
+  block is independently submitted to v27 with probability `p`. This models a
+  softfork rule that applies only to a specific transaction type — blocks that
+  happen not to contain a violating transaction are valid on both chains (Case 2
+  blocks). The remaining `1 − p` fraction violate v27 rules and stay v26-only
+  (Case 3 blocks). A block submitted to v27 in this way propagates via P2P
+  within the v27 island just like a natively mined v27 block.
+
+All production sweeps use strict mode (default) unless `v26_acceptance_probability`
+is explicitly set — it is the primary variable in the `softfork_rule_strength` sweep.
 
 ### Fork resolution mechanics
 
-If `--enable-reunion` is set, the scenario reconnects the two partitions at the
-end of the run and lets Bitcoin's heaviest-chain rule resolve the dispute. The
-fork with the most cumulative chainwork (proof-of-work) wins and the losing chain
-reorganizes to it. The winning fork is determined by the difficulty oracle's
-cumulative chainwork tracking (see Section 5).
+Two mechanisms handle how simulations end:
+
+**Organic healing (`--fork-heal-exit`, default off):** The scenario monitors both
+islands' best block hashes every tick. Once the two islands independently converge
+to the same tip — without any forced reconnection — the run exits immediately and
+records `fork_convergence.{healed=True, heal_time_s, v27_blocks_at_heal,
+v26_blocks_at_heal}`. A tip match only counts if the islands were previously
+observed on *different* tips, preventing false positives at startup. All
+`chainsplit_persistence` sweep scenarios use this flag so that healing scenarios
+exit early (minutes to hours) while persistent splits run the full 13,000s.
+
+**Forced reunion (`--enable-reunion`, default off):** At the end of `--duration`,
+the scenario reconnects the two partitions and lets Bitcoin's heaviest-chain rule
+resolve the dispute. The fork with the most cumulative chainwork wins and the
+losing chain reorganizes to it. The winning fork is determined by the difficulty
+oracle's cumulative chainwork tracking (see Section 5). This mechanism is used
+for post-run outcome measurement in sweeps that do not use `--fork-heal-exit`.
 
 ---
 
@@ -180,8 +206,8 @@ cumulative chainwork tracking (see Section 5).
 
 ### Representation
 
-Eight mining pools are modeled individually (Foundry USA, MARA Pool, AntPool,
-ViaBTC, F2Pool, Binance Pool, SBI Crypto, Luxor). Each pool occupies one Bitcoin
+Eight mining pools are modeled individually (Foundry USA, MARA Pool, Luxor,
+Ocean, AntPool, F2Pool, ViaBTC, SpiderPool). Each pool occupies one Bitcoin
 node per partition (a pool node exists on the v27 side and a counterpart on the
 v26 side) and is characterized by:
 
@@ -516,8 +542,12 @@ The scenario runs on a tick-based loop. In each iteration:
 
 1. **Block production**: Using the difficulty oracle, determine probabilistically
    whether a block should be mined on each fork this tick. If so, call
-   `generatetoaddress` on the appropriate pool node and propagate v27 blocks to
-   the v26 island via `submitblock`.
+   `generatetoaddress` on the appropriate pool node. After mining:
+   - v27 blocks are always submitted to one v26 bridge node; P2P handles the rest.
+   - v26 blocks that violate v27 rules stay v26-only (default).
+   - v26 blocks that are compatible with v27 rules (Case 2) are submitted to one
+     v27 bridge node with probability `--v26-acceptance-probability` (default 0.0);
+     this is non-zero only in `softfork_rule_strength` sweep scenarios.
 
 2. **State collection**: Query both chains for block height, chainwork, mempool
    size, and fee rates.
@@ -591,7 +621,7 @@ anchors.
 | Block subsidy fixed at 3.125 BTC | Post-halving regime; no halving event during a run. |
 | Mining cost fixed at $100,000/block | Same cost on both forks; does not vary with difficulty. |
 | Once committed pools are forced to switch, they rarely switch back | No mechanism makes the preferred fork more profitable after a forced switch without an external price reversal. |
-| Network topology is static during the simulation | Partition membership is fixed; dynamic switching requires `--enable-dynamic-switching`. |
+| Pool partition switching is on by default | `--enable-dynamic-switching` defaults to `True` — pools evaluate and may switch partitions every decision interval. To disable (static hashrate allocation), pass `--no-enable-dynamic-switching`. Economic and user node switching is similarly on by default. |
 
 ---
 

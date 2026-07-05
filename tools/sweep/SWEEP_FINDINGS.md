@@ -4,7 +4,7 @@
 
 ## TLDR: Main Findings
 
-Twenty numbered findings emerged across the full research program. Ordered by causal logic, not discovery date.
+Twenty-two numbered findings emerged across the full research program. Ordered by causal logic, not discovery date.
 
 ---
 
@@ -21,7 +21,7 @@ Varying neutral pool percentage from 10–50% changes how fast the cascade compl
 ---
 
 **F3 — pool_committed_split has a non-monotonic (inversion zone) effect — driven by Foundry identity in deterministic ordering**
-At moderate economic levels (econ ≈ 0.60–0.70), increasing committed pool hashrate for v27 can *hurt* v27 — it raises the profitability bar that v26-committed Foundry must clear, flipping the outcome. The Foundry flip-point (~0.214 committed split) is the structural boundary governing this inversion. F21 shows that the alternating v27/v26/v27 pattern at E=0.60 disappears under random composition: without Foundry in the committed set, E=0.65 is uniformly weak for v27 across all C values with no inversion.
+At moderate economic levels (econ ≈ 0.60–0.70), increasing committed pool hashrate for v27 can *hurt* v27 — it raises the profitability bar that v26-committed Foundry must clear, flipping the outcome. The Foundry flip-point (~0.214 committed split) is the structural boundary governing this inversion. F21 shows that the alternating v27/v26/v27 pattern at E=0.60 disappears under random composition: without Foundry in the committed set, E=0.65 is uniformly weak for v27 across all C values with no inversion. F22 generalizes: Foundry's role is a special case of large-pool concentration — a single 30% pool committing fires the full cascade as a discrete event; the same hashrate spread across many smaller pools trickles in gradually and produces a qualitatively different (and weaker) response.
 → See: [targeted_sweep1: Economic × Committed Split Grid](#targeted_sweep1-economic--committed-split-grid), [pool_composition_arm_a: Pool Composition Decoupling](#pool_composition_arm_a-pool-composition-decoupling)
 
 ---
@@ -44,9 +44,9 @@ Without the retarget profit spike arriving within the run window, cascades stall
 
 ---
 
-**F7 — The Economic Self-Sustaining Point (ESP) is econ ≈ 0.74, invariant to retarget regime — but contingent on Foundry specifically committing**
-The outcome flips winner-takes-all between econ=0.70 (v26_dominant) and econ=0.78 (v27_dominant) at both 144-block and 2016-block retarget when C=0.214 in deterministic pool order (i.e., Foundry commits). F21 shows this flip disappears entirely with random compositions at C=0.214 — E=0.78 produces 0/6 v27 wins when Foundry is not in the committed set. The ESP is a threshold on Foundry identity, not on the scalar committed fraction alone.
-→ See: [targeted_sweep7_esp: Economic Self-Sustaining Point (ESP)](#targeted_sweep7_esp-economic-self-sustaining-point-esp), [pool_composition_arm_a: Pool Composition Decoupling](#pool_composition_arm_a-pool-composition-decoupling)
+**F7 — The Economic Self-Sustaining Point (ESP) is econ ≈ 0.74, invariant to retarget regime — but contingent on large-pool concentration committing**
+The outcome flips winner-takes-all between econ=0.70 (v26_dominant) and econ=0.78 (v27_dominant) at both 144-block and 2016-block retarget when C=0.214 in deterministic pool order (i.e., Foundry commits). F21 shows this flip disappears entirely with random compositions at C=0.214 — E=0.78 produces 0/6 v27 wins when Foundry is not in the committed set. The ESP is not a threshold on the scalar committed fraction alone; it is a threshold on whether a concentrated large-pool commitment fires the cascade as a single discrete event. F22 generalizes this: the same aggregate hashrate spread across many smaller pools does not reliably activate the ESP flip because the individual pools cross their switching thresholds at different times rather than simultaneously. Arm_b (full network) further reveals that above E≈0.71, economic override fires even at very low C — the ESP at the full-network resolution is lower than the ESP measured on the lite network.
+→ See: [targeted_sweep7_esp: Economic Self-Sustaining Point (ESP)](#targeted_sweep7_esp-economic-self-sustaining-point-esp), [pool_composition_arm_a: Pool Composition Decoupling](#pool_composition_arm_a-pool-composition-decoupling), [pool_composition_arm_b](#pool_composition_arm_b-full-network-replication-of-pool-composition-sweep)
 
 ---
 
@@ -129,8 +129,20 @@ These are not contradictory findings from different sweeps — they describe the
 ---
 
 **F21 — pool_committed_split is a Foundry-identity proxy, not a true scalar threshold (2026-06-28)**
-The `pool_composition_arm_a` sweep (168 scenarios, 4E × 7C × 6 random compositions) held the aggregate target committed fraction fixed while randomly shuffling which pools constitute it. Key results: (1) At C=0.214 with random compositions, Foundry is never in the committed set (smaller pools fill the quota first, averaging 0.146 actual committed hashrate); all 24 scenarios lose — the prior ESP flip at E=0.78, C=0.214 disappears entirely. (2) At target C=0.30, where deterministic ordering gives a 100% v27 win rate, random compositions produce only 50% — the actual realized hashrate averages 0.202, far below the deterministic expectation. (3) The true threshold is at actual realized committed hashrate ≈ 0.20, not at the scalar target C. (4) Big pool identity explains substantial residual variance beyond actual hashrate: 0 big pools (Foundry/AntPool/ViaBTC) committed → 14.8% v27 win; 1 big pool → 45.5%; 2 big pools → 100%. (5) The inversion zone non-monotonicity (F3) is Foundry-driven and vanishes without deterministic ordering — E=0.65 is uniformly weak for v27 rather than alternating. The scalar `pool_committed_split` parameter in the prior model implicitly encoded Foundry identity and should be replaced by actual committed hashrate plus a big-pool indicator for boundary fitting.
-→ See: [pool_composition_arm_a: Pool Composition Decoupling](#pool_composition_arm_a-pool-composition-decoupling)
+The `pool_composition_arm_a` sweep (168 scenarios, 4E × 7C × 6 random compositions) held the aggregate target committed fraction fixed while randomly shuffling which pools constitute it. Key results: (1) At C=0.214 with random compositions, Foundry is never in the committed set (smaller pools fill the quota first, averaging 0.146 actual committed hashrate); all 24 scenarios lose — the prior ESP flip at E=0.78, C=0.214 disappears entirely. (2) At target C=0.30, where deterministic ordering gives a 100% v27 win rate, random compositions produce only 50% — the actual realized hashrate averages 0.202, far below the deterministic expectation. (3) The true threshold is at actual realized committed hashrate ≈ 0.20, not at the scalar target C. (4) Big pool identity explains substantial residual variance beyond actual hashrate: 0 big pools (Foundry/AntPool/ViaBTC) committed → 14.8% v27 win; 1 big pool → 45.5%; 2 big pools → 100%. (5) The inversion zone non-monotonicity (F3) is Foundry-driven and vanishes without deterministic ordering — E=0.65 is uniformly weak for v27 rather than alternating. The scalar `pool_committed_split` parameter in the prior model implicitly encoded Foundry identity and should be replaced by actual committed hashrate plus a big-pool indicator for boundary fitting. `pool_composition_arm_b` (161 scenarios, full 60-node network) confirms this on the full network: the identity effect is concentrated in the E=0.65 contested zone; above E≈0.74, economic override fires regardless of which pools commit, showing that the concentration effect is the specific mechanism rather than Foundry being categorically special. F22 synthesizes arm_a and arm_b into the generalized principle.
+→ See: [pool_composition_arm_a: Pool Composition Decoupling](#pool_composition_arm_a-pool-composition-decoupling), [pool_composition_arm_b](#pool_composition_arm_b-full-network-replication-of-pool-composition-sweep)
+
+---
+
+**F22 — Hashrate concentration creates cascade shockwaves; the same aggregate hashrate distributed across many small pools does not (2026-07-04)**
+The arm_a and arm_b sweeps, taken together, show that the cascade mechanism is not triggered by *how much* committed hashrate exists but by *how it is structured*. A single large pool (e.g., Foundry at 30%) committing to v27 is a discrete event: at the moment of commitment, 30% of network hashrate simultaneously joins the v27 island, creating an immediate price divergence signal that neutral pools can observe and respond to. This fires the entire cascade at once — a shockwave. Six pools each holding 5% of hashrate, representing the same 30% aggregate, each face independent switching thresholds, individual profitability calculations, and inertia. Even if all six eventually switch, they do so at different times, producing a slow ramp rather than a shockwave. The cascade trigger fires weakly and repeatedly rather than decisively once.
+
+Quantitative evidence from arm_a: 0 big pools committed → 14.8% v27 win rate; 1 big pool → 45.5%; 2 big pools → 100% — a near-step function in pool concentration that cannot be explained by the scalar committed hashrate alone. The same pattern appears at target C=0.30: random compositions (averaging 0.202 actual committed hashrate) produce 50% v27 wins; deterministic ordering (Foundry alone at 30%) produces 100%. The difference is not the hashrate quantity; it is whether that hashrate arrives at the cascade trigger as one event or as a trickle of small events.
+
+Practical implication for UASF governance: recruiting one large pool (Foundry, 30%) is categorically more effective than recruiting six equivalent-aggregate small pools, even if the total committed hashrate is identical. Conversely, a v26-supporting large pool (AntPool, 17%) staying committed is more damaging to v27 prospects than a collection of small pools holding the same aggregate hashrate staying v26, because the large pool's eventual flip (under economic pressure) is a single decisive cascade trigger.
+
+This finding supersedes the earlier framing of F11 ("it's not how much hashrate — it's *whose* hashrate"). The correct framing is: **it's not how much hashrate — it's how concentrated it is.** Foundry's identity was a proxy for concentration in the deterministic ordering used in early sweeps. The generalization: large pool concentration creates step-function shockwaves that cannot be replicated by distributing the same hashrate across many smaller pools switching gradually.
+→ See: [pool_composition_arm_a: Pool Composition Decoupling](#pool_composition_arm_a-pool-composition-decoupling), [pool_composition_arm_b](#pool_composition_arm_b-full-network-replication-of-pool-composition-sweep)
 
 ---
 
@@ -4545,3 +4557,53 @@ The C=0.50 exception (where high p helps) suggests that at symmetric commitment 
 | DB: sweep_name='softfork_rule_strength' | 96 scenarios loaded |
 
 *softfork_rule_strength added July 2026*
+
+---
+
+### chainsplit_persistence: Minimum Violation Rate and Economic Support for a Persistent Chainsplit
+
+**Research question:** What is the minimum fraction of v26 blocks that must violate v27 rules (violation_rate) to cause a chainsplit that persists — i.e., never heals — under the weakest cascade conditions the model can produce? Secondarily: what is the minimum committed hashrate (C) and economic support (E) at which v26 can sustain a persistent split?
+
+**Motivation:** All prior sweeps assumed strict UASF (violation_rate=1.00 — every v26 block is invalid under v27 rules). In practice, softfork rules apply to specific transaction types. The `softfork_rule_strength` sweep showed that lower violation rates weaken cascade pressure. `chainsplit_persistence` takes this further by asking: is there a violation rate floor below which the v26 chain simply cannot form a lasting partition at all? And what is the minimum pool and economic support for persistence when violation rate is above that floor?
+
+**Design:** 6 violation_rates × 3 C values × 2 replications = 36 scenarios. Lite network, 13,000s duration, 2016-block retarget. `--fork-heal-exit` terminates scenarios immediately on chain convergence.
+
+- **violation_rate (vr):** 0.05, 0.10, 0.20, 0.30, 0.50, 1.00  
+- **pool_committed_split (C):** 0.15, 0.30, 0.60  
+- **Fixed params:** economic_split=0.55, hashrate_split=0.25, ideology=0.51, max_loss=0.26, neutral_pct=30%
+
+**Key design choice — economic_split=0.55:** All prior sweeps used E=0.65 as a baseline. E=0.55 gives v26 maximum survival chance: cascade pressure is weaker, neutral pools switch more slowly, and the price divergence signal required to flip neutral pools is harder to sustain. If v27 can still force healing at E=0.55, it can certainly do so at higher economic support.
+
+**Pool landscape by C value:**
+- **C=0.15:** All major pools prefer v26 (no committed v27 pool; 0 large pools cross the commitment midpoint). Maximum v26 support — a v26 persistence test.
+- **C=0.30:** Foundry (30%) prefers v27, all others v26 or neutral. Single large-pool commitment (the F22 shockwave regime).
+- **C=0.60:** Foundry + MARA + Luxor (36.9% aggregate) prefer v27. Strong cascade — expected to serve as a positive control (all forks should heal).
+
+**Pool switching chain-state fix:** This sweep is the first to include the `_find_lca_height` + `invalidateblock` fix in `scenarios/partition_miner_with_pools.py`. Prior sweeps had a chain-state leak bug: when a pool switched partitions, it carried its full old-chain blockchain state into the new island via `addnode`, causing the destination island's nodes to reorg to the heavier chain and producing spurious `healed=True` results. The fix binary-searches for the Last Common Ancestor (LCA) between the switching node's chain and the destination island's chain, then calls `invalidateblock` on the first divergent block — forcing the node to roll back to the LCA before connecting to new peers. This makes pool switching results reliable for the first time.
+
+**Infrastructure:** 36 scenarios across 2 servers × 6 namespaces each (3 scenarios per namespace). Worst case: 3 × 3.6h = 10.8h per namespace. Fast-healing scenarios (low vr + high C) exit in 30–90 minutes. Namespace prefix: `csp-`. Results directories: `results_server1/` and `results_server2/`.
+
+**Status:** Results pending (running as of 2026-07-04).
+
+**What to look for in results:**
+- `healed=False` at C=0.15 → persistent chainsplit exists at that violation_rate under maximum v26 support
+- Lowest vr where `healed=False` appears at C=0.15 → primary answer to the research question
+- Comparison of C=0.15 vs C=0.30 threshold → tests whether single large-pool commitment (Foundry, F22 shockwave) changes the persistence boundary
+- C=0.60 should show all healed (cascade validation / positive control)
+- Watch for startup failures: `healed=True` with v27_blocks or v26_blocks near 0 indicates the partition never formed
+
+#### Output Files
+
+| File | Contents |
+|------|----------|
+| `tools/sweep/chainsplit_persistence/build_manifest.json` | Full 36-scenario manifest |
+| `tools/sweep/chainsplit_persistence/build_manifest_server1.json` | Server 1: sweep_0000–sweep_0017 |
+| `tools/sweep/chainsplit_persistence/build_manifest_server2.json` | Server 2: sweep_0018–sweep_0035 |
+| `tools/sweep/chainsplit_persistence/configs/` | Network, pool, and economic config YAMLs (36 scenarios each) |
+| `tools/sweep/chainsplit_persistence/networks/` | 36 network topology directories (copied from FFT networks — topology is invariant across scenarios) |
+| `tools/sweep/chainsplit_persistence/run_commands.sh` | All 12 `python3 3_run_sweep.py` commands |
+| `tools/sweep/chainsplit_persistence/RUN_INSTRUCTIONS.md` | Pre-flight checklist, rsync commands, monitoring snippet |
+| `tools/sweep/chainsplit_persistence/results_server1/` | Raw results from server 1 (pending) |
+| `tools/sweep/chainsplit_persistence/results_server2/` | Raw results from server 2 (pending) |
+
+*chainsplit_persistence added July 2026*

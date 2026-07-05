@@ -589,15 +589,47 @@ class PartitionMinerWithPools(Commander):
             self.log.warning(f"  Could not get peers for node {node.index}: {e}")
             return []
 
+    def _find_lca_height(self, node, dest_nodes: list) -> int:
+        """
+        Binary-search for the last common ancestor height between node's chain and dest_nodes'.
+
+        Returns the LCA height, falling back to self.options.start_height if search fails.
+        O(log N) RPC calls where N is the chain length difference.
+        """
+        fallback = getattr(self.options, 'start_height', 0)
+        if not dest_nodes:
+            return fallback
+        dest_node = dest_nodes[0]
+        try:
+            node_height = node.getblockcount()
+            dest_height = dest_node.getblockcount()
+            lo = fallback
+            hi = min(node_height, dest_height)
+            while lo < hi:
+                mid = (lo + hi + 1) // 2
+                try:
+                    if node.getblockhash(mid) == dest_node.getblockhash(mid):
+                        lo = mid
+                    else:
+                        hi = mid - 1
+                except Exception:
+                    hi = mid - 1
+            return lo
+        except Exception as e:
+            self.log.warning(f"  LCA search failed ({e}), falling back to start_height={fallback}")
+            return fallback
+
     def switch_node_partition(self, node, old_partition: str, new_partition: str, reason: str = "") -> bool:
         """
         Switch a node from one partition to another by changing P2P connections.
 
         Steps:
-        1. Disconnect from old partition peers
-        2. Connect to new partition peers
-        3. Wait for sync to new chain
-        4. Update tracking
+        1. Abandon old chain state (invalidateblock at fork point so old chain does not
+           leak into the new island via P2P after addnode)
+        2. Disconnect from old partition peers
+        3. Connect to new partition peers
+        4. Wait for sync to new chain
+        5. Update tracking
 
         Args:
             node: The node to switch
@@ -623,6 +655,23 @@ class PartitionMinerWithPools(Commander):
             # Step 1: Get current height before switch
             old_height = node.getblockcount()
             old_hash = node.getbestblockhash()
+
+            # Step 1.5: Abandon the old partition's chain state so it does not propagate
+            # into the new island when addnode fires.  Find the last block both chains
+            # share (LCA) and invalidate the first block unique to this node's chain.
+            # After invalidateblock the node reorgs to the LCA; the new island then
+            # provides its own chain via P2P and the node adopts it.
+            dest_nodes_list = self.v27_nodes if new_partition == 'v27' else self.v26_nodes
+            lca_height = self._find_lca_height(node, dest_nodes_list)
+            if lca_height < old_height:
+                divergent_hash = node.getblockhash(lca_height + 1)
+                try:
+                    node.invalidateblock(divergent_hash)
+                    self.log.info(f"    Chain abandoned: rolled back from height {old_height} to LCA={lca_height}")
+                except Exception as e:
+                    self.log.warning(f"    invalidateblock failed ({e}); chain state may leak")
+            else:
+                self.log.info(f"    No chain divergence detected at LCA={lca_height}, no rollback needed")
 
             # Step 2: Disconnect from old partition peers
             current_peers = self.get_node_peers(node)

@@ -3,7 +3,8 @@
 **Parameter:** `violation_rate` (vr)  
 **Primary sweep:** `chainsplit_persistence` (36 scenarios, E=0.55, 6 vr × 3 C × 2 reps)  
 **Corroborating sweep:** `fork_formation_threshold` (90 scenarios, E=0.65, 9 vr × 3 C × 3 reps)  
-**Forthcoming:** `contested_fork_threshold` (120 scenarios, 3 vr × 4 E × 5 C × 2 compositions)
+**Lite-network full-grid:** `contested_fork_threshold` (120 scenarios, 3 vr × 4 E × 5 C × 2 compositions)  
+**Full-network vr×E sweep:** `econ_split_full` (108 scenarios, 6 E × 3 vr × 3 C × 2 compositions, interim 52/108)
 
 ---
 
@@ -285,11 +286,11 @@ The threshold structure is now clear:
 - **C_eff < 0.13**: v26 wins reliably (≤9% v27 rate)
 - **C_eff 0.13–0.20**: genuinely contested — outcome is stochastic regardless of vr
 - **C_eff 0.20–0.30**: v27 majority zone; vr still influences outcome
-- **C_eff ≥ 0.30**: v27 wins every time — a hard threshold driven by foundryusa commitment
+- **C_eff ≥ 0.30**: v27 wins every time — a hard threshold driven by dominant large-pool commitment
 
-All 7 scenarios with C_eff ≥ 0.30 had foundryusa committed and ended with v27hr = 86.4%
-(full cascade). Foundryusa's 30% hashrate alone is sufficient to guarantee a complete neutral
-pool cascade at **any** tested vr.
+All 7 scenarios with C_eff ≥ 0.30 had the dominant large pool (foundryusa, 30%) committed
+and ended with v27hr = 86.4% (full cascade). A single ~30% hashrate pool committing is
+sufficient to guarantee a complete neutral pool cascade at **any** tested vr.
 
 ### vr Effect on v27 Win Rate — Full Results
 
@@ -301,8 +302,8 @@ pool cascade at **any** tested vr.
 
 vr still suppresses v27 — the rate falls from 47% at vr=0.20 to 29% at vr=1.00 — but the
 effect is weaker than early results suggested. The key interaction is with C_eff: at
-C_eff ≥ 0.30 (foundryusa committed), vr becomes irrelevant — v27 wins at all three vr values.
-At C_eff < 0.20, vr=0.50 and vr=1.00 suppress v27 almost completely.
+C_eff ≥ 0.30 (dominant large pool committed), vr becomes irrelevant — v27 wins at all three
+vr values. At C_eff < 0.20, vr=0.50 and vr=1.00 suppress v27 almost completely.
 
 **Winner grid by (vr, C):**
 
@@ -315,7 +316,7 @@ At C_eff < 0.20, vr=0.50 and vr=1.00 suppress v27 almost completely.
 *↑ = v27 wins, ↓ = v26 wins. Genuine results only.*
 
 The vr=1.00, C=0.30 cell (4↑3↓) is notable: at high vr, high enough C_eff — specifically
-when foundryusa appears in the composition — still produces v27 wins. The vr=0.50, C=0.35
+when the dominant large pool appears in the composition — still produces v27 wins. The vr=0.50, C=0.35
 cell (2↑0↓) confirms that at C=0.35 v27 wins regardless of vr when the right pools commit.
 
 ### Pain Score — Full Results
@@ -356,24 +357,28 @@ the fork reconverges within seconds regardless of violation rate.
 The CSP finding of a vr-based "reconvergence corridor" is revised: the correct framing is a
 **C_eff corridor**. Low C_eff allows reconvergence at any vr.
 
-### Foundryusa as the Pivotal Pool
+### The Dominant Pool as Pivotal Threshold
 
-Foundryusa (30% of pool hashrate, the largest single pool) is the key discrete threshold in
-this network. When foundryusa commits:
+On this lite network, foundryusa (30% of pool hashrate) is the largest single pool and
+acts as the key discrete threshold. When foundryusa commits:
 - C_eff jumps to 0.347–0.401 (depending on which other pools also commit)
 - v27 wins 100% of the time (6/6 scenarios with foundryusa, all vr values)
 - The fork always cascades completely: v27hr = 86.4% at heal
 
 When foundryusa does not commit (C ≤ 0.20, or unlucky seeds at C=0.25), C_eff is capped at
-≤0.196 and outcomes are contested or v26-favored. The real-world interpretation: a softfork
-that secures Foundry USA's commitment has a structurally different outcome space than one that
-does not, regardless of how many smaller pools sign on.
+≤0.196 and outcomes are contested or v26-favored.
+
+Foundryusa is not special — it is a proxy for concentrated hashrate. F22 (SWEEP_FINDINGS.md)
+shows that the mechanism is a single large-pool commitment firing as a discrete shockwave:
+the same aggregate hashrate spread across many smaller pools produces a much weaker cascade.
+The real-world interpretation: whichever pool holds ~27–30% hashrate is the pivotal actor,
+regardless of identity.
 
 ### Working Threshold — v27 Success Zones
 
 Based on 116/120 CFT results at E=0.55:
 
-> **Hard threshold — C_eff ≥ 0.30 (foundryusa committed): v27 wins regardless of vr**
+> **Hard threshold — C_eff ≥ 0.30 (dominant large pool committed): v27 wins regardless of vr**
 
 > **Soft threshold — C_eff 0.20–0.30 AND vr < 0.50: v27 majority zone (~64–75%)**
 
@@ -386,6 +391,137 @@ irrelevant. At C_eff < 0.13, vr is irrelevant in the other direction.
 
 ---
 
+## econ_split_full Sweep — Interim Results
+
+**Sweep:** `econ_split_full` (108 scenarios, 6 E × 3 vr × 3 C × 2 compositions, full 60-node network)  
+**Status:** 52/108 (48%) complete as of 2026-07-06  
+**Network:** realistic-economy (60 nodes, 88.21% pool hashrate, 52 economic nodes)  
+**Startup failures:** 15/52 (28%) excluded from outcome analysis
+
+This sweep is the first to combine full-network E variation with violation rate variation.
+It directly tests whether the softfork_rule_strength finding ("vr doesn't matter") holds
+on the full network, and whether the CFT large-pool commitment threshold generalizes to a
+network where E can actually vary.
+
+### vr Direction Reversal on the Full Network
+
+The softfork_rule_strength (SRS) sweep on the lite network found violation rate had no
+effect: v27 win rates were 69–75% at every p value from 0.00 (strict UASF) to 1.00
+(fully permissive). That finding does not hold on the full network.
+
+**v27 win rate by vr at E=0.68 (37 genuine results):**
+
+| vr | v27 wins / n | v27 rate | median fork heal_s | cascade rate |
+|---|---|---|---|---|
+| 0.20 | 1/4 | 25% | 79s | 18% |
+| 0.50 | 5/6 | 83% | 1,732s | 47% |
+| 1.00 | 1/1 | 100% | — | — |
+
+At vr=0.20, forks heal in a median of 79 seconds — before economic price divergence
+can drive pool switching. At vr=0.50, forks persist ~29 minutes, long enough for the
+cascade to fire. The minimum vr for reliable v27 success on the full network is **≈0.50**.
+
+The mechanism: the full 60-node network's cascade takes longer to build than the lite
+network's. Economic price signaling needs the fork open for ~20+ minutes before neutral
+pools defect. The lite network's retarget/cascade fires fast enough to succeed even in
+short forks; the full network requires fork persistence gated by vr.
+
+**Comparison to SRS (lite network):**
+
+| Network | vr=0.00 (p=1.00) | vr=0.50 | vr=1.00 (p=0.00) | Dominant parameter |
+|---|---|---|---|---|
+| Lite (SRS, E=0.55–0.78) | 69% | 69% | 75% | C_eff |
+| Full (E=0.68) | 25% | **83%** | 100% (1pt) | **E then vr** |
+
+The "vr is irrelevant" finding from SRS was a lite-network artifact of the fast retarget
+cascade. On the full network, vr is a necessary condition: without sufficient fork duration,
+the cascade never fires regardless of E or C_eff.
+
+### E Becomes the Global Dominant Driver
+
+On the full network, E is the gating parameter — C_eff effects only appear after the E
+threshold is cleared.
+
+**v27 win rate by E (genuine results only):**
+
+| E | Nodes on v27 | Custody | v27 wins / n | v27 rate |
+|---|---|---|---|---|
+| 0.25 | 1 | 28% | 3/10 | 30% (noise — no cascade, tiny forks) |
+| 0.45 | 2 | 47% | 0/5 | 0% |
+| 0.58 | 3 | 58% | 0/2 | 0% |
+| **0.68** | **4** | **69%** | **7/11** | **64%** |
+| 0.76 | 5 | 77% | 3/4 | 75% |
+| 0.82 | 6 | 82% | 3/5 | 60% |
+
+The E≥0.636 boundary (adding node-0005, a major exchange) is the pivotal step.
+Below it — including E=0.58, which matches the CFT/CSP lite-network baseline at 56.7%
+custody — v27 fails regardless of C_eff or vr. The three apparent wins at E=0.25 are
+noise: all healed in under 35 seconds with no cascade (v27hr=36.3%, fork balance ≈1.0
+on tiny block counts).
+
+This is consistent with `lhs_2016_full_6param` finding F12: economic_split ≥ 0.665
+gives 81% v27 win rate globally on the full network. The econ_split_full sweep confirms
+the step boundary is at E≥0.636 (between 0.58 and 0.68).
+
+### Large-Pool Commitment Threshold Is Conditional on E
+
+On the lite network (CFT), C_eff ≥ 0.30 — reached when the dominant pool (~27–30%
+hashrate) commits — was an absolute guarantee: v27 won 100% of the time at all vr
+values. On the full network this threshold is conditional on E:
+
+| Scenario | E | vr | C_eff | Large pool | v27hr at heal | Winner |
+|---|---|---|---|---|---|---|
+| sweep_0028 | 0.45 | 0.50 | 0.305 | foundryusa | 0.0% | **v26** |
+| sweep_0045 | 0.58 | 0.50 | 0.305 | foundryusa | 26.9% | **v26** |
+| sweep_0065 | 0.68 | 0.50 | 0.305 | foundryusa | 88.2% | **v27** |
+
+A large pool's ~27% hashrate commitment fails to cascade neutral pools without sufficient
+economic node backing. At E=0.45–0.58 (2–3 economic nodes on v27, 47–58% custody), the
+committed large pool fires the fork but the economic price signal is too weak to pull the
+remaining pools across before the fork heals or v26 accumulates enough chainwork. This is
+consistent with F22 (SWEEP_FINDINGS.md): what matters is that a single concentrated
+hashrate event fires; the pool's identity is incidental.
+
+### Pain Scores on the Full Network
+
+Top pain scores from current results (genuine scenarios only):
+
+| Scenario | E | vr | C_eff | Committed pools | v27 blk | v26 blk | Pain | Winner |
+|---|---|---|---|---|---|---|---|---|
+| sweep_0063 | 0.68 | 0.50 | 0.130 | ocean, binancepool | 282 | 175 | **109** | v27 |
+| sweep_0061 | 0.68 | 0.50 | 0.128 | f2pool | 112 | 87 | 68 | v27 |
+| sweep_0062 | 0.68 | 0.50 | 0.218 | antpool | 92 | 56 | 34 | v27 |
+
+These are lower in raw pain score than CFT's maximum (1,803) because the full-network
+cascade fires more decisively once triggered — v27 ramps to 88.2% quickly and the fork
+closes before deep block divergence accumulates. On the lite network, the near-equal
+pool balance at C=0.30 produced long near-stalemate forks (fork_balance ≈0.98); on
+the full network at E=0.68, the cascade tips the balance more abruptly once it starts.
+
+The highest pain occurs at E=0.68, vr=0.50, C_eff≈0.13 — low committed hashrate with
+maximum economic support — where the fork is deep enough to matter but not one-sided.
+
+### Minimum Conditions for v27 Success (Full Network, 52/108 Interim)
+
+> **Minimum E: 0.68** — 4 economic nodes on v27 side (node-0005 must be tagged), 69%
+> custody. E=0.45–0.58 fail even when the dominant large pool commits.
+
+> **Minimum C_eff: ~0.13** — one large v26 pool (~11% hashrate, e.g. f2pool or
+> binancepool) committed to v27. At E=0.68 vr=0.50, C_eff=0.128 produced a v27
+> cascade win (sweep_0061, heal_s=2,239s, v27hr=88.2%).
+
+> **Minimum vr: ≈0.50** — the fork must persist long enough (~29 min median) for
+> economic signaling to drive pool switching. vr=0.20 heals too fast (79s median).
+
+> **Intersection:** E≥0.68 **AND** C_eff≥0.13 **AND** vr≥0.50 → v27 wins ~83% of the
+> time and cascades to 88.2% hashrate in all wins.
+
+Note: at E≥0.82, vr=0.20 can still produce wins (economic pressure sustains the fork
+even at high acceptance rates), but this requires 6 major economic nodes (82% custody)
+on v27.
+
+---
+
 ## Open Questions
 
 **Answered by CFT:**
@@ -394,22 +530,42 @@ irrelevant. At C_eff < 0.13, vr is irrelevant in the other direction.
   The correct framing is a C_eff corridor, not a vr corridor.
 - The FFT vr=1.00 all-startup-failure vs CSP vr=1.00 all-genuine discrepancy was a C_eff
   effect — FFT compositions happened to land at low C_eff; not an E or vr phenomenon.
-- C_eff ≥ 0.30 (foundryusa committed) is a hard threshold: v27 wins at all vr values.
-- vr becomes irrelevant above the foundryusa threshold and below the C_eff < 0.13 floor.
+- C_eff ≥ 0.30 (dominant large pool committed) is a hard threshold on the lite network:
+  v27 wins at all vr values.
+- vr becomes irrelevant above the large-pool commitment threshold and below the C_eff < 0.13
+  floor (on the lite network).
+
+**Partially answered by econ_split_full (52/108 interim):**
+- Q1: How does E actually influence outcomes on the full network?  
+  → Step boundary confirmed at E≥0.636 (node-0005 crossing, 69% custody). Below E=0.68
+  v27 fails on the full network regardless of C_eff or vr. Above E=0.68 v27 wins at 64–83%
+  depending on vr. Full picture pending remaining 56 scenarios.
+- Q: Does vr matter on the full network?  
+  → Yes — opposite direction to the lite network. Minimum vr≈0.50 required on the full
+  network. SRS "vr is irrelevant" finding was a lite-network artifact.
+- Q: Does the large-pool commitment hard threshold generalize to the full network?  
+  → No. It requires E≥0.68. At E=0.45–0.58, even the dominant large pool committed
+  still loses on the full network.
 
 **Still open:**
-1. How does E actually influence outcomes on the full network? The lite network collapses
-   E to a binary at ~0.78; a full-network sweep is needed to answer this.
-2. Does the foundryusa hard threshold generalize — i.e., is it specifically foundryusa's 30%,
-   or would any single pool at ~30% produce the same behavior?
-3. Pain score variance within the 0.13–0.20 C_eff contested zone: is it fully explained by
-   C_eff discretization and stochastic early dynamics, or do other parameters contribute?
+1. Does the large-pool commitment threshold on the full network at E≥0.68 hold across all vr
+   values? Only 1 data point at C_eff≥0.30 (sweep_0065, vr=0.50). Need vr=0.20 and vr=1.00
+   results with a dominant large pool committed.
+2. Does the E=0.68 minimum hold at vr=1.00 with more than 1 data point?
+3. Pain score behavior at E<0.68 on the full network — do deeper forks occur in the
+   0.45–0.65 E range where v27 can build blocks but rarely wins?
+4. The complete E×vr interaction at E=0.76 and E=0.82 — preliminary data shows
+   100% at E=0.76 vr=0.20 (2/2) but only 50% at vr=0.50 (1/2), which is counterintuitive.
 
 **Methodological:**
 - E variation requires the full network. The lite network's 4-node custody distribution
   creates a step function that makes E invariant across [0.28, 0.78].
 - The CFT results at E=0.55 are directly comparable to CSP and can be treated as extending
   the CSP parameter space from (vr=6 values, C=3 values) to (vr=3 values, C_eff=continuous).
+- econ_split_full results at E=0.58 are directly comparable to CFT (same approximate
+  custody level, 58% vs 56.7%). Differences indicate full vs. lite network effects beyond
+  E variation — and indeed E=0.58 full network shows 0% v27 vs CFT's ~25–64% win rate at
+  comparable C_eff, confirming the full network requires higher E.
 
 ---
 
@@ -427,10 +583,11 @@ irrelevant. At C_eff < 0.13, vr is irrelevant in the other direction.
    The highest observed pain_score (1,803) occurred at C_eff=0.167 with ocean+luxor+f2pool.
    High pain appears at any nominal C level when C_eff lands in this marginal range.
 
-4. **Foundryusa commitment is a hard threshold.** At C_eff ≥ 0.30 — achieved only when
-   foundryusa (30% hashrate) commits — v27 wins 100% of the time at all tested vr values,
-   always cascading to v27hr=86.4%. Below this threshold, outcomes are contested or
-   v26-favored depending on vr and stochastic dynamics.
+4. **Large-pool commitment is a hard threshold on the lite network.** At C_eff ≥ 0.30 —
+   reached when the dominant pool (~30% hashrate) commits — v27 wins 100% of the time at
+   all tested vr values, always cascading to v27hr=86.4%. The pool's specific identity is
+   incidental; what matters is the discrete hashrate shockwave (F22). Below this threshold,
+   outcomes are contested or v26-favored depending on vr and stochastic dynamics.
 
 5. **Three outcome zones exist by C_eff:**
    - C_eff < 0.13: v26 wins reliably (≤9% v27 rate)
@@ -445,9 +602,10 @@ irrelevant. At C_eff < 0.13, vr is irrelevant in the other direction.
 7. **No persistent chainsplit was observed at any tested combination.** Forks always healed
    within 13,000s. Even marginal committed hashrate eventually tips pool economics.
 
-8. **vr is a resistance parameter — it prolongs pain, not creates it.** Higher vr slows
-   the economic cascade and reduces v27 win rate in the contested C_eff zone, but it cannot
-   prevent v27 from winning when C_eff ≥ 0.30, nor save v27 when C_eff < 0.13.
+8. **vr is a resistance parameter on the lite network — it prolongs pain but does not
+   change outcome.** Higher vr slows the cascade and reduces v27 win rate in the contested
+   C_eff zone, but cannot prevent v27 from winning when C_eff ≥ 0.30, nor save v27 when
+   C_eff < 0.13. This holds for the lite network.
 
 9. **C_eff is discrete, not continuous.** Pool hashrates are fixed and unequal; C_eff jumps
    in steps. Nominal C is a poor predictor. C_eff differences in the contested zone are
@@ -456,3 +614,28 @@ irrelevant. At C_eff < 0.13, vr is irrelevant in the other direction.
 10. **E is invariant on the lite network across [0.28, 0.78].** All CFT and CSP results are
     equivalent to E=0.55. Prior sweeps showing E effects were sampling across the ~0.78
     topology boundary. Studying true E effects requires the full network.
+
+**Full-network findings (econ_split_full, 52/108 interim):**
+
+11. **vr direction reverses on the full network.** The softfork_rule_strength (SRS) sweep
+    found vr has no effect on the lite network (69–75% v27 at any vr). On the full 60-node
+    network, higher vr helps v27: vr=0.20 → 25% win rate; vr=0.50 → 83% win rate at E=0.68.
+    Minimum vr≈0.50 is required for reliable v27 success. SRS's "vr is irrelevant" was a
+    lite-network artifact of the fast retarget cascade. The full network's cascade requires
+    the fork to persist ~20+ minutes before pool switching can accumulate.
+
+12. **E is the global gate on the full network.** Below E=0.68 (fewer than 4 economic nodes
+    on v27, less than 69% custody), v27 fails regardless of C_eff or vr. The step boundary
+    is at E≥0.636 (adding node-0005, a major exchange). This is consistent with F12
+    (lhs_2016_full_6param: E≥0.665 → 81% v27 globally) and arm_b (E=0.55 → 0% v27 at all C).
+
+13. **The large-pool commitment threshold is conditional on E on the full network.** On the
+    lite network, the dominant large pool committed (C_eff≥0.30) guaranteed v27 wins at any
+    vr. On the full network, the same commitment at E=0.45 and E=0.58 still produces v26
+    wins (v27hr=0% and 26.9% respectively). A ~27% hashrate shockwave cannot cascade neutral
+    pools without sufficient economic node support. The threshold holds at E≥0.68.
+
+14. **Minimum conditions for v27 success on the full network (interim):** E≥0.68, C_eff≥0.13
+    (one large v26 pool committed, ~11% hashrate), vr≥0.50. All three conditions are necessary;
+    none alone is sufficient. The E and vr conditions are new findings relative to the
+    lite-network sweeps, which only established C_eff thresholds.

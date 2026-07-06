@@ -1,0 +1,83 @@
+{
+  "config": {
+    "base_fee_rate": 1.0,
+    "manipulation_detection": true,
+    "sustainability_tracking": true
+  },
+  "current_fees": {
+    "v27": {
+      "total": 0.015646962436716774,
+      "organic": 0.015646962436716774,
+      "manipulation": 0.0
+    },
+    "v26": {
+      "total": 0.0019063136811589103,
+      "organic": 0.0019063136811589103,
+      "manipulation": 0.0
+    }
+  },
+  "manipulation_status": {
+    "v27_active": false,
+    "v26_active": false,
+    "v27_cost_btc": 0.0,
+    "v26_cost_btc": 0.0,
+    "v27_cost_usd": 0.0,
+    "v26_cost_usd": 0.0
+  },
+  "actors": {},
+  "fee_history": [
+    {
+      "timestamp": 1783357117.706108,
+      "chain_id": "v27",
+      "organic_fee": 1.0,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0,
+      "metadata": {
+        "initial": true
+      }
+    },
+    {
+      "timestamp": 1783357117.706108,
+      "chain_id": "v26",
+      "organic_fee": 1.0,
+      "manipulation_premium": 0.0,
+      "total_fee": 1.0,
+      "metadata": {
+        "initial": true
+      }
+    },
+    {
+      "timestamp": 1783358049.6722245,
+      "chain_id": "v27",
+      "organic_fee": 0.015646962436716774,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.015646962436716774,
+      "metadata": null
+    },
+    {
+      "timestamp": 1783358049.6722245,
+      "chain_id": "v26",
+      "organic_fee": 0.0019063136811589103,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0019063136811589103,
+      "metadata": null
+    },
+    {
+      "timestamp": 1783358114.9186373,
+      "chain_id": "v27",
+      "organic_fee": 0.015646962436716774,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.015646962436716774,
+      "metadata": null
+    },
+    {
+      "timestamp": 1783358114.9186373,
+      "chain_id": "v26",
+      "organic_fee": 0.0019063136811589103,
+      "manipulation_premium": 0.0,
+      "total_fee": 0.0019063136811589103,
+      "metadata": null
+    }
+  ],
+  "portfolio_history": []
+}

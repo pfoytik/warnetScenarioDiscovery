@@ -1,0 +1,86 @@
+{
+  "config": {
+    "base_price": 60000,
+    "max_divergence": 0.2,
+    "coefficients": {
+      "chain_weight": 0.3,
+      "economic_weight": 0.5,
+      "hashrate_weight": 0.2
+    }
+  },
+  "current_prices": {
+    "v27": 62019.95263705074,
+    "v26": 57414.12736294927
+  },
+  "timeline": {
+    "timestamps": [
+      1783360151.3416028,
+      1783360361.4436448,
+      1783360361.4436529,
+      1783360422.396462,
+      1783360422.3964746
+    ],
+    "v27_prices": [
+      60000,
+      60000,
+      60000,
+      62019.95263705074,
+      62019.95263705074
+    ],
+    "v26_prices": [
+      60000,
+      60000,
+      60000,
+      60000,
+      57414.12736294927
+    ]
+  },
+  "history": [
+    {
+      "timestamp": 1783360151.3416028,
+      "chain_id": "v27",
+      "price": 60000,
+      "metadata": {
+        "initial": true
+      }
+    },
+    {
+      "timestamp": 1783360151.3416028,
+      "chain_id": "v26",
+      "price": 60000,
+      "metadata": {
+        "initial": true
+      }
+    },
+    {
+      "timestamp": 1783360361.4436448,
+      "chain_id": "v27",
+      "price": 60000,
+      "metadata": {}
+    },
+    {
+      "timestamp": 1783360361.4436529,
+      "chain_id": "v26",
+      "price": 60000,
+      "metadata": {}
+    },
+    {
+      "timestamp": 1783360422.396462,
+      "chain_id": "v27",
+      "price": 62019.95263705074,
+      "metadata": {
+        "fork_sustained": true,
+        "fork_depth": 28
+      }
+    },
+    {
+      "timestamp": 1783360422.3964746,
+      "chain_id": "v26",
+      "price": 57414.12736294927,
+      "metadata": {
+        "fork_sustained": true,
+        "fork_depth": 28
+      }
+    }
+  ]
+}

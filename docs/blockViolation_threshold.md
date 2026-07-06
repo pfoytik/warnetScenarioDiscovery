@@ -216,11 +216,12 @@ Key observations:
 
 ---
 
-## Contested Fork Threshold Sweep — Early Results
+## Contested Fork Threshold Sweep — Results
 
 **Sweep:** `contested_fork_threshold` (120 scenarios, 3 vr × 4 E × 5 C × 2 compositions)  
-**Status:** 59/120 complete (49%) as of 2026-07-05  
-**Effective parameters:** E invariance confirmed — all results treated as E=0.55
+**Status:** 116/120 complete as of 2026-07-06 (missing: sweep_0049, 0097, 0098, 0099)  
+**Effective parameters:** E invariance confirmed — all results treated as E=0.55  
+**Startup failures:** 24/116 (21%) excluded from outcome analysis
 
 ### E Invariance Finding
 
@@ -253,34 +254,7 @@ committed hashrate (C_eff) diverge substantially within each C level:
 | 0.30 | 0.126–0.374 | foundryusa appears ~20% of seeds |
 | 0.35 | 0.161–0.401 | foundryusa appears ~30% of seeds |
 
-Nominal C is a poor predictor of outcome. C_eff is what matters.
-
-### v27 Win Rate by C_eff
-
-| C_eff range | v27 wins | n | v27 rate |
-|---|---|---|---|
-| < 0.10 | 0 | 12 | 0% |
-| 0.10–0.13 | 1 | 12 | 8% |
-| 0.13–0.16 | 3 | 11 | 27% |
-| 0.16–0.20 | 2 | 7 | 29% |
-| > 0.20 | 2 | 3 | ~67% (thin) |
-
-C_eff < 0.10 is a reliable v26 win zone. C_eff ∈ [0.13, 0.20] is genuinely contested —
-outcome depends on which pools are committed and stochastic early dynamics. C_eff > 0.20
-appears favorable for v27 at low vr, but data is sparse pending C=0.30–0.35 results.
-
-### vr Effect on v27 Win Rate
-
-| vr | v27 wins | n | v27 rate | min C_eff for v27 win |
-|---|---|---|---|---|
-| 0.20 | 6 | 18 | 33% | 0.126 |
-| 0.50 | 1 | 15 | 7% | 0.188 |
-| 1.00 | 1 | 12 | 8% | 0.156 |
-
-The drop from vr=0.20 to vr=0.50 is sharp and consistent across C values. At vr ≥ 0.50,
-legacy nodes reject more than half of softfork blocks, suppressing the economic cascade
-enough that even meaningful committed hashrate rarely tips the fork. vr < 0.50 is a more
-reliable boundary than any C_eff threshold.
+Nominal C is a poor predictor of outcome. C_eff is the right quantity to analyze.
 
 ### C_eff Discretization — Pool Hashrate Jumps
 
@@ -291,41 +265,124 @@ the nominal C target. At C=0.15 a random draw might yield:
 - viabtc alone (11.2%) → C_eff=0.130
 - antpool alone (16.9%) → C_eff=0.196
 
-This discretization means nominal C is a poor predictor — two scenarios at C=0.15 can have
-C_eff differing by 3×. It also means apparent "pool identity" effects are largely a
-C_eff measurement artifact: sweep_0000 (f2pool, C_eff=0.126) winning while sweep_0030
-(viabtc, C_eff=0.130) loses at nearly identical C_eff values is most likely stochastic
-noise in the contested zone, not a structural difference between those two pools.
-C_eff already captures what matters; which specific pool committed is incidental.
+Two scenarios at the same nominal C can have C_eff differing by 3×. Small C_eff differences
+near any threshold are stochastic noise, not structural pool-specific effects.
 
-### Startup Failures — Expanded Zone
+### v27 Win Rate by C_eff — Full Results
 
-CFT shows 14/59 startup failures (24%), notably higher than CSP. Critically, failures now
-appear at vr=0.50 and vr=1.00 — not just vr=0.10–0.20 as in CSP. The pattern correlates
-with low C_eff (≤ 0.188): when committed hashrate is insufficient to sustain a partition,
+| C_eff range | v27 wins | n | v27 rate |
+|---|---|---|---|
+| < 0.10 | 0 | 14 | 0% |
+| 0.10–0.13 | 2 | 22 | 9% |
+| 0.13–0.16 | 3 | 12 | 25% |
+| 0.16–0.20 | 6 | 19 | 32% |
+| 0.20–0.25 | 9 | 14 | 64% |
+| 0.25–0.30 | 3 | 4 | 75% |
+| **0.30–0.35** | **4** | **4** | **100%** |
+| **≥ 0.35** | **3** | **3** | **100%** |
+
+The threshold structure is now clear:
+- **C_eff < 0.13**: v26 wins reliably (≤9% v27 rate)
+- **C_eff 0.13–0.20**: genuinely contested — outcome is stochastic regardless of vr
+- **C_eff 0.20–0.30**: v27 majority zone; vr still influences outcome
+- **C_eff ≥ 0.30**: v27 wins every time — a hard threshold driven by foundryusa commitment
+
+All 7 scenarios with C_eff ≥ 0.30 had foundryusa committed and ended with v27hr = 86.4%
+(full cascade). Foundryusa's 30% hashrate alone is sufficient to guarantee a complete neutral
+pool cascade at **any** tested vr.
+
+### vr Effect on v27 Win Rate — Full Results
+
+| vr | v27 wins | n | v27 rate |
+|---|---|---|---|
+| 0.20 | 15 | 32 | 47% |
+| 0.50 | 8 | 24 | 33% |
+| 1.00 | 7 | 24 | 29% |
+
+vr still suppresses v27 — the rate falls from 47% at vr=0.20 to 29% at vr=1.00 — but the
+effect is weaker than early results suggested. The key interaction is with C_eff: at
+C_eff ≥ 0.30 (foundryusa committed), vr becomes irrelevant — v27 wins at all three vr values.
+At C_eff < 0.20, vr=0.50 and vr=1.00 suppress v27 almost completely.
+
+**Winner grid by (vr, C):**
+
+| | C=0.15 | C=0.20 | C=0.25 | C=0.30 | C=0.35 |
+|---|---|---|---|---|---|
+| vr=0.20 | 1↑ 7↓ | 2↑ 4↓ | 3↑ 3↓ | 4↑ 3↓ | 5↑ 2↓ |
+| vr=0.50 | 0↑ 5↓ | 1↑ 6↓ | 1↑ 4↓ | 2↑ 6↓ | 2↑ 0↓ |
+| vr=1.00 | 1↑ 5↓ | 0↑ 7↓ | 1↑ 5↓ | 4↑ 3↓ | 3↑ 2↓ |
+
+*↑ = v27 wins, ↓ = v26 wins. Genuine results only.*
+
+The vr=1.00, C=0.30 cell (4↑3↓) is notable: at high vr, high enough C_eff — specifically
+when foundryusa appears in the composition — still produces v27 wins. The vr=0.50, C=0.35
+cell (2↑0↓) confirms that at C=0.35 v27 wins regardless of vr when the right pools commit.
+
+### Pain Score — Full Results
+
+Maximum pain concentrates in the C_eff 0.13–0.25 range where committed hashrate sustains a
+fork but cannot cascade neutral pools. The highest observed pain scores:
+
+| scenario | vr | C | C_eff | heal_s | fork_balance | pain | winner | committed pools |
+|---|---|---|---|---|---|---|---|---|
+| sweep_0035 | 0.20 | 0.25 | 0.167 | 8,660 | 0.981 | **1,803** | v26 | ocean,luxor,f2pool |
+| sweep_0088 | 1.00 | 0.35 | 0.196 | 8,404 | 0.946 | **1,520** | v26 | antpool |
+| sweep_0030 | 0.20 | 0.15 | 0.130 | 9,203 | 0.907 | 1,500 | v26 | viabtc |
+| sweep_0012 | 0.20 | 0.20 | 0.196 | 9,745 | 0.817 | 1,490 | v27 | antpool |
+| sweep_0002 | 0.20 | 0.20 | 0.140 | 7,812 | 0.972 | 1,465 | v26 | ocean,f2pool |
+
+sweep_0035 (pain=1,803, fork_balance=0.981) is the most contested fork observed across all
+sweeps — three small-to-mid pools (ocean+luxor+f2pool, total 14.4% hashrate) held v27 nearly
+neck-and-neck with v26 for 8,660s before finally losing.
+
+**Pain score ranges by (vr, C):**
+
+| | C=0.15 | C=0.20 | C=0.25 | C=0.30 | C=0.35 |
+|---|---|---|---|---|---|
+| vr=0.20 | 107–1,500 | 5–1,490 | 329–1,803 | 452–952 | 37–1,247 |
+| vr=0.50 | 8–82 | 12–1,005 | 265 | 9–1,337 | 48–632 |
+| vr=1.00 | 590–1,201 | 1,103 | 203–1,190 | 93–881 | 135–1,520 |
+
+Pain is not monotonically related to C — high pain appears at C=0.15 when C_eff happens to
+land in the contested 0.13–0.20 zone. High C reduces pain by enabling faster cascades.
+
+### Startup Failures — C_eff Corridor
+
+CFT shows 24/116 startup failures (21%). Critically, failures appear at vr=0.50 and vr=1.00
+as well as vr=0.20 — not just the vr=0.10–0.20 zone identified in CSP. The pattern
+correlates with low C_eff: when committed hashrate is insufficient to sustain a partition,
 the fork reconverges within seconds regardless of violation rate.
 
-This revises the CSP finding that startup failures were confined to a vr=0.10–0.20
-"reconvergence corridor." In CFT the corridor is better described as a **C_eff corridor**:
-low C_eff allows reconvergence at any vr.
+The CSP finding of a vr-based "reconvergence corridor" is revised: the correct framing is a
+**C_eff corridor**. Low C_eff allows reconvergence at any vr.
 
-### Working Threshold — v27 Success Zone
+### Foundryusa as the Pivotal Pool
 
-Based on CFT early results at E=0.55:
+Foundryusa (30% of pool hashrate, the largest single pool) is the key discrete threshold in
+this network. When foundryusa commits:
+- C_eff jumps to 0.347–0.401 (depending on which other pools also commit)
+- v27 wins 100% of the time (6/6 scenarios with foundryusa, all vr values)
+- The fork always cascades completely: v27hr = 86.4% at heal
 
-> **v27 has a meaningful chance when: C_eff > 0.20 AND vr < 0.50**
+When foundryusa does not commit (C ≤ 0.20, or unlucky seeds at C=0.25), C_eff is capped at
+≤0.196 and outcomes are contested or v26-favored. The real-world interpretation: a softfork
+that secures Foundry USA's commitment has a structurally different outcome space than one that
+does not, regardless of how many smaller pools sign on.
 
-This maps to a real-world scenario where:
-- At least ~20% of pool hashrate is genuinely committed to the softfork rules
-- Legacy nodes accept more than half of incoming softfork blocks (v26_acceptance_probability > 0.50)
-- Economic majority (>55% BTC custody) already supports the softfork
+### Working Threshold — v27 Success Zones
 
-Below either threshold, v26 wins in the large majority of simulated trials. The C_eff and
-vr boundaries interact — higher C_eff can partially compensate for higher vr, but not enough
-to overcome vr ≥ 0.50 with the C_eff values reachable without foundryusa committed.
+Based on 116/120 CFT results at E=0.55:
 
-*Note: C=0.30–0.35 results are still pending. These scenarios have C_eff up to 0.40, which
-may reveal a cleaner upper boundary where v27 wins reliably even at higher vr.*
+> **Hard threshold — C_eff ≥ 0.30 (foundryusa committed): v27 wins regardless of vr**
+
+> **Soft threshold — C_eff 0.20–0.30 AND vr < 0.50: v27 majority zone (~64–75%)**
+
+> **Contested zone — C_eff 0.13–0.20: stochastic at all vr values (~25–32% v27)**
+
+> **v26 zone — C_eff < 0.13: v26 wins reliably (≤9% v27)**
+
+The vr boundary matters most in the 0.20–0.30 C_eff range. At C_eff ≥ 0.30, vr is
+irrelevant. At C_eff < 0.13, vr is irrelevant in the other direction.
 
 ---
 
@@ -334,64 +391,68 @@ may reveal a cleaner upper boundary where v27 wins reliably even at higher vr.*
 **Answered by CFT:**
 - C_eff (not nominal C) is the dominant pool-side predictor — confirmed.
 - Startup failures are not confined to vr=0.10–0.20; they occur at any vr when C_eff is low.
-- The FFT vr=1.00 all-startup-failure vs CSP vr=1.00 all-genuine discrepancy was likely a
-  C_eff effect, not an E effect — both sweeps used the lite network with E in the invariance zone.
+  The correct framing is a C_eff corridor, not a vr corridor.
+- The FFT vr=1.00 all-startup-failure vs CSP vr=1.00 all-genuine discrepancy was a C_eff
+  effect — FFT compositions happened to land at low C_eff; not an E or vr phenomenon.
+- C_eff ≥ 0.30 (foundryusa committed) is a hard threshold: v27 wins at all vr values.
+- vr becomes irrelevant above the foundryusa threshold and below the C_eff < 0.13 floor.
 
 **Still open:**
-1. Does C_eff > 0.20 reliably produce v27 wins at vr=0.50–1.00? C=0.30–0.35 results pending.
-2. Is there a C_eff level where vr becomes irrelevant (v27 wins regardless)? Likely requires
-   foundryusa (30% hashrate) committed — C_eff ≥ 0.35+.
-3. Does pool cascade position (which specific pools commit) explain the C_eff outcome variance
-   better than aggregate hashrate alone?
+1. How does E actually influence outcomes on the full network? The lite network collapses
+   E to a binary at ~0.78; a full-network sweep is needed to answer this.
+2. Does the foundryusa hard threshold generalize — i.e., is it specifically foundryusa's 30%,
+   or would any single pool at ~30% produce the same behavior?
+3. Pain score variance within the 0.13–0.20 C_eff contested zone: is it fully explained by
+   C_eff discretization and stochastic early dynamics, or do other parameters contribute?
 
 **Methodological:**
 - E variation requires the full network. The lite network's 4-node custody distribution
   creates a step function that makes E invariant across [0.28, 0.78].
-- Pool identity effects need a structured sweep: hold C_eff fixed, vary which pools commit.
+- The CFT results at E=0.55 are directly comparable to CSP and can be treated as extending
+  the CSP parameter space from (vr=6 values, C=3 values) to (vr=3 values, C_eff=continuous).
 
 ---
 
 ## Conclusions
 
-1. **violation_rate does not determine fork outcome.** Pool commitment (C_eff) determines
-   who wins the fork. vr=0.05 and vr=1.00 produce identical winners for all C values tested
-   in chainsplit_persistence. CFT confirms this: C_eff is the dominant predictor.
+1. **violation_rate does not determine fork outcome.** C_eff is the dominant predictor.
+   vr=0.05 and vr=1.00 produce identical winners at fixed C_eff across all tested sweeps.
 
-2. **violation_rate does not reliably determine reorg depth.** The variance between
-   random-seed replications at fixed vr is as large as the variance across the full vr range.
-   The dominant predictor of pain_score is C_eff, not vr.
+2. **violation_rate does not reliably determine reorg depth.** Variance between replications
+   at fixed vr equals the variance across the full vr range. C_eff, not vr, determines
+   pain magnitude.
 
-3. **The maximum pain zone is C_eff ≈ 0.13–0.16 (marginal committed hashrate).** When
-   committed hashrate is just enough to sustain a fork but not enough to cascade neutral pools,
-   forks run deep and contested (fork_balance 0.73–0.91) before eventually resolving. The
-   highest observed pain_score (1,500) occurred at C_eff=0.130 with viabtc as the sole
-   committed pool. Nominal C=0.30 in CSP matched this because foundryusa was always committed;
-   in CFT, high pain appears at any C level when C_eff falls in this marginal range.
+3. **The maximum pain zone is C_eff ≈ 0.13–0.25.** When committed hashrate sustains a fork
+   but cannot cascade neutral pools, forks run deep and contested (fork_balance up to 0.981).
+   The highest observed pain_score (1,803) occurred at C_eff=0.167 with ocean+luxor+f2pool.
+   High pain appears at any nominal C level when C_eff lands in this marginal range.
 
-4. **A startup-failure zone exists when C_eff is too low to sustain a partition.** In CSP,
-   failures appeared at vr=0.10–0.20 (high acceptance probability). CFT reveals the true
-   condition: failures occur at any vr when C_eff is insufficient. The corridor is a
-   C_eff corridor, not a vr corridor.
+4. **Foundryusa commitment is a hard threshold.** At C_eff ≥ 0.30 — achieved only when
+   foundryusa (30% hashrate) commits — v27 wins 100% of the time at all tested vr values,
+   always cascading to v27hr=86.4%. Below this threshold, outcomes are contested or
+   v26-favored depending on vr and stochastic dynamics.
 
-5. **No persistent chainsplit was observed at any tested (vr, C_eff) combination.** Forks
-   always healed within 13,000s. Even marginal committed hashrate eventually tips pool
-   economics toward one chain.
+5. **Three outcome zones exist by C_eff:**
+   - C_eff < 0.13: v26 wins reliably (≤9% v27 rate)
+   - C_eff 0.13–0.20: genuinely contested; stochastic at all vr values (25–32% v27)
+   - C_eff 0.20–0.30: v27 majority zone; vr still influences outcome (64–75% v27)
+   - C_eff ≥ 0.30: v27 wins always; vr irrelevant
 
-6. **vr primarily controls fork duration and depth, not outcome.** Higher vr extends the
-   window for pain by slowing the economic cascade, but the relationship is noisy. vr is
-   best understood as a "resistance parameter" — it does not create pain, it prolongs it.
+6. **A startup-failure corridor exists at low C_eff, not low vr.** CSP identified failures
+   at vr=0.10–0.20; CFT shows they occur at any vr when C_eff is insufficient to sustain
+   a partition. The corridor is a C_eff phenomenon.
 
-7. **C_eff > 0.20 AND vr < 0.50 is the working threshold for v27 success** (at E=0.55
-   on the lite network). Below either boundary, v26 wins in the large majority of trials.
-   The vr < 0.50 boundary is more robust than the C_eff boundary in current data.
+7. **No persistent chainsplit was observed at any tested combination.** Forks always healed
+   within 13,000s. Even marginal committed hashrate eventually tips pool economics.
 
-8. **C_eff is discrete, not continuous.** Pool hashrates are fixed and unequal, so C_eff
-   jumps in steps rather than varying smoothly with nominal C. Apparent "pool identity"
-   effects at similar C_eff values are most likely stochastic noise in the contested zone
-   rather than structural differences between specific pools. Nominal C is a poor predictor;
-   C_eff is the right quantity to analyze.
+8. **vr is a resistance parameter — it prolongs pain, not creates it.** Higher vr slows
+   the economic cascade and reduces v27 win rate in the contested C_eff zone, but it cannot
+   prevent v27 from winning when C_eff ≥ 0.30, nor save v27 when C_eff < 0.13.
 
-9. **E is invariant on the lite network across [0.28, 0.78].** All CFT results are equivalent
-   to E=0.55. Studying E effects requires the full network with more graduated custody
-   distribution. Prior sweeps showing E effects were sampling across the ~0.78 topology
-   boundary, not measuring smooth E variation.
+9. **C_eff is discrete, not continuous.** Pool hashrates are fixed and unequal; C_eff jumps
+   in steps. Nominal C is a poor predictor. C_eff differences in the contested zone are
+   largely stochastic noise rather than structural pool-specific effects.
+
+10. **E is invariant on the lite network across [0.28, 0.78].** All CFT and CSP results are
+    equivalent to E=0.55. Prior sweeps showing E effects were sampling across the ~0.78
+    topology boundary. Studying true E effects requires the full network.

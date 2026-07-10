@@ -88,44 +88,56 @@ Copy the `econ_split_full/` directory to each server before running.
 ```bash
 # esf-0: sweep_0000–0008
 warnet run tools/sweep/econ_split_full/networks/sweep_0000/network.yaml --namespace esf-0 && \
-python tools/sweep/3_run_sweep.py \
+python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/econ_split_full/build_manifest_server1.json \
-  --namespace esf-0 \
+  --duration 13000 --retarget-interval 2016 --interval 2 \
+  --results-dir tools/sweep/econ_split_full/results_server1 \
+  --namespace esf-0 --startup-wait 60 --cooldown 30 \
   --scenarios $(printf "sweep_%04d " $(seq 0 8))
 
 # esf-1: sweep_0009–0017
 warnet run tools/sweep/econ_split_full/networks/sweep_0009/network.yaml --namespace esf-1 && \
-python tools/sweep/3_run_sweep.py \
+python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/econ_split_full/build_manifest_server1.json \
-  --namespace esf-1 \
+  --duration 13000 --retarget-interval 2016 --interval 2 \
+  --results-dir tools/sweep/econ_split_full/results_server1 \
+  --namespace esf-1 --startup-wait 60 --cooldown 30 \
   --scenarios $(printf "sweep_%04d " $(seq 9 17))
 
 # esf-2: sweep_0018–0026
 warnet run tools/sweep/econ_split_full/networks/sweep_0018/network.yaml --namespace esf-2 && \
-python tools/sweep/3_run_sweep.py \
+python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/econ_split_full/build_manifest_server1.json \
-  --namespace esf-2 \
+  --duration 13000 --retarget-interval 2016 --interval 2 \
+  --results-dir tools/sweep/econ_split_full/results_server1 \
+  --namespace esf-2 --startup-wait 60 --cooldown 30 \
   --scenarios $(printf "sweep_%04d " $(seq 18 26))
 
 # esf-3: sweep_0027–0035
 warnet run tools/sweep/econ_split_full/networks/sweep_0027/network.yaml --namespace esf-3 && \
-python tools/sweep/3_run_sweep.py \
+python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/econ_split_full/build_manifest_server1.json \
-  --namespace esf-3 \
+  --duration 13000 --retarget-interval 2016 --interval 2 \
+  --results-dir tools/sweep/econ_split_full/results_server1 \
+  --namespace esf-3 --startup-wait 60 --cooldown 30 \
   --scenarios $(printf "sweep_%04d " $(seq 27 35))
 
 # esf-4: sweep_0036–0044
 warnet run tools/sweep/econ_split_full/networks/sweep_0036/network.yaml --namespace esf-4 && \
-python tools/sweep/3_run_sweep.py \
+python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/econ_split_full/build_manifest_server1.json \
-  --namespace esf-4 \
+  --duration 13000 --retarget-interval 2016 --interval 2 \
+  --results-dir tools/sweep/econ_split_full/results_server1 \
+  --namespace esf-4 --startup-wait 60 --cooldown 30 \
   --scenarios $(printf "sweep_%04d " $(seq 36 44))
 
 # esf-5: sweep_0045–0053
 warnet run tools/sweep/econ_split_full/networks/sweep_0045/network.yaml --namespace esf-5 && \
-python tools/sweep/3_run_sweep.py \
+python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/econ_split_full/build_manifest_server1.json \
-  --namespace esf-5 \
+  --duration 13000 --retarget-interval 2016 --interval 2 \
+  --results-dir tools/sweep/econ_split_full/results_server1 \
+  --namespace esf-5 --startup-wait 60 --cooldown 30 \
   --scenarios $(printf "sweep_%04d " $(seq 45 53))
 ```
 
@@ -134,44 +146,56 @@ python tools/sweep/3_run_sweep.py \
 ```bash
 # esf-0: sweep_0054–0062
 warnet run tools/sweep/econ_split_full/networks/sweep_0054/network.yaml --namespace esf-0 && \
-python tools/sweep/3_run_sweep.py \
+python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/econ_split_full/build_manifest_server2.json \
-  --namespace esf-0 \
+  --duration 13000 --retarget-interval 2016 --interval 2 \
+  --results-dir tools/sweep/econ_split_full/results_server2 \
+  --namespace esf-0 --startup-wait 60 --cooldown 30 \
   --scenarios $(printf "sweep_%04d " $(seq 54 62))
 
 # esf-1: sweep_0063–0071
 warnet run tools/sweep/econ_split_full/networks/sweep_0063/network.yaml --namespace esf-1 && \
-python tools/sweep/3_run_sweep.py \
+python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/econ_split_full/build_manifest_server2.json \
-  --namespace esf-1 \
+  --duration 13000 --retarget-interval 2016 --interval 2 \
+  --results-dir tools/sweep/econ_split_full/results_server2 \
+  --namespace esf-1 --startup-wait 60 --cooldown 30 \
   --scenarios $(printf "sweep_%04d " $(seq 63 71))
 
 # esf-2: sweep_0072–0080
 warnet run tools/sweep/econ_split_full/networks/sweep_0072/network.yaml --namespace esf-2 && \
-python tools/sweep/3_run_sweep.py \
+python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/econ_split_full/build_manifest_server2.json \
-  --namespace esf-2 \
+  --duration 13000 --retarget-interval 2016 --interval 2 \
+  --results-dir tools/sweep/econ_split_full/results_server2 \
+  --namespace esf-2 --startup-wait 60 --cooldown 30 \
   --scenarios $(printf "sweep_%04d " $(seq 72 80))
 
 # esf-3: sweep_0081–0089
 warnet run tools/sweep/econ_split_full/networks/sweep_0081/network.yaml --namespace esf-3 && \
-python tools/sweep/3_run_sweep.py \
+python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/econ_split_full/build_manifest_server2.json \
-  --namespace esf-3 \
+  --duration 13000 --retarget-interval 2016 --interval 2 \
+  --results-dir tools/sweep/econ_split_full/results_server2 \
+  --namespace esf-3 --startup-wait 60 --cooldown 30 \
   --scenarios $(printf "sweep_%04d " $(seq 81 89))
 
 # esf-4: sweep_0090–0098
 warnet run tools/sweep/econ_split_full/networks/sweep_0090/network.yaml --namespace esf-4 && \
-python tools/sweep/3_run_sweep.py \
+python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/econ_split_full/build_manifest_server2.json \
-  --namespace esf-4 \
+  --duration 13000 --retarget-interval 2016 --interval 2 \
+  --results-dir tools/sweep/econ_split_full/results_server2 \
+  --namespace esf-4 --startup-wait 60 --cooldown 30 \
   --scenarios $(printf "sweep_%04d " $(seq 90 98))
 
 # esf-5: sweep_0099–0107
 warnet run tools/sweep/econ_split_full/networks/sweep_0099/network.yaml --namespace esf-5 && \
-python tools/sweep/3_run_sweep.py \
+python3 tools/sweep/3_run_sweep.py \
   --input tools/sweep/econ_split_full/build_manifest_server2.json \
-  --namespace esf-5 \
+  --duration 13000 --retarget-interval 2016 --interval 2 \
+  --results-dir tools/sweep/econ_split_full/results_server2 \
+  --namespace esf-5 --startup-wait 60 --cooldown 30 \
   --scenarios $(printf "sweep_%04d " $(seq 99 107))
 ```
 

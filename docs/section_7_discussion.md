@@ -1,7 +1,7 @@
 # Section 7 — Discussion
 
 **Draft:** April 10, 2026  
-**Status:** DRAFT — complete. Awaiting Phase 3b data to confirm two-layer finding references in §7.2.
+**Status:** DRAFT — complete. Phase 3b (`lhs_2016_full_phase3`, 292 scenarios) finished; two-layer finding confirmed on full network (§4.10).
 
 ---
 
@@ -29,7 +29,7 @@ This finding has a direct analogue to coordination dynamics in financial markets
 
 ### 7.2 The Two-Layer Outcome Structure
 
-Phase 3 results establish that fork outcomes operate on two independent causal layers that are governed by different parameters and resolve on different timescales (§4.10, pending Phase 3b full-network validation).
+Phase 3 results establish that fork outcomes operate on two independent causal layers that are governed by different parameters and resolve on different timescales (§4.10). The Phase 3b cross-network validation (`lhs_2016_full_phase3`, n=292, full 60-node network) confirms this structure is not a quantization artifact of the lite network.
 
 **Layer 1 — Hashrate outcome:** Determined primarily by `pool_committed_split` relative to the Foundry flip-point threshold (~0.214–0.296 across regimes). This layer resolves through the pool commitment cascade described in §7.1: which chain accumulates sufficient committed and neutral hashrate to dominate block production. At 2016-block retarget, this layer is the dominant causal factor (RF feature importance: 52.8% for `pool_committed_split` vs. 20.2% for `economic_split`).
 
@@ -93,9 +93,7 @@ Several model limitations should inform how these findings are applied.
 
 ### 7.6 Future Work
 
-The most immediate extension of this work is the Phase 3b full-network validation of the two-layer finding (§7.2). The Phase 3 results establishing the two-layer structure were produced on a 25-node lite network; Phase 3b deploys the same LHS design on the full 60-node network with genuine `economic_split` variation. Confirming that `pool_max_loss_pct` ≤ 0.217 governs full economic migration on the full network would substantially strengthen the paper's central claim.
-
-Beyond Phase 3b, three targeted extensions would address the most important limitations:
+Three targeted extensions would address the most important remaining limitations of this work:
 
 **Sub-10% hashrate regime testing.** The hashrate non-causality finding holds across `hashrate_split` ∈ [0.15, 0.65], but the survival window argument predicts a failure boundary below approximately 10%: at very low hashrate, the minority chain may not produce blocks fast enough to maintain token value through the pre-retarget period. A targeted sweep at `hashrate_split` ∈ [0.02, 0.12] would establish the lower threshold for non-causality and identify the conditions under which hashrate *does* become decisive.
 

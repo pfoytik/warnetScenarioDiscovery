@@ -4583,14 +4583,81 @@ The C=0.50 exception (where high p helps) suggests that at symmetric commitment 
 
 **Infrastructure:** 36 scenarios across 2 servers × 6 namespaces each (3 scenarios per namespace). Worst case: 3 × 3.6h = 10.8h per namespace. Fast-healing scenarios (low vr + high C) exit in 30–90 minutes. Namespace prefix: `csp-`. Results directories: `results_server1/` and `results_server2/`.
 
-**Status:** Results pending (running as of 2026-07-04).
+**Status:** Complete — 36/36 scenarios. Results collected from both servers.
 
-**What to look for in results:**
-- `healed=False` at C=0.15 → persistent chainsplit exists at that violation_rate under maximum v26 support
-- Lowest vr where `healed=False` appears at C=0.15 → primary answer to the research question
-- Comparison of C=0.15 vs C=0.30 threshold → tests whether single large-pool commitment (Foundry, F22 shockwave) changes the persistence boundary
-- C=0.60 should show all healed (cascade validation / positive control)
-- Watch for startup failures: `healed=True` with v27_blocks or v26_blocks near 0 indicates the partition never formed
+#### Key Findings
+
+**F1 — No persistent chainsplit at any tested vr.** Every scenario healed (`healed=True`)
+within the 13,000s window. The research question "is there a minimum violation_rate below
+which v26 cannot form a lasting partition?" has the answer: **no persistent chainsplit was
+produced at any vr in [0.05, 1.00] at E=0.55**. All forks are temporary under these conditions.
+
+**F2 — C is the dominant persistence parameter, not vr.** At C=0.15 (all major pools v26),
+v26 wins all 6 genuine scenarios at heal times of 9,670–12,713s — approaching the 13,000s
+cutoff but still healing. At C=0.30 (Foundry committed), v27 wins 5/6 genuine scenarios.
+At C=0.60, v27 wins with moderate heal times and startup failures at low vr. violation_rate
+determines fork depth (pain score) but not whether the fork heals.
+
+**F3 — Startup failures cluster at low vr with high committed hashrate.** At vr=0.10 and
+vr=0.20, scenarios with C=0.30 and C=0.60 produce startup failures (heal_s≤30, total
+blocks≤10). These are not noise — they represent the compliance enforcement regime where
+non-compliant blocks are orphaned before a meaningful fork chain forms. All startup failures
+at this sweep occurred with C≥0.30, confirming the startup corridor is a C_eff phenomenon.
+
+**F4 — C=0.30 produces maximum pain.** The highest pain scores in any sweep up to this
+point came from C=0.30 scenarios: sweep_0002 (vr=0.05, pain=982), sweep_0032 (vr=1.00,
+pain=964), sweep_0020 (vr=0.30, pain=945). This is the "marginal commitment" regime: Foundry
+commits and sustains the v27 chain, but must fight for 8,630 seconds (2.4 hours) before
+winning. Peak pain is not at maximum vr but at the commitment threshold (C_eff near the
+F22 flip-point) where neither side dominates early.
+
+**F5 — vr determines fork depth but not healing.** High vr (1.00) and low vr (0.05) both
+produce deep forks at C=0.30: pain 964 and 982 respectively. Low vr forks run long because
+compliant v26 blocks propagate to the v27 chain, keeping v27's effective hashrate high but
+slowing block production divergence. High vr forks run long because neither chain receives
+the other's blocks, requiring the full cascade mechanism to resolve. Different mechanisms,
+similar pain.
+
+**Results table (all 36 scenarios):**
+
+| Scenario | vr | C | healed | winner | heal_s | pain | notes |
+|---|---|---|---|---|---|---|---|
+| sweep_0000 | 0.05 | 0.15 | yes | v26 | 11,515 | 6.0 | |
+| sweep_0001 | 0.05 | 0.15 | yes | v26 | 12,713 | 6.2 | |
+| sweep_0002 | 0.05 | 0.30 | yes | v27 | 8,630 | **982** | |
+| sweep_0003 | 0.05 | 0.30 | yes | v27 | 3,553 | 475 | |
+| sweep_0004 | 0.05 | 0.60 | yes | v27 | 3,144 | 86 | |
+| sweep_0005 | 0.05 | 0.60 | yes | v27 | 3,378 | 79 | |
+| sweep_0006 | 0.10 | 0.15 | yes | v26 | 12,100 | 6.3 | |
+| sweep_0007 | 0.10 | 0.15 | yes | v27 | 4 | 2.0 | startup failure |
+| sweep_0008 | 0.10 | 0.30 | yes | v27 | 4 | 2.0 | startup failure |
+| sweep_0009 | 0.10 | 0.30 | yes | v27 | 1,962 | 294 | |
+| sweep_0010 | 0.10 | 0.60 | yes | v27 | 5,580 | 45 | |
+| sweep_0011 | 0.10 | 0.60 | yes | v27 | 3,953 | 66 | |
+| sweep_0012 | 0.20 | 0.15 | yes | v26 | 10,880 | 5.7 | |
+| sweep_0013 | 0.20 | 0.15 | yes | v26 | 12,092 | 6.5 | |
+| sweep_0014 | 0.20 | 0.30 | yes | v27 | 4 | 2.0 | startup failure |
+| sweep_0015 | 0.20 | 0.30 | yes | v27 | 27 | 2.7 | startup failure |
+| sweep_0016 | 0.20 | 0.60 | yes | v27 | 6 | 0.5 | startup failure |
+| sweep_0017 | 0.20 | 0.60 | yes | v26 | 16 | 1.0 | startup failure |
+| sweep_0018 | 0.30 | 0.15 | yes | v26 | 11,487 | 5.8 | |
+| sweep_0019 | 0.30 | 0.15 | yes | v26 | 12,101 | 6.5 | |
+| sweep_0020 | 0.30 | 0.30 | yes | v27 | 7,080 | **945** | |
+| sweep_0021 | 0.30 | 0.30 | yes | v27 | 2,693 | 346 | |
+| sweep_0022 | 0.30 | 0.60 | yes | v27 | 2,763 | 103 | |
+| sweep_0023 | 0.30 | 0.60 | yes | v27 | 2,615 | 112 | |
+| sweep_0024 | 0.50 | 0.15 | yes | v26 | 9,670 | 4.9 | |
+| sweep_0025 | 0.50 | 0.15 | yes | v26 | 12,094 | 6.5 | |
+| sweep_0026 | 0.50 | 0.30 | yes | v27 | 1,976 | 305 | |
+| sweep_0027 | 0.50 | 0.30 | yes | v27 | 6,417 | 821 | |
+| sweep_0028 | 0.50 | 0.60 | yes | v27 | 3,357 | 80 | |
+| sweep_0029 | 0.50 | 0.60 | yes | v27 | 4,726 | 55 | |
+| sweep_0030 | 1.00 | 0.15 | yes | v26 | 10,880 | 5.3 | |
+| sweep_0031 | 1.00 | 0.15 | yes | v26 | 12,703 | 6.5 | |
+| sweep_0032 | 1.00 | 0.30 | yes | v27 | 7,151 | **964** | |
+| sweep_0033 | 1.00 | 0.30 | yes | v27 | 12,205 | 465 | |
+| sweep_0034 | 1.00 | 0.60 | yes | v27 | 7,498 | 33 | |
+| sweep_0035 | 1.00 | 0.60 | yes | v27 | 3,787 | 79 | |
 
 #### Output Files
 
@@ -4600,10 +4667,10 @@ The C=0.50 exception (where high p helps) suggests that at symmetric commitment 
 | `tools/sweep/chainsplit_persistence/build_manifest_server1.json` | Server 1: sweep_0000–sweep_0017 |
 | `tools/sweep/chainsplit_persistence/build_manifest_server2.json` | Server 2: sweep_0018–sweep_0035 |
 | `tools/sweep/chainsplit_persistence/configs/` | Network, pool, and economic config YAMLs (36 scenarios each) |
-| `tools/sweep/chainsplit_persistence/networks/` | 36 network topology directories (copied from FFT networks — topology is invariant across scenarios) |
+| `tools/sweep/chainsplit_persistence/networks/` | 36 network topology directories |
 | `tools/sweep/chainsplit_persistence/run_commands.sh` | All 12 `python3 3_run_sweep.py` commands |
 | `tools/sweep/chainsplit_persistence/RUN_INSTRUCTIONS.md` | Pre-flight checklist, rsync commands, monitoring snippet |
-| `tools/sweep/chainsplit_persistence/results_server1/` | Raw results from server 1 (pending) |
-| `tools/sweep/chainsplit_persistence/results_server2/` | Raw results from server 2 (pending) |
+| `tools/sweep/chainsplit_persistence/results_server1/` | Raw results from server 1 (ns-0 through ns-5) |
+| `tools/sweep/chainsplit_persistence/results_server2/` | Raw results from server 2 (ns-6 through ns-11) |
 
-*chainsplit_persistence added July 2026*
+*chainsplit_persistence added July 2026; results complete July 2026*

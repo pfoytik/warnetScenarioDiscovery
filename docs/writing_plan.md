@@ -19,14 +19,14 @@
 | `docs/phase3_results.md` | Phase 3 lite-network findings |
 | `tools/discovery/output/user_prim/user_prim_report.md` | User-PRIM analysis complete |
 
-**Phase 3b (lhs_2016_full_phase3, 300 scenarios, full 60-node network):** currently running on large servers. Expected complete ~April 11. Results gate Sections 4.9–4.10.
+**Phase 3b (lhs_2016_full_phase3, 292 scenarios, full 60-node network):** Complete. Two-layer finding confirmed on full network. Sections 4.9–4.10 written and data-locked.
 
 ---
 
 ## Section Writing Order
 
-### Phase A — Now through April 11
-*Write while Phase 3b computes. All sections below are fully data-locked.*
+### Phase A — Complete
+*Sections written while Phase 3b computed. All sections below are fully data-locked.*
 
 ---
 
@@ -97,8 +97,8 @@
 
 ---
 
-### Phase B — April 12–18
-*After Phase 3b data arrives (~April 11). Analyze first, then write.*
+### Phase B — Complete
+*Phase 3b data arrived; analysis and writing complete.*
 
 **Analysis steps before writing:**
 1. Rsync results from both servers (commands in `tools/sweep/lhs_2016_phase3/RUN_COMMANDS.md`)

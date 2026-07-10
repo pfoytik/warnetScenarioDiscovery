@@ -607,13 +607,19 @@ non-causal parameter table without this caveat.
 
 **Bias mechanism:** This threshold was established from Phase 3 lite-network data,
 which has the documented economic node quantization artifact (~4 nodes, step-function
-thresholds rather than smooth variation). Phase 3b (full 60-node network, currently
-running) is the validation test. Until Phase 3b results are incorporated, this
-threshold is a working estimate, not a confirmed result.
+thresholds rather than smooth variation). The full-network response is expected to
+be smoother but directionally identical.
 
-**Risk level:** Medium. The Phase 3b design specifically targets this finding's
-validation. The quantization artifact is documented and its direction is understood
-(creates sharper thresholds than the continuous full-network response).
+**Phase 3b validation result (complete):** `lhs_2016_full_phase3` (n=292, full 60-node
+network) confirms the two-layer structure on the full network. Full economic switching
+is perfectly predictive: all 71 full_switch scenarios are v27-dominant (100%); no
+contested or v26-dominant outcome co-occurs with full economic adoption. The Layer 1 /
+Layer 2 decoupling is not a lite-network quantization artifact. The specific threshold
+value (≤0.217) should still be treated as calibration-specific, but the structural
+finding is confirmed.
+
+**Risk level:** Low (was Medium). Structure confirmed; threshold value remains
+calibration-dependent.
 
 ---
 
@@ -681,7 +687,7 @@ verification.
 | User node hashrate pathway null | None | None | **Full** |
 | User node economic pathway null | **High** (partially tautological) | None | Structural ceiling only |
 | econ friction params non-causal | None | **High** (n=4) | Weak — needs 2016-block retest |
-| pool_max_loss_pct ≤ 0.217 threshold | None | **High** (lite network) | Pending Phase 3b |
+| pool_max_loss_pct ≤ 0.217 threshold | None | Low (confirmed Phase 3b) | Structure **confirmed**; threshold value qualified |
 | 144-block logistic regression | None | **High** (unreliable fit) | Not defensible |
 | Framework as null-result detector | None | None | **Full** |
 
@@ -689,7 +695,7 @@ verification.
 - **Full** — supported by multiple independent lines of evidence, mechanism confirmed, not sensitive to contested modeling choices
 - **Full with [caveat]** — finding is robust but the stated condition limits its scope
 - **Qualified** — finding is likely correct but the specific value or magnitude could shift with different assumptions or more data
-- **Pending** — awaiting Phase 3b full-network validation
+- **Confirmed** — Phase 3b (`lhs_2016_full_phase3`, n=292) complete; two-layer structure holds on full network
 - **Not defensible** — should not be cited; methodology insufficient
 
 ---

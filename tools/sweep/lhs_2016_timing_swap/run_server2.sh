@@ -16,7 +16,6 @@
 #   rsync -av tools/sweep/lhs_2016_timing_swap/ server2:~/warnetScenarioDiscovery/tools/sweep/lhs_2016_timing_swap/
 #   rsync -av tools/sweep/configs/timing_swap_run.yaml server2:~/warnetScenarioDiscovery/tools/sweep/configs/
 
-set -e
 SWEEP_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SWEEP_DIR/../../.." && pwd)"
 MANIFEST="$SWEEP_DIR/build_manifest.json"
@@ -27,6 +26,8 @@ BASE_CMD="python $REPO_ROOT/tools/sweep/3_run_sweep.py \
   --input $MANIFEST \
   --scenario-config $CONFIG \
   --results-dir $RESULTS"
+
+mkdir -p "$RESULTS"
 
 echo "=== lhs_2016_timing_swap — Server 2 ==="
 echo "Manifest:  $MANIFEST"

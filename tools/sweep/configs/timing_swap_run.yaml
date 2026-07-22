@@ -1,0 +1,29 @@
+# Scenario run config for lhs_2016_timing_swap
+# Pass to 3_run_sweep.py via: --scenario-config tools/sweep/configs/timing_swap_run.yaml
+#
+# HYPOTHESIS: Tests whether the two-layer result (hashrate war first, economic
+# adoption second) is an artifact of the baseline timing asymmetry:
+#   Baseline:    pool_decision_interval=600s, econ_switching_cooldown=1800s
+#   This sweep:  pool_decision_interval=1800s, econ_switching_cooldown=600s
+#
+# All other parameters match baseline full-network 2016-block sweeps exactly.
+
+# ── Simulation ────────────────────────────────────────────────────────────────
+duration: 13000          # seconds — consistent with all full-network 2016-block sweeps
+interval: 10             # block interval (seconds)
+retarget_interval: 2016  # 2016-block retarget (mainnet dynamics)
+
+# ── Swapped decision timings (the experimental change) ───────────────────────
+pool_decision_interval: 1800       # was 600s — pools now decide every 30 min
+econ_switching_cooldown: 600       # was 1800s — econ nodes now switch every 10 min
+user_switching_cooldown: 3600      # unchanged — user nodes not part of hypothesis
+
+# ── Outer loop polling intervals (unchanged from baseline) ───────────────────
+hashrate_update_interval: 600      # how often pool strategy is called
+economic_update_interval: 300      # how often econ nodes are polled
+price_update_interval: 60          # price oracle cadence
+
+# ── Feature flags (same as baseline) ─────────────────────────────────────────
+enable_liveness_penalty: false
+use_sigmoid: false
+use_cost_floor: false

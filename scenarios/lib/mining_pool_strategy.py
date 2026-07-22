@@ -86,7 +86,7 @@ class MiningPoolStrategy:
     3. Loss tolerance (economic sustainability)
     """
 
-    def __init__(self, pools: List[PoolProfile]):
+    def __init__(self, pools: List[PoolProfile], decision_interval: int = 600):
         """
         Initialize with pool profiles.
 
@@ -117,7 +117,7 @@ class MiningPoolStrategy:
         self.last_decision_time = {p.pool_id: 0.0 for p in pools}
 
         # Decision cooldown (prevent rapid switching)
-        self.decision_interval = 600  # 10 minutes
+        self.decision_interval = decision_interval  # seconds between pool decisions
 
     def calculate_pool_profitability(
         self,

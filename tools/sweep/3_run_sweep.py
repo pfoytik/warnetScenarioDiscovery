@@ -181,7 +181,9 @@ def inject_sweep_config(
     scenario_id: str,
     pools_config: Path,
     economic_config: Path,
-    scenarios_dir: Path
+    scenarios_dir: Path,
+    econ_switching_cooldown=None,
+    user_switching_cooldown=None,
 ) -> bool:
     """
     Inject sweep scenario configs into the main config files.
@@ -224,6 +226,15 @@ def inject_sweep_config(
                 # Inject sweep scenario
                 main_pools[scenario_id] = sweep_pools[scenario_id]
                 main_econ[scenario_id] = sweep_econ[scenario_id]
+
+                # Apply switching cooldown overrides if specified
+                if econ_switching_cooldown is not None or user_switching_cooldown is not None:
+                    scenario_econ = main_econ.get(scenario_id, {})
+                    if econ_switching_cooldown is not None:
+                        scenario_econ.setdefault('economic_defaults', {})['switching_cooldown'] = econ_switching_cooldown
+                    if user_switching_cooldown is not None:
+                        scenario_econ.setdefault('user_defaults', {})['switching_cooldown'] = user_switching_cooldown
+                    main_econ[scenario_id] = scenario_econ
 
                 # Write back
                 with open(main_pools_path, 'w') as f:
@@ -539,6 +550,12 @@ def run_scenario(
     partition_mode: str = "static",
     fork_heal_exit: bool = False,
     namespace: str = "default",
+    pool_decision_interval: int = 600,
+    hashrate_update_interval: int = 600,
+    economic_update_interval: int = 300,
+    price_update_interval: int = 60,
+    econ_switching_cooldown: int = None,
+    user_switching_cooldown: int = None,
 ) -> bool:
     """Run a single scenario and extract results"""
 
@@ -556,7 +573,9 @@ def run_scenario(
     # Step 0b: Inject sweep config into main config files
     print(f"  Injecting sweep config...")
     if not dry_run:
-        if not inject_sweep_config(scenario_id, pools_config, economic_config, scenarios_dir):
+        if not inject_sweep_config(scenario_id, pools_config, economic_config, scenarios_dir,
+                                   econ_switching_cooldown=econ_switching_cooldown,
+                                   user_switching_cooldown=user_switching_cooldown):
             print(f"  Warning: Could not inject config, scenario may fail")
 
     # Step 0c: Inject per-scenario network metadata so economic_split image tags
@@ -592,6 +611,10 @@ def run_scenario(
         f"--interval={interval}",
         f"--results-id={scenario_id}",
         "--snapshot-interval=60",
+        f"--pool-decision-interval={pool_decision_interval}",
+        f"--hashrate-update-interval={hashrate_update_interval}",
+        f"--economic-update-interval={economic_update_interval}",
+        f"--price-update-interval={price_update_interval}",
     ]
 
     # Add random seed if provided (for baseline reproducibility testing)
@@ -721,6 +744,19 @@ def save_progress(progress_file: Path, progress: Dict):
 
 
 def main():
+    # ── Scenario config pre-load ─────────────────────────────────────────
+    # Read --scenario-config YAML first so its values become parser defaults.
+    # CLI flags always override.
+    import sys as _sys
+    _pre = argparse.ArgumentParser(add_help=False)
+    _pre.add_argument('--scenario-config', type=str, default=None)
+    _pre_args, _ = _pre.parse_known_args(_sys.argv[1:])
+    _scenario_cfg = {}
+    if _pre_args.scenario_config:
+        with open(_pre_args.scenario_config) as _f:
+            _scenario_cfg = yaml.safe_load(_f) or {}
+        _scenario_cfg = {k: v for k, v in _scenario_cfg.items() if v is not None}
+
     parser = argparse.ArgumentParser(
         description="Run parameter sweep scenarios",
         formatter_class=argparse.RawDescriptionHelpFormatter
@@ -768,6 +804,31 @@ def main():
     parser.add_argument("--namespace", type=str, default="default",
                         help="Kubernetes namespace to deploy into (default: default). "
                              "Allows multiple sweeps to run in parallel on different namespaces.")
+    parser.add_argument("--scenario-config", type=str, default=None,
+                        help="YAML file whose keys set sweep parameter defaults "
+                             "(CLI flags override). Same format as --config-file "
+                             "for the scenario script.")
+    parser.add_argument("--pool-decision-interval", type=int, default=600,
+                        help="Pool internal decision cooldown in seconds (default: 600). "
+                             "Passed as --pool-decision-interval to the scenario.")
+    parser.add_argument("--hashrate-update-interval", type=int, default=600,
+                        help="How often pool strategy is called in seconds (default: 600). "
+                             "Passed as --hashrate-update-interval to the scenario.")
+    parser.add_argument("--economic-update-interval", type=int, default=300,
+                        help="How often economic nodes are polled in seconds (default: 300). "
+                             "Passed as --economic-update-interval to the scenario.")
+    parser.add_argument("--price-update-interval", type=int, default=60,
+                        help="Price oracle update interval in seconds (default: 60). "
+                             "Passed as --price-update-interval to the scenario.")
+    parser.add_argument("--econ-switching-cooldown", type=int, default=None,
+                        help="Override economic node switching_cooldown in injected configs "
+                             "(seconds). If not set, uses value from generated sweep configs.")
+    parser.add_argument("--user-switching-cooldown", type=int, default=None,
+                        help="Override user node switching_cooldown in injected configs "
+                             "(seconds). If not set, uses value from generated sweep configs.")
+
+    if _scenario_cfg:
+        parser.set_defaults(**_scenario_cfg)
 
     args = parser.parse_args()
 
@@ -924,6 +985,12 @@ def main():
                 partition_mode=partition_mode,
                 fork_heal_exit=fork_heal_exit,
                 namespace=args.namespace,
+                pool_decision_interval=args.pool_decision_interval,
+                hashrate_update_interval=args.hashrate_update_interval,
+                economic_update_interval=args.economic_update_interval,
+                price_update_interval=args.price_update_interval,
+                econ_switching_cooldown=args.econ_switching_cooldown,
+                user_switching_cooldown=args.user_switching_cooldown,
             )
 
             scenario_elapsed = time.time() - scenario_start

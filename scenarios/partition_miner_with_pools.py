@@ -184,6 +184,25 @@ class PartitionMinerWithPools(Commander):
 
     def add_options(self, parser: argparse.ArgumentParser):
         """Add command-line arguments"""
+        # ── Config file pre-load (must come first) ───────────────────────────
+        # Pre-parse just --config-file so we can load it before setting defaults.
+        import sys as _sys
+        _pre = argparse.ArgumentParser(add_help=False)
+        _pre.add_argument('--config-file', type=str, default=None)
+        _pre_args, _ = _pre.parse_known_args(_sys.argv[1:])
+        if _pre_args.config_file:
+            import yaml as _yaml
+            with open(_pre_args.config_file) as _f:
+                _cfg = _yaml.safe_load(_f) or {}
+            # set_defaults uses dest names (underscores); filter out nulls
+            _defaults = {k: v for k, v in _cfg.items() if v is not None}
+            if _defaults:
+                parser.set_defaults(**_defaults)
+
+        parser.add_argument('--config-file', type=str, default=None,
+                            help='YAML file whose keys set parameter defaults '
+                                 '(CLI flags override). Keys use underscores matching '
+                                 'argparse dest names.')
         parser.add_argument('--v27-economic', type=float, default=70.0,
                           help='Economic weight on v27 (0-100)')
         parser.add_argument('--v26-economic', type=float, default=None)
@@ -212,6 +231,9 @@ class PartitionMinerWithPools(Commander):
         # Update intervals
         parser.add_argument('--hashrate-update-interval', type=int, default=600,
                           help='Pool decision interval (seconds), default 10min')
+        parser.add_argument('--pool-decision-interval', type=int, default=600,
+                          help='Pool internal decision cooldown (seconds), default 10min. '
+                               'Minimum time between each pool re-evaluating its fork choice.')
         parser.add_argument('--price-update-interval', type=int, default=60,
                           help='Price update interval (seconds)')
 
@@ -1579,7 +1601,10 @@ class PartitionMinerWithPools(Commander):
                     max_loss_pct=pool_data.get('max_loss_pct', 0.10),
                     initial_fork=pool_data.get('initial_fork'),
                 ))
-            self.pool_strategy = MiningPoolStrategy(pools)
+            self.pool_strategy = MiningPoolStrategy(
+                pools,
+                decision_interval=self.options.pool_decision_interval,
+            )
             self.log.info(f"✓ Pool strategy initialized ({len(pools)} pools)")
 
             # Set initial hashrate from pool scenario.

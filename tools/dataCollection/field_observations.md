@@ -306,3 +306,192 @@ qualitative corroboration of the story, not a quantitative check of the
 **Caveat:** single-source, self-reported commentary (not an Ocean
 official statement), no way to independently verify the Eh/s figures
 against on-chain data with the tools in this directory.
+
+---
+
+## 2026-08-10 — Survival mechanism: full complexity analysis
+
+This entry synthesises the analysis from multiple prior entries and maps it
+against the sweep findings' theoretical treatment of the Difficulty Adjustment
+Survival Window (SWEEP_FINDINGS.md §"Difficulty Adjustment Survival Window").
+It documents three complexities that the sweep findings' formula understates,
+all of which are illuminated by the live BIP-110 event.
+
+### Recap of the mechanism (from sweep findings)
+
+A minority fork can win not by having superior hashrate but by surviving long
+enough to reach a difficulty adjustment that makes its blocks dramatically
+cheaper to mine, then attracting a wave of opportunistic hashrate before the
+majority chain can respond:
+
+```
+t=0  Fork splits at minority hashrate fraction f.  Blocks arrive at 1/f the
+     target rate (e.g. f=0.25 → 4× slower).
+t=1  Price begins to diverge but does not yet break committed pools.
+t=2  After retarget_interval minority blocks, difficulty drops by ~(1-f).
+     Block rate restored to target.
+t=3  PROFIT SPIKE: opportunistic hashrate floods in, blocks arrive faster
+     than target, chainwork accumulates rapidly.
+t=4  If the spike arrives before the majority chain's next retarget, the
+     minority fork overtakes cumulative chainwork and wins.
+```
+
+The survival window formula:
+
+```
+survival_window ≈ retarget_interval / f     (wall-clock time to first adjustment)
+```
+
+At f=0.044 (95th-percentile bound from the 679-minute zero-blocks observation)
+and retarget_interval=2016 (Bitcoin mainnet):
+
+```
+survival_window ≈ 2016 / 0.044 × 10 min ≈ 458,000 min ≈ 318 days
+```
+
+Even at the 99th-percentile bound (f≤0.068):
+
+```
+survival_window ≈ 2016 / 0.068 × 10 min ≈ 296,000 min ≈ 206 days
+```
+
+The BIP-110 minority chain stalled permanently at height 961633 — one block
+past the retarget boundary that began the new difficulty period. It never had
+any realistic prospect of reaching its own first difficulty adjustment. This
+event is a clean, if extreme, confirmation of the sweep findings' conclusion
+that the survival mechanism does not fire in the realistic 2016-block regime
+at low hashrate fractions.
+
+### Complexity 1: position within difficulty period as a hidden parameter
+
+The survival window formula assumes the fork starts a full retarget_interval
+away from the minority chain's next difficulty adjustment. This is only true
+if the fork occurs exactly at a retarget boundary — the worst possible case.
+
+The BIP-110 fork split at height 961632, which **was itself a retarget
+boundary**: the new difficulty period began at 961632, meaning the minority
+chain started a full 2016 blocks from its next adjustment. This is the
+maximum possible survival window for a given f, not a typical one.
+
+Had the fork instead occurred near block 1950 within a difficulty period
+(only 66 blocks remaining), the minority chain would have needed only 66
+minority-chain blocks before difficulty relief — 30.6× less survival time
+required. At f=0.044, that would be approximately:
+
+```
+66 / 0.044 × 10 min ≈ 15,000 min ≈ 10.4 days
+```
+
+Still long by operational standards, but qualitatively different from 318
+days. Position within the difficulty period is effectively a hidden second
+parameter in the survival window calculation, with a leverage factor of up to
+2016 between best case (fork just before a retarget) and worst case (fork just
+after a retarget).
+
+**Implication for the model:** the sweep simulation always starts fresh, which
+implicitly assumes the fork occurs at the beginning of a difficulty period —
+the worst case for the minority chain. The survival window measured in
+simulation is therefore a conservative (long) estimate of what a real fork
+would face. Real forks that happen to split mid-period would have shorter
+windows, making the mechanism more plausible at marginally higher hashrate
+fractions.
+
+**Implication for the real event:** the fork occurring immediately after a
+retarget boundary was among the worst possible timings for the survival
+mechanism to fire. It is not representative of expected timing.
+
+### Complexity 2: two-phase hashrate collapse (speculative vs committed)
+
+The sweep model treats pool decisions as static transitions from one fork to
+another, driven by a price oracle comparison. The real event showed a
+structurally different two-phase dynamic:
+
+- **Phase 1 — speculative hashrate:** During the split (~14.5 Eh/s on
+  Ocean's BIP-110 side per the Tone Vays report), a large fraction of the
+  minority-chain hashrate was rented or ideologically motivated (attributed
+  to Roughnecks/~13 Eh/s, characterised as "mining at a loss"). This
+  hashrate was sufficient to find the two minority-chain blocks (heights
+  961632 and 961633) but was economically unsustainable.
+- **Phase 2 — collapse:** Once the rented/speculative hashrate withdrew, the
+  remaining committed minority hashrate was ≤1.2 Eh/s (from the Tone Vays
+  report), consistent with the ≤4.4% (95% CI) bound from the 679-minute
+  zero-blocks window. The minority chain went dark.
+
+The model's price oracle treats all pools as responding monotonically to
+relative profitability. It does not represent the distinction between:
+- speculative hashrate that briefly supports the minority chain regardless of
+  economics (ideology + rented capacity), then evaporates
+- residual committed hashrate that persists unprofitably
+
+This two-phase pattern has a specific consequence for the survival mechanism:
+a minority chain can receive a brief burst of high hashrate that produces its
+first few blocks at near-normal speed, then collapse to near-zero before the
+sustained rate needed to complete retarget_interval blocks is ever achieved.
+The mechanism can appear to "start" (first blocks found quickly) while never
+having a realistic path to completion.
+
+**Implication for the model:** the survival window formula implicitly assumes
+constant f throughout the window. Real hashrate is not constant; it typically
+starts higher (speculative pile-in) and falls faster than the price oracle
+predicts. The effective f for survival window purposes is the *sustained*
+minority hashrate, not the peak.
+
+### Complexity 3: intra-pool divergence as an unmodeled actor class
+
+The model's pool behavioral typology (committed / neutral profit-maximizer /
+swing) assigns one ideology and one chain commitment per named pool. The
+Ocean/DATUM observation (see 2026-08-09T10:56 UTC and 2026-08-09T11:17 UTC
+entries) introduces a fourth structural type: **pools with independent
+client-level chain selection**.
+
+Ocean's DATUM infrastructure allowed each connected client to choose their own
+block template independently, resulting in two simultaneous sub-pools
+(`bip110.ocean.xyz` and `ocean.xyz`) operating as genuine separate pools under
+the same umbrella. The Roughnecks sub-pool mined the last two minority-chain
+blocks; the Simple Mining sub-pool continued on the legacy chain without
+interruption.
+
+This behavior does not map onto any of the three modeled archetypes:
+- It is not "committed to v27" (Ocean also produced legacy blocks)
+- It is not "neutral profit-maximizer" (Roughnecks mined BIP-110 at a loss)
+- It is not "swing" (the decision was not made at the pool level)
+
+The real structural unit for a DATUM-style pool is the individual client
+operator, not the pool umbrella. Hashrate that appears as a single named pool
+in the model may in reality fragment along ideological lines within the pool's
+client base, producing a pattern where the same pool produces blocks on both
+forks simultaneously — something none of the three archetypes can represent.
+
+**Implication for the model:** the pool-level unit of analysis is too coarse
+for any large pool with permissionless or client-delegated template selection.
+The current model's committed/neutral/swing typology should include a note
+that it may undercount effective v27 committed hashrate (since some fraction of
+nominally neutral pools may have committed clients within them), and may
+overcount the discrete nature of pool switching decisions.
+
+### What the live event confirms and does not confirm
+
+| Question | Verdict | Evidence |
+|---|---|---|
+| Survival mechanism is real in model at 144-block retarget | Confirmed | sweep9 at t=8,106s |
+| Survival mechanism fails at 2016-block retarget with f≈0.025 | Confirmed | minority chain stalled 11h+ |
+| Position-within-period affects window width | Confirmed (analytically) | Fork at retarget boundary = worst case |
+| Two-phase hashrate collapse (speculative→residual) | Observed qualitatively | Roughnecks 13 Eh/s → 1.2 Eh/s |
+| Intra-pool divergence as a distinct actor class | Observed | Ocean Roughnecks vs Simple Mining |
+| Fog-of-war assumption understates real cascade speed | Plausible, untested | Speculative hashrate present; mechanism never fired to test it |
+
+The event did not test cases where the survival mechanism could plausibly
+fire (f≥0.15, mid-period timing, sustained committed hashrate). It is
+therefore strong negative evidence for the extreme-low-hashrate case but
+does not constrain the moderate-hashrate cases that the sweep model
+identifies as genuinely contested (pool_committed_split ∈ [0.20, 0.50],
+economic_split ∈ [0.28, 0.78]).
+
+### Cross-reference
+
+- `SWEEP_FINDINGS.md` §"Difficulty Adjustment Survival Window": mechanism and formula
+- `SWEEP_FINDINGS.md` §"Fog of War: Pool Information Uncertainty": assumed_fork_hashrate=50.0
+- `tools/dataCollection/survival_mechanism_complexity.md`: extended analysis document
+- `field_observations.md` 2026-08-09T11:49 UTC: hashrate bound derivation
+- `field_observations.md` 2026-08-09T10:56 UTC: Ocean/DATUM intra-pool divergence
+- `field_observations.md` 2026-08-09T13:20 UTC: Tone Vays Eh/s figures

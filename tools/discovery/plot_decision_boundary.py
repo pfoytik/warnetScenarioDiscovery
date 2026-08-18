@@ -91,6 +91,21 @@ COMBINED_SWEEPS_2016 = [
     'hashrate_2016_verification',
 ]
 
+# Same as COMBINED_SWEEPS_2016 but with lite-network sweeps dropped, so every
+# scenario comes from the full 60-node network (consistent with the paper's
+# "all regime-comparison and boundary-fitting analyses use the full network"
+# claim). Still deliberately oversamples the inversion/contentious zone via
+# the targeted sweeps, on top of the unbiased LHS base.
+COMBINED_SWEEPS_2016_FULL = [
+    'lhs_2016_full_6param',               # 692: primary full-net LHS
+    'lhs_2016_full_parameter',            # 64:  smaller full-net LHS
+    'econ_committed_2016_grid',           # 45:  econ x committed grid
+    'targeted_sweep7_esp_2016',
+    'targeted_sweep10_econ_threshold_2016',
+    'targeted_sweep10b_econ_threshold_2016',
+    'hashrate_2016_verification',
+]
+
 # PRIM uncertainty box — smallest bounding box enclosing all LHS scenarios where
 # outcome == 'contested' OR RF P(v27) ∈ [0.25, 0.75], capped at E=0.82 (economic
 # override). Derived from lhs_2016_full_6param (n=692). Note: standard PRIM
@@ -303,6 +318,26 @@ def annotate_ec_panel(ax, df):
 # Figure assembly
 # =============================================================================
 
+def make_single_panel_figure(df, rf, output_path: Path):
+    """E×C panel only, no title/legend — matches main.tex Fig. 1 framing
+    (the caption supplies the marker/line legend in text)."""
+    fig, ax_ec = plt.subplots(figsize=(8.5, 8.6))
+    fig.patch.set_facecolor('white')
+    plot_panel(ax_ec, rf, df, 'economic_split', 'pool_committed_split',
+               GRID_N_MAIN, show_colorbar=True, fig=fig)
+    annotate_ec_panel(ax_ec, df)
+    ax_ec.set_facecolor('white')
+    ax_ec.tick_params(colors='#333333')
+    ax_ec.xaxis.label.set_color('#333333')
+    ax_ec.yaxis.label.set_color('#333333')
+    ax_ec.spines[:].set_color('#cccccc')
+    fig.tight_layout()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(output_path, dpi=DPI, bbox_inches='tight')
+    plt.close(fig)
+    print(f"Saved: {output_path}")
+
+
 def make_figure(df, rf, output_path: Path, subtitle: str):
     fig = plt.figure(figsize=(14, 9))
     fig.patch.set_facecolor('white')
@@ -391,14 +426,19 @@ def main():
                         help=f'Path to sweep_results.db (default: {DB_PATH})')
     parser.add_argument('--output', type=Path, default=None,
                         help='Override output path (single mode only)')
-    parser.add_argument('--mode', choices=['lhs', 'combined', 'both'],
+    parser.add_argument('--single-panel', action='store_true',
+                        help='Render only the E×C panel, no title/legend '
+                             '(for paper figure use; caption supplies the legend)')
+    parser.add_argument('--mode', choices=['lhs', 'combined', 'combined-full', 'both'],
                         default='both',
                         help=(
                             'lhs: unbiased LHS only (lhs_2016_full_6param, n≈692) — '
                             'use for paper feature importance claims. '
-                            'combined: LHS + all targeted sweeps (n≈990) — '
+                            'combined: LHS + all targeted sweeps, full + lite network (n≈990) — '
                             'use for boundary refinement. '
-                            'both: generate both figures (default).'
+                            'combined-full: same as combined but full-network sweeps only '
+                            '(n≈838) — use for paper figures needing full-network-only consistency. '
+                            'both: generate lhs + combined figures (default).'
                         ))
     args = parser.parse_args()
 
@@ -419,6 +459,14 @@ def main():
             'All valid 2016-block sweeps — LHS + targeted'
             ' (sharper boundary estimate; inversion zone oversampled)',
         ))
+    if args.mode == 'combined-full':
+        out = args.output if args.output \
+              else OUTPUT_DIR / 'fig_decision_boundary_combined_full.png'
+        runs.append((
+            COMBINED_SWEEPS_2016_FULL, out,
+            'Full-network 2016-block sweeps only — LHS + targeted'
+            ' (sharper boundary estimate; inversion zone oversampled; no lite-network scenarios)',
+        ))
 
     for sweeps, output_path, subtitle in runs:
         print(f"\n{'='*60}")
@@ -426,7 +474,10 @@ def main():
         print('='*60)
         df = load_data(args.db, sweeps)
         rf = train_rf(df)
-        make_figure(df, rf, output_path, subtitle)
+        if args.single_panel:
+            make_single_panel_figure(df, rf, output_path)
+        else:
+            make_figure(df, rf, output_path, subtitle)
 
 
 if __name__ == '__main__':

@@ -144,49 +144,121 @@ blocks containing those transactions. This requires:
 fires purely on block-header fields (e.g., block version, nTime) rather than
 transaction content. Check Knots' other `consensusrules=` options.
 
-Do not proceed to Phase 2 until one of these alternatives is validated.
+Do not proceed to Phase 1b until one of these alternatives is validated.
+
+## Phase 1b — Validate fork trigger (NOT YET STARTED)
+
+Goal: confirm that a Knots-vs-Core consensus split actually occurs in the
+pilot network before committing to sweep infrastructure.
+
+1. Extend `scenarios/knots_mesh_pilot.py` to inject RDTS-violating
+   transactions after the deployment reaches `ACTIVE` (Option A):
+   - From Core node wallets, craft and broadcast transactions with OP_RETURN
+     outputs > 80 bytes (e.g., `OP_RETURN <81-byte payload>`).
+   - Have Core nodes mine blocks that include those transactions.
+   - Poll per-node tip hashes; confirm Knots tips diverge from Core tips.
+   - Confirm `bad-version-reduced_data` (or equivalent rejection error)
+     appears in Knots debug logs.
+2. Use the same `networks/knots-mesh-pilot/` network and `knots-pilot`
+   namespace — no new infrastructure needed for this step.
+
+Do not proceed to Phase 1c until tip divergence is observed.
+
+## Phase 1c — Verify split behavior (NOT YET STARTED)
+
+Goal: confirm the network behaves correctly *after* the fork fires — not
+just that it fires once.
+
+1. **Knots tip stability**: after rejecting a Core block, does the Knots camp
+   hold its own tip and continue mining its chain independently? Confirm the
+   Knots chain grows while the Core chain grows separately.
+2. **Core tip stability**: Core nodes accept all blocks (theirs and Knots'), so
+   they should follow the longest chain. Confirm Core nodes don't reorg onto
+   the Knots chain if the Knots chain is shorter.
+3. **Async propagation**: with round-robin mining, blocks arrive at all peers
+   asynchronously. Confirm that a Knots-rejected Core block does not cause
+   Knots nodes to stall, disconnect peers, or log unexpected errors beyond the
+   expected rejection message.
+4. **Chain length divergence**: mine enough blocks past `ACTIVE` that both
+   camps accumulate 20+ blocks on their respective chains. Confirm the split
+   is stable (not a transient reorg artifact).
+
+Do not proceed to Phase 2 until all four are observed cleanly.
 
 ## Phase 2 — LHS sweep
 
-New sweep directory: `tools/sweep/knots_mesh_fork/` (matches the
-`generate_sweep.py` + `spec.yaml` + `RUN_INSTRUCTIONS.md` convention used by
-the `chainsplit_persistence`/`contested_fork_threshold` sweeps).
+**All sweep infrastructure for this phase needs to be written from scratch.**
+Nothing in `tools/sweep/` currently supports Knots mesh experiments. The
+existing scripts (`3_run_sweep.py`, `2_build_configs.py`, etc.) drive
+`scenarios/partition_miner_with_pools.py` with a completely different result
+schema — they must not be modified. All new code goes in a self-contained
+directory: `tools/sweep/knots_mesh_fork/`.
 
-**Fixed (not swept), same for every sample:**
-- Topology: full mesh via `configurable_network_generator.py`'s existing
-  `full_economic_mesh`/`pool_peer_strategy: full_mesh` option — this is the
-  control condition the whole sweep is designed around, so it does not vary.
-- `vbparams`/`max_activation_height` calibrated per Phase 1, held constant
-  so every sample has a comparable-position signaling window.
-- `consensusrules=rdts` on all Knots nodes — single axis, all Knots nodes
-  always enforce, no separate consent-fraction axis.
-- Scenario script: the Phase-1 minimal mining script, no partition control.
+### Backwards compatibility requirement
 
-**Swept (LHS) axes:**
-1. `knots_fraction` — fraction of nodes running Knots vs Core v29 (0-1).
+The Knots mesh sweep infrastructure must be **strictly additive**. Prior sweep
+results must remain fully reproducible without any changes to existing code:
+
+- `scenarios/partition_miner_with_pools.py` — do not touch
+- `tools/sweep/1_generate_*.py`, `2_build_configs.py`, `3_run_sweep.py`,
+  `4_analyze_results.py`, `5_build_database.py` — do not touch
+- `networkGen/configurable_network_generator.py` — additive only (new
+  flags/options must be backward-compatible; existing defaults unchanged)
+- All existing network YAML templates — do not modify
+
+Any Knots node support added to the network generator must be opt-in (e.g.,
+a new `--knots-fraction` flag that defaults to 0, leaving existing behavior
+unchanged). Running the old pipeline on old network configs must produce
+identical results.
+
+### New sweep directory: `tools/sweep/knots_mesh_fork/`
+
+Follows the `spec.yaml` + `RUN_INSTRUCTIONS.md` convention used by
+`chainsplit_persistence`/`contested_fork_threshold`. Files to write:
+
+- `spec.yaml` — LHS parameter bounds
+- `1_generate_lhs.py` — generate LHS sample set
+- `2_build_configs.py` — build per-scenario network YAMLs with Knots/Core
+  node assignment
+- `3_run_sweep.py` — drive the new scenario script, collect results
+- `4_analyze_results.py` — parse tip-divergence metrics, produce outputs
+- `RUN_INSTRUCTIONS.md`
+
+### Fixed (not swept), same for every sample
+
+- Topology: full mesh (`addnode` list = all other nodes), no partition control.
+- `vbparams`/`max_activation_height` held constant (calibrated in Phase 1b).
+- `consensusrules=rdts` on all Knots nodes — all enforce, no consent-fraction axis.
+- Scenario script: extended `knots_mesh_pilot.py` with RDTS tx injection.
+
+### Swept (LHS) axes
+
+1. `knots_fraction` — fraction of nodes running Knots vs Core v29 (0–1).
 2. `knots_hashrate_share` — fraction of block-producing weight assigned to
-   Knots nodes, decoupled from `knots_fraction` the same way
-   `economic_split`/`hashrate_split` are already decoupled from
-   `composition_seed` in `tools/sweep/lhs_144_6param/2_build_configs.py` —
-   this matters because it's specifically *who mines during the window*,
-   not raw node count, that determines whether the rejection fires.
+   Knots nodes, decoupled from node count (mirrors the `economic_split` /
+   `hashrate_split` decoupling in existing sweeps).
 
-Both axes reuse the existing weighted cumulative-split node-assignment
-pattern in `2_build_configs.py:259-260,348-441`
-(`apply_scenario_to_base_network`), extended to assign
-`{repository, tag, config}` per node instead of just `tag` — same shape of
-change, new field.
+Node assignment follows the weighted cumulative-split pattern in existing
+`2_build_configs.py`, extended to set `{repository, tag, config}` per node.
 
-**Metrics** (new, following the `contested_fork_threshold` pattern of
-`reorg_depth`/`fork_balance`/`pain_score` computed from per-node tip
-tracking): track per-node best-block-hash/height over the run, detect (a)
-whether a Knots-vs-Core tip split occurs at all, (b) how long it persists
-before one side reorgs onto the other's chain or the network fully splits
-by run end. Reuse `decode_version.py` for signaling confirmation.
+### Result schema (new — does not conflict with existing schema)
 
-Sample count: default to a modest pilot-sized LHS (suggest ~50 samples) to
-start — extend later once Phase 1/early Phase 2 results show whether the
-parameter space needs finer sampling.
+Per-scenario output in `results/<scenario_id>/`:
+- `tip_series.json` — per-node `{height, hash, timestamp}` at each poll
+- `divergence_events.json` — list of `{block, knots_tips, core_tips}` records
+- `metadata.json` — scenario parameters
+- `summary.json` — `{fork_occurred, first_divergence_block, final_knots_height,
+  final_core_height, split_duration_blocks}`
+
+### Metrics
+
+Track per-node best-block-hash/height over the run:
+- (a) whether a Knots-vs-Core tip split occurs at all
+- (b) which block height it first appears
+- (c) how long it persists / whether it resolves before run end
+
+Sample count: ~50 samples to start; extend once Phase 1b/1c show the parameter
+space is well-behaved.
 
 ## Verification
 
@@ -200,16 +272,34 @@ parameter space needs finer sampling.
 
 ## Prerequisites checklist
 
+### Phase 1b gate (fork trigger validation)
 - [x] Build `bitcoin-knots:29.4-local` per `docs/building_knots_image.md` ✅
 - [x] `warnet` CLI + venv available ✅
 - [x] Docker + minikube working ✅
-- [ ] Validate fork trigger (Option A or B above) before Phase 2.
+- [x] vbparams syntax verified empirically ✅
+- [ ] RDTS tx injection implemented in `knots_mesh_pilot.py`
+- [ ] Live tip divergence observed between Knots and Core camps
+- [ ] `bad-version-reduced_data` (or equivalent) confirmed in Knots debug logs
+
+### Phase 1c gate (split behavior validation)
+- [ ] Knots camp holds stable tip after rejecting Core block
+- [ ] Core camp follows longest chain independently
+- [ ] No unexpected peer disconnects or stalls under async propagation
+- [ ] Both camps accumulate 20+ blocks on their own chains stably
+
+### Phase 2 gate (sweep infrastructure)
+- [ ] `tools/sweep/knots_mesh_fork/` directory and all scripts written
+- [ ] `2_build_configs.py` implements `knots_fraction` + `knots_hashrate_share` axes
+- [ ] Network generator changes are additive (old pipelines unaffected)
+- [ ] Result schema defined and `4_analyze_results.py` written
+- [ ] Backwards compatibility verified: existing sweep pipeline produces same
+      results on old network configs after any generator changes
 
 ## Open items
 
-- Which fork trigger to use for Phase 2: Option A (RDTS transaction injection)
-  or Option B (different Knots `consensusrules=` option). Option A is preferred
-  because it exercises the actual RDTS rule; Option B avoids transaction crafting
-  but may not test the same mechanism.
-- Whether existing base network template (`networks/knots-mesh-pilot/`) is
-  reused as-is or regenerated via `configurable_network_generator.py` for Phase 2.
+- Which fork trigger to use for Phase 1b: Option A (RDTS tx injection) is
+  preferred — exercises the actual RDTS rule; Option B (different
+  `consensusrules=` flag) is a fallback if Option A proves unreliable.
+- Whether `networks/knots-mesh-pilot/` is reused as-is for Phase 2 or
+  regenerated via `configurable_network_generator.py` (preferred if the
+  generator gets Knots support, for consistency with sweep tooling).

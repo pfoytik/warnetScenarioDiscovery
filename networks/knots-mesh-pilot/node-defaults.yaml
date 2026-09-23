@@ -1,0 +1,11 @@
+chain: regtest
+image:
+  repository: bitcoindevproject/bitcoin
+  pullPolicy: IfNotPresent
+defaultConfig: 'server=1
+
+  txindex=1
+
+  debug=rpc'
+collectLogs: false
+metricsExport: false

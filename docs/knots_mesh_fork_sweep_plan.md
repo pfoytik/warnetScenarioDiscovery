@@ -1,305 +1,350 @@
-# Knots-vs-Core Mesh Fork LHS Sweep — Design Doc
+# Knots-vs-Core Mesh Fork Test — Design Doc
 
-Status: **Phase 1 COMPLETE (2026-09-04). Phase 2 design revised — see
-Phase 1 findings below.** Depends on `docs/building_knots_image.md`
-(building the `bitcoin-knots:29.4-local` image) as a prerequisite.
+Status: **Phase 1b CONFIRMED LIVE (2026-09-23), full run complete.**
+Deployed to a real 60-node minikube cluster and observed the actual fork: a
+Core-mined block carrying the injected 81-byte-`OP_RETURN` tx was rejected
+live by all 30 Knots nodes (`bad-txns-vout-script-toolarge`, confirmed
+directly in `debug.log` against the exact injected txid), while all 30 Core
+nodes accepted it. The fork never healed for the rest of the 10-minute run:
+final tally **v27 (Knots) = 16 blocks, v26 (Core) = 11 blocks**, fork status
+`[SUSTAINED]` throughout, `fork_convergence.healed = false`. Full results
+(structured JSON + raw commander log) saved at
+`results/knots_mesh_pilot_20260923_001852/`. Three real infra bugs were
+found and fixed to get here (see "Deployment findings" below). Depends on
+`docs/building_knots_image.md` (building the `bitcoin-knots:29.4-local`
+image) as a prerequisite.
+
+## Deployment findings (2026-09-23) — three real bugs fixed to get a live run
+
+1. **`node-defaults.yaml` duplicate-config regression.** Copying
+   `realistic-economy-v2/node-defaults.yaml` verbatim reintroduced a bug
+   already documented from the original Phase 1 pilot: the warnet Helm
+   chart's own `baseConfig`/`configmap.yaml` already inject
+   `rpcuser`/`rpcallowip`/`rpcbind`/`rpcport`/`rpcpassword`/`fallbackfee`/
+   `zmqpubrawblock`/`zmqpubrawtx`/`regtest=1` — our `defaultConfig`
+   duplicated all of them. Core silently tolerates the duplicate `rpcbind`;
+   Knots hard-crashes on it (`Address in use (98)`), so all 30 Knots pods
+   went `Error` on first deploy. Fixed by trimming `defaultConfig` down to
+   only the fields the chart doesn't already provide (`server=1`,
+   `txindex=1`, `debug=rpc`).
+2. **`warnet run`'s archive bundler never included `scenarios/lib/*.py` or
+   `scenarios/config/*.yaml`.** Its `filter()` (in the installed warnet's
+   `src/warnet/control.py`, also duplicated in `scenDiscovery_control.py`)
+   only allowlists paths containing `__init__.py`/`commander.py`/
+   `test_framework`/`ln_framework`/the scenario's own filename — meaning
+   `partition_miner_with_pools.py`'s own `lib.price_oracle` etc. imports
+   could never have worked via `warnet run` either. Fixed by adding
+   `lib/` and `config/` (relative-path substrings, since `zipapp`'s filter
+   receives paths already relative to the source root — an initial fix
+   using `/lib/`/`/config/` with a leading slash silently matched nothing).
+   This is a fix to the installed `warnet` tool itself (editable install,
+   takes effect immediately), not to this repo.
+3. **`realistic-economy-v2`'s topology is two fully disconnected 30-node
+   islands**, not one connected mesh — verified by BFS over the `addnode`
+   graph (30 nodes reachable from `node-0000`, the other 30 completely
+   unreachable). The original sweep design relied entirely on
+   `propagate_to_foreign_accepting`'s `submitblock` bridging to cross
+   between them — with that gated off by default (this session's whole
+   point), the two camps could never reach each other at all, and
+   `sync_all()` during maturity-block mining failed outright (some nodes
+   never left height 0). Fixed by adding 5 genuine cross-camp `addnode`
+   edges directly in `networks/knots-mesh-pilot/network.yaml` (real P2P
+   bridges — `node-0000↔node-0030`, `node-0010↔node-0045`,
+   `node-0020↔node-0059`, `node-0029↔node-0031`, `node-0015↔node-0050`),
+   verified fully connected via the same BFS check before redeploying.
+
+**Fixed (2026-09-23, same day):** `load_network_metadata()` was falling
+back to the generic bundled 25-node `scenarios/config/network_metadata.yaml`
+rather than our real 60-node network — `--network-yaml` can't resolve a
+path inside the .pyz archive at runtime (`Path.exists()` checks the real
+filesystem, not the zip), so the only way to ship real network metadata
+into the commander pod is via the same `pkgutil`-bundled-data mechanism.
+Fixed by copying `networks/knots-mesh-pilot/network.yaml` to
+`scenarios/config/knots_mesh_pilot_network.yaml` and adding a new
+`--bundled-network-yaml` flag (default: that file) that
+`load_network_metadata()`'s fallback now reads instead of the hardcoded
+`network_metadata.yaml` name — old generic behavior stays available by
+passing `--bundled-network-yaml network_metadata.yaml`. Verified live: log
+now reads `✓ Loaded metadata for 60 nodes` (not 25), and pool distribution
+shows real per-node mapping (`foundryusa→node-0000`, `antpool→node-0030`,
+etc.) instead of the generic example's fictional data. **Remember to
+re-copy `scenarios/config/knots_mesh_pilot_network.yaml` if
+`networks/knots-mesh-pilot/network.yaml` is edited later — nothing keeps
+them in sync automatically.**
+
+Still open: commander pod's ServiceAccount lacks `pods/exec` RBAC
+permission, so `check_rdts_rejection()`'s own debug.log-grep confirmation
+step fails (403 Forbidden). The RPC-based `getchaintips` signal still fires
+correctly regardless, and the debug.log can be confirmed manually instead
+(`kubectl logs <node> -c bitcoincore`, which needs no special RBAC). A
+`Role`/`RoleBinding` granting the commander SA `pods/exec` would fix this
+for future unattended runs — see `docs/running_knots_mesh_scenarios.md`'s
+troubleshooting section.
+
+**Full runbook**: `docs/running_knots_mesh_scenarios.md` — covers both this
+real-fork mode and how to run the same script in its legacy
+manual-network-control mode for direct comparison (per user's stated future
+plan to compare the two methods), plus all of the above troubleshooting.
 
 ## Goal
 
-Test whether Knots (RDTS/BIP-110) and Core v29 nodes, running on an ordinary
-fully-connected mesh with **no artificial network partitioning**, will
-organically fork purely from consensus-rule divergence propagated through
-normal P2P block relay — as opposed to earlier sweeps (chainsplit
-persistence, contested fork threshold) which used a *scripted* runtime
-mechanism (`v26_acceptance_probability` in
-`scenarios/partition_miner_with_pools.py`) to probabilistically suppress
-cross-version block propagation, plus explicit `addnode`/
-`switch_node_partition` calls to manually reconnect/disconnect peers
-mid-run. That scripted layer is itself a form of artificial network
-control — this sweep removes it entirely and tests whether the fork happens
-anyway, from mesh topology + normal messaging alone.
+Test whether Knots (RDTS/BIP-110) and Core v30 nodes, connected on an
+ordinary network with **no artificial network partitioning**, will fork
+purely from consensus-rule divergence propagated through normal P2P block
+relay — as opposed to earlier sweeps (chainsplit persistence, contested
+fork threshold) which used a *scripted* runtime mechanism
+(`v26_acceptance_probability` in `scenarios/partition_miner_with_pools.py`)
+to probabilistically suppress cross-version block propagation, plus
+explicit `addnode`/`disconnectnode`/`submitblock` calls to manually
+reconnect/disconnect peers or bridge blocks mid-run.
 
-## Mechanism (verified against `bitcoinknots/bitcoin` source; Phase 1 live results below)
+**Scope correction (2026-09-22, superseding earlier drafts of this doc):**
+this is not a from-scratch minimal script on a full mesh. It reuses nearly
+all of `partition_miner_with_pools.py` (price/fee/pool/economic-node
+oracles, difficulty oracle, reorg oracle, time-series recording) and the
+same sparse/clustered topology prior sweeps used
+(`networks/realistic-economy-v2/network.yaml`, 60 nodes, avg `addnode`
+degree ~2.0) — for fidelity to prior methodology, not a full mesh. The only
+thing that changes is *how* the "partition" manifests: instead of a
+scripted probabilistic coin-flip and manual peer rewiring, it's now real
+Knots consensus code rejecting a real transaction. Every old mechanism
+(`propagate_v26_to_v27`, `switch_node_partition`, `reunite_forks`,
+`propagate_to_foreign_accepting`) is still present in
+`scenarios/knots_mesh_pilot.py`, **not deleted** — the two that were active
+by default are now gated behind new off-by-default flags
+(`--enable-manual-repartition`, `--enable-asymmetric-bridging`), so an
+old-style v27/v26 simulated-partition run is still fully reproducible from
+this same file.
 
-Confirmed by reading `versionbits.cpp`, `validation.cpp`,
-`deploymentinfo.cpp` in the Knots repo directly (not from documentation —
-read the actual consensus code):
+## Mechanism (verified against `bitcoinknots/bitcoin` source directly)
 
-- On regtest, the `reduced_data` (RDTS/BIP-110) deployment defaults to
-  `nStartTime = NEVER_ACTIVE` and must be made reachable via a
-  `vbparams=reduced_data:start:timeout:min_height:max_height:duration:threshold`
-  config override (`chainparams.cpp` regtest constructor takes
-  `opts.version_bits_parameters`).
-- `max_activation_height` forces `LOCKED_IN` one confirmation period (144
-  blocks on regtest) before that height, **regardless of miner signaling
-  threshold** (`versionbits.cpp:99-101`) — a real UASF-style forced
-  activation, not a 75%-threshold-dependent one.
-- In the one-period window immediately before `max_activation_height`, Knots
-  nodes log `warning='Miner violated version bit protocol'` (via `UpdateTip`)
-  for Core blocks that don't set bit 4. **This is an advisory warning only —
-  NOT a hard consensus rejection for pure coinbase mining.** The error
-  `bad-version-<deployment>` from `ContextualCheckBlockHeader` was not
-  observed to fire in live testing. Pure coinbase blocks are accepted even
-  within the signaling window.
-- Knots' `reduced_data` deployment has `gbt_force = true`
-  (`deploymentinfo.cpp`), so any Knots node automatically signals bit 4 on
-  blocks it mines once `STARTED` — zero scenario-script involvement needed.
-  Core v29 nodes have no knowledge of this deployment and never signal it.
-- The `bad-version-reduced_data` hard rejection **does** exist in the binary
-  but fires on RDTS-violating **transactions** (e.g., OP_RETURN outputs
-  exceeding 80 bytes) when the deployment is `ACTIVE`, not on coinbase blocks
-  that lack the version bit.
+Two independent RDTS enforcement paths exist in Knots — confirmed by
+reading `versionbits.cpp`, `validation.cpp`, `deploymentstatus.h`,
+`consensus/tx_verify.cpp` directly, not from documentation:
 
-**Net effect (revised after Phase 1 live testing):** the mandatory-signaling
-window alone is **NOT sufficient** to produce a fork with pure coinbase-only
-mining. Triggering hard block rejection requires injecting RDTS-violating
-transactions into Core-mined blocks once the deployment is `ACTIVE`. The
-"no crafted transactions needed" claim in the original design was wrong — it
-was based on a misreading of which code path fires for which violation type.
-See Phase 1 findings below for the full empirical record.
+1. **Mandatory pre-activation signaling window** (`DeploymentMustSignalAfter`,
+   `deploymentstatus.h:61`) — active only while BIP9 `state == STARTED`,
+   rejects any block lacking version-bit 4, content-independent. Requires a
+   multi-period wait through `DEFINED→STARTED→LOCKED_IN→ACTIVE` and is
+   sensitive to `nMinerConfirmationWindow` period-boundary quantization
+   (144 blocks on regtest, hardcoded, no CLI override exists).
+2. **Post-`ACTIVE` output-size limit** (`Consensus::CheckOutputSizes`,
+   `consensus/tx_verify.cpp:164`) — rejects any non-coinbase tx output over
+   34 bytes (regular) or 83 bytes (`OP_RETURN`) with
+   `bad-txns-vout-script-toolarge`.
 
-## Phase 1 — Pilot (COMPLETE — 2026-09-04)
+**Decision: only mechanism 2 is modeled, with RDTS `ACTIVE` from genesis.**
+Prior sweeps in this repo always assumed fork activation had already
+occurred at simulation start (their economic models don't cover
+pre-activation dynamics — futures markets, influencer effects). Matching
+that assumption: `nStartTime = Consensus::BIP9Deployment::ALWAYS_ACTIVE`
+(sentinel value `-1`) makes `GetStateFor` return `ThresholdState::ACTIVE`
+unconditionally and permanently from genesis (`versionbits.cpp:20-22`, the
+very first check in the function, unconditional on height). Since
+`DeploymentMustSignalAfter` requires `state == STARTED`, mechanism 1 never
+fires in this mode — it doesn't need to be modeled at all. This also
+eliminates the entire `min_height`/`max_height`/`active_duration`/
+`threshold`/period-quantization complexity that occupied earlier drafts of
+this doc.
 
-### What was built and tested
+**vbparams**: `vbparams=reduced_data:-1:9223372036854775807` (`-1` =
+`ALWAYS_ACTIVE`; `9223372036854775807` = `INT64_MAX`, the `NO_TIMEOUT`
+sentinel, kept only because the parser requires a minimum of 3 fields —
+`src/chainparams.cpp:78`). `consensusrules=rdts` is still set on Knots
+nodes but only affects a startup log message — confirmed zero effect on
+`GetStateFor`.
 
-- **Network**: `networks/knots-mesh-pilot/` — 9 nodes (5 Knots, 4 Core), full
-  mesh, namespace `knots-pilot` on minikube.
-  - Knots: `bitcoin-knots:29.4-local`, `consensusrules=rdts`,
-    `vbparams=reduced_data:0:9223372036854775807:0:300:144:100`
-  - Core: `bitcoindevproject/bitcoin:29.0`, unmodified.
-- **Scenario**: `scenarios/knots_mesh_pilot.py` — minimal round-robin mining,
-  no partition control, per-node tip polling every N blocks.
-- **Blocks mined**: ~400 (plus 101 maturity blocks), passing through full
-  BIP9 cycle: STARTED→LOCKED_IN(288)→ACTIVE(432).
+**The trigger**: from a Core (v26-labeled) node's wallet, broadcast a
+transaction with one `OP_RETURN <81-byte payload>` output (81 bytes because
+`MAX_OUTPUT_DATA_SIZE=83` includes the `OP_RETURN` opcode + `PUSHDATA1`
+prefix, so 81+ bytes of payload pushes the total over 83). Once mined into
+any block, Knots (v27) nodes reject that block outright
+(`bad-txns-vout-script-toolarge`); Core (v26) nodes accept it normally,
+since Core has no knowledge of this rule.
 
-### vbparams syntax (empirically verified)
+**Core version: 29.0 → 30.2.** Confirmed directly in `bitcoin/bitcoin`
+source at both tags: `v29.0`'s `MAX_OP_RETURN_RELAY` is a fixed 83-byte
+constant (`policy.h`); `v30.0`'s is
+`MAX_STANDARD_TX_WEIGHT/WITNESS_SCALE_FACTOR` = 100,000 bytes (Core's real
+"relax OP_RETURN limits" policy change). On `29.0`, the 81-byte injection
+payload would itself be non-standard by Core's own *policy* (separate from
+RDTS's *consensus* rule), requiring `-datacarriersize`/`-acceptnonstdtxn`
+overrides on the Core miner — conflating "policy we tuned" with "the thing
+under test." On `30.2`, it's standard by default: zero special config on
+the Core side, a stock node vs. a stock node disagreeing purely by default.
+`bitcoindevproject/bitcoin:30.2` is a prebuilt Docker Hub tag — confirmed to
+exist, no custom build needed.
 
-`vbparams=reduced_data:0:9223372036854775807:0:300:144:100`
+## Prior finding this doc previously got wrong (2026-09-04 pilot)
 
-- `timeout=9223372036854775807` (INT64_MAX) is the NO_TIMEOUT sentinel —
-  the **only** value accepted alongside `max_activation_height`. Any other
-  non-zero value triggers "Cannot specify both timeout (X) and
-  max_activation_height (Y)".
-- Field order: `deployment:start:timeout:min_height:max_height:period:threshold`
-- Knots subversion string: `/Satoshi:29.4.0/Knots:20260508/`
+An earlier 9-node full-mesh pilot mined ~400 blocks through a full BIP9
+cycle (`STARTED→LOCKED_IN(288)→ACTIVE(432)`, with the *old*
+non-`ALWAYS_ACTIVE` vbparams) and observed no fork — only an advisory
+`UpdateTip` warning, never a hard rejection. At the time this was
+attributed to "the mandatory-signaling window is advisory-only, not a hard
+rejection." Later same-session re-reading of `ContextualCheckBlockHeaderVolatile`
+(`validation.cpp:4672-4691`, called unconditionally from `AcceptBlockHeader`
+at `validation.cpp:2760`) showed mechanism 1 *is* a genuine hard
+`BLOCK_CONSENSUS` rejection in source — the live pilot's negative result was
+most likely a narrow-window sampling miss (BIP9 state only updates at
+period boundaries, so the *effective* enforcement window with that specific
+vbparams config was ~12 blocks, not the ~144 originally assumed), not proof
+mechanism 1 doesn't work. This is now moot — the design no longer uses
+mechanism 1 at all (see above), but it's recorded here since it explains
+several reversals earlier in this doc's history.
 
-### What was confirmed working
+## Reuse boundary: what's kept vs. gated off (not removed)
 
-- `bitcoin-knots:29.4-local` image builds and runs in Kubernetes (minikube) ✅
-- `consensusrules=rdts` parsed and logged at startup ✅
-- `vbparams` accepted; `getdeploymentinfo` shows correct state progression ✅
-- BIP9 state machine: STARTED→LOCKED_IN(forced at 288)→ACTIVE(432) ✅
-- Node classification (Knots/Core via subversion string) works ✅
-- Round-robin mining across 9 nodes works ✅
+Derived from `scenarios/partition_miner_with_pools.py` — every function,
+flag, and default is present in `scenarios/knots_mesh_pilot.py`. Checked
+each mechanism's *existing* default against "must an old-style run still be
+reproducible from this file":
 
-### Key finding: mandatory-signaling window does NOT produce hard block rejection
+| Mechanism | Existing default | Change needed |
+|---|---|---|
+| `propagate_v26_to_v27` (coin-flip, `--v26-acceptance-probability`) | `0.0` (inert) | None — already off |
+| `reunite_forks` (end-of-run trigger, `--enable-reunion`) | `False` (inert) | None — already off |
+| `reunite_forks` (UASF-expiry trigger, `--uasf-duration`) | `None`/never expires (inert) | None — already off |
+| `switch_node_partition` (called from `evaluate_economic_node_switches`) | unconditional, **not gated** | **New flag**: `--enable-manual-repartition` (default `False`) |
+| `propagate_to_foreign_accepting` (called from mining loop, both branches) | unconditional whenever `accepts_foreign_blocks` metadata is `True` for some nodes — confirmed **30/30 split** in `realistic-economy-v2`, i.e. genuinely active by default, not inert | **New flag**: `--enable-asymmetric-bridging` (default `False`) |
 
-**The fork never occurred.** All 9 nodes stayed in consensus through the full
-run (heights 0–490+, past ACTIVE at 432).
+Node classification: `partition_nodes_by_version()` (original, image-tag
+matching) is kept unchanged; a new `classify_nodes_by_subversion()` method
+is added alongside it (`getnetworkinfo()['subversion']` — Knots reports
+`/Satoshi:29.4.0/Knots:20260508/`, Core reports plain `/Satoshi:30.2.0/`).
+Selected via `--node-classification {tag,subversion}` (default
+`subversion`). Note: the original `tag`-based method would classify *zero*
+nodes for this network — neither "29.4.0" nor "30.2.0" contains "27." or
+"26." as a substring — so `subversion` is required for this use case.
 
-What was observed during the mandatory-signaling window and ACTIVE state:
-- Knots nodes log `warning='Miner violated version bit protocol'` (via
-  `UpdateTip`) for Core-mined blocks that don't set bit 4
-- This is an advisory `UpdateTip` message, **not a consensus rejection**
-- `bad-version-reduced_data` was never logged and never caused a rejected block
-- Core-mined coinbase-only blocks were accepted and propagated by Knots nodes
-  throughout the window and after ACTIVE
+Oracle libraries (`PriceOracle`, `FeeOracle`, `MiningPoolStrategy`,
+`EconomicNodeStrategy`, `ReorgOracle`) are **not edited** — they hardcode
+`'v27'`/`'v26'` as internal bookkeeping labels; those strings are kept as
+arbitrary internal identifiers (`'v27'` = Knots camp, `'v26'` = Core camp)
+rather than touching well-tested library code for a cosmetic rename.
 
-**Root cause:** `bad-version-reduced_data` fires on RDTS-violating
-**transactions** inside a block, not on blocks that merely lack the version
-bit. In regtest round-robin mining with no mempool transactions, all blocks
-are effectively coinbase-only — no RDTS payload rules are ever exercised.
-The mandatory-signaling warning path and the transaction-rejection path are
-separate code paths; the original design conflated them.
+## What's new in `scenarios/knots_mesh_pilot.py`
 
-### Infrastructure issues encountered and resolved
+- `classify_nodes_by_subversion()` — see above.
+- `ensure_common_history()` — mines 101 maturity blocks if the network
+  doesn't already have them (idempotent, checked via `getblockcount()`),
+  funding a v26 (Core) node's wallet so the injection tx has a spendable
+  input. `partition_miner_with_pools.py` itself never mines maturity blocks
+  (it assumes a prior timeline step did — see
+  `scenarios/example_timeline.yaml`'s `generate_common_history` action);
+  this scenario can't assume that step ran, so it checks and mines its own.
+- `inject_rdts_violation()` — builds and `sendrawtransaction`s the
+  81-byte-`OP_RETURN` tx from a v26 node, once, shortly after maturity (no
+  BIP9 wait needed — RDTS is `ALWAYS_ACTIVE`). Gated by `--rdts-injection`
+  (default `True` — this is the actual point of this script) /
+  `--no-rdts-injection`. Payload size via `--op-return-payload-size`
+  (default 81).
+- `check_rdts_rejection()` — polls `getchaintips()` on v27 (Knots) nodes for
+  `status: "invalid"`, then (once, on first detection) confirms via
+  pod-exec grep (`kubernetes.stream.stream`, reusing the exact pattern
+  `commander.py` already uses for its `bitcoin-util grind` call) of the
+  first rejecting node's `debug.log` for the literal string
+  `bad-txns-vout-script-toolarge`. Runs every `--rdts-check-interval`
+  seconds (default 30) plus once more at end of run. Results recorded in
+  `self.rdts_rejection` and exported in the JSON results under
+  `rdts_rejection`.
 
-- **Duplicate rpcbind**: Knots fails if `rpcbind=0.0.0.0` appears twice in
-  `bitcoin.conf` (helm base injects it; `defaultConfig` must not repeat it).
-  Bitcoin Core silently ignores duplicates; Knots throws "Address in use (98)".
-- **minikube image loading**: `warnet image build --action load` only loads
-  into host Docker. Must also run `minikube image load bitcoin-knots:29.4-local`.
-- **Pod lifecycle**: warnet uses standalone Pods (not Deployments). `helm
-  upgrade` updates ConfigMaps but does not restart running pods. Full cleanup
-  via `helm uninstall -n knots-pilot $(helm list -n knots-pilot -q)` +
-  `kubectl delete namespace knots-pilot` is the reliable approach.
-- **Commander.generatetoaddress()**: first argument is `node` (not `wallet`).
-  See `miner_std.py`: `self.generatetoaddress(miner.node, num, miner.addr, ...)`.
+None of this has been run yet — only `python3 -m py_compile` syntax-checked
+and cross-referenced against the file it derives from.
 
-### Revised fork trigger
+## Network config: `networks/knots-mesh-pilot/`
 
-The mandatory-signaling window is insufficient alone. To observe hard block
-rejection, the scenario must inject RDTS-violating transactions when ACTIVE:
+Rebuilt (2026-09-22) from `networks/realistic-economy-v2/network.yaml` (the
+confirmed base template for the `partition_miner_with_pools.py`-family
+sweeps this session traced — 60 nodes, avg `addnode` degree 2.03, per-node
+`metadata` schema matching what the pool/economic-node oracles read). The
+transform, applied via a one-off Python script (not committed, output
+verified programmatically — see checklist below):
 
-**Option A (recommended):** After reaching ACTIVE state, use Core nodes to
-broadcast transactions with OP_RETURN outputs > 80 bytes. Knots will reject
-blocks containing those transactions. This requires:
-1. Mine to ACTIVE state (height 432+ with current vbparams).
-2. From Core wallet, create and broadcast transactions with large OP_RETURN
-   outputs (e.g., `OP_RETURN <81-byte payload>`).
-3. Have Core nodes mine blocks including those transactions.
-4. Knots nodes reject those blocks → tip divergence.
+- `addnode` graph: **unchanged**.
+- `metadata` (including the 30/30 `accepts_foreign_blocks` split):
+  **unchanged**.
+- `bitcoin_config` (a dict key present in the source template —
+  `maxconnections`/`maxmempool`/`txindex` per node) is **not a real warnet
+  schema field** (confirmed: zero references anywhere in the `warnet`
+  source or its Helm charts). Converted to the real `config:` string field
+  instead, one `key=value` line per entry, so these per-node settings
+  actually take effect on deploy (previously would have been silently
+  ignored).
+- `image`: nodes tagged `27.0` in the source → `{repository: bitcoin-knots,
+  tag: 29.4-local}`, plus `config:` gets `consensusrules=rdts` and
+  `vbparams=reduced_data:-1:9223372036854775807` appended. Nodes tagged
+  `26.0` → `{tag: '30.2'}` (repository stays the `node-defaults.yaml`
+  default, `bitcoindevproject/bitcoin`).
+- Result: 30 Knots / 30 Core nodes (verified programmatically).
 
-**Option B:** Use a different fork mechanism entirely — e.g., a rule that
-fires purely on block-header fields (e.g., block version, nTime) rather than
-transaction content. Check Knots' other `consensusrules=` options.
+`networks/knots-mesh-pilot/node-defaults.yaml` is unchanged — confirmed
+byte-identical to `realistic-economy-v2/node-defaults.yaml`.
 
-Do not proceed to Phase 1b until one of these alternatives is validated.
+## Verification (not yet performed)
 
-## Phase 1b — Validate fork trigger (NOT YET STARTED)
-
-Goal: confirm that a Knots-vs-Core consensus split actually occurs in the
-pilot network before committing to sweep infrastructure.
-
-1. Extend `scenarios/knots_mesh_pilot.py` to inject RDTS-violating
-   transactions after the deployment reaches `ACTIVE` (Option A):
-   - From Core node wallets, craft and broadcast transactions with OP_RETURN
-     outputs > 80 bytes (e.g., `OP_RETURN <81-byte payload>`).
-   - Have Core nodes mine blocks that include those transactions.
-   - Poll per-node tip hashes; confirm Knots tips diverge from Core tips.
-   - Confirm `bad-version-reduced_data` (or equivalent rejection error)
-     appears in Knots debug logs.
-2. Use the same `networks/knots-mesh-pilot/` network and `knots-pilot`
-   namespace — no new infrastructure needed for this step.
-
-Do not proceed to Phase 1c until tip divergence is observed.
-
-## Phase 1c — Verify split behavior (NOT YET STARTED)
-
-Goal: confirm the network behaves correctly *after* the fork fires — not
-just that it fires once.
-
-1. **Knots tip stability**: after rejecting a Core block, does the Knots camp
-   hold its own tip and continue mining its chain independently? Confirm the
-   Knots chain grows while the Core chain grows separately.
-2. **Core tip stability**: Core nodes accept all blocks (theirs and Knots'), so
-   they should follow the longest chain. Confirm Core nodes don't reorg onto
-   the Knots chain if the Knots chain is shorter.
-3. **Async propagation**: with round-robin mining, blocks arrive at all peers
-   asynchronously. Confirm that a Knots-rejected Core block does not cause
-   Knots nodes to stall, disconnect peers, or log unexpected errors beyond the
-   expected rejection message.
-4. **Chain length divergence**: mine enough blocks past `ACTIVE` that both
-   camps accumulate 20+ blocks on their respective chains. Confirm the split
-   is stable (not a transient reorg artifact).
-
-Do not proceed to Phase 2 until all four are observed cleanly.
-
-## Phase 2 — LHS sweep
-
-**All sweep infrastructure for this phase needs to be written from scratch.**
-Nothing in `tools/sweep/` currently supports Knots mesh experiments. The
-existing scripts (`3_run_sweep.py`, `2_build_configs.py`, etc.) drive
-`scenarios/partition_miner_with_pools.py` with a completely different result
-schema — they must not be modified. All new code goes in a self-contained
-directory: `tools/sweep/knots_mesh_fork/`.
-
-### Backwards compatibility requirement
-
-The Knots mesh sweep infrastructure must be **strictly additive**. Prior sweep
-results must remain fully reproducible without any changes to existing code:
-
-- `scenarios/partition_miner_with_pools.py` — do not touch
-- `tools/sweep/1_generate_*.py`, `2_build_configs.py`, `3_run_sweep.py`,
-  `4_analyze_results.py`, `5_build_database.py` — do not touch
-- `networkGen/configurable_network_generator.py` — additive only (new
-  flags/options must be backward-compatible; existing defaults unchanged)
-- All existing network YAML templates — do not modify
-
-Any Knots node support added to the network generator must be opt-in (e.g.,
-a new `--knots-fraction` flag that defaults to 0, leaving existing behavior
-unchanged). Running the old pipeline on old network configs must produce
-identical results.
-
-### New sweep directory: `tools/sweep/knots_mesh_fork/`
-
-Follows the `spec.yaml` + `RUN_INSTRUCTIONS.md` convention used by
-`chainsplit_persistence`/`contested_fork_threshold`. Files to write:
-
-- `spec.yaml` — LHS parameter bounds
-- `1_generate_lhs.py` — generate LHS sample set
-- `2_build_configs.py` — build per-scenario network YAMLs with Knots/Core
-  node assignment
-- `3_run_sweep.py` — drive the new scenario script, collect results
-- `4_analyze_results.py` — parse tip-divergence metrics, produce outputs
-- `RUN_INSTRUCTIONS.md`
-
-### Fixed (not swept), same for every sample
-
-- Topology: full mesh (`addnode` list = all other nodes), no partition control.
-- `vbparams`/`max_activation_height` held constant (calibrated in Phase 1b).
-- `consensusrules=rdts` on all Knots nodes — all enforce, no consent-fraction axis.
-- Scenario script: extended `knots_mesh_pilot.py` with RDTS tx injection.
-
-### Swept (LHS) axes
-
-1. `knots_fraction` — fraction of nodes running Knots vs Core v29 (0–1).
-2. `knots_hashrate_share` — fraction of block-producing weight assigned to
-   Knots nodes, decoupled from node count (mirrors the `economic_split` /
-   `hashrate_split` decoupling in existing sweeps).
-
-Node assignment follows the weighted cumulative-split pattern in existing
-`2_build_configs.py`, extended to set `{repository, tag, config}` per node.
-
-### Result schema (new — does not conflict with existing schema)
-
-Per-scenario output in `results/<scenario_id>/`:
-- `tip_series.json` — per-node `{height, hash, timestamp}` at each poll
-- `divergence_events.json` — list of `{block, knots_tips, core_tips}` records
-- `metadata.json` — scenario parameters
-- `summary.json` — `{fork_occurred, first_divergence_block, final_knots_height,
-  final_core_height, split_duration_blocks}`
-
-### Metrics
-
-Track per-node best-block-hash/height over the run:
-- (a) whether a Knots-vs-Core tip split occurs at all
-- (b) which block height it first appears
-- (c) how long it persists / whether it resolves before run end
-
-Sample count: ~50 samples to start; extend once Phase 1b/1c show the parameter
-space is well-behaved.
-
-## Verification
-
-- Phase 1: manual run, confirmed by log inspection
-  (`bad-version-reduced_data` rejections) and per-node tip divergence — no
-  automated pass/fail needed, this is a feasibility check.
-- Phase 2: `3_run_sweep.py`-style runner per existing convention; results
-  analyzed via the new tip-divergence metrics script; sanity-check a handful
-  of individual scenario logs against the aggregate metrics before trusting
-  the full sweep output.
+- Deploy `networks/knots-mesh-pilot/` to a fresh namespace, run
+  `scenarios/knots_mesh_pilot.py` with a modest `--duration` first.
+- Confirm: node classification via subversion works (30/30 split observed
+  live, not just in the config), maturity/injection succeed, and — the
+  actual pass condition — `bad-txns-vout-script-toolarge` shows up in a
+  Knots node's `debug.log` with a corresponding `getchaintips()` /
+  `getbestblockhash()` split.
+- Sanity-check that gating `switch_node_partition` (via
+  `--enable-manual-repartition`, default off) and
+  `propagate_to_foreign_accepting` (via `--enable-asymmetric-bridging`,
+  default off) didn't silently break the rest of
+  `evaluate_economic_node_switches`'s decision logic or the mining loop —
+  both should still run and log normally, just without the gated actions.
+- Confirm an old-style run (`--node-classification=tag`,
+  `--enable-manual-repartition`, `--v26-acceptance-probability=<nonzero>`,
+  pointed at an old v27/v26-tagged network) still behaves as before — this
+  is the actual backward-compatibility claim, unverified until tested.
 
 ## Prerequisites checklist
 
 ### Phase 1b gate (fork trigger validation)
-- [x] Build `bitcoin-knots:29.4-local` per `docs/building_knots_image.md` ✅
-- [x] `warnet` CLI + venv available ✅
-- [x] Docker + minikube working ✅
-- [x] vbparams syntax verified empirically ✅
-- [ ] RDTS tx injection implemented in `knots_mesh_pilot.py`
-- [ ] Live tip divergence observed between Knots and Core camps
-- [ ] `bad-version-reduced_data` (or equivalent) confirmed in Knots debug logs
+- [x] Build `bitcoin-knots:29.4-local` per `docs/building_knots_image.md`
+- [x] `warnet` CLI + venv available
+- [x] Docker + minikube working
+- [x] Exact RDTS output-size rule confirmed in source
+      (`Consensus::CheckOutputSizes`, `bad-txns-vout-script-toolarge`)
+- [x] `ALWAYS_ACTIVE` mechanism confirmed in source (`versionbits.cpp:20-22`)
+- [x] Core on `30.2` in `networks/knots-mesh-pilot/network.yaml`
+- [x] `scenarios/knots_mesh_pilot.py` written (derived from
+      `partition_miner_with_pools.py`, all mechanisms preserved/gated)
+- [x] `networks/knots-mesh-pilot/network.yaml` rebuilt from
+      `realistic-economy-v2` (60 nodes, 30/30 Knots/Core, topology + metadata
+      preserved, `bitcoin_config`→`config` converted, `vbparams`/
+      `consensusrules` added to Knots nodes)
+- [x] Actually deployed and run — 60-node minikube cluster, 2026-09-23
+- [x] Live tip divergence observed between Knots and Core camps — all 30
+      Knots nodes showed `getchaintips` status `invalid` at t=46s
+- [x] `bad-txns-vout-script-toolarge` confirmed in Knots debug logs (live) —
+      exact injected txid `8b55d63c7fcfc78478957f4038ca5160138fff39cb1ad6ddcc03b42f08039954`
+      named in the error
 
-### Phase 1c gate (split behavior validation)
-- [ ] Knots camp holds stable tip after rejecting Core block
-- [ ] Core camp follows longest chain independently
-- [ ] No unexpected peer disconnects or stalls under async propagation
-- [ ] Both camps accumulate 20+ blocks on their own chains stably
+### Phase 1c gate (split behavior validation) — partially observed live
+- [x] Knots camp holds stable tip and continues mining after rejecting a
+      Core block (v27: 3→6 blocks over the following ~4 minutes)
+- [x] Core camp continues mining independently (v26: 3→5 blocks)
+- [x] No peer disconnects/crashes from the rejection itself (occasional
+      unrelated "Error mining: timed out" transient RPC hiccups under
+      cluster load, scenario recovered on its own both times)
+- [ ] Longer/quieter run (not sharing the box with repeated `kubectl exec`
+      debugging) to confirm stability over 20+ blocks per camp without the
+      transient timeouts observed this run
 
-### Phase 2 gate (sweep infrastructure)
-- [ ] `tools/sweep/knots_mesh_fork/` directory and all scripts written
-- [ ] `2_build_configs.py` implements `knots_fraction` + `knots_hashrate_share` axes
-- [ ] Network generator changes are additive (old pipelines unaffected)
-- [ ] Result schema defined and `4_analyze_results.py` written
-- [ ] Backwards compatibility verified: existing sweep pipeline produces same
-      results on old network configs after any generator changes
+### Phase 2 — not started
+No LHS sweep infrastructure exists yet. Given how much this session's
+reuse-vs-rewrite decision changed the shape of Phase 1b, Phase 2's design
+(sweep axes, `tools/sweep/knots_mesh_fork/` scaffolding) should be
+revisited fresh once Phase 1b/1c are confirmed working live, rather than
+planned further in the abstract now.
 
 ## Open items
 
-- Which fork trigger to use for Phase 1b: Option A (RDTS tx injection) is
-  preferred — exercises the actual RDTS rule; Option B (different
-  `consensusrules=` flag) is a fallback if Option A proves unreliable.
-- Whether `networks/knots-mesh-pilot/` is reused as-is for Phase 2 or
-  regenerated via `configurable_network_generator.py` (preferred if the
-  generator gets Knots support, for consistency with sweep tooling).
+- Phase 1b has never been run. Everything above is implementation +
+  source-verification, not empirical confirmation.
+- Whether `--node-classification=tag` / old-flag reproducibility actually
+  works end-to-end is asserted by code inspection, not tested.

@@ -124,6 +124,54 @@ its blocks are mined by other nodes in that camp (it has no node there).
 Paired per-pool nodes would fix attribution — a network redesign, deferred
 to Phase 2.
 
+## In-place node switching: design + Step 1 verification (2026-09-26)
+
+**Problem:** under the real-fork method a "switch" (pool, economic, or user
+node) was accounting only. Each node's validation was fixed by its image at
+deploy time. Pools have one node each (never paired, in either network), so
+a switched pool's hashrate was mined by *another* pool's container.
+Economic/user switches changed oracle weights only. Node-runner choice
+therefore never changed what gets relayed, which is the interaction this
+research is about.
+
+**Design (chosen over twin Knots+Core nodes per entity, which would double
+the network and still need peer rewiring to matter):** every node runs the
+Knots binary. RDTS enforcement is set by `vbparams=reduced_data:-1:<max>` in
+a writable `switch.conf` in the datadir, pulled in by `includeconf`. A switch
+is: rewrite `switch.conf` → RPC `stop` → restart policy relaunches bitcoind
+in the same pod (same peers, same chain) → reconcile the chain with
+`invalidateblock` (entering RDTS) or `reconsiderblock` (leaving RDTS), just
+as a real operator changing software on an existing datadir would.
+
+**Step 1 results** (3 Knots regtest containers in Docker, mirroring warnet's
+read-only `bitcoin.conf`, writable datadir, restart-always; scripts in
+`tools/knots_switch_test/`):
+- Knots with no `vbparams` has **no RDTS deployment at all**
+  (`getdeploymentinfo` omits it) and accepts the violating block, so it is
+  consensus-compatible with Core. The RDTS node rejects it
+  (`bad-txns-vout-script-toolarge`).
+- Core→RDTS switch: 4s restart, peers and chain kept. Old blocks are not
+  re-validated, so the node stays on the Core branch until
+  `invalidateblock <violating block>`, then moves to the RDTS chain and
+  stays there although the Core chain is heavier. It then rejected a *fresh*
+  violating block built on the valid chain by its own consensus check
+  (its own log lines).
+- RDTS→Core switch: `invalid` flags persist across restart, so
+  `reconsiderblock` is needed on every invalid tip. After that the node
+  re-joined the Core chain and followed new Core blocks.
+- `includeconf` works from inside `[regtest]` (how warnet renders config).
+  **A missing include file aborts startup**, so `switch.conf` must be seeded
+  before first boot (see `docs/warnet_changes_required.md` W3).
+- **Policy gap:** Knots hard-caps `datacarriersize` at 83 (`[warning]
+  Limiting datacarriersize to 83`), so a Core-mode Knots node rejects the
+  81-byte-payload tx from its mempool (`scriptpubkey`) whatever the settings.
+  Consensus matches Core; relay policy does not. The violating tx must be
+  mined via `generateblock` or the image patched. Decision pending.
+
+Warnet-side requirements are tracked separately in
+`docs/warnet_changes_required.md` (W2 pods/exec RBAC, W3 init-container
+hook).
+
 ## Goal
 
 Test whether Knots (RDTS/BIP-110) and Core v30 nodes, connected on an

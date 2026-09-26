@@ -55,6 +55,7 @@ class DockerNode:
 class Fake:
     def __init__(self, allocation):
         self.current_allocation = allocation
+        self.pools = {k: None for k in allocation}
 
 
 def make_scenario(nodes):

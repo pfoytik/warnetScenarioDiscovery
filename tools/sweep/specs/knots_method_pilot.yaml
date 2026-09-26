@@ -1,0 +1,94 @@
+name: knots_method_pilot
+description: |
+  Knots Method Pilot: legacy scripted partition vs real RDTS soft fork
+
+  PURPOSE: Before any large real-fork sweep, check whether the legacy
+  asymmetric-softfork method (partition_miner_with_pools.py: scripted
+  island partition, probabilistic block acceptance, accounting-only
+  switching) produces results similar to the properly modeled soft fork
+  (knots_mesh_pilot.py: real Knots nodes rejecting real RDTS-violating
+  blocks over ordinary P2P relay, optionally with nodes switching software
+  in place). Every scenario in this spec is run once per method from the
+  same build manifest, so the only difference between runs of a scenario is
+  the fork mechanism.
+
+  METHODS (3_run_sweep.py --method; one runner per method, separate results dirs):
+    1. legacy                                 prior studies' method
+    2. realfork --oracle-chain-source mined   real fork, oracles fed the same
+                                              mined-block counts as legacy
+    3. realfork                               real fork, oracles read observed
+                                              chain state (surviving blocks)
+    4. inplace                                3 + pools and economic/user nodes
+                                              change what their node enforces
+  Each step changes one thing. Agreement between 1 and 2 validates the legacy
+  method as a model of the fork itself; 2 -> 3 isolates the oracle input
+  change; 3 -> 4 isolates real node-runner/pool software switching.
+
+  DESIGN:
+  - 3 violation_rate values x 2 seeds = 6 scenarios, x 4 methods = 24 runs
+  - Network: full (realistic-economy-v2, 60 nodes)
+  - Fixed parameters: chainsplit_persistence's (E=0.55, hashrate_split=0.25,
+    ideology 0.51, max_loss 0.26, neutral 30%), at its maximum-pain
+    commitment point C=0.30 (Foundry committed to v27; the most contested
+    regime, where a mechanism difference should show first)
+  - fork_links=5 (the knots-mesh-pilot count; real-fork methods only; legacy
+    keeps its two-island topology)
+  - Run settings: configs/knots_method_pilot_run.yaml (13000s, 10s interval,
+    2016-block retarget; the full-network baseline)
+
+  KEY VIOLATION RATES (= 1 - v26_acceptance_probability; legacy gets p):
+  - 0.20: chainsplit_persistence's startup-failure regime at C=0.30
+  - 0.50: moderate
+  - 1.00: strict (every Core block violates), the prior baseline
+
+  fork_heal_exit is OFF for all methods. Under the real fork a heal can be
+  transient: Core reorgs onto the Knots chain, then its next block re-includes
+  the pending violating txs and the split re-forms. Exiting at the first heal
+  would cut real-fork runs short. Heal time is still recorded
+  (fork_convergence), and real-fork runs also record chain_state and outcomes.
+
+  WHAT TO COMPARE (per scenario, across methods):
+  - winner (legacy fork_convergence / outcomes.winner), heal time, reorg count
+    and depth, blocks orphaned per camp
+  - hashrate and economic-weight trajectories; price gap
+  - time of the first pool switch (cascade timing)
+  - real-fork only: outcomes per node, inplace_switching events and downtime
+
+  EXPECTED DIFFERENCES THAT ARE FINDINGS, NOT FAILURES: propagation delay;
+  real wipe-out cycles (legacy counts mined blocks, observed oracles count
+  surviving ones); restart downtime and re-sync lag under inplace; bridged
+  topology (5 fork links) vs legacy's scripted bridging.
+
+  NEXT STEP IF THE METHODS AGREE: sweep violation_rate (the threshold
+  question) and fork_links under realfork/inplace.
+
+type: grid
+network: full
+n_scenarios: 6
+
+grid:
+  violation_rate: [0.20, 0.50, 1.00]
+  random_seed:    [101, 102]
+
+fixed:
+  # chainsplit_persistence fixed values, C at its maximum-pain point
+  economic_split: 0.55
+  hashrate_split: 0.25
+  pool_committed_split: 0.30
+  pool_neutral_pct: 30.0
+  pool_profitability_threshold: 0.16
+  pool_ideology_strength: 0.51
+  pool_max_loss_pct: 0.26
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.10
+  econ_inertia: 0.05
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  transaction_velocity: 0.5
+  solo_miner_hashrate: 0.085
+  # real-fork topology (ignored by legacy)
+  fork_links: 5
+  link_seed: 0
+  fork_heal_exit: false

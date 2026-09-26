@@ -96,9 +96,9 @@ def config_lines(node: dict) -> list:
     return [l for l in lines if not l.strip().startswith(('vbparams=', 'consensusrules=', 'includeconf='))]
 
 
-def convert_node(node: dict, style: str) -> dict:
+def convert_node(node: dict, style: str, camp: str = None) -> dict:
     node = copy.deepcopy(node)
-    camp = starting_camp(node)
+    camp = camp or starting_camp(node)
     lines = config_lines(node)
     if style == 'inplace':
         node['image'] = dict(KNOTS_IMAGE)
@@ -230,10 +230,30 @@ def set_fork_links(nodes: list, target, seed: int = 0) -> dict:
     return report
 
 
-def convert_network(net: dict, style: str, fork_links=5, link_seed: int = 0):
+def _pool_camp(node: dict, pool_camps: dict):
+    """Starting fork for a pool node from the pool config (keys with or
+    without the 'pool-' prefix), or None."""
+    entity = (node.get('metadata') or {}).get('entity_id', '')
+    if not pool_camps or not entity:
+        return None
+    return pool_camps.get(entity) or pool_camps.get(entity.replace('pool-', '', 1))
+
+
+def convert_network(net: dict, style: str, fork_links=5, link_seed: int = 0, pool_camps: dict = None):
+    """pool_camps (pool_id -> 'v27'/'v26', the pool config's initial_fork)
+    overrides the image tag for pool nodes, so each pool's node starts on the
+    fork the pool strategy starts it on."""
     net = copy.deepcopy(net)
-    net['nodes'] = [convert_node(n, style) for n in net['nodes']]
+    realigned = []
+    nodes = []
+    for n in net['nodes']:
+        camp = _pool_camp(n, pool_camps)
+        if camp and camp != starting_camp(n):
+            realigned.append((n['name'], starting_camp(n), camp))
+        nodes.append(convert_node(n, style, camp))
+    net['nodes'] = nodes
     report = set_fork_links(net['nodes'], fork_links, link_seed)
+    report['pool_nodes_realigned'] = realigned
     return net, report
 
 
@@ -245,7 +265,7 @@ def convert_defaults(defaults: dict, style: str) -> dict:
 
 
 def convert_dir(src: Path, dst: Path, style: str = 'inplace', fork_links=5,
-                bundled: Path = None, link_seed: int = 0) -> dict:
+                bundled: Path = None, link_seed: int = 0, pool_camps: dict = None) -> dict:
     """Convert src/network.yaml (+ node-defaults.yaml) into dst/. Returns a
     small report dict."""
     net = yaml.safe_load((src / 'network.yaml').read_text())
@@ -254,7 +274,7 @@ def convert_dir(src: Path, dst: Path, style: str = 'inplace', fork_links=5,
         defaults_path = ROOT / 'networks' / 'node-defaults.yaml'
     defaults = yaml.safe_load(defaults_path.read_text()) if defaults_path.exists() else {}
 
-    out, links = convert_network(net, style, fork_links, link_seed)
+    out, links = convert_network(net, style, fork_links, link_seed, pool_camps)
     dst.mkdir(parents=True, exist_ok=True)
     try:
         src_label = src.resolve().relative_to(ROOT)
@@ -277,6 +297,8 @@ def describe(report: dict) -> str:
             + f", islands {r['islands_before']} -> {r['islands_after']}")
     if r['fork_links_target'] is not None and r['fork_links'] != r['fork_links_target']:
         text += "  WARNING: target not reachable (removing more would cut nodes off from their own fork)"
+    if r.get('pool_nodes_realigned'):
+        text += f", pool nodes realigned to pool config: {r['pool_nodes_realigned']}"
     if r['islands_after'] > 1:
         text += ("  NOTE: forks cannot exchange blocks (no links between them)" if r['fork_links'] == 0
                  else "  WARNING: network still has disconnected islands")

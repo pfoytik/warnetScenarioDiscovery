@@ -264,7 +264,8 @@ def inject_sweep_config(
         return False
 
 
-def inject_network_metadata(network_path: Path, scenarios_dir: Path) -> bool:
+def inject_network_metadata(network_path: Path, scenarios_dir: Path,
+                            filename: str = "network_metadata.yaml") -> bool:
     """
     Copy the sweep-specific network YAML to the bundled network_metadata.yaml.
 
@@ -274,7 +275,7 @@ def inject_network_metadata(network_path: Path, scenarios_dir: Path) -> bool:
     set from economic_split) rather than the static default.
     """
     try:
-        dest = scenarios_dir / "config" / "network_metadata.yaml"
+        dest = scenarios_dir / "config" / filename
         shutil.copy2(str(network_path), str(dest))
         return True
     except Exception as e:
@@ -601,8 +602,20 @@ def run_scenario(
     if method != "legacy":
         style = "inplace" if method == "inplace" else "mixed"
         converted_dir = network_path.parent.parent / f"{network_path.parent.name}__{method}"
+        # Pool nodes start on the fork the pool config starts their pool on
+        # (from a base network, 2_build_configs.py takes a pool's initial_fork
+        # from the base network's tags while re-tagging the generated network
+        # by hashrate_split; the simulation follows the pool config).
+        pool_camps = {}
+        try:
+            with open(pools_config) as f:
+                entry = (yaml.safe_load(f) or {}).get(scenario_id, {})
+            pool_camps = {p['pool_id']: p['initial_fork'] for p in entry.get('pools', [])
+                          if p.get('initial_fork') in ('v27', 'v26')}
+        except Exception as e:
+            print(f"  Warning: could not read pool initial forks from {pools_config}: {e}")
         report = convert_dir(network_path.parent, converted_dir, style=style,
-                             fork_links=fork_links, link_seed=link_seed)
+                             fork_links=fork_links, link_seed=link_seed, pool_camps=pool_camps)
         print(f"  Converted network ({style}): {describe(report)}")
         # The achieved link count can differ from the target; keep it with the results.
         with open(scenario_results_dir / "network_conversion.json", "w") as f:
@@ -611,9 +624,15 @@ def run_scenario(
 
     # Step 0c: Inject per-scenario network metadata so economic_split image tags
     # are bundled into the pod (overrides the static network_metadata.yaml default)
-    print(f"  Injecting network metadata...")
+    # Legacy reads the fixed network_metadata.yaml, so concurrent legacy runners
+    # sharing a checkout can overwrite each other's copy between injection and
+    # `warnet run`. knots_mesh_pilot.py takes --bundled-network-yaml, so the
+    # real-fork methods get a file per scenario and method, safe in parallel.
+    metadata_file = ("network_metadata.yaml" if method == "legacy"
+                     else f"network_metadata__{scenario_id}__{method}.yaml")
+    print(f"  Injecting network metadata ({metadata_file})...")
     if not dry_run:
-        if not inject_network_metadata(network_path, scenarios_dir):
+        if not inject_network_metadata(network_path, scenarios_dir, metadata_file):
             print(f"  Warning: Could not inject network metadata, economic_split may be wrong")
 
     # Step 1: Stop any running network
@@ -673,7 +692,7 @@ def run_scenario(
             cmd.append(f"--v26-acceptance-probability={v26_acceptance_probability}")
     else:
         # The injected network_metadata.yaml is the converted network.
-        cmd.append("--bundled-network-yaml=network_metadata.yaml")
+        cmd.append(f"--bundled-network-yaml={metadata_file}")
         cmd.append(f"--violation-rate={violation_rate}")
         if method == "inplace":
             cmd.append("--inplace-switching")

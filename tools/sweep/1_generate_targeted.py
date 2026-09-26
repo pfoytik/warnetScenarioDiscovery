@@ -69,6 +69,15 @@ REQUIRED_PARAMETERS = {
 }
 
 
+def _specified(spec: Dict) -> set:
+    """Parameters a spec sets. violation_rate stands in for
+    v26_acceptance_probability (= 1 - violation_rate), which is derived."""
+    keys = set(spec.get("fixed", {}).keys()) | set(spec.get("grid", {}).keys())
+    if "violation_rate" in keys:
+        keys.add("v26_acceptance_probability")
+    return keys
+
+
 def load_spec(spec_path: Path) -> Dict:
     with open(spec_path) as f:
         return yaml.safe_load(f)
@@ -88,7 +97,11 @@ def validate_spec(spec: Dict) -> List[str]:
 
     # Check all required parameters are covered
     covered = set(fixed.keys()) | set(grid.keys())
-    missing = set(REQUIRED_PARAMETERS.keys()) - covered
+    if "violation_rate" in covered and "v26_acceptance_probability" in covered:
+        warnings.append("Both violation_rate and v26_acceptance_probability set — "
+                        "3_run_sweep.py uses v26_acceptance_probability for legacy and "
+                        "violation_rate for real-fork methods; keep them consistent")
+    missing = set(REQUIRED_PARAMETERS.keys()) - _specified(spec)
     if missing:
         warnings.append(f"Required parameters not specified: {missing}")
 
@@ -143,6 +156,9 @@ def generate_scenarios(spec: Dict) -> List[Dict]:
         # Then grid values (override if key collision — already warned in validate)
         for k, v in zip(grid_keys, combo):
             scenario[k] = v
+        # A spec may give violation_rate instead of v26_acceptance_probability.
+        if "violation_rate" in scenario and "v26_acceptance_probability" not in scenario:
+            scenario["v26_acceptance_probability"] = round(1.0 - float(scenario["violation_rate"]), 6)
         scenarios.append(scenario)
 
     return scenarios
@@ -222,8 +238,7 @@ def main():
         for w in warnings:
             print(f"  ! {w}")
         # Only fatal if required params are missing
-        fixed_and_grid = set(spec.get("fixed", {}).keys()) | set(spec.get("grid", {}).keys())
-        missing = set(REQUIRED_PARAMETERS.keys()) - fixed_and_grid
+        missing = set(REQUIRED_PARAMETERS.keys()) - _specified(spec)
         if missing:
             print(f"\nError: Missing required parameters: {missing}")
             sys.exit(1)

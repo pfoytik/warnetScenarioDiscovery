@@ -1,0 +1,27 @@
+# Run config for specs/knots_method_pilot.yaml
+# Pass to 3_run_sweep.py via: --scenario-config tools/sweep/configs/knots_method_pilot_run.yaml
+# The fork mechanism (--method) and --oracle-chain-source are given per runner
+# on the command line; see tools/sweep/knots_method_pilot/RUN_INSTRUCTIONS.md.
+
+# ── Simulation (full-network 2016-block baseline) ────────────────────────────
+duration: 13000
+interval: 10
+retarget_interval: 2016
+
+# ── Decision timings (baseline) ───────────────────────────────────────────────
+pool_decision_interval: 600
+hashrate_update_interval: 600
+economic_update_interval: 300
+price_update_interval: 60
+
+# ── Feature flags (baseline) ──────────────────────────────────────────────────
+enable_liveness_penalty: false
+use_sigmoid: false
+use_cost_floor: false
+
+# ── Real-fork methods ─────────────────────────────────────────────────────────
+fork_links: 5          # overridden per scenario by the spec's fork_links
+
+# ── Runner behaviour ──────────────────────────────────────────────────────────
+startup_wait: 60
+cooldown: 30

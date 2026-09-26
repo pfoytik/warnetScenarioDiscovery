@@ -247,6 +247,26 @@ Findings along the way:
   all 3 methods, and `helm template` of converted lite-network nodes for both
   styles.
 
+## Method pilot (2026-09-26): ready to run
+Spec `tools/sweep/specs/knots_method_pilot.yaml`: 3 violation rates × 2 seeds
+on the full network, at E=0.55 and C=0.30. It runs under 4 methods (legacy,
+realfork with mined oracles, realfork, inplace), 24 runs in all. Inputs were
+generated and committed in `tools/sweep/knots_method_pilot/`; see
+`RUN_INSTRUCTIONS.md` there.
+
+Preparing it found and fixed:
+- pool IDs never matched their nodes for sweep-generated configs (breaks
+  in-place pool switching);
+- pool nodes' starting fork now follows the pool config;
+- real-fork methods get per-scenario metadata files (parallel-safe);
+- `1_generate_targeted.py` derives `v26_acceptance_probability` from
+  `violation_rate`.
+
+It also found two pre-existing legacy-pipeline issues, left unchanged and
+documented there: `hashrate_split` is ignored for pools' starting fork in
+base-network builds, and parallel legacy runners share one
+`network_metadata.yaml`.
+
 ## Goal
 
 Test whether Knots (RDTS/BIP-110) and Core v30 nodes, connected on an

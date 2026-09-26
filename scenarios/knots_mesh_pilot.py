@@ -2595,6 +2595,13 @@ class KnotsMeshPilot(Commander):
                 entity_id = metadata.get('entity_id', None)
 
                 if entity_id and entity_id.startswith('pool-'):
+                    # Sweep-generated pool configs (2_build_configs.py from a base
+                    # network) keep the entity_id as pool_id ('pool-antpool');
+                    # hand-written ones drop the prefix ('antpool'). Match
+                    # whichever the loaded pool strategy uses, else nodes never
+                    # map to their pool.
+                    if self.pool_strategy and entity_id in self.pool_strategy.pools:
+                        return entity_id
                     # Convert pool-antpool -> antpool
                     pool_id = entity_id.replace('pool-', '')
                     return pool_id

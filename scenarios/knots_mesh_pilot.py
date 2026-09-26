@@ -256,6 +256,12 @@ class KnotsMeshPilot(Commander):
         # which blocks each camp mined, and each camp's active chain above
         # start_height as last observed.
         self.oracle_chain_source = 'mined'              # resolved in run_test
+        # --inplace-switching: blocks the scenario mined carrying the RDTS-
+        # violating tx (so switching nodes can invalidate/reconsider them), the
+        # signed tx itself, and every node mode switch performed.
+        self._violating_blocks = []
+        self._violating_tx_hex = None
+        self.inplace_switches = []
         self._mined_blocks = {'v27': [], 'v26': []}     # block hashes, mining order
         self._active_chain = {'v27': {}, 'v26': {}}     # height -> hash
         self.chain_state['survival'] = {
@@ -458,11 +464,29 @@ class KnotsMeshPilot(Commander):
         # behavior is opt-in, not a removal of the old behavior. Pass them to
         # reproduce an old-style simulated-partition run from this same file.
         parser.add_argument('--node-classification', type=str, default='subversion',
-                          choices=['tag', 'subversion'],
+                          choices=['tag', 'subversion', 'rdts'],
                           help="'tag'=partition_nodes_by_version's original image-tag "
                                "comparison (v27/v26 numeric tags). 'subversion'=classify by "
                                "getnetworkinfo()['subversion'] instead (Knots vs Core), for "
-                               "networks that don't use those tags. Default: subversion.")
+                               "networks that don't use those tags. 'rdts'=classify by whether "
+                               "the node's RDTS deployment is active (getdeploymentinfo), for "
+                               "all-Knots networks; forced by --inplace-switching. "
+                               "Default: subversion.")
+        parser.add_argument('--inplace-switching', action='store_true', default=False,
+                          help='When a pool or economic/user node switches fork, change what '
+                               'its node actually enforces: rewrite <datadir>/switch.conf '
+                               '(RDTS vbparams on/off), RPC stop, let the pod restart bitcoind, '
+                               'then invalidateblock/reconsiderblock to reconcile its chain. '
+                               'Requires an all-Knots network built for it '
+                               '(networks/knots-mesh-inplace, tools/make_inplace_network.py) '
+                               'and commander pods/exec RBAC. Forces --node-classification rdts. '
+                               'Core-mode miners include the pending RDTS-violating tx via '
+                               'generateblock, standing in for a Core mempool (Knots policy caps '
+                               'datacarriersize at 83, so no Knots node relays it). '
+                               'Default: False (switches are accounting only).')
+        parser.add_argument('--switch-restart-timeout', type=int, default=180,
+                          help='Seconds to wait for a switching node to come back with the new '
+                               'RDTS mode (covers the kubelet restart back-off). Default: 180.')
         parser.add_argument('--enable-manual-repartition', action='store_true', default=False,
                           help='Allow evaluate_economic_node_switches to actually call '
                                'switch_node_partition (manual invalidateblock/disconnectnode/'
@@ -610,6 +634,14 @@ class KnotsMeshPilot(Commander):
                     # subversion classification in check_metadata_camps()).
                     image_tag = ('27-knots' if 'knots' in str(image.get('repository', '')).lower()
                                  else '26-core')
+                elif self.options.node_classification == 'rdts':
+                    # All-Knots network: the starting camp is the seeded
+                    # switch.conf, recorded as metadata.initial_camp by
+                    # tools/make_inplace_network.py.
+                    initial_camp = metadata.get('initial_camp')
+                    if initial_camp not in ('v27', 'v26'):
+                        self.log.warning(f"  {node_name}: no metadata.initial_camp; assuming v26")
+                    image_tag = '27-rdts' if initial_camp == 'v27' else '26-core-mode'
                 metadata['image_tag'] = image_tag
 
                 if node_name:
@@ -682,6 +714,47 @@ class KnotsMeshPilot(Commander):
         self.log.info(f"\nClassification summary:")
         self.log.info(f"  v27 (Knots) nodes: {len(self.v27_nodes)}")
         self.log.info(f"  v26 (Core) nodes:  {len(self.v26_nodes)}")
+        self.check_metadata_camps()
+
+    @staticmethod
+    def _ensure_miner(node):
+        """Commander.ensure_miner, but loads an existing 'miner' wallet that an
+        in-place switch restart unloaded instead of failing to re-create it."""
+        if "miner" not in node.listwallets():
+            try:
+                node.loadwallet("miner")
+            except Exception:
+                pass
+        return Commander.ensure_miner(node)
+
+    @staticmethod
+    def _rdts_active(node) -> bool:
+        """True if the node enforces RDTS. A Knots node without the RDTS vbparams
+        doesn't list the reduced_data deployment at all."""
+        deployments = node.getdeploymentinfo().get('deployments', {})
+        return bool(deployments.get('reduced_data', {}).get('active'))
+
+    def classify_nodes_by_rdts(self):
+        """
+        Separate nodes into v27 (RDTS enforced) and v26 (RDTS inactive, i.e.
+        Core-compatible consensus) for all-Knots networks, where subversion
+        can't tell the camps apart. Used by --inplace-switching, where a node's
+        camp changes during the run.
+        """
+        self.log.info("Classifying nodes by RDTS deployment status...")
+
+        for node in self.nodes:
+            try:
+                if self._rdts_active(node):
+                    self.v27_nodes.append(node)
+                else:
+                    self.v26_nodes.append(node)
+            except Exception as e:
+                self.log.error(f"  Error querying node {node.index}: {e}")
+
+        self.log.info(f"\nClassification summary:")
+        self.log.info(f"  v27 (RDTS enforced) nodes: {len(self.v27_nodes)}")
+        self.log.info(f"  v26 (Core-mode) nodes:     {len(self.v26_nodes)}")
         self.check_metadata_camps()
 
     def check_metadata_camps(self):
@@ -844,7 +917,7 @@ class KnotsMeshPilot(Commander):
         funding_node = self.v26_nodes[0] if self.v26_nodes else self.nodes[0]
         self.log.info(f"  Mining 101 maturity blocks via node-{funding_node.index:04d} "
                       f"(funds the RDTS injection tx)...")
-        wallet = Commander.ensure_miner(funding_node)
+        wallet = self._ensure_miner(funding_node)
         addr = wallet.getnewaddress()
         self.generatetoaddress(funding_node, 101, addr, sync_fun=self.sync_all)
         self.log.info(f"  Mined 101 blocks, height now {funding_node.getblockcount()}")
@@ -870,13 +943,20 @@ class KnotsMeshPilot(Commander):
 
         node = self.v26_nodes[0]
         try:
-            wallet = Commander.ensure_miner(node)
+            wallet = self._ensure_miner(node)
             payload_size = self.options.op_return_payload_size
             payload_hex = ('00' * payload_size)
             raw = wallet.createrawtransaction([], {'data': payload_hex})
             funded = wallet.fundrawtransaction(raw)
             signed = wallet.signrawtransactionwithwallet(funded['hex'])
-            txid = node.sendrawtransaction(signed['hex'])
+            if self.options.inplace_switching:
+                # Every node runs Knots, whose policy caps datacarriersize at
+                # 83, so no mempool would take this tx. Hold it; Core-mode
+                # miners include it via generateblock (_mine_block).
+                txid = node.decoderawtransaction(signed['hex'])['txid']
+                self._violating_tx_hex = signed['hex']
+            else:
+                txid = node.sendrawtransaction(signed['hex'])
 
             self.rdts_injection_txid = txid
             self._rdts_wallet = wallet  # for observe_chain_state's confirmation tracking
@@ -888,6 +968,37 @@ class KnotsMeshPilot(Commander):
             )
         except Exception as e:
             self.log.error(f"  [RDTS] Injection failed: {e}")
+
+    def _violation_in_chain(self, node) -> Optional[int]:
+        """Height of a scenario-mined RDTS-violating block in node's active
+        chain, or None. (confirmations is -1 for a block off the active chain;
+        getblockheader raises for a block the node doesn't have.)"""
+        for block_hash in self._violating_blocks:
+            try:
+                header = node.getblockheader(block_hash)
+            except Exception:
+                continue
+            if header.get('confirmations', -1) > 0:
+                return header['height']
+        return None
+
+    def _mine_block(self, miner, fork_id: str, address: str) -> list:
+        """
+        Mine one block on miner. Under --inplace-switching a Core-mode (v26)
+        miner whose chain lacks the RDTS-violating tx mines it via
+        generateblock, as a real Core miner would from its mempool, including
+        re-mining it after its chain was reorged onto the Knots chain. No
+        Knots node's mempool takes the tx (datacarriersize is capped at 83),
+        so this is the one place the scenario models mempool contents.
+        """
+        if (self.options.inplace_switching and fork_id == 'v26' and self._violating_tx_hex
+                and self._violation_in_chain(miner) is None):
+            block_hash = miner.generateblock(address, [self._violating_tx_hex])['hash']
+            self._violating_blocks.append(block_hash)
+            self.log.info(f"  [RDTS] node-{miner.index:04d} (Core-mode) mined violating tx "
+                          f"in block {block_hash[:16]} (violating block #{len(self._violating_blocks)})")
+            return [block_hash]
+        return self.generatetoaddress(miner, 1, address, sync_fun=self.no_op)
 
     def check_rdts_rejection(self, elapsed: int):
         """
@@ -1111,6 +1222,11 @@ class KnotsMeshPilot(Commander):
         wallet = getattr(self, '_rdts_wallet', None)
         if not txid or wallet is None:
             return 'none', None
+        if self.options.inplace_switching:
+            # Judged against the current Core camp's chain: the injecting
+            # node's own wallet may have switched to the Knots camp since.
+            height = self._violation_in_chain(self.v26_nodes[0]) if self.v26_nodes else None
+            return ('confirmed', height) if height is not None else ('pending', None)
         try:
             wtx = wallet.gettransaction(txid)
         except Exception:
@@ -1845,6 +1961,160 @@ class KnotsMeshPilot(Commander):
 
         self.log.info(f"  Changed {changed_count} v27 nodes to accept foreign blocks")
 
+    # ------------------------------------------------------------------
+    # In-place switching (--inplace-switching)
+    # ------------------------------------------------------------------
+
+    RDTS_VBPARAMS = 'vbparams=reduced_data:-1:9223372036854775807'
+
+    def _exec_on_tank(self, node, shell_cmd: str) -> str:
+        """Run a shell command in a tank's bitcoind container (needs commander
+        pods/exec RBAC). Imported lazily for the same reason as in
+        check_rdts_rejection."""
+        import commander as _commander_module
+        from kubernetes.stream import stream as k8s_stream
+        return k8s_stream(
+            _commander_module.sclient.connect_get_namespaced_pod_exec,
+            name=node.tank,
+            container="bitcoincore",
+            namespace=_commander_module.NAMESPACE,
+            command=["sh", "-c", shell_cmd],
+            stderr=True, stdin=False, stdout=True, tty=False,
+        ) or ""
+
+    def _desired_camps(self) -> dict:
+        """node -> (camp, role) the pool / economic strategy currently puts
+        that node's owner on. Other nodes (relays) keep their starting camp."""
+        desired = {}
+        for node in self.v27_nodes + self.v26_nodes:
+            node_name = f"node-{node.index:04d}"
+            pool_id = self.get_node_pool_id(node)
+            if pool_id and self.pool_strategy and pool_id in self.pool_strategy.current_allocation:
+                desired[node] = (self.pool_strategy.current_allocation[pool_id], f"pool {pool_id}")
+            elif self.economic_strategy and self.economic_strategy.current_allocation.get(node_name):
+                node_type = self.node_metadata.get(node_name, {}).get('node_type', 'economic')
+                desired[node] = (self.economic_strategy.current_allocation[node_name], node_type)
+        return desired
+
+    def reconcile_node_modes(self, elapsed: int, trigger: str):
+        """Switch every node whose enforced rules differ from its owner's
+        current fork choice (no-op unless --inplace-switching)."""
+        if not self.options.inplace_switching:
+            return
+        pending = []
+        for node, (camp, role) in self._desired_camps().items():
+            current = 'v27' if node in self.v27_nodes else 'v26'
+            if camp in ('v27', 'v26') and camp != current:
+                pending.append((node, current, camp, role))
+        if pending:
+            self.switch_nodes_inplace(pending, elapsed, trigger)
+
+    def switch_nodes_inplace(self, pending: list, elapsed: int, trigger: str):
+        """
+        Change what each node enforces, as a real operator changing software
+        on an existing datadir would, for a batch of (node, old, new, role):
+          1. rewrite <datadir>/switch.conf (RDTS vbparams on for v27, off for v26)
+          2. RPC stop; restartPolicy Always relaunches bitcoind in the same pod,
+             so peers (addnode config) and chain data (emptyDir) are kept
+          3. wait until the node answers with the new RDTS status
+          4. reconcile the chain, since old blocks are not re-validated on
+             restart: entering v27 -> invalidateblock the violating blocks;
+             entering v26 -> reconsiderblock every invalid tip (the invalid
+             flags persist across restart)
+        All nodes in the batch restart concurrently. Verified in Docker:
+        tools/knots_switch_test/, docs/knots_mesh_fork_sweep_plan.md.
+        """
+        import time as _time
+        self.log.info(f"\n  IN-PLACE SWITCH ({trigger}, {elapsed}s): {len(pending)} node(s): "
+                      f"{[f'node-{n.index:04d}:{o}->{c}' for n, o, c, _ in pending]}")
+
+        stopping = []
+        for node, old, new, role in pending:
+            node_name = f"node-{node.index:04d}"
+            event = {'node': node_name, 'role': role, 'from': old, 'to': new,
+                     'trigger': trigger, 'elapsed_s': elapsed, 'success': False}
+            try:
+                event['height_before'] = node.getblockcount()
+                event['tip_before'] = node.getbestblockhash()
+                body = '[regtest]\\n' + (self.RDTS_VBPARAMS + '\\n' if new == 'v27' else '')
+                out = self._exec_on_tank(
+                    node, f"printf '{body}' > /root/.bitcoin/switch.conf && cat /root/.bitcoin/switch.conf")
+                if (self.RDTS_VBPARAMS in out) != (new == 'v27'):
+                    raise RuntimeError(f"switch.conf not written as expected: {out!r}")
+                node.stop()
+                stopping.append((node, event, _time.time()))
+            except Exception as e:
+                event['error'] = f"stop phase: {e}"
+                self.log.error(f"    {node_name}: switch aborted before restart: {e}")
+                self.inplace_switches.append(event)
+
+        waiting = list(stopping)
+        deadline = _time.time() + self.options.switch_restart_timeout
+        back = []
+        while waiting and _time.time() < deadline:
+            _time.sleep(2)
+            for item in list(waiting):
+                node, event, t_stop = item
+                try:
+                    if self._rdts_active(node) == (event['to'] == 'v27'):
+                        event['downtime_s'] = round(_time.time() - t_stop, 1)
+                        back.append(item)
+                        waiting.remove(item)
+                except Exception:
+                    pass  # still stopping / restarting / warming up
+        for node, event, _ in waiting:
+            event['error'] = f"did not come back with the new mode within {self.options.switch_restart_timeout}s"
+            self.log.error(f"    {event['node']}: {event['error']}")
+            self.inplace_switches.append(event)
+
+        for node, event, _ in back:
+            node_name = event['node']
+            try:
+                if event['to'] == 'v27':
+                    invalidated = 0
+                    for block_hash in self._violating_blocks:
+                        try:
+                            node.invalidateblock(block_hash)
+                            invalidated += 1
+                        except Exception:
+                            pass  # block unknown to this node
+                    event['invalidated'] = invalidated
+                else:
+                    reconsidered = 0
+                    for tip in node.getchaintips():
+                        if tip.get('status') == 'invalid':
+                            node.reconsiderblock(tip['hash'])
+                            reconsidered += 1
+                    event['reconsidered'] = reconsidered
+                if "miner" not in node.listwallets():
+                    try:
+                        node.loadwallet("miner")
+                    except Exception:
+                        pass  # node never had a miner wallet
+                event['height_after'] = node.getblockcount()
+                event['tip_after'] = node.getbestblockhash()
+                event['success'] = True
+            except Exception as e:
+                event['error'] = f"reconcile phase: {e}"
+                self.log.error(f"    {node_name}: chain reconcile failed: {e}")
+
+            # The node now enforces the new rules either way; track it there.
+            (self.v27_nodes if event['from'] == 'v27' else self.v26_nodes).remove(node)
+            (self.v27_nodes if event['to'] == 'v27' else self.v26_nodes).append(node)
+            self.node_current_partition[node_name] = event['to']
+            self.inplace_switches.append(event)
+            self.log.info(
+                f"    {node_name} ({event['role']}): {event['from']} -> {event['to']} "
+                f"in {event['downtime_s']}s, height {event['height_before']} -> "
+                f"{event.get('height_after')}"
+                + (f", invalidated {event['invalidated']}" if 'invalidated' in event else "")
+                + (f", reconsidered {event['reconsidered']}" if 'reconsidered' in event else ""))
+
+        if back and self.pool_strategy:
+            self.pool_nodes_v27.clear()
+            self.pool_nodes_v26.clear()
+            self.build_pool_node_mapping(verbose=False)
+
     def evaluate_economic_node_switches(self, elapsed: float):
         """
         Evaluate whether economic/user nodes should switch partitions based on
@@ -1944,7 +2214,7 @@ class KnotsMeshPilot(Commander):
                 f"{[f'{n.index}:{o}->{p}' for n, o, p, _ in switches]}"
             )
 
-    def build_pool_node_mapping(self):
+    def build_pool_node_mapping(self, verbose: bool = True):
         """
         Build mapping from pool IDs to nodes in each partition.
 
@@ -1953,7 +2223,8 @@ class KnotsMeshPilot(Commander):
         - Same entity_id appears in both partitions (paired nodes)
         - Pool decides which fork to mine → uses corresponding node
         """
-        self.log.info("\nBuilding pool-to-node mappings...")
+        if verbose:
+            self.log.info("\nBuilding pool-to-node mappings...")
 
         # Track unmapped nodes
         v27_unmapped = 0
@@ -1977,6 +2248,9 @@ class KnotsMeshPilot(Commander):
                 self.pool_nodes_v26[pool_id].append(node)
             else:
                 v26_unmapped += 1
+
+        if not verbose:  # in-place switch rebuild; the switch itself is logged
+            return
 
         # Log pool distribution
         self.log.info("\nPool node distribution (1 node per partition per pool):")
@@ -2293,6 +2567,13 @@ class KnotsMeshPilot(Commander):
         if self.options.v26_economic is None:
             self.options.v26_economic = 100.0 - self.options.v27_economic
 
+        # In-place switching runs on an all-Knots network, where only RDTS
+        # status tells the camps apart.
+        if self.options.inplace_switching and self.options.node_classification != 'rdts':
+            self.log.info(f"--inplace-switching: node classification "
+                          f"{self.options.node_classification} -> rdts")
+            self.options.node_classification = 'rdts'
+
         self.log.info(f"\n{'='*70}")
         self.log.info(f"Partition Mining with Dynamic Pool Strategy")
         self.log.info(f"{'='*70}")
@@ -2535,6 +2816,8 @@ class KnotsMeshPilot(Commander):
         # matching for an old-style v27/v26 run.
         if self.options.node_classification == 'subversion':
             self.classify_nodes_by_subversion()
+        elif self.options.node_classification == 'rdts':
+            self.classify_nodes_by_rdts()
         else:
             self.partition_nodes_by_version()
 
@@ -2636,7 +2919,7 @@ class KnotsMeshPilot(Commander):
 
         # What the price/pool oracles treat as each camp's chain.
         source = self.options.oracle_chain_source or (
-            'observed' if self.options.node_classification == 'subversion' else 'mined')
+            'observed' if self.options.node_classification in ('subversion', 'rdts') else 'mined')
         if source == 'observed' and not self.chain_state['enabled']:
             self.log.warning("  --oracle-chain-source=observed needs --chain-state-interval > 0; "
                              "falling back to mined")
@@ -2654,6 +2937,10 @@ class KnotsMeshPilot(Commander):
                           f"{self.chain_state['sample_nodes']}")
         self.observe_chain_state(0)
         last_chain_state_check = start_time
+
+        # Bring each node's enforced rules in line with its owner's starting
+        # fork choice (normally already matching the seeded switch.conf).
+        self.reconcile_node_modes(0, 'initial')
 
         self.log.info(f"\n{'='*70}")
         if self.difficulty_oracle:
@@ -2716,6 +3003,8 @@ class KnotsMeshPilot(Commander):
                             self.log.info(f"   {decision.node_id}: staying on {decision.chosen_fork} (inertia)")
 
                 last_economic_update = current_time
+
+                self.reconcile_node_modes(elapsed, 'economic decision')
 
             # Capture time series snapshot at regular intervals
             if current_time - last_snapshot >= self.options.snapshot_interval:
@@ -2902,9 +3191,14 @@ class KnotsMeshPilot(Commander):
 
                 last_hashrate_update = current_time
 
+                self.reconcile_node_modes(elapsed, 'pool decision')
+
                 # Evaluate economic/user node partition switches
                 # These nodes may switch partitions based on price, ideology, etc.
-                if self.options.enable_dynamic_switching:
+                # Not under --inplace-switching: there economic/user nodes follow
+                # EconomicNodeStrategy (the allocation that drives price) via
+                # reconcile_node_modes, not this separate threshold model.
+                if self.options.enable_dynamic_switching and not self.options.inplace_switching:
                     self.evaluate_economic_node_switches(elapsed)
 
             # === BLOCK PRODUCTION ===
@@ -2925,9 +3219,9 @@ class KnotsMeshPilot(Commander):
                             continue
 
                         try:
-                            miner_wallet = Commander.ensure_miner(miner)
+                            miner_wallet = self._ensure_miner(miner)
                             address = miner_wallet.getnewaddress()
-                            mined_hashes = self.generatetoaddress(miner, 1, address, sync_fun=self.no_op)
+                            mined_hashes = self._mine_block(miner, fork_id, address)
                             self._mined_blocks[fork_id].extend(mined_hashes or [])
 
                             # Asymmetric fork: push v27 blocks into the v26 island.
@@ -3009,9 +3303,9 @@ class KnotsMeshPilot(Commander):
                     continue
 
                 try:
-                    miner_wallet = Commander.ensure_miner(miner)
+                    miner_wallet = self._ensure_miner(miner)
                     address = miner_wallet.getnewaddress()
-                    mined_hashes = self.generatetoaddress(miner, 1, address, sync_fun=self.no_op)
+                    mined_hashes = self._mine_block(miner, partition, address)
                     self._mined_blocks[partition].extend(mined_hashes or [])
 
                     # Asymmetric fork: push v27 blocks into the v26 island.
@@ -3260,6 +3554,7 @@ class KnotsMeshPilot(Commander):
                     'enable_asymmetric_bridging': self.options.enable_asymmetric_bridging,
                     'rdts_injection_enabled': self.options.rdts_injection,
                     'op_return_payload_size': self.options.op_return_payload_size,
+                    'inplace_switching': self.options.inplace_switching,
                 },
                 'summary': {
                     'blocks_mined': dict(self.blocks_mined),
@@ -3286,6 +3581,16 @@ class KnotsMeshPilot(Commander):
                 'fork_convergence': dict(self.fork_convergence),
                 'rdts_rejection': dict(self.rdts_rejection),
                 'chain_state': self.chain_state,
+                'inplace_switching': {
+                    'enabled': self.options.inplace_switching,
+                    'total_switches': sum(1 for e in self.inplace_switches if e['success']),
+                    'failed_switches': sum(1 for e in self.inplace_switches if not e['success']),
+                    'switches': self.inplace_switches,
+                    'violating_blocks': list(self._violating_blocks),
+                    'final_camps': {f"node-{n.index:04d}": camp
+                                    for camp, nodes in (('v27', self.v27_nodes), ('v26', self.v26_nodes))
+                                    for n in nodes},
+                },
             }
 
             # Capture final snapshot

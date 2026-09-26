@@ -11,6 +11,19 @@ Status key: **applied-local** = edited in the local warnet checkout, not
 committed; **proposed** = designed, not yet made; **server?** = unknown
 whether the server install has it.
 
+## Applying on another install (e.g. the server)
+All of W1–W3 are in **`docs/warnet_changes.patch`**, a `git diff` taken
+against warnet commit `956ee67`. In the server's warnet checkout:
+```bash
+git apply --check /path/to/warnetScenarioDiscovery/docs/warnet_changes.patch  # dry run
+git apply /path/to/warnetScenarioDiscovery/docs/warnet_changes.patch
+```
+If W1 is already present there (see below), `--check` reports a conflict in
+`control.py`. Apply the rest with
+`git apply --exclude=src/warnet/control.py ...`. The chart changes take effect
+on the next `warnet deploy` (tanks) and `warnet run` (commander RBAC). An
+editable install (`pip install -e`) needs no reinstall.
+
 ---
 
 ## W1. Scenario archive bundles `lib/` and `config/`
@@ -40,7 +53,8 @@ whether the server install has it.
   falls back to `getchaintips` only (known gap since 2026-09-23). (2) **Needed
   by in-place node switching:** the scenario must write each node's
   `switch.conf` in its data directory before restarting it.
-- **Status:** proposed.
+- **Status:** applied-local (2026-09-26). Verified with `helm template`
+  (rule renders). Not yet exercised in a cluster. **server?** no.
 
 ## W3. Optional init container hook in the bitcoincore chart (`extraInitContainers`)
 - **Files:** `resources/charts/bitcoincore/templates/pod.yaml`, `values.yaml`.
@@ -59,7 +73,16 @@ whether the server install has it.
     `resources/images/`.
   - A ConfigMap mounted without `subPath`: kubelet sync delay of up to ~60s
     per switch, plus RBAC to patch ConfigMaps.
-- **Status:** proposed.
+- **Implemented as:** `initContainers:` now renders when `loadSnapshot.enabled`
+  **or** `extraInitContainers` is set. `download-blocks` comes first, then the
+  extra containers. `values.yaml` documents the value (default `[]`).
+- **Status:** applied-local (2026-09-26). Verified with `helm template`:
+  - default values → no `initContainers` (unchanged);
+  - `loadSnapshot` only → `download-blocks` as before;
+  - a `networks/knots-mesh-inplace` node → the seed container renders.
+
+  The rendered init command and `bitcoin.conf` were also run in Docker: the
+  node booted with RDTS active. **server?** no.
 
 ---
 

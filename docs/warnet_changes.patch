@@ -1,0 +1,75 @@
+diff --git a/resources/charts/bitcoincore/templates/pod.yaml b/resources/charts/bitcoincore/templates/pod.yaml
+index 2577468..15a5399 100644
+--- a/resources/charts/bitcoincore/templates/pod.yaml
++++ b/resources/charts/bitcoincore/templates/pod.yaml
+@@ -27,8 +27,9 @@ spec:
+   {{- end }}
+   securityContext:
+     {{- toYaml .Values.podSecurityContext | nindent 4 }}
+-  {{- if .Values.loadSnapshot.enabled }}
++  {{- if or .Values.loadSnapshot.enabled .Values.extraInitContainers }}
+   initContainers:
++    {{- if .Values.loadSnapshot.enabled }}
+     - name: download-blocks
+       image: alpine:latest
+       command: ["/bin/sh", "-c"]
+@@ -40,6 +41,10 @@ spec:
+       volumeMounts:
+         - name: data
+           mountPath: /root/.bitcoin
++    {{- end }}
++    {{- with .Values.extraInitContainers }}
++    {{- toYaml . | nindent 4 }}
++    {{- end }}
+   {{- end }}
+   containers:
+     - name: {{ .Chart.Name }}
+diff --git a/resources/charts/bitcoincore/values.yaml b/resources/charts/bitcoincore/values.yaml
+index 92416f6..67018b5 100644
+--- a/resources/charts/bitcoincore/values.yaml
++++ b/resources/charts/bitcoincore/values.yaml
+@@ -93,6 +93,17 @@ volumes: []
+ #     secretName: mysecret
+ #     optional: false
+ 
++# Additional init containers, run before bitcoind (after download-blocks if
++# loadSnapshot is enabled). Mount the "data" volume to seed files in the datadir.
++extraInitContainers: []
++# - name: seed-config
++#   image: alpine:latest
++#   command: ["/bin/sh", "-c"]
++#   args: ["touch /root/.bitcoin/extra.conf"]
++#   volumeMounts:
++#     - name: data
++#       mountPath: /root/.bitcoin
++
+ # Additional volumeMounts on the output Deployment definition.
+ volumeMounts: []
+ # - name: foo
+diff --git a/resources/charts/commander/templates/rbac.yaml b/resources/charts/commander/templates/rbac.yaml
+index d3d62b7..9a0e9d2 100644
+--- a/resources/charts/commander/templates/rbac.yaml
++++ b/resources/charts/commander/templates/rbac.yaml
+@@ -17,6 +17,9 @@ rules:
+   - apiGroups: [""]
+     resources: ["pods", "configmaps"]
+     verbs: ["get", "list", "watch"]
++  - apiGroups: [""]
++    resources: ["pods/exec"]
++    verbs: ["create", "get"]
+ ---
+ apiVersion: rbac.authorization.k8s.io/v1
+ kind: RoleBinding
+diff --git a/src/warnet/control.py b/src/warnet/control.py
+index 2c3bff4..d187157 100644
+--- a/src/warnet/control.py
++++ b/src/warnet/control.py
+@@ -364,6 +364,8 @@ def _run(
+                 "commander.py",
+                 "test_framework",
+                 "ln_framework",
++                "lib/",
++                "config/",
+                 scenario_path.name,
+             ]
+         ):

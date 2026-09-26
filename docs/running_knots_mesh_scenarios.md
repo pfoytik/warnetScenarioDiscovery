@@ -1,21 +1,22 @@
 # Running the Knots Mesh Fork Scenario
 
-How to deploy and run `scenarios/knots_mesh_pilot.py`, in either of its two
+How to deploy and run `scenarios/knots_mesh_pilot.py`, in any of its three
 modes, plus how to retrieve results and troubleshoot the environment issues
 already hit once. Background/design: `docs/knots_mesh_fork_sweep_plan.md`.
 
-## The two modes (read this first)
+## The modes (read this first)
 
 `knots_mesh_pilot.py` is a derived copy of `scenarios/partition_miner_with_pools.py`
 — every old mechanism is still in the file, gated behind flags that default
 to the *new* behavior. This means **the same file runs either experiment**:
 
-| | Real fork method (default) | Manual network control (legacy) |
-|---|---|---|
-| What causes the split | Real Knots consensus code rejecting a real transaction | Scripted `submitblock` bridging + probabilistic acceptance |
-| Node classification | `getnetworkinfo()['subversion']` (Knots vs Core) | Image-tag substring match (`27.` vs `26.`) |
-| Network needed | `networks/knots-mesh-pilot/` (Knots + Core v30.2 images) | Any old-style network using real Core version tags, e.g. `networks/realistic-economy-v2/` unmodified |
-| Key flags | defaults (nothing extra needed) | `--node-classification tag --enable-manual-repartition --enable-asymmetric-bridging --v26-acceptance-probability <0.0-1.0>` |
+| | Real fork method (default) | Real fork + in-place switching | Manual network control (legacy) |
+|---|---|---|---|
+| What causes the split | Real Knots consensus code rejecting a real transaction | Same | Scripted `submitblock` bridging + probabilistic acceptance |
+| What a pool/economic "switch" does | Accounting only: hashrate/weight moves, every node keeps its software | **The node itself changes rules** (RDTS on/off + restart), so relay and validation follow the choice | Manual peer rewiring (`switch_node_partition`) |
+| Node classification | `getnetworkinfo()['subversion']` (Knots vs Core) | RDTS deployment status (`getdeploymentinfo`) | Image-tag substring match (`27.` vs `26.`) |
+| Network needed | `networks/knots-mesh-pilot/` (Knots + Core v30.2 images) | `networks/knots-mesh-inplace/` (all Knots) + warnet patch | Any old-style network using real Core version tags, e.g. `networks/realistic-economy-v2/` unmodified |
+| Key flags | defaults (nothing extra needed) | `--inplace-switching --bundled-network-yaml knots_mesh_inplace_network.yaml` | `--node-classification tag --enable-manual-repartition --enable-asymmetric-bridging --v26-acceptance-probability <0.0-1.0>` |
 
 Use the same `--pool-scenario`/`--economic-scenario`/`--duration`/etc. for
 both runs if you want the economic simulation to be comparable side by
@@ -67,6 +68,12 @@ cd /path/to/warnetScenarioDiscovery
 warnet deploy networks/knots-mesh-pilot --namespace knots-pilot
 ```
 
+**Real fork + in-place switching** (needs the warnet patch — see
+"In-place switching mode" below):
+```bash
+warnet deploy networks/knots-mesh-inplace --namespace knots-pilot
+```
+
 **Manual network control (legacy comparison):**
 ```bash
 warnet deploy networks/realistic-economy-v2 --namespace <some-other-namespace>
@@ -91,6 +98,19 @@ warnet run scenarios/knots_mesh_pilot.py --namespace knots-pilot \
   -- --duration 600 --enable-difficulty --retarget-interval 2016 \
      --rdts-check-interval 15
 ```
+
+**Real fork + in-place switching** (node-runner and pool choices change
+what their nodes enforce):
+```bash
+warnet run scenarios/knots_mesh_pilot.py --namespace knots-pilot \
+  -- --duration 3600 --enable-difficulty --retarget-interval 2016 \
+     --rdts-check-interval 15 \
+     --inplace-switching \
+     --bundled-network-yaml knots_mesh_inplace_network.yaml \
+     --economic-switching-cooldown 300 --user-switching-cooldown 300
+```
+(The cooldown flags are optional, but without them economic/user nodes
+won't move in a short run. See "Economic-node switching".)
 
 **Manual network control** (reproduces the original
 `partition_miner_with_pools.py`-style simulated partition, for comparison):
@@ -238,6 +258,68 @@ put (verified offline: node-0045/0046 keep v26 through ideology overrides), but
 together they hold only ~628 BTC. An offline check with a 17.7% price gap and
 60s cooldown moved economic weight 43/57 → 100/0. That is a property of the
 network's custody distribution, not a bug.
+
+### In-place switching mode (`--inplace-switching`)
+**What it models:** a pool or node runner changing software. When the pool
+strategy moves a pool to the other fork, or the economic strategy moves an
+economic/user node, the scenario changes what **that node** enforces:
+1. It rewrites `/root/.bitcoin/switch.conf` via pod exec. The RDTS `vbparams`
+   line is present for the Knots camp and absent for Core mode.
+2. RPC `stop`; `restartPolicy: Always` relaunches bitcoind in the same pod,
+   so it keeps its peers (`addnode` config) and chain.
+3. It waits for the node to report the new RDTS status.
+4. It reconciles the chain, as a real operator would after swapping software
+   on an existing datadir. Joining Knots: `invalidateblock` the violating
+   blocks. Joining Core: `reconsiderblock` every invalid tip.
+
+Pools then mine from their own node on the new side. Relay nodes (no pool
+or economic role) keep their starting camp.
+
+**Setup, once per warnet install:** apply `docs/warnet_changes.patch` (see
+`docs/warnet_changes_required.md`: W2 commander `pods/exec` RBAC, W3
+`extraInitContainers` chart hook). Also make `alpine:latest` available to
+the cluster (`minikube image pull alpine:latest`); the seed init container
+uses it. The network is generated, so edit `knots-mesh-pilot` and rerun
+`python3 tools/make_inplace_network.py`, which rewrites both
+`networks/knots-mesh-inplace/` and the bundled
+`scenarios/config/knots_mesh_inplace_network.yaml`.
+
+**Every node runs Knots.** Core mode = Knots with RDTS inactive. This was
+verified to accept the violating blocks (consensus-compatible with Core).
+Relay policy is still Knots', and Knots caps `datacarriersize` at 83, so no
+mempool holds the violating tx. The scenario stands in for the Core
+mempool: whenever a Core-mode pool mines and its chain lacks the tx, it
+includes it via `generateblock`. That includes re-mining it after a
+wipe-out. `injected_tx_state` reads `pending` until a Core-mode block
+carries it.
+
+**What to watch in the log:**
+- `Classifying nodes by RDTS deployment status` → 30/30.
+- `IN-PLACE SWITCH (pool decision|economic decision, <t>s): N node(s)`,
+  then one line per node with its downtime and `invalidated`/`reconsidered`
+  counts.
+- `[RDTS] node-XXXX (Core-mode) mined violating tx in block ... (violating
+  block #N)`. N > 1 means Core re-mined it after its chain was reorged away.
+
+**Results:** `inplace_switching.{switches, total_switches, failed_switches,
+violating_blocks, final_camps}`. Each switch records role, trigger,
+from/to, downtime, heights and tips before/after, and reconcile counts.
+
+**Expected timing effects (real behaviour, not bugs):**
+- **Restart downtime.** About 2s in Docker. In Kubernetes, kubelet
+  restart back-off adds roughly 10s at first, and doubles if the same
+  container restarts again within 10 minutes (up to 5 min).
+  `--switch-restart-timeout` (default 180s) bounds the wait. A node that
+  misses it is logged as a failed switch and keeps its old camp in tracking.
+- **Re-sync lag.** A switched node's *outbound* peers reconnect at startup,
+  but inbound peers only come back on their own addnode retry, about a
+  60s cycle. If all of a node's outbound peers are on the other side, it
+  can trail its new camp's tip until then. The Docker test saw about 26s.
+- Switches in one decision round run concurrently (all stop, then all wait),
+  so a big economic swing doesn't stall the loop node by node.
+
+Offline test of this code path (no Kubernetes):
+`tools/knots_switch_test/scenario_harness.py`.
 
 **Every run needs a fresh deploy** — chains persist across `warnet run`s on
 the same network, so a second run starts from the previous run's split.

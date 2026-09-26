@@ -9,8 +9,9 @@ RDTS_VB='vbparams=reduced_data:-1:9223372036854775807'
 
 cli() { local n=$1; shift; docker exec "ks-$n" bitcoin-cli -regtest -rpcuser=user -rpcpassword=pw "$@"; }
 
-write_conf() {  # name
-  cat > "$DIR/$1.conf" <<EOF
+write_conf() {  # name [peer...] — addnode goes in the conf, as warnet does, so peers survive restarts
+  local name=$1; shift
+  cat > "$DIR/$name.conf" <<EOF
 regtest=1
 includeconf=switch.conf
 [regtest]
@@ -26,6 +27,7 @@ rpcallowip=0.0.0.0/0
 rpcbind=0.0.0.0
 consensusrules=rdts
 EOF
+  for p in "$@"; do echo "addnode=ks-$p" >> "$DIR/$name.conf"; done
 }
 
 set_mode() {  # name rdts|core   (writes datadir/switch.conf inside the container volume)

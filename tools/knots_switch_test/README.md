@@ -15,3 +15,18 @@ Requires the `bitcoin-knots:29.4-local` image and `alpine`.
 phase1 and phase2 write state files (`violating_block*`) next to the scripts.
 The fresh-violating-block check and the switch back to core mode
 (`reconsiderblock`) were run by hand. See the plan doc for the steps and results.
+
+## Scenario harness (Step 2)
+
+`scenario_harness.py` runs `knots_mesh_pilot.py`'s real `--inplace-switching`
+methods (classification, held injection, `_mine_block`,
+`reconcile_node_modes` / `switch_nodes_inplace`) against the same 3
+containers. `docker exec` stands in for pod exec, and Docker's
+`--restart always` stands in for `restartPolicy: Always`.
+
+    bash phase0.sh
+    /home/pfoytik/bitcoinTools/warnet/warnet/.venv/bin/python3 scenario_harness.py
+    source lib.sh && cleanup
+
+Peers are set with `addnode=` in each node's conf, as warnet does, so they
+survive the switch restarts.

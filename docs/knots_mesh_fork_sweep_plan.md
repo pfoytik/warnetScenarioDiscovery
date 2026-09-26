@@ -422,7 +422,11 @@ byte-identical to `realistic-economy-v2/node-defaults.yaml`.
       Economic weight stayed 43/57 all run — not a bug: `realistic_current`
       switching cooldowns (1800s economic, 3600s user) are ≥ the run length,
       so nodes decided only once at t=0. Longer runs or shorter cooldowns
-      are needed to see economic nodes move. Also: each run needs a fresh deploy — the
+      are needed to see economic nodes move. **Addressed 2026-09-26
+      (5a881026):** `--economic-switching-cooldown` / `--user-switching-cooldown`
+      override the config cooldowns (default: unchanged). See the runbook's
+      "Economic-node switching" section. Offline-verified, not yet run live.
+      Also: each run needs a fresh deploy — the
       chain persists across `warnet run`s on the same network.
 
 ### Phase 2 — not started
@@ -434,7 +438,14 @@ planned further in the abstract now.
 
 ## Open items
 
-- Phase 1b has never been run. Everything above is implementation +
-  source-verification, not empirical confirmation.
-- Whether `--node-classification=tag` / old-flag reproducibility actually
-  works end-to-end is asserted by code inspection, not tested.
+- ~~Phase 1b has never been run.~~ Confirmed live 2026-09-23 (see above).
+- Legacy mode (`--node-classification=tag` + old flags) has never been run
+  live. A bug found 2026-09-26 would have invalidated it: it loaded the Knots
+  network metadata by default, so all 52 economic/user nodes started on v26.
+  Fixed in 5a881026. The runbook's legacy command now passes
+  `--bundled-network-yaml realistic_economy_v2_network.yaml`, and the scenario
+  warns when tag mode sees no 26/27 tags. Still needs a server run.
+- Economic switching: run with the cooldown overrides on the server; confirm
+  the `Overrode switching_cooldown=...` log line and that economic weight moves.
+  Expect all-or-nothing swings (80.8% of custody in 6 mostly-neutral nodes).
+- Phase 1c: one clean run without transient RPC errors.

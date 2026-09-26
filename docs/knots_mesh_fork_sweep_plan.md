@@ -221,7 +221,9 @@ threshold.
    legacy `violation_rate = 1 − v26_acceptance_probability`. Pre-funded
    anyone-can-spend chain, built in Python, mined via `generateblock`.
 2. **Sweep bridge:** `tools/make_inplace_network.py --src/--dst/--style
-   {inplace,mixed}/--bridges` converts any generated network.
+   {inplace,mixed}/--fork-links` converts any generated network.
+   `fork_links` (links between nodes starting on different forks) is a
+   per-scenario spec parameter, so between-fork connectivity can be swept.
    `3_run_sweep.py --method {legacy,realfork,inplace}` runs one manifest
    under each method, with `--oracle-chain-source` for the ablation step.
    `--style mixed` on `realistic-economy-v2` reproduces `knots-mesh-pilot`
@@ -232,7 +234,7 @@ threshold.
 
 Findings along the way:
 - **Every legacy base network is two disconnected islands.** The real-fork
-  conversion bridges them. This is a necessary topology difference between
+  conversion links them with `fork_links` cross-fork links (default 5). This is a necessary topology difference between
   methods, and it is documented.
 - `observe_chain_state` stopped once either camp was empty. That was possible
   only under in-place switching (full capitulation). It now records

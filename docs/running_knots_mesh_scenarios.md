@@ -404,10 +404,27 @@ manifest (from `1_generate_*` / `2_build_configs.py`) under any fork mechanism:
   current directory.
 - Real-fork methods convert each generated network into
   `<network dir>__<method>/` with `tools/make_inplace_network.py`. Camps,
-  pools, economic metadata and topology are kept. The generated networks are
-  two disconnected islands (every legacy base network is), so `--bridges`
-  (default 5) two-way edges are added between them. Without the bridges,
-  blocks would never cross between camps.
+  pools and economic metadata are kept, and so is the topology, except for
+  the links between forks (next point).
+- **Fork links (`fork_links`)**: the number of two-way peer links between
+  nodes that start on different forks. Set it per scenario in the spec
+  (`fork_links: N`, so it can be swept), or for the whole run with
+  `--fork-links N` (default 5, the knots-mesh-pilot count).
+  - The generated networks are two disconnected islands, one per fork
+    (every legacy base network is), so the base count is usually 0. Links
+    are added, preferring ones that join islands, then nodes with the fewest
+    cross-fork links.
+  - If a scenario puts nodes of both forks in one island, the base count can
+    exceed N. Extras are then removed, but never one that would cut nodes
+    off from their own fork.
+  - `N=0` leaves the forks unable to exchange blocks: the split comes from
+    topology, not consensus.
+  - The achieved count, the links added or removed, and island counts go to
+    `<results>/<scenario>/network_conversion.json`, alongside `results.json`.
+  - Which nodes get linked follows `link_seed` in the spec (default 0).
+  - Legacy runs ignore it: they keep the original island topology.
+  - By hand: `python3 tools/make_inplace_network.py --src <dir> --dst <dir>
+    --fork-links N` (`--keep-topology` leaves links untouched).
 - The violation rate comes from the spec: `violation_rate` if set, otherwise
   `1 − v26_acceptance_probability`, and vice versa for `legacy`. One spec
   axis drives all methods.

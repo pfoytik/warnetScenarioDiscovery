@@ -43,7 +43,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # tools/
-from make_inplace_network import convert_dir  # noqa: E402
+from make_inplace_network import convert_dir, describe  # noqa: E402
 
 # --method: which fork mechanism runs a scenario (same spec, same network
 # generation; see docs/running_knots_mesh_scenarios.md, "Sweeps").
@@ -571,7 +571,8 @@ def run_scenario(
     method: str = "legacy",
     violation_rate: float = 1.0,
     oracle_chain_source: str = None,
-    bridges: int = 5,
+    fork_links: int = 5,
+    link_seed: int = 0,
 ) -> bool:
     """Run a single scenario and extract results"""
 
@@ -600,10 +601,12 @@ def run_scenario(
     if method != "legacy":
         style = "inplace" if method == "inplace" else "mixed"
         converted_dir = network_path.parent.parent / f"{network_path.parent.name}__{method}"
-        report = convert_dir(network_path.parent, converted_dir, style=style, bridges=bridges)
-        print(f"  Converted network ({style}): v27={report['v27']} v26={report['v26']}, "
-              f"islands {report['islands_before']} -> {report['islands_after']}"
-              + (f", {len(report['bridges'])} bridges" if report['bridges'] else ""))
+        report = convert_dir(network_path.parent, converted_dir, style=style,
+                             fork_links=fork_links, link_seed=link_seed)
+        print(f"  Converted network ({style}): {describe(report)}")
+        # The achieved link count can differ from the target; keep it with the results.
+        with open(scenario_results_dir / "network_conversion.json", "w") as f:
+            json.dump({'method': method, 'style': style, 'link_seed': link_seed, **report}, f, indent=2)
         network_path = converted_dir / "network.yaml"
 
     # Step 0c: Inject per-scenario network metadata so economic_split image tags
@@ -877,9 +880,11 @@ def main():
                         help="Real-fork methods only: passed to knots_mesh_pilot.py "
                              "(default there: observed). 'mined' feeds the oracles the same "
                              "mined-block counts as legacy, isolating the fork mechanism.")
-    parser.add_argument("--bridges", type=int, default=5,
-                        help="Real-fork methods only: two-way addnode bridges added between "
-                             "disconnected islands of the generated network (default 5).")
+    parser.add_argument("--fork-links", type=int, default=5,
+                        help="Real-fork methods only: two-way peer links between nodes that start "
+                             "on different forks (default 5). A spec's per-scenario 'fork_links' "
+                             "parameter overrides this, so it can be swept. The achieved count "
+                             "is saved to <results>/<scenario>/network_conversion.json.")
 
     if _scenario_cfg:
         parser.set_defaults(**_scenario_cfg)
@@ -1056,7 +1061,8 @@ def main():
                 method=args.method,
                 violation_rate=violation_rate,
                 oracle_chain_source=args.oracle_chain_source,
-                bridges=args.bridges,
+                fork_links=int(scenario_params.get("fork_links", args.fork_links)),
+                link_seed=int(scenario_params.get("link_seed", 0)),
             )
 
             scenario_elapsed = time.time() - scenario_start

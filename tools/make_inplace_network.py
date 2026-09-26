@@ -34,11 +34,23 @@ Both styles:
   - metadata.initial_camp records the starting camp
   - a legacy per-node `bitcoin_config` dict (not a warnet field, silently
     ignored on deploy) is converted to the real `config` string
-  - the topology is kept, but a network made of disconnected islands (every
-    legacy base network is two) gets --bridges two-way addnode edges between
-    consecutive islands, spread across the node list, as the 5 bridges added
-    by hand to knots-mesh-pilot. Without them blocks never cross between
-    camps and the split would come from topology, not consensus.
+  - --fork-links N sets how many two-way peer links join nodes that start on
+    different forks (default 5, as the 5 bridges added by hand to
+    knots-mesh-pilot). The base topology is otherwise kept:
+      * too few cross-fork links: add them, preferring links that join
+        disconnected islands (every legacy base network is two islands;
+        without links blocks never cross between camps), then nodes with the
+        fewest cross-fork links, in a --link-seed order;
+      * too many (a sweep can put nodes of both forks in one island): remove
+        extras, never one whose removal would cut some of a fork's nodes off
+        from the rest of that fork (e.g. strand a v26 node inside the v27
+        island). So the target can be unreachable; the report says what was
+        achieved. Separating the two forks from each other is allowed;
+      * islands still left afterwards are joined by same-fork links, which
+        don't count toward N (none are possible between single-fork islands,
+        e.g. with N=0).
+    N=0 with single-fork islands leaves the forks unable to exchange blocks:
+    the split then comes from topology, not consensus.
 """
 import argparse
 import copy
@@ -126,33 +138,103 @@ def components(nodes: list) -> list:
     return comps
 
 
-def bridge_islands(nodes: list, per_join: int) -> list:
-    """Join consecutive islands with per_join two-way addnode edges, picking
-    evenly spaced nodes on both sides. Returns the edges added."""
-    comps = components(nodes)
-    if len(comps) < 2 or per_join <= 0:
-        return []
+def _link(by_name, a, b, on=True):
+    """Add (or remove) a two-way addnode link a<->b."""
+    for x, y in ((a, b), (b, a)):
+        peers = list(by_name[x].get('addnode') or [])
+        if on and y not in peers:
+            peers.append(y)
+        elif not on and y in peers:
+            peers.remove(y)
+        by_name[x]['addnode'] = peers
+
+
+def _links(nodes: list) -> set:
+    names = {n['name'] for n in nodes}
+    return {frozenset((n['name'], p)) for n in nodes for p in (n.get('addnode') or [])
+            if p in names and p != n['name']}
+
+
+def set_fork_links(nodes: list, target, seed: int = 0) -> dict:
+    """Make the number of two-way links between nodes on different starting
+    forks equal target (see module docstring). Mutates nodes' addnode lists;
+    returns a report. target None leaves the topology unchanged."""
+    import random
+    camp = {n['name']: n['metadata']['initial_camp'] for n in nodes}
     by_name = {n['name']: n for n in nodes}
-    added = []
-    for left, right in zip(comps, comps[1:]):
-        k = min(per_join, len(left), len(right))
-        for i in range(k):
-            a = left[int(i * len(left) / k)]
-            b = right[int((i * len(right) / k + len(right) / (2 * k))) % len(right)]
-            for x, y in ((a, b), (b, a)):
-                peers = by_name[x].setdefault('addnode', []) or []
-                if y not in peers:
-                    peers.append(y)
-                by_name[x]['addnode'] = peers
-            added.append((a, b))
-    return added
+
+    def cross_links():
+        return sorted((tuple(sorted(e)) for e in _links(nodes) if len({camp[x] for x in e}) == 2))
+
+    before = len(cross_links())
+    report = {'fork_links_target': target, 'fork_links_before': before,
+              'islands_before': len(components(nodes)), 'added': [], 'removed': [], 'joining_links': []}
+    if target is None:
+        report.update(fork_links=before, islands_after=report['islands_before'])
+        return report
+
+    def fork_fragments():
+        # islands each fork's nodes are spread over, summed over forks
+        return sum(len({i for i, c in enumerate(components(nodes)) for x in c if camp[x] == f})
+                   for f in ('v27', 'v26'))
+
+    rng = random.Random(seed)
+    # Too many: drop extras, unless that cuts part of a fork off from the rest of it.
+    extras = cross_links()
+    rng.shuffle(extras)
+    for a, b in extras:
+        if len(cross_links()) <= target:
+            break
+        fragments = fork_fragments()
+        _link(by_name, a, b, on=False)
+        if fork_fragments() > fragments:
+            _link(by_name, a, b, on=True)
+        else:
+            report['removed'].append((a, b))
+
+    # Too few: add, joining islands first, then the least-linked nodes.
+    v27 = [x for x in camp if camp[x] == 'v27']
+    v26 = [x for x in camp if camp[x] == 'v26']
+    rng.shuffle(v27)
+    rng.shuffle(v26)
+    rank = {x: i for i, x in enumerate(v27)}
+    rank.update({x: i for i, x in enumerate(v26)})
+    while len(cross_links()) < target:
+        existing = _links(nodes)
+        comp_of = {x: i for i, c in enumerate(components(nodes)) for x in c}
+        deg = {x: 0 for x in camp}
+        for a, b in cross_links():
+            deg[a] += 1
+            deg[b] += 1
+        candidates = [(comp_of[a] == comp_of[b], deg[a] + deg[b], rank[a] + rank[b], a, b)
+                      for a in v27 for b in v26 if frozenset((a, b)) not in existing]
+        if not candidates:
+            break
+        *_, a, b = min(candidates)
+        _link(by_name, a, b)
+        report['added'].append((a, b))
+
+    # Remaining islands: same-fork joining links (not counted toward target).
+    while len(components(nodes)) > 1:
+        comps = components(nodes)
+        comp_of = {x: i for i, c in enumerate(comps) for x in c}
+        candidates = [(rank[a] + rank[b], a, b) for a in camp for b in camp
+                      if a < b and camp[a] == camp[b] and comp_of[a] != comp_of[b]]
+        if not candidates:
+            break
+        _, a, b = min(candidates)
+        _link(by_name, a, b)
+        report['joining_links'].append((a, b))
+
+    report.update(fork_links=len(cross_links()), islands_after=len(components(nodes)))
+    return report
 
 
-def convert_network(net: dict, style: str, bridges: int):
+def convert_network(net: dict, style: str, fork_links=5, link_seed: int = 0):
     net = copy.deepcopy(net)
     net['nodes'] = [convert_node(n, style) for n in net['nodes']]
-    added = bridge_islands(net['nodes'], bridges)
-    return net, added
+    report = set_fork_links(net['nodes'], fork_links, link_seed)
+    return net, report
 
 
 def convert_defaults(defaults: dict, style: str) -> dict:
@@ -162,8 +244,8 @@ def convert_defaults(defaults: dict, style: str) -> dict:
     return defaults
 
 
-def convert_dir(src: Path, dst: Path, style: str = 'inplace', bridges: int = 5,
-                bundled: Path = None) -> dict:
+def convert_dir(src: Path, dst: Path, style: str = 'inplace', fork_links=5,
+                bundled: Path = None, link_seed: int = 0) -> dict:
     """Convert src/network.yaml (+ node-defaults.yaml) into dst/. Returns a
     small report dict."""
     net = yaml.safe_load((src / 'network.yaml').read_text())
@@ -172,7 +254,7 @@ def convert_dir(src: Path, dst: Path, style: str = 'inplace', bridges: int = 5,
         defaults_path = ROOT / 'networks' / 'node-defaults.yaml'
     defaults = yaml.safe_load(defaults_path.read_text()) if defaults_path.exists() else {}
 
-    out, added = convert_network(net, style, bridges)
+    out, links = convert_network(net, style, fork_links, link_seed)
     dst.mkdir(parents=True, exist_ok=True)
     try:
         src_label = src.resolve().relative_to(ROOT)
@@ -184,9 +266,21 @@ def convert_dir(src: Path, dst: Path, style: str = 'inplace', bridges: int = 5,
     if bundled:
         bundled.write_text(header + yaml.safe_dump(out, sort_keys=False))
     camps = [n['metadata']['initial_camp'] for n in out['nodes']]
-    return {'nodes': len(camps), 'v27': camps.count('v27'), 'v26': camps.count('v26'),
-            'islands_before': len(components(net['nodes'])),
-            'islands_after': len(components(out['nodes'])), 'bridges': added}
+    return {'nodes': len(camps), 'v27': camps.count('v27'), 'v26': camps.count('v26'), **links}
+
+
+def describe(report: dict) -> str:
+    r = report
+    text = (f"{r['nodes']} nodes, v27={r['v27']} v26={r['v26']}, "
+            f"fork links {r['fork_links_before']} -> {r['fork_links']}"
+            + (f" (target {r['fork_links_target']})" if r['fork_links_target'] is not None else " (unchanged)")
+            + f", islands {r['islands_before']} -> {r['islands_after']}")
+    if r['fork_links_target'] is not None and r['fork_links'] != r['fork_links_target']:
+        text += "  WARNING: target not reachable (removing more would cut nodes off from their own fork)"
+    if r['islands_after'] > 1:
+        text += ("  NOTE: forks cannot exchange blocks (no links between them)" if r['fork_links'] == 0
+                 else "  WARNING: network still has disconnected islands")
+    return text
 
 
 def main():
@@ -194,9 +288,13 @@ def main():
     p.add_argument('--src', type=Path, default=DEFAULT_SRC, help='network directory to convert')
     p.add_argument('--dst', type=Path, default=None, help='output network directory')
     p.add_argument('--style', choices=['inplace', 'mixed'], default='inplace')
-    p.add_argument('--bridges', type=int, default=5,
-                   help='two-way addnode edges added between consecutive disconnected islands '
-                        '(default 5, as in knots-mesh-pilot; 0 = leave the topology alone)')
+    p.add_argument('--fork-links', type=int, default=5,
+                   help='two-way peer links between nodes starting on different forks '
+                        '(default 5, as in knots-mesh-pilot). See the module docstring.')
+    p.add_argument('--keep-topology', action='store_true',
+                   help='leave addnode links exactly as in --src (ignores --fork-links)')
+    p.add_argument('--link-seed', type=int, default=0,
+                   help='seed for which links are added/removed (default 0)')
     p.add_argument('--bundled', type=Path, default=None,
                    help='also write the converted network here (bundled scenario metadata)')
     args = p.parse_args()
@@ -204,11 +302,12 @@ def main():
     dst = args.dst or DEFAULT_DST
     bundled = args.bundled or (DEFAULT_BUNDLED if defaults_used else None)
 
-    report = convert_dir(args.src, dst, args.style, args.bridges, bundled)
-    print(f"Wrote {dst}" + (f" and {bundled}" if bundled else "") +
-          f": {report['nodes']} nodes, v27={report['v27']} v26={report['v26']}, "
-          f"islands {report['islands_before']} -> {report['islands_after']}"
-          + (f", bridges {report['bridges']}" if report['bridges'] else ""))
+    fork_links = None if args.keep_topology else args.fork_links
+    report = convert_dir(args.src, dst, args.style, fork_links, bundled, args.link_seed)
+    print(f"Wrote {dst}" + (f" and {bundled}" if bundled else "") + f": {describe(report)}")
+    for key in ('added', 'removed', 'joining_links'):
+        if report[key]:
+            print(f"  {key}: {report[key]}")
 
 
 if __name__ == '__main__':

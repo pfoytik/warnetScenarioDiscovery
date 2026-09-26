@@ -509,6 +509,15 @@ class KnotsMeshPilot(Commander):
                                "chainwork, as partition_miner_with_pools.py did. Default: "
                                "observed with --node-classification subversion, mined with tag "
                                "(so legacy runs reproduce). Requires --chain-state-interval > 0.")
+        parser.add_argument('--economic-switching-cooldown', type=float, default=None,
+                          help='Override switching_cooldown (seconds) for economic-type nodes. '
+                               'Config default is 1800s for realistic_current, which is >= a '
+                               'typical run length, so economic nodes decide once at t=0 and '
+                               'never re-decide — set this lower (e.g. 60) to exercise economic '
+                               'switching in a short run. Default: None (use the config value).')
+        parser.add_argument('--user-switching-cooldown', type=float, default=None,
+                          help='Same as --economic-switching-cooldown, for user-type nodes '
+                               '(realistic_current default 3600s). Default: None (use config).')
         parser.add_argument('--survival-window', type=int, default=30,
                           help="Pool revenue under --oracle-chain-source=observed is scaled by "
                                "the fraction of a camp's last N mined blocks still in its active "
@@ -607,6 +616,18 @@ class KnotsMeshPilot(Commander):
                     self.node_metadata[node_name] = metadata
 
             self.log.info(f"✓ Loaded metadata for {len(self.node_metadata)} nodes")
+
+            # Under tag classification, economic/user starting camps come from
+            # "'27' in image_tag". If the loaded metadata is the Knots network
+            # (29.4-local / 30.2 tags), every node silently starts on v26 —
+            # e.g. a legacy run that forgot --bundled-network-yaml.
+            if self.options.node_classification == 'tag':
+                tags = {str(m.get('image_tag', '')) for m in self.node_metadata.values()}
+                if not any('26' in t or '27' in t for t in tags):
+                    self.log.warning(f"  --node-classification tag but loaded metadata has no "
+                                     f"26/27 image tags ({sorted(tags)}); economic/user nodes "
+                                     f"will all start on v26. For legacy runs pass "
+                                     f"--bundled-network-yaml realistic_economy_v2_network.yaml")
 
         except Exception as e:
             self.log.error(f"Error loading network YAML: {e}")
@@ -2408,6 +2429,27 @@ class KnotsMeshPilot(Commander):
                 econ_config,
                 self.options.economic_scenario
             )
+
+            # Optional cooldown overrides. Config defaults (1800s economic /
+            # 3600s user in realistic_current) are >= a typical run length, so
+            # each node decides once at t=0 and the economic layer never moves;
+            # lowering these is how a short run exercises economic switching.
+            # Both default to None, leaving the config values untouched.
+            cooldown_overrides = {
+                'economic': self.options.economic_switching_cooldown,
+                'user': self.options.user_switching_cooldown,
+            }
+            if any(v is not None for v in cooldown_overrides.values()):
+                counts = {}
+                for profile in economic_profiles:
+                    node_type = getattr(profile.node_type, 'value', profile.node_type)
+                    override = cooldown_overrides.get(node_type)
+                    if override is not None:
+                        profile.switching_cooldown = override
+                        counts[node_type] = counts.get(node_type, 0) + 1
+                for node_type, n in sorted(counts.items()):
+                    self.log.info(f"  Overrode switching_cooldown={cooldown_overrides[node_type]}s "
+                                  f"for {n} {node_type} node(s)")
 
             # Read user_custody_fraction from per-scenario config entry if present.
             # Omitting it (None) leaves user node weights at their calibrated values,

@@ -98,6 +98,7 @@ warnet run scenarios/knots_mesh_pilot.py --namespace knots-pilot \
 warnet run scenarios/knots_mesh_pilot.py --namespace <legacy-namespace> \
   -- --duration 600 --enable-difficulty --retarget-interval 2016 \
      --node-classification tag \
+     --bundled-network-yaml realistic_economy_v2_network.yaml \
      --enable-manual-repartition --enable-asymmetric-bridging \
      --v26-acceptance-probability 0.0 \
      --no-rdts-injection
@@ -105,7 +106,14 @@ warnet run scenarios/knots_mesh_pilot.py --namespace <legacy-namespace> \
 (`--v26-acceptance-probability 0.0` = strict UASF-style partition, matching
 `chainsplit_persistence`'s baseline; raise it to model partial
 softfork-rule compliance, per that flag's own `--help` text.
-`--no-rdts-injection` since RDTS is meaningless without Knots nodes.)
+`--no-rdts-injection` since RDTS is meaningless without Knots nodes.
+`--bundled-network-yaml realistic_economy_v2_network.yaml` is required: the
+default is the Knots network's metadata, whose 29.4-local/30.2 tags make every
+economic/user node start on v26 under tag classification. The scenario logs a
+warning if this is missed. `scenarios/config/realistic_economy_v2_network.yaml`
+is a copy of `networks/realistic-economy-v2/network.yaml` — re-copy it if that
+network changes. Do not use `network_metadata.yaml`; the sweep generator
+rewrites it.)
 
 Get the commander pod name and watch it:
 ```bash
@@ -212,6 +220,24 @@ Default `observed` under `--node-classification subversion` (`mined` under
 - `chain_state.survival` (`mined`/`surviving`/`orphaned`/`window_ratio` per
   camp) and `time_series.{v27,v26}_surviving` / `_survival_ratio` record it;
   `summary.blocks_mined` is still the raw mining counter.
+
+### Economic-node switching (`--economic-switching-cooldown`, `--user-switching-cooldown`)
+`realistic_current` sets `switching_cooldown` to 1800s (economic) and 3600s
+(user). In runs up to ~1800s each node decides once at t=0, while prices are
+still equal, and the economic weight never moves (it stayed 43/57 in every run
+through 2026-09-25). To exercise economic switching in a short run, lower the
+cooldowns, e.g. `--economic-switching-cooldown 300 --user-switching-cooldown 300`.
+Decisions are only evaluated every `--economic-update-interval` (default 300s),
+so that is the effective floor. Lower both if you want finer resolution.
+Both flags default to the config values, so existing runs are unchanged. The
+log line `Overrode switching_cooldown=...` confirms they took effect.
+
+Expect all-or-nothing swings. 80.8% of economic custody is in 6 nodes, 5 of
+them `neutral` with 2–4% switching thresholds. v26-ideological holders do stay
+put (verified offline: node-0045/0046 keep v26 through ideology overrides), but
+together they hold only ~628 BTC. An offline check with a 17.7% price gap and
+60s cooldown moved economic weight 43/57 → 100/0. That is a property of the
+network's custody distribution, not a bug.
 
 **Every run needs a fresh deploy** — chains persist across `warnet run`s on
 the same network, so a second run starts from the previous run's split.

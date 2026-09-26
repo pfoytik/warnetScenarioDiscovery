@@ -209,6 +209,42 @@ Verification:
 **Not yet verified:** anything in Kubernetes (pods/exec, kubelet restart
 back-off timing, the full 60-node run). That is Step 3, on the server.
 
+## Method comparison support (2026-09-26)
+
+Goal (user): quantify the input variables behind fork success/failure with
+the real soft-fork model, and check that the legacy asymmetric-softfork
+method gives results similar to it. The violation rate is to be tested as a
+threshold.
+
+1. **`--violation-rate`**: the probability each Core-camp block carries a new
+   violating tx, with earlier ones always re-included. Same meaning as the
+   legacy `violation_rate = 1 − v26_acceptance_probability`. Pre-funded
+   anyone-can-spend chain, built in Python, mined via `generateblock`.
+2. **Sweep bridge:** `tools/make_inplace_network.py --src/--dst/--style
+   {inplace,mixed}/--bridges` converts any generated network.
+   `3_run_sweep.py --method {legacy,realfork,inplace}` runs one manifest
+   under each method, with `--oracle-chain-source` for the ablation step.
+   `--style mixed` on `realistic-economy-v2` reproduces `knots-mesh-pilot`
+   exactly, except which bridge nodes are picked.
+3. **`outcomes`:** the winner (by price, hashrate and economic weight) and
+   per-node results (blocks mined/surviving/orphaned, time on each fork,
+   custody value change, regret), plus a summary.
+
+Findings along the way:
+- **Every legacy base network is two disconnected islands.** The real-fork
+  conversion bridges them. This is a necessary topology difference between
+  methods, and it is documented.
+- `observe_chain_state` stopped once either camp was empty. That was possible
+  only under in-place switching (full capitulation). It now records
+  `only_v27`/`only_v26` and keeps observing.
+- `3_run_sweep.py` passed `--random-seed`, which commander rejects
+  (`unrecognized arguments`, verified), so a spec with `random_seed` failed
+  rather than seeding the run. Fixed to `--randomseed`.
+- Offline checks: `tools/knots_switch_test/violation_harness.py` (26/26),
+  `scenario_harness.py` re-run (still 20/20), `3_run_sweep.py --dry-run` for
+  all 3 methods, and `helm template` of converted lite-network nodes for both
+  styles.
+
 ## Goal
 
 Test whether Knots (RDTS/BIP-110) and Core v30 nodes, connected on an

@@ -62,7 +62,7 @@ def make_scenario(nodes):
     s = object.__new__(kmp.KnotsMeshPilot)
     s.options = argparse.Namespace(
         inplace_switching=True, switch_restart_timeout=90, rdts_injection=True,
-        op_return_payload_size=81, node_classification='rdts')
+        op_return_payload_size=81, node_classification='rdts', violation_rate=None)
     s.log = logging.getLogger('harness')
     s.nodes = nodes
     s.v27_nodes, s.v26_nodes = [], []
@@ -126,7 +126,8 @@ def main():
     s._mine_block(C, 'v26', addr_c)
     check(len(s._violating_blocks) == 1, "not re-included while already on C's chain")
     s._mine_block(C, 'v26', addr_c)
-    settle()
+    waited = wait_until(lambda: tip(B) == tip(C), timeout=90)
+    print(f"    (B synced to C after {waited}s)")
     check(any(t['hash'] == v1 and t['status'] == 'invalid' for t in A.getchaintips())
           or A.getblockheader(v1).get('confirmations', -1) < 0, "A (RDTS) rejects violating block")
     check(tip(B) == tip(C), "B follows C (Core mode accepts)")

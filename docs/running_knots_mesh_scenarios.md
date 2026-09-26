@@ -324,8 +324,111 @@ Offline test of this code path (no Kubernetes):
 **Every run needs a fresh deploy** — chains persist across `warnet run`s on
 the same network, so a second run starts from the previous run's split.
 Uninstall the helm releases (see Cleanup) and `warnet deploy` again.
-Pass `--randomseed <N>` per run — `scenarios/commander.py` defaults it to a
-constant, so otherwise every run makes identical random draws.
+Pass `--randomseed <N>` to make a run reproducible. Without it,
+`scenarios/commander.py` picks a random seed and logs it (`PRNG seed is:`).
+(Corrected 2026-09-26; this line previously said the default was a constant.)
+The spelling must be `--randomseed`: commander parses strictly, and
+`--random-seed` fails with `unrecognized arguments`. A seed makes a run
+reproducible *within* a method. Different methods take different code paths,
+so the same seed doesn't give identical draws across methods.
+
+### Violation rate (`--violation-rate`)
+The threshold knob for fork success/failure. It is the probability that each
+Core-camp (v26) block carries a **new** RDTS-violating transaction, with the
+same meaning as the legacy sweeps' `violation_rate = 1 − v26_acceptance_probability`:
+- `1.0`: every Core block violates (strict), the same as the legacy `p = 0.0`
+  baseline;
+- `0.0`: no violations; Core blocks stay valid to Knots and there is no split;
+- in between: a Core block without a violation, mined on a tip both camps
+  share, is valid to Knots. A Core block on a branch that already has a
+  violation is rejected by Knots automatically, because its parent is invalid.
+
+Earlier violating transactions missing from a Core miner's chain (after its
+branch was reorged away) are **always** re-included, as a Core mempool would.
+So once a violation exists, the split re-forms after every wipe-out.
+
+Mechanics: one anyone-can-spend output is funded in the shared history before
+the split (`[violations] ... funded anyone-can-spend source`). The violating
+transactions are a chain spending it, built in Python and mined via
+`generateblock`, with no relay. This works in both real-fork modes (with or
+without `--inplace-switching`) and replaces the single `--rdts-injection`
+transaction. Unset (the default), runs behave as before.
+
+Log: `[violations] node-XXXX mined N violating tx(s) in <block> (M created so far)`.
+Results: `violations.{violation_rate, txs_created, blocks_with_violations, blocks}`.
+`chain_state.time_series.injected_tx_state` reads `pending` / `partial` /
+`confirmed` for the violating chain on the Core camp's chain.
+`injected_tx_height` then holds the count on chain, not a height.
+
+### Per-node outcomes (`outcomes` in results)
+Who won and who lost, computed at the end of every run, in both real-fork
+modes. The log line is `OUTCOMES: winner by price=...`.
+- `outcomes.winner`: the winning fork **by price**, **by hashrate** and **by
+  economic weight**, plus the observed chain relation, final prices and
+  final splits. Per-node "on winner" fields use the price winner.
+- `outcomes.nodes.<node>`, for every node:
+  - role, starting and final fork (the owner's choice), the fork it enforces
+    at the end, number of fork changes;
+  - seconds on each fork and on the winner;
+  - in-place switch count and downtime.
+- Nodes that mined, additionally: blocks mined / surviving (in either camp's
+  final chain) / on the winning chain / orphaned, and orphan rate.
+- Pools, additionally: cumulative opportunity cost, forced-switch and
+  ideology-override counts.
+- Economic and user nodes, additionally:
+  - custody and volume, fork preference and ideology;
+  - `value_start_usd` (custody × start price);
+  - `value_final_usd` (custody × final price of the fork it ends on) and
+    the change in USD and percent;
+  - `value_if_stayed_usd`;
+  - `regret_usd` against the winning fork.
+- `outcomes.summary`: pools and economic/user nodes on the winner, custody
+  on the winner, total value change and regret, orphaned pool blocks, and
+  how many nodes changed fork.
+
+Fork-choice timelines come from the pool and economic strategies' allocations,
+recorded after each decision round (`--hashrate-update-interval` for pools,
+`--economic-update-interval` for economic/user nodes), so time on each fork has
+that resolution.
+
+## Sweeps: running the same spec under each method
+`tools/sweep/3_run_sweep.py --method {legacy,realfork,inplace}` runs one build
+manifest (from `1_generate_*` / `2_build_configs.py`) under any fork mechanism:
+| `--method` | Script | Network |
+|---|---|---|
+| `legacy` (default) | `partition_miner_with_pools.py`, as in the prior studies | the generated network as-is |
+| `realfork` | `knots_mesh_pilot.py` | generated network converted `--style mixed` (Knots for v27, Core 30.2 for v26) |
+| `inplace` | `knots_mesh_pilot.py --inplace-switching` | converted `--style inplace` (all Knots) |
+
+- Run it from the repo root, as before: it finds `scenarios/` relative to the
+  current directory.
+- Real-fork methods convert each generated network into
+  `<network dir>__<method>/` with `tools/make_inplace_network.py`. Camps,
+  pools, economic metadata and topology are kept. The generated networks are
+  two disconnected islands (every legacy base network is), so `--bridges`
+  (default 5) two-way edges are added between them. Without the bridges,
+  blocks would never cross between camps.
+- The violation rate comes from the spec: `violation_rate` if set, otherwise
+  `1 − v26_acceptance_probability`, and vice versa for `legacy`. One spec
+  axis drives all methods.
+- `--oracle-chain-source mined` makes the real-fork oracles read the same
+  mined-block counts as legacy. Use it to isolate the fork mechanism from the
+  oracle-input change.
+- `random_seed` in a spec is now passed correctly as `--randomseed` (the
+  runner previously sent `--random-seed`, which commander rejects).
+- Use a **separate `--results-dir` per method**. Progress and results are
+  keyed by scenario id.
+
+Suggested comparison ladder (same manifest and seeds, one change per step):
+```bash
+python3 tools/sweep/3_run_sweep.py -i <manifest> --method legacy   -r <out>/legacy
+python3 tools/sweep/3_run_sweep.py -i <manifest> --method realfork -r <out>/realfork_mined --oracle-chain-source mined
+python3 tools/sweep/3_run_sweep.py -i <manifest> --method realfork -r <out>/realfork
+python3 tools/sweep/3_run_sweep.py -i <manifest> --method inplace  -r <out>/inplace
+```
+Real-fork methods need `bitcoin-knots:29.4-local` (and `bitcoindevproject/bitcoin:30.2`
+for `realfork`) in the cluster. `inplace` also needs the warnet patch and
+`alpine:latest`; see "In-place switching mode".
 
 ## Cleanup
 

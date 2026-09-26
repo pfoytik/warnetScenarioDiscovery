@@ -320,3 +320,18 @@ Outcomes are classified by final v27 hashrate share:
 - `v27_dominant`: v27 hashrate share > 65%
 - `v26_dominant`: v27 hashrate share < 35%
 - `contested`: 35–65% (sustained fork, neither side wins)
+
+## Fork mechanism: `--method` (added 2026-09-26)
+
+`3_run_sweep.py --method {legacy,realfork,inplace}` runs the same manifest under
+the legacy scripted partition (`partition_miner_with_pools.py`, the default and
+what all prior sweeps used) or the real Knots/RDTS soft fork
+(`knots_mesh_pilot.py`, optionally with in-place node switching). Specs can set
+`violation_rate` or `v26_acceptance_probability` (= 1 − violation_rate); each
+method receives its own form. Details, the comparison ladder, and prerequisites
+are in `docs/running_knots_mesh_scenarios.md`, section "Sweeps: running the same
+spec under each method".
+
+Also fixed then: `random_seed` in a spec is now passed as `--randomseed` (the
+runner used to pass `--random-seed`, which commander rejects as an unrecognized
+argument).

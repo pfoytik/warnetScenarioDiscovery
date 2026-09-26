@@ -78,6 +78,9 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 from commander import Commander
+from test_framework.address import ADDRESS_BCRT1_P2WSH_OP_TRUE, address_to_scriptpubkey
+from test_framework.messages import COutPoint, CTransaction, CTxIn, CTxInWitness, CTxOut
+from test_framework.script import CScript, OP_RETURN, OP_TRUE
 
 # Import from lib modules (bundled with scenario)
 import os
@@ -262,6 +265,16 @@ class KnotsMeshPilot(Commander):
         self._violating_blocks = []
         self._violating_tx_hex = None
         self.inplace_switches = []
+        # --violation-rate: the chain of violating txs, which blocks carried
+        # each, and the next outpoint to spend.
+        self._vtxs = []                 # [{'txid', 'hex'}] in creation (spend) order
+        self._vtx_blocks = {}           # txid -> [block hashes that included it]
+        self._vsource = None            # (txid, vout, value_sats)
+        self._violation_block_log = []
+        # Per-node outcomes: blocks each node mined, and each pool/economic/
+        # user node's fork-choice timeline [(elapsed_s, camp)].
+        self._mined_by_node = {}
+        self._alloc_timeline = {}
         self._mined_blocks = {'v27': [], 'v26': []}     # block hashes, mining order
         self._active_chain = {'v27': {}, 'v26': {}}     # height -> hash
         self.chain_state['survival'] = {
@@ -484,6 +497,16 @@ class KnotsMeshPilot(Commander):
                                'generateblock, standing in for a Core mempool (Knots policy caps '
                                'datacarriersize at 83, so no Knots node relays it). '
                                'Default: False (switches are accounting only).')
+        parser.add_argument('--violation-rate', type=float, default=None,
+                          help='Probability (0-1) that each Core-camp (v26) block carries a new '
+                               'RDTS-violating tx; earlier violating txs missing from the miner\'s '
+                               'chain are always re-included (a Core mempool keeps them). Same '
+                               'meaning as the legacy sweeps\' violation_rate = 1 - '
+                               'v26_acceptance_probability: 1.0 = every Core block violates; lower '
+                               'values let non-violating Core blocks be valid to Knots nodes. Txs '
+                               'spend a chain from one anyone-can-spend output funded in shared '
+                               'history and are mined via generateblock (no relay). Replaces the '
+                               'single --rdts-injection tx. Default: None (single injection).')
         parser.add_argument('--switch-restart-timeout', type=int, default=180,
                           help='Seconds to wait for a switching node to come back with the new '
                                'RDTS mode (covers the kubelet restart back-off). Default: 180.')
@@ -991,6 +1014,12 @@ class KnotsMeshPilot(Commander):
         Knots node's mempool takes the tx (datacarriersize is capped at 83),
         so this is the one place the scenario models mempool contents.
         """
+        if self.options.violation_rate is not None:
+            if fork_id == 'v26' and self._vsource:
+                mined = self._mine_core_block_with_violations(miner, address)
+                if mined:
+                    return mined
+            return self.generatetoaddress(miner, 1, address, sync_fun=self.no_op)
         if (self.options.inplace_switching and fork_id == 'v26' and self._violating_tx_hex
                 and self._violation_in_chain(miner) is None):
             block_hash = miner.generateblock(address, [self._violating_tx_hex])['hash']
@@ -999,6 +1028,109 @@ class KnotsMeshPilot(Commander):
                           f"in block {block_hash[:16]} (violating block #{len(self._violating_blocks)})")
             return [block_hash]
         return self.generatetoaddress(miner, 1, address, sync_fun=self.no_op)
+
+    # ------------------------------------------------------------------
+    # Violation rate (--violation-rate)
+    # ------------------------------------------------------------------
+
+    def fund_violation_source(self):
+        """
+        Fund one anyone-can-spend P2WSH(OP_TRUE) output and confirm it in the
+        shared history (before any split), so both camps have it. Violating
+        txs then spend it as a chain (each spends the previous one's change),
+        built in Python with no wallet or signing, so they can be created
+        while any node is restarting.
+        """
+        node = self.v26_nodes[0] if self.v26_nodes else self.nodes[0]
+        wallet = self._ensure_miner(node)
+        amount_btc = 10
+        txid = wallet.sendtoaddress(ADDRESS_BCRT1_P2WSH_OP_TRUE, amount_btc)
+        tx = wallet.gettransaction(txid, True, True)['decoded']
+        vout = next(o['n'] for o in tx['vout']
+                    if o['scriptPubKey'].get('address') == ADDRESS_BCRT1_P2WSH_OP_TRUE)
+        block_hash = node.generateblock(wallet.getnewaddress(), [txid])['hash']
+        deadline = time() + 120
+        while time() < deadline:
+            lagging = []
+            for n in self.nodes:
+                try:
+                    if n.getblockheader(block_hash).get('confirmations', -1) < 1:
+                        lagging.append(n)
+                except Exception:
+                    lagging.append(n)
+            if not lagging:
+                break
+            sleep(2)
+        else:
+            self.log.warning(f"  [violations] funding block {block_hash[:16]} not on "
+                             f"{len(lagging)} node(s) after 120s")
+        self._vsource = (txid, vout, amount_btc * 100_000_000)
+        self.rdts_rejection['injected'] = True
+        self.rdts_rejection['txid'] = None
+        self.log.info(f"  [violations] Violation rate {self.options.violation_rate}: funded "
+                      f"anyone-can-spend source {txid[:16]}:{vout} in shared block "
+                      f"{block_hash[:16]} (height {node.getblockcount()})")
+
+    def _new_violating_tx(self) -> dict:
+        """Next tx in the chain: spends the previous change, carries an
+        oversized OP_RETURN (bad-txns-vout-script-toolarge under RDTS)."""
+        prev_txid, prev_vout, value = self._vsource
+        fee = 1000
+        spk = address_to_scriptpubkey(ADDRESS_BCRT1_P2WSH_OP_TRUE)
+        tx = CTransaction()
+        tx.vin = [CTxIn(COutPoint(int(prev_txid, 16), prev_vout))]
+        tx.vout = [CTxOut(0, CScript([OP_RETURN, b'\x00' * self.options.op_return_payload_size])),
+                   CTxOut(value - fee, spk)]
+        tx.wit.vtxinwit = [CTxInWitness()]
+        tx.wit.vtxinwit[0].scriptWitness.stack = [bytes(CScript([OP_TRUE]))]
+        vtx = {'txid': tx.txid_hex, 'hex': tx.serialize().hex()}
+        self._vsource = (vtx['txid'], 1, value - fee)
+        self._vtxs.append(vtx)
+        self._vtx_blocks[vtx['txid']] = []
+        return vtx
+
+    def _violations_on_chain(self, node) -> int:
+        """How many of the created violating txs are in node's active chain.
+        They spend each other in order, so the confirmed ones are always a
+        prefix: binary search on it."""
+        def on_chain(i):
+            for block_hash in self._vtx_blocks[self._vtxs[i]['txid']]:
+                try:
+                    if node.getblockheader(block_hash).get('confirmations', -1) > 0:
+                        return True
+                except Exception:
+                    pass
+            return False
+        lo, hi = 0, len(self._vtxs)
+        while lo < hi:
+            mid = (lo + hi) // 2
+            if on_chain(mid):
+                lo = mid + 1
+            else:
+                hi = mid
+        return lo
+
+    def _mine_core_block_with_violations(self, miner, address: str) -> Optional[list]:
+        """
+        --violation-rate: a Core-camp block carries a new violating tx with
+        probability violation_rate, plus every earlier one missing from the
+        miner's chain (a Core mempool keeps them, e.g. after the Core branch
+        was reorged away). Returns the mined hashes, or None to mine normally.
+        """
+        pending = self._vtxs[self._violations_on_chain(miner):]
+        if random() < self.options.violation_rate:
+            pending.append(self._new_violating_tx())
+        if not pending:
+            return None
+        block_hash = miner.generateblock(address, [v['hex'] for v in pending])['hash']
+        for v in pending:
+            self._vtx_blocks[v['txid']].append(block_hash)
+        self._violating_blocks.append(block_hash)
+        self._violation_block_log.append({'block': block_hash, 'miner': f"node-{miner.index:04d}",
+                                          'txs': len(pending), 'total_created': len(self._vtxs)})
+        self.log.info(f"  [violations] node-{miner.index:04d} mined {len(pending)} violating tx(s) "
+                      f"in {block_hash[:16]} ({len(self._vtxs)} created so far)")
+        return [block_hash]
 
     def check_rdts_rejection(self, elapsed: int):
         """
@@ -1217,7 +1349,15 @@ class KnotsMeshPilot(Commander):
         )
 
     def _injected_tx_state(self) -> Tuple[str, Optional[int]]:
-        """Confirmation state of the RDTS injection tx, from the injecting Core node's wallet."""
+        """Confirmation state of the RDTS injection tx, from the injecting Core node's wallet.
+        Under --violation-rate: state of the violating-tx chain on the Core camp's
+        chain (confirmed = all created txs on it, partial, pending), and the
+        count on chain in place of a height."""
+        if self.options.violation_rate is not None:
+            if not self._vtxs:
+                return 'none', None
+            k = self._violations_on_chain(self.v26_nodes[0]) if self.v26_nodes else 0
+            return ('confirmed' if k == len(self._vtxs) else 'partial' if k else 'pending'), k
         txid = self.rdts_rejection.get('txid')
         wallet = getattr(self, '_rdts_wallet', None)
         if not txid or wallet is None:
@@ -1318,7 +1458,7 @@ class KnotsMeshPilot(Commander):
             re-mining of the injected tx after a Core reorg adds one)
         Never mines, submits blocks, or touches peers.
         """
-        if not self.chain_state['enabled'] or not self.v27_nodes or not self.v26_nodes:
+        if not self.chain_state['enabled'] or not (self.v27_nodes or self.v26_nodes):
             return
 
         camp_tips = {}
@@ -1340,14 +1480,18 @@ class KnotsMeshPilot(Commander):
         relation, fork_height, v27_branch, v26_branch = 'unknown', None, None, None
         v27_height = v26_height = v27_tip = v26_tip = None
 
-        if camp_tips['v27'] and camp_tips['v26']:
-            def majority(observed):
-                counts = Counter(tip for _, _, tip in observed)
-                tip = counts.most_common(1)[0][0]
-                node, height, _ = next(o for o in observed if o[2] == tip)
-                return node, height, tip
+        def majority(observed):
+            counts = Counter(tip for _, _, tip in observed)
+            tip = counts.most_common(1)[0][0]
+            node, height, _ = next(o for o in observed if o[2] == tip)
+            return node, height, tip
+        k_node = c_node = None
+        if camp_tips['v27']:
             k_node, v27_height, v27_tip = majority(camp_tips['v27'])
+        if camp_tips['v26']:
             c_node, v26_height, v26_tip = majority(camp_tips['v26'])
+
+        if k_node and c_node:
             try:
                 if v27_tip == v26_tip:
                     relation = 'same_tip'
@@ -1363,13 +1507,21 @@ class KnotsMeshPilot(Commander):
             except Exception as e:
                 self.log.debug(f"  [chain-state] relation check failed: {e}")
                 relation = 'unknown'
+        elif k_node or c_node:
+            # --inplace-switching can move every node to one camp.
+            relation = 'only_v27' if k_node else 'only_v26'
 
-            try:
+        # Each camp's active chain is refreshed while it has nodes; a camp
+        # that has emptied keeps its last observed chain.
+        try:
+            if k_node:
                 self._update_active_chain('v27', k_node, v27_height, v27_tip)
+            if c_node:
                 self._update_active_chain('v26', c_node, v26_height, v26_tip)
+            if k_node or c_node:
                 self._update_survival()
-            except Exception as e:
-                self.log.debug(f"  [chain-state] active-chain update failed: {e}")
+        except Exception as e:
+            self.log.debug(f"  [chain-state] active-chain update failed: {e}")
 
         tx_state, tx_height = self._injected_tx_state()
 
@@ -2115,6 +2267,157 @@ class KnotsMeshPilot(Commander):
             self.pool_nodes_v26.clear()
             self.build_pool_node_mapping(verbose=False)
 
+    # ------------------------------------------------------------------
+    # Per-node outcomes (results['outcomes'])
+    # ------------------------------------------------------------------
+
+    def _record_mined(self, miner, block_hashes):
+        name = f"node-{miner.index:04d}"
+        self._mined_by_node.setdefault(name, []).extend(block_hashes or [])
+
+    def _record_allocations(self, elapsed: int):
+        """Timeline of each pool / economic / user node's fork choice (the
+        strategy allocation; under --inplace-switching also what the node
+        enforces). Only changes are stored."""
+        for node, (camp, _) in self._desired_camps().items():
+            timeline = self._alloc_timeline.setdefault(f"node-{node.index:04d}", [])
+            if not timeline or timeline[-1][1] != camp:
+                timeline.append((elapsed, camp))
+
+    def _time_on_camps(self, node_name: str, end: int) -> dict:
+        timeline = self._alloc_timeline.get(node_name, [])
+        totals = {'v27': 0, 'v26': 0}
+        for i, (t, camp) in enumerate(timeline):
+            t_next = timeline[i + 1][0] if i + 1 < len(timeline) else end
+            if camp in totals:
+                totals[camp] += max(0, t_next - t)
+        return totals
+
+    def compute_outcomes(self, end_elapsed: int) -> dict:
+        """
+        Who won and who lost. The winning fork is reported three ways (price,
+        hashrate, economic weight) plus the observed chain relation; per-node
+        'on winner' fields use the price winner, since price is what the
+        participants' decisions respond to.
+        Pools: blocks mined / surviving (in either camp's final active chain)
+        / on the winning chain / orphaned, opportunity cost, switch downtime.
+        Economic & user nodes: custody value at start vs final price of the
+        fork they end on, what staying would have given, regret against the
+        best-priced fork, time spent on each fork.
+        """
+        # Refresh each populated camp's active chain for the survival check.
+        for camp, nodes in (('v27', self.v27_nodes), ('v26', self.v26_nodes)):
+            if nodes:
+                try:
+                    node = nodes[0]
+                    self._update_active_chain(camp, node, node.getblockcount(), node.getbestblockhash())
+                except Exception as e:
+                    self.log.warning(f"  [outcomes] could not refresh {camp} active chain: {e}")
+        chains = {camp: set(self._active_chain[camp].values()) for camp in ('v27', 'v26')}
+
+        prices = {camp: self.price_oracle.get_price(camp) for camp in ('v27', 'v26')}
+        base_price = getattr(self.price_oracle, 'base_price', 60000)
+        winner = max(prices, key=prices.get)
+        final = self.chain_state.get('final') or {}
+        winner_info = {
+            'by_price': winner,
+            'by_hashrate': 'v27' if self.current_v27_hashrate >= self.current_v26_hashrate else 'v26',
+            'by_economic_weight': 'v27' if self.current_v27_economic >= self.current_v26_economic else 'v26',
+            'chain_relation': final.get('relation'),
+            'final_prices': prices,
+            'start_price': base_price,
+            'final_hashrate': {'v27': self.current_v27_hashrate, 'v26': self.current_v26_hashrate},
+            'final_economic_weight': {'v27': self.current_v27_economic, 'v26': self.current_v26_economic},
+        }
+
+        switch_events = {}
+        for e in self.inplace_switches:
+            switch_events.setdefault(e['node'], []).append(e)
+
+        nodes_out = {}
+        for node in self.nodes:
+            name = f"node-{node.index:04d}"
+            meta = self.node_metadata.get(name, {})
+            timeline = self._alloc_timeline.get(name, [])
+            times = self._time_on_camps(name, end_elapsed)
+            enforced = 'v27' if node in self.v27_nodes else 'v26' if node in self.v26_nodes else None
+            events = switch_events.get(name, [])
+            out = {
+                'role': 'relay',
+                'initial_camp': timeline[0][1] if timeline else enforced,
+                'final_camp': timeline[-1][1] if timeline else enforced,
+                'enforced_final_camp': enforced,
+                'fork_changes': max(0, len(timeline) - 1),
+                'time_on_v27_s': times['v27'],
+                'time_on_v26_s': times['v26'],
+                'time_on_winner_s': times[winner],
+                'inplace_switches': sum(1 for e in events if e['success']),
+                'switch_downtime_s': round(sum(e.get('downtime_s') or 0 for e in events), 1),
+            }
+            mined = self._mined_by_node.get(name, [])
+            if mined:
+                surviving = sum(1 for b in mined if b in chains['v27'] or b in chains['v26'])
+                out.update({
+                    'blocks_mined': len(mined),
+                    'blocks_surviving': surviving,
+                    'blocks_on_winning_chain': sum(1 for b in mined if b in chains[winner]),
+                    'blocks_orphaned': len(mined) - surviving,
+                    'orphan_rate': round((len(mined) - surviving) / len(mined), 4),
+                })
+
+            pool_id = self.get_node_pool_id(node)
+            if pool_id and self.pool_strategy and pool_id in self.pool_strategy.pools:
+                summary = self.pool_strategy.get_pool_summary(pool_id)
+                out.update({
+                    'role': 'pool',
+                    'pool_id': pool_id,
+                    'hashrate_pct': summary['hashrate_pct'],
+                    'fork_preference': summary['fork_preference'],
+                    'cumulative_opportunity_cost_usd': summary['cumulative_opportunity_cost_usd'],
+                    'ideology_override_count': summary['ideology_override_count'],
+                    'forced_switch_count': summary['forced_switch_count'],
+                })
+            elif self.economic_strategy and name in self.economic_strategy.nodes:
+                profile = self.economic_strategy.nodes[name]
+                custody = profile.custody_btc
+                final_camp = out['final_camp'] or profile.initial_fork
+                value_final = custody * prices[final_camp]
+                out.update({
+                    'role': getattr(profile.node_type, 'value', str(profile.node_type)),
+                    'custody_btc': custody,
+                    'daily_volume_btc': profile.daily_volume_btc,
+                    'fork_preference': getattr(profile.fork_preference, 'value', str(profile.fork_preference)),
+                    'ideology_strength': profile.ideology_strength,
+                    'value_start_usd': custody * base_price,
+                    'value_final_usd': value_final,
+                    'value_change_usd': value_final - custody * base_price,
+                    'value_change_pct': round((prices[final_camp] / base_price - 1) * 100, 3),
+                    'value_if_stayed_usd': custody * prices[out['initial_camp'] or profile.initial_fork],
+                    'regret_usd': custody * (prices[winner] - prices[final_camp]),
+                })
+            else:
+                out['role'] = meta.get('node_type') or 'relay'
+            out['on_winning_fork'] = out['final_camp'] == winner
+            nodes_out[name] = out
+
+        def group(role_filter):
+            return [o for o in nodes_out.values() if role_filter(o['role'])]
+        econ = group(lambda r: r in ('economic', 'user'))
+        pools = group(lambda r: r == 'pool')
+        summary = {
+            'pools_on_winner': sum(o['on_winning_fork'] for o in pools),
+            'pools_total': len(pools),
+            'pool_blocks_orphaned': sum(o.get('blocks_orphaned', 0) for o in pools),
+            'economic_user_on_winner': sum(o['on_winning_fork'] for o in econ),
+            'economic_user_total': len(econ),
+            'custody_on_winner_btc': sum(o.get('custody_btc', 0) for o in econ if o['on_winning_fork']),
+            'custody_total_btc': sum(o.get('custody_btc', 0) for o in econ),
+            'total_value_change_usd': sum(o.get('value_change_usd', 0) for o in econ),
+            'total_regret_usd': sum(o.get('regret_usd', 0) for o in econ),
+            'nodes_that_changed_fork': sum(1 for o in nodes_out.values() if o['fork_changes']),
+        }
+        return {'winner': winner_info, 'summary': summary, 'nodes': nodes_out}
+
     def evaluate_economic_node_switches(self, elapsed: float):
         """
         Evaluate whether economic/user nodes should switch partitions based on
@@ -2824,6 +3127,8 @@ class KnotsMeshPilot(Commander):
         # Ensure the network has spendable common history before the RDTS
         # injection tx needs it (no-op if the network already has it).
         self.ensure_common_history()
+        if self.options.violation_rate is not None:
+            self.fund_violation_source()
 
         # Identify foreign-accepting nodes for asymmetric fork propagation
         self.build_foreign_accepting_nodes()
@@ -2910,7 +3215,8 @@ class KnotsMeshPilot(Commander):
         # in v26 (Core) mempools and gets included whenever the ongoing
         # mining selection (difficulty-oracle or legacy) next picks a v26
         # node, same as any other transaction would.
-        self.inject_rdts_violation()
+        if self.options.violation_rate is None:
+            self.inject_rdts_violation()
         last_rdts_check = start_time
 
         # Real-tip observation (independent of blocks_mined bookkeeping).
@@ -2941,6 +3247,7 @@ class KnotsMeshPilot(Commander):
         # Bring each node's enforced rules in line with its owner's starting
         # fork choice (normally already matching the seeded switch.conf).
         self.reconcile_node_modes(0, 'initial')
+        self._record_allocations(0)
 
         self.log.info(f"\n{'='*70}")
         if self.difficulty_oracle:
@@ -3005,6 +3312,7 @@ class KnotsMeshPilot(Commander):
                 last_economic_update = current_time
 
                 self.reconcile_node_modes(elapsed, 'economic decision')
+                self._record_allocations(elapsed)
 
             # Capture time series snapshot at regular intervals
             if current_time - last_snapshot >= self.options.snapshot_interval:
@@ -3192,6 +3500,7 @@ class KnotsMeshPilot(Commander):
                 last_hashrate_update = current_time
 
                 self.reconcile_node_modes(elapsed, 'pool decision')
+                self._record_allocations(elapsed)
 
                 # Evaluate economic/user node partition switches
                 # These nodes may switch partitions based on price, ideology, etc.
@@ -3223,6 +3532,7 @@ class KnotsMeshPilot(Commander):
                             address = miner_wallet.getnewaddress()
                             mined_hashes = self._mine_block(miner, fork_id, address)
                             self._mined_blocks[fork_id].extend(mined_hashes or [])
+                            self._record_mined(miner, mined_hashes)
 
                             # Asymmetric fork: push v27 blocks into the v26 island.
                             # Gated (default off) — real P2P relay across the mesh
@@ -3307,6 +3617,7 @@ class KnotsMeshPilot(Commander):
                     address = miner_wallet.getnewaddress()
                     mined_hashes = self._mine_block(miner, partition, address)
                     self._mined_blocks[partition].extend(mined_hashes or [])
+                    self._record_mined(miner, mined_hashes)
 
                     # Asymmetric fork: push v27 blocks into the v26 island.
                     # Gated (default off), same reasoning as the difficulty-mode branch.
@@ -3532,6 +3843,18 @@ class KnotsMeshPilot(Commander):
             if not results_id:
                 results_id = datetime.now().strftime("%Y%m%d_%H%M%S")
 
+            try:
+                outcomes = self.compute_outcomes(int(time() - start_time))
+                osum = outcomes['summary']
+                self.log.info(f"\nOUTCOMES: winner by price={outcomes['winner']['by_price']} | "
+                              f"pools on winner {osum['pools_on_winner']}/{osum['pools_total']} | "
+                              f"economic/user on winner {osum['economic_user_on_winner']}/"
+                              f"{osum['economic_user_total']} | nodes that changed fork "
+                              f"{osum['nodes_that_changed_fork']}")
+            except Exception as e:
+                self.log.error(f"  [outcomes] failed: {e}")
+                outcomes = {'error': str(e)}
+
             # Build consolidated results object
             consolidated_results = {
                 'metadata': {
@@ -3555,6 +3878,7 @@ class KnotsMeshPilot(Commander):
                     'rdts_injection_enabled': self.options.rdts_injection,
                     'op_return_payload_size': self.options.op_return_payload_size,
                     'inplace_switching': self.options.inplace_switching,
+                    'violation_rate': self.options.violation_rate,
                 },
                 'summary': {
                     'blocks_mined': dict(self.blocks_mined),
@@ -3581,6 +3905,13 @@ class KnotsMeshPilot(Commander):
                 'fork_convergence': dict(self.fork_convergence),
                 'rdts_rejection': dict(self.rdts_rejection),
                 'chain_state': self.chain_state,
+                'outcomes': outcomes,
+                'violations': {
+                    'violation_rate': self.options.violation_rate,
+                    'txs_created': len(self._vtxs),
+                    'blocks_with_violations': len(self._violation_block_log),
+                    'blocks': self._violation_block_log,
+                },
                 'inplace_switching': {
                     'enabled': self.options.inplace_switching,
                     'total_switches': sum(1 for e in self.inplace_switches if e['success']),

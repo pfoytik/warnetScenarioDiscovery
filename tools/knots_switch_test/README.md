@@ -30,3 +30,17 @@ containers. `docker exec` stands in for pod exec, and Docker's
 
 Peers are set with `addnode=` in each node's conf, as warnet does, so they
 survive the switch restarts.
+
+## Violation rate + outcomes harness
+
+`violation_harness.py` (same containers) checks `--violation-rate`:
+- 0.0: no split;
+- 1.0: a violation in every Core block;
+- after a wipe-out, pending violations are re-included;
+- an in-place switch into RDTS invalidates multiple violating blocks;
+- `compute_outcomes` (blocks mined/orphaned per pool, value change, time on
+  each fork, regret).
+
+    bash phase0.sh
+    /home/pfoytik/bitcoinTools/warnet/warnet/.venv/bin/python3 violation_harness.py
+    source lib.sh && cleanup

@@ -42,6 +42,18 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # tools/
+from make_inplace_network import convert_dir  # noqa: E402
+
+# --method: which fork mechanism runs a scenario (same spec, same network
+# generation; see docs/running_knots_mesh_scenarios.md, "Sweeps").
+#   legacy   partition_miner_with_pools.py, scripted partition (prior studies)
+#   realfork knots_mesh_pilot.py on a Knots + Core 30.2 network, real RDTS
+#            rejection, switches are accounting only
+#   inplace  knots_mesh_pilot.py --inplace-switching on an all-Knots network,
+#            pool / node-runner switches change what their nodes enforce
+METHODS = ('legacy', 'realfork', 'inplace')
+
 
 def get_completed_scenarios(results_dir: Path) -> set:
     """Get set of scenario IDs that have completed results"""
@@ -556,6 +568,10 @@ def run_scenario(
     price_update_interval: int = 60,
     econ_switching_cooldown: int = None,
     user_switching_cooldown: int = None,
+    method: str = "legacy",
+    violation_rate: float = 1.0,
+    oracle_chain_source: str = None,
+    bridges: int = 5,
 ) -> bool:
     """Run a single scenario and extract results"""
 
@@ -578,6 +594,18 @@ def run_scenario(
                                    user_switching_cooldown=user_switching_cooldown):
             print(f"  Warning: Could not inject config, scenario may fail")
 
+    # Step 0b': Real-fork methods run on a converted copy of the generated
+    # network (same camps, pools, economic metadata and topology; islands
+    # bridged so blocks can cross between camps).
+    if method != "legacy":
+        style = "inplace" if method == "inplace" else "mixed"
+        converted_dir = network_path.parent.parent / f"{network_path.parent.name}__{method}"
+        report = convert_dir(network_path.parent, converted_dir, style=style, bridges=bridges)
+        print(f"  Converted network ({style}): v27={report['v27']} v26={report['v26']}, "
+              f"islands {report['islands_before']} -> {report['islands_after']}"
+              + (f", {len(report['bridges'])} bridges" if report['bridges'] else ""))
+        network_path = converted_dir / "network.yaml"
+
     # Step 0c: Inject per-scenario network metadata so economic_split image tags
     # are bundled into the pod (overrides the static network_metadata.yaml default)
     print(f"  Injecting network metadata...")
@@ -598,9 +626,10 @@ def run_scenario(
     # Note: We don't pass --pool-config/--economic-config because the scenario
     # runs inside a pod where local paths don't exist. Instead, we inject the
     # sweep config into the main config files which get bundled with the scenario.
+    script = "partition_miner_with_pools.py" if method == "legacy" else "knots_mesh_pilot.py"
     cmd = [
         "warnet", "run",
-        str(scenarios_dir / "partition_miner_with_pools.py"),
+        str(scenarios_dir / script),
         "--namespace", namespace,
         f"--pool-scenario={scenario_id}",
         f"--economic-scenario={scenario_id}",
@@ -617,9 +646,11 @@ def run_scenario(
         f"--price-update-interval={price_update_interval}",
     ]
 
-    # Add random seed if provided (for baseline reproducibility testing)
+    # Add random seed if provided (for baseline reproducibility testing).
+    # Commander's option is --randomseed; the earlier --random-seed spelling
+    # was rejected as an unrecognized argument.
     if random_seed is not None:
-        cmd.append(f"--random-seed={random_seed}")
+        cmd.append(f"--randomseed={random_seed}")
 
     if enable_liveness_penalty:
         cmd.append("--enable-liveness-penalty")
@@ -634,8 +665,17 @@ def run_scenario(
         cmd.append(f"--cost-floor-margin-buffer={cost_floor_margin_buffer}")
     if max_price_divergence is not None:
         cmd.append(f"--max-price-divergence={max_price_divergence}")
-    if v26_acceptance_probability > 0.0:
-        cmd.append(f"--v26-acceptance-probability={v26_acceptance_probability}")
+    if method == "legacy":
+        if v26_acceptance_probability > 0.0:
+            cmd.append(f"--v26-acceptance-probability={v26_acceptance_probability}")
+    else:
+        # The injected network_metadata.yaml is the converted network.
+        cmd.append("--bundled-network-yaml=network_metadata.yaml")
+        cmd.append(f"--violation-rate={violation_rate}")
+        if method == "inplace":
+            cmd.append("--inplace-switching")
+        if oracle_chain_source:
+            cmd.append(f"--oracle-chain-source={oracle_chain_source}")
     if partition_mode != "static":
         cmd.append(f"--partition-mode={partition_mode}")
     if fork_heal_exit:
@@ -826,6 +866,20 @@ def main():
     parser.add_argument("--user-switching-cooldown", type=int, default=None,
                         help="Override user node switching_cooldown in injected configs "
                              "(seconds). If not set, uses value from generated sweep configs.")
+    parser.add_argument("--method", choices=METHODS, default="legacy",
+                        help="Fork mechanism: legacy (partition_miner_with_pools.py, as in prior "
+                             "studies), realfork (knots_mesh_pilot.py, Knots + Core 30.2, real RDTS "
+                             "rejection), inplace (realfork + --inplace-switching, all Knots). "
+                             "Real-fork methods convert each generated network "
+                             "(tools/make_inplace_network.py) into <network dir>__<method>/. "
+                             "Use a separate --results-dir per method. Default: legacy.")
+    parser.add_argument("--oracle-chain-source", choices=["observed", "mined"], default=None,
+                        help="Real-fork methods only: passed to knots_mesh_pilot.py "
+                             "(default there: observed). 'mined' feeds the oracles the same "
+                             "mined-block counts as legacy, isolating the fork mechanism.")
+    parser.add_argument("--bridges", type=int, default=5,
+                        help="Real-fork methods only: two-way addnode bridges added between "
+                             "disconnected islands of the generated network (default 5).")
 
     if _scenario_cfg:
         parser.set_defaults(**_scenario_cfg)
@@ -954,7 +1008,15 @@ def main():
             # Extract per-scenario parameters
             scenario_params = scenario.get("parameters", scenario)
             random_seed = scenario_params.get("random_seed", None)
-            v26_acceptance_probability = float(scenario_params.get("v26_acceptance_probability", 0.0))
+            # One knob, both spellings: violation_rate = 1 - v26_acceptance_probability.
+            # A spec may set either; each method gets its own form.
+            violation_rate = scenario_params.get("violation_rate")
+            if "v26_acceptance_probability" in scenario_params or violation_rate is None:
+                v26_acceptance_probability = float(scenario_params.get("v26_acceptance_probability", 0.0))
+            else:
+                v26_acceptance_probability = round(1.0 - float(violation_rate), 6)
+            violation_rate = (float(violation_rate) if violation_rate is not None
+                              else round(1.0 - v26_acceptance_probability, 6))
             partition_mode = str(scenario_params.get("partition_mode", "static"))
             fork_heal_exit = bool(scenario_params.get("fork_heal_exit", False))
 
@@ -991,6 +1053,10 @@ def main():
                 price_update_interval=args.price_update_interval,
                 econ_switching_cooldown=args.econ_switching_cooldown,
                 user_switching_cooldown=args.user_switching_cooldown,
+                method=args.method,
+                violation_rate=violation_rate,
+                oracle_chain_source=args.oracle_chain_source,
+                bridges=args.bridges,
             )
 
             scenario_elapsed = time.time() - scenario_start

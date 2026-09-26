@@ -21,6 +21,20 @@ Use the same `--pool-scenario`/`--economic-scenario`/`--duration`/etc. for
 both runs if you want the economic simulation to be comparable side by
 side — only the fork-causing mechanism and network differ.
 
+Default `--pool-scenario` is `knots_mesh_current` (generated from this
+network's pool nodes: Knots 38.1% / Core 48.3% starting pool hashrate). If
+`networks/knots-mesh-pilot/network.yaml` is edited, regenerate it along with
+`scenarios/config/knots_mesh_pilot_network.yaml`. Economic/user nodes start
+on the camp their image runs (43.0/57.0 Knots/Core economic weight) — look
+for `Metadata camps match live classification for all 60 nodes` in the log.
+
+**Block production** (`--enable-difficulty`): each 1s tick, each camp mines
+a block with probability `tick / (target × difficulty / hashrate_fraction)`
+(target = `--interval`, default 10s), using that camp's current pool
+hashrate. Pools re-decide every `--pool-decision-interval` (600s), which
+changes those rates. Solo-miner hashrate only affects which node mines a
+camp's block, not how often.
+
 ## Prerequisites
 
 - `bitcoin-knots:29.4-local` image built — see `docs/building_knots_image.md`.
@@ -107,8 +121,19 @@ In order, roughly:
 3. `[RDTS] Injected OP_RETURN tx <txid> (81-byte payload) via node-XXXX (v26/Core)`
 4. Eventually: `RDTS REJECTION DETECTED at <N>s: 30 v27 (Knots) node(s) show an invalid chain tip`
 5. Both camps keep logging `v27 block`/`v26 block` lines independently
-   afterward, fork status flips to `[SUSTAINED]` — confirms the split
-   persists rather than healing.
+   afterward and fork status flips to `[SUSTAINED]` — but **these are
+   mining-loop bookkeeping, not observed chain state**. Use the
+   `[chain-state ...]` lines (step 6) to see what the nodes actually hold.
+6. `[chain-state Ns] tips: <prev> -> <relation>` whenever the real tip
+   relation between camps changes, and `[chain-state Ns] REORG on v26 (Core)
+   ...` when sampled nodes switch chains. Core accepts Knots blocks, so a
+   longer Knots chain reorgs Core nodes onto it; the injected tx then returns
+   to the Core mempool, gets re-mined, and Knots rejects it again (a new
+   invalid branch). Relations: `same_tip`, `diverged` (with LCA and branch
+   lengths), `v26_ahead_on_v27_chain` (Core tip builds on Knots' tip —
+   typically a freshly re-mined bad block Knots won't follow),
+   `v27_ahead_on_v26_chain`, `unknown` (RPC failure).
+   An `OBSERVED CHAIN STATE` block at the end summarizes it.
 
 If step 4 never appears within the run duration, something's wrong — check
 Troubleshooting below (topology connectivity is the most likely culprit).
@@ -145,10 +170,54 @@ Save results under `results/<scenario_name>_<timestamp>/` in the repo (see
 `results.json` (the decoded blob above) plus `commander.log` (the raw log).
 
 Key fields: `rdts_rejection` (injection txid, rejection confirmation,
-rejecting node list), `fork_convergence` (did it heal), `summary.blocks_mined`,
+rejecting node list), `chain_state` (observed real tips — see below),
+`fork_convergence` (did it heal; only populated with `--fork-heal-exit`),
+`summary.blocks_mined` (mining-loop counter, not chain state),
 `time_series` (for charting price/hashrate/economic weight over time —
 identical schema to the legacy mode's output, so real-fork vs
 manual-network-control runs are directly comparable here).
+
+`chain_state` (from `observe_chain_state()`, every `--chain-state-interval`
+seconds, default 10, on `--chain-state-sample` evenly spaced nodes per camp,
+default 3; `--chain-state-interval 0` disables):
+- `time_series` — its own `timestamps` plus per-observation `relation`,
+  `v27_height`/`v26_height`, tips, `fork_height` (LCA when diverged),
+  `v27_branch_len`/`v26_branch_len`, `v27_distinct_tips`/`v26_distinct_tips`
+  (disagreement within a camp's sample = propagation lag),
+  `injected_tx_state` (`mempool`/`confirmed`/`unconfirmed`/`conflicted`) and
+  `injected_tx_height`, `v27_invalid_tips` (distinct invalid branches a
+  Knots node has seen).
+- `reorg_events` — one per (camp, disconnected tip): old/new height and tip,
+  `fork_height`, `depth`, and which sampled nodes observed it.
+- `reorg_count`, `max_reorg_depth`, `max_invalid_tips`, `relation_changes`,
+  `final`.
+
+Runs before 2026-09-24 (including `knots_mesh_pilot_20260923_001852`) have
+no `chain_state` — their post-rejection chain state was never observed.
+
+### Oracles read observed chain state (`--oracle-chain-source`)
+Default `observed` under `--node-classification subversion` (`mined` under
+`tag`, so legacy runs reproduce). With `observed`:
+- **Price oracle:** chain weight = each camp's share of *surviving* blocks
+  it mined (still in its observed active chain); fork depth / sustained
+  check use observed heights and the observed LCA instead of
+  `start_height + blocks_mined`.
+- **Pool decisions:** each camp's blocks-per-hour is scaled by its recent
+  survival ratio (last `--survival-window` blocks it mined, default 30;
+  1.0 until 5 mined), so orphaned blocks earn nothing.
+- **Not changed:** fee oracle (Core users sit on the Knots chain between
+  wipe-outs, so their tx throughput isn't actually reduced), difficulty
+  oracle (still sets block *rates* from hashrate), reorg oracle,
+  economic-node strategy (reacts through price).
+- `chain_state.survival` (`mined`/`surviving`/`orphaned`/`window_ratio` per
+  camp) and `time_series.{v27,v26}_surviving` / `_survival_ratio` record it;
+  `summary.blocks_mined` is still the raw mining counter.
+
+**Every run needs a fresh deploy** — chains persist across `warnet run`s on
+the same network, so a second run starts from the previous run's split.
+Uninstall the helm releases (see Cleanup) and `warnet deploy` again.
+Pass `--randomseed <N>` per run — `scenarios/commander.py` defaults it to a
+constant, so otherwise every run makes identical random draws.
 
 ## Cleanup
 

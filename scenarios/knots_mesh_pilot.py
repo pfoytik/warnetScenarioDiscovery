@@ -28,6 +28,17 @@ for the feedback-loop description. What's different here:
   bad-txns-vout-script-toolarge. RDTS is configured ALWAYS_ACTIVE from
   genesis (see networks/knots-mesh-pilot's vbparams), so this needs no BIP9
   state machine wait.
+- New: observe_chain_state — samples real node tips from each camp every
+  --chain-state-interval seconds (tip relation / LCA / branch lengths,
+  reorgs, injected-tx confirmation state, Knots invalid-branch count),
+  exported under chain_state. blocks_mined and the [SUSTAINED] label are
+  mining-loop bookkeeping, not observed chain state; because Core accepts
+  Knots blocks, a longer Knots chain reorgs Core nodes onto it, which only
+  chain_state shows. Observation only — never mines or touches peers.
+- New: --oracle-chain-source observed (default in subversion mode) — the
+  price oracle's chain weight/fork depth and pool profitability use observed
+  surviving blocks per camp instead of blocks_mined, so orphaned blocks earn
+  nothing (SurvivalAdjustedDifficulty, observed_price_inputs).
 
 Original docstring (partition_miner_with_pools.py), still accurate for the
 economic-simulation portion of this file:
@@ -58,6 +69,7 @@ But actors can switch which fork they support:
   User nodes: choose which fork to use
 """
 
+from collections import Counter
 from time import sleep, time
 from random import random, choices
 import argparse
@@ -84,6 +96,26 @@ from lib.economic_node_strategy import (
 )
 from lib.difficulty_oracle import DifficultyOracle
 from lib.reorg_oracle import ReorgOracle
+
+
+class SurvivalAdjustedDifficulty:
+    """
+    DifficultyOracle proxy handed to MiningPoolStrategy under
+    --oracle-chain-source=observed: get_blocks_per_hour() is scaled by the
+    fraction of that camp's recent blocks still in its observed active chain,
+    so pool revenue counts only blocks that weren't orphaned. Everything else
+    passes through to the real oracle unchanged.
+    """
+
+    def __init__(self, oracle, survival_ratio):
+        self._oracle = oracle
+        self._survival_ratio = survival_ratio
+
+    def get_blocks_per_hour(self, fork_id: str, hashrate_pct: float) -> float:
+        return self._oracle.get_blocks_per_hour(fork_id, hashrate_pct) * self._survival_ratio(fork_id)
+
+    def __getattr__(self, name):
+        return getattr(self._oracle, name)
 
 
 class KnotsMeshPilot(Commander):
@@ -187,6 +219,52 @@ class KnotsMeshPilot(Commander):
             'v26_blocks_at_heal': None,
         }
 
+        # Observed chain state (observe_chain_state): real node tips, sampled
+        # from each camp, independent of the blocks_mined bookkeeping counters.
+        # Kept separate from self.time_series because it has its own cadence
+        # (--chain-state-interval) and its own timestamps array.
+        self.chain_state = {
+            'enabled': False,
+            'interval_s': None,
+            'sample_nodes': {'v27': [], 'v26': []},
+            'relation_changes': [],     # [{elapsed, relation, prev_relation}]
+            'reorg_events': [],         # unique per (camp, disconnected tip)
+            'reorg_count': {'v27': 0, 'v26': 0},
+            'max_reorg_depth': {'v27': 0, 'v26': 0},
+            'max_invalid_tips': 0,      # distinct invalid branches seen by a Knots node
+            'final': None,
+            'time_series': {
+                'timestamps': [],
+                'relation': [],             # same_tip / diverged / *_ahead_on_*_chain / unknown
+                'v27_height': [],
+                'v26_height': [],
+                'v27_tip': [],
+                'v26_tip': [],
+                'fork_height': [],          # LCA height when diverged, else None
+                'v27_branch_len': [],       # blocks above LCA on the Knots tip
+                'v26_branch_len': [],       # blocks above LCA on the Core tip
+                'v27_distinct_tips': [],    # within the sampled Knots nodes (propagation lag)
+                'v26_distinct_tips': [],
+                'injected_tx_state': [],    # confirmed / mempool / unconfirmed / conflicted / unknown
+                'injected_tx_height': [],
+                'v27_invalid_tips': [],
+            },
+        }
+        self._chain_last_tip = {}           # node_name -> (height, hash)
+        self._chain_seen_reorgs = {}        # (camp, disconnected_tip) -> index into reorg_events
+        # Block survival (feeds the oracles under --oracle-chain-source=observed):
+        # which blocks each camp mined, and each camp's active chain above
+        # start_height as last observed.
+        self.oracle_chain_source = 'mined'              # resolved in run_test
+        self._mined_blocks = {'v27': [], 'v26': []}     # block hashes, mining order
+        self._active_chain = {'v27': {}, 'v26': {}}     # height -> hash
+        self.chain_state['survival'] = {
+            camp: {'mined': 0, 'surviving': 0, 'orphaned': 0, 'window_ratio': 1.0}
+            for camp in ('v27', 'v26')
+        }
+        for key in ('v27_surviving', 'v26_surviving', 'v27_survival_ratio', 'v26_survival_ratio'):
+            self.chain_state['time_series'][key] = []
+
         # Time series data for charting
         self.time_series = {
             'timestamps': [],           # elapsed seconds
@@ -254,8 +332,12 @@ class KnotsMeshPilot(Commander):
         parser.add_argument('--start-height', type=int, default=101)
 
         # Pool configuration
-        parser.add_argument('--pool-scenario', type=str, default='realistic_current',
-                          help='Pool scenario from mining_pools_config.yaml')
+        parser.add_argument('--pool-scenario', type=str, default='knots_mesh_current',
+                          help='Pool scenario from mining_pools_config.yaml. Default: '
+                               'knots_mesh_current (generated from networks/knots-mesh-pilot pool '
+                               'nodes, so every pool starts on the camp its node runs). '
+                               "partition_miner_with_pools.py's default realistic_current lists "
+                               'pools that have no node, or only a node in the other camp, on this network.')
         parser.add_argument('--initial-v27-hashrate', type=float, default=None,
                           help='Initial v27 hashrate (if not using pools)')
 
@@ -409,6 +491,28 @@ class KnotsMeshPilot(Commander):
         parser.add_argument('--rdts-check-interval', type=int, default=30,
                           help='Seconds between checks for RDTS rejection evidence '
                                '(getchaintips polling + debug.log grep). Default: 30.')
+        parser.add_argument('--chain-state-interval', type=int, default=10,
+                          help='Seconds between observations of real node chain tips '
+                               '(tip relation between camps, reorgs on sampled nodes, '
+                               'injected-tx confirmation state, Knots invalid-branch count). '
+                               'Observation only — never changes mining or topology. '
+                               'Exported under chain_state. 0 disables. Default: 10.')
+        parser.add_argument('--chain-state-sample', type=int, default=3,
+                          help='Nodes sampled per camp for chain-state observation, evenly '
+                               'spaced across the camp (0 = all nodes). Default: 3.')
+        parser.add_argument('--oracle-chain-source', choices=['observed', 'mined'], default=None,
+                          help="What the price and pool oracles treat as each camp's chain. "
+                               "'observed': blocks each camp mined that are still in its "
+                               "observed active chain (orphaned blocks count for nothing) — "
+                               "price chain weight, fork depth, and pool revenue use this. "
+                               "'mined': the blocks_mined counters / difficulty-oracle "
+                               "chainwork, as partition_miner_with_pools.py did. Default: "
+                               "observed with --node-classification subversion, mined with tag "
+                               "(so legacy runs reproduce). Requires --chain-state-interval > 0.")
+        parser.add_argument('--survival-window', type=int, default=30,
+                          help="Pool revenue under --oracle-chain-source=observed is scaled by "
+                               "the fraction of a camp's last N mined blocks still in its active "
+                               "chain (1.0 until 5 blocks mined). Default: 30.")
         parser.add_argument('--bundled-network-yaml', type=str, default='knots_mesh_pilot_network.yaml',
                           help='Filename (under scenarios/config/, loaded via pkgutil since '
                                '--network-yaml cannot resolve a path inside the .pyz archive '
@@ -486,7 +590,18 @@ class KnotsMeshPilot(Commander):
                 metadata = node_config.get('metadata', {})
                 # Preserve image tag so economic_node_strategy can determine
                 # initial fork from version rather than a hardcoded index threshold
-                metadata['image_tag'] = node_config.get('image', {}).get('tag', '')
+                image = node_config.get('image', {})
+                image_tag = image.get('tag', '')
+                if self.options.node_classification == 'subversion':
+                    # economic_node_strategy infers a node's starting camp via
+                    # "'27' in image_tag". Neither Knots (29.4-local) nor Core
+                    # (30.2) tags contain '27', so every economic/user node
+                    # would start on v26. Substitute a camp label derived from
+                    # the image repository (checked against the live
+                    # subversion classification in check_metadata_camps()).
+                    image_tag = ('27-knots' if 'knots' in str(image.get('repository', '')).lower()
+                                 else '26-core')
+                metadata['image_tag'] = image_tag
 
                 if node_name:
                     self.node_metadata[node_name] = metadata
@@ -546,6 +661,30 @@ class KnotsMeshPilot(Commander):
         self.log.info(f"\nClassification summary:")
         self.log.info(f"  v27 (Knots) nodes: {len(self.v27_nodes)}")
         self.log.info(f"  v26 (Core) nodes:  {len(self.v26_nodes)}")
+        self.check_metadata_camps()
+
+    def check_metadata_camps(self):
+        """
+        Warn if the camp load_network_metadata() derived from the network YAML's
+        image repository (used for economic/user nodes' starting fork) disagrees
+        with the live subversion classification (used for mining).
+        """
+        mismatched = []
+        for camp, nodes in (('v27', self.v27_nodes), ('v26', self.v26_nodes)):
+            for node in nodes:
+                name = f"node-{node.index:04d}"
+                tag = self.node_metadata.get(name, {}).get('image_tag')
+                if tag is None:
+                    continue
+                meta_camp = 'v27' if '27' in tag else 'v26'
+                if meta_camp != camp:
+                    mismatched.append((name, meta_camp, camp))
+        if mismatched:
+            self.log.warning(f"  {len(mismatched)} node(s) have a metadata camp that differs from "
+                             f"their live subversion camp (metadata, live): {mismatched}")
+        else:
+            self.log.info(f"  Metadata camps match live classification for all "
+                          f"{len(self.v27_nodes) + len(self.v26_nodes)} nodes")
 
     def build_foreign_accepting_nodes(self):
         """
@@ -719,6 +858,7 @@ class KnotsMeshPilot(Commander):
             txid = node.sendrawtransaction(signed['hex'])
 
             self.rdts_injection_txid = txid
+            self._rdts_wallet = wallet  # for observe_chain_state's confirmation tracking
             self.rdts_rejection['injected'] = True
             self.rdts_rejection['txid'] = txid
             self.log.info(
@@ -860,6 +1000,297 @@ class KnotsMeshPilot(Commander):
             f"{'='*70}"
         )
         return True
+
+    def _chain_state_sample(self, nodes: list) -> list:
+        """Evenly spaced subset of a camp's nodes (all of them if sample size is 0)."""
+        k = self.options.chain_state_sample
+        if k <= 0 or k >= len(nodes):
+            return list(nodes)
+        step = len(nodes) / k
+        return [nodes[int(i * step)] for i in range(k)]
+
+    def _detect_reorg(self, node, node_name: str, camp: str, height: int, tip: str, elapsed: int):
+        """
+        Compare a node's current tip against its last observed tip. If the old
+        tip is no longer in the node's active chain, record a reorg event
+        (deduplicated per camp by the disconnected tip hash, so the same reorg
+        seen on several sampled nodes counts once).
+        """
+        prev = self._chain_last_tip.get(node_name)
+        self._chain_last_tip[node_name] = (height, tip)
+        if prev is None or prev[1] == tip:
+            return
+        prev_height, prev_tip = prev
+
+        # Plain extension: the old tip is still in the active chain.
+        if height >= prev_height:
+            try:
+                if node.getblockhash(prev_height) == prev_tip:
+                    return
+            except Exception:
+                pass
+
+        key = (camp, prev_tip)
+        if key in self._chain_seen_reorgs:
+            event = self.chain_state['reorg_events'][self._chain_seen_reorgs[key]]
+            if node_name not in event['observed_on']:
+                event['observed_on'].append(node_name)
+            return
+
+        # Reorg. getchaintips lists the disconnected branch as a valid-fork
+        # tip with its branchlen — one RPC, no header walk needed.
+        fork_height = None
+        try:
+            for t in node.getchaintips():
+                if t.get('hash') == prev_tip:
+                    fork_height = t['height'] - t.get('branchlen', 0)
+                    break
+        except Exception:
+            pass
+        if fork_height is None:
+            # Old tip was itself extended before being disconnected; walk back.
+            try:
+                cur, cur_h = prev_tip, prev_height
+                for _ in range(500):
+                    if cur_h <= height and node.getblockhash(cur_h) == cur:
+                        break
+                    cur = node.getblockheader(cur)['previousblockhash']
+                    cur_h -= 1
+                fork_height = cur_h
+            except Exception as e:
+                self.log.debug(f"  [chain-state] fork-point walk failed on {node_name}: {e}")
+
+        depth = prev_height - fork_height if fork_height is not None else None
+        event = {
+            'elapsed_s': elapsed,
+            'camp': camp,
+            'old_tip': prev_tip,
+            'old_height': prev_height,
+            'new_tip': tip,
+            'new_height': height,
+            'fork_height': fork_height,
+            'depth': depth,
+            'observed_on': [node_name],
+        }
+        self._chain_seen_reorgs[key] = len(self.chain_state['reorg_events'])
+        self.chain_state['reorg_events'].append(event)
+        self.chain_state['reorg_count'][camp] += 1
+        if depth is not None:
+            self.chain_state['max_reorg_depth'][camp] = max(
+                self.chain_state['max_reorg_depth'][camp], depth)
+        label = 'Knots' if camp == 'v27' else 'Core'
+        self.log.info(
+            f"  [chain-state {elapsed:>5}s] REORG on {camp} ({label}) {node_name}: "
+            f"height {prev_height} -> {height}, depth={depth}, fork point={fork_height}"
+        )
+
+    def _injected_tx_state(self) -> Tuple[str, Optional[int]]:
+        """Confirmation state of the RDTS injection tx, from the injecting Core node's wallet."""
+        txid = self.rdts_rejection.get('txid')
+        wallet = getattr(self, '_rdts_wallet', None)
+        if not txid or wallet is None:
+            return 'none', None
+        try:
+            wtx = wallet.gettransaction(txid)
+        except Exception:
+            return 'unknown', None
+        confs = wtx.get('confirmations', 0)
+        if confs > 0:
+            return 'confirmed', wtx.get('blockheight')
+        if confs < 0:
+            return 'conflicted', None
+        try:
+            self.v26_nodes[0].getmempoolentry(txid)
+            return 'mempool', None
+        except Exception:
+            return 'unconfirmed', None
+
+    def _update_active_chain(self, camp: str, node, tip_height: int, tip: str):
+        """
+        Refresh the cached active chain (height -> hash above start_height) for a
+        camp from one of its nodes. Walks back from the tip via previousblockhash
+        until it meets the cache, so the walk is consistent even if the node
+        reorgs mid-walk, and costs ~(new blocks + reorg depth) RPCs.
+        """
+        cache = self._active_chain[camp]
+        for h in [h for h in cache if h > tip_height]:
+            del cache[h]
+        floor = self.options.start_height
+        h, block = tip_height, tip
+        while h > floor and cache.get(h) != block:
+            cache[h] = block
+            block = node.getblockheader(block)['previousblockhash']
+            h -= 1
+
+    def _update_survival(self):
+        """Mined vs still-in-active-chain block counts per camp."""
+        window = max(1, self.options.survival_window)
+        for camp in ('v27', 'v26'):
+            active = set(self._active_chain[camp].values())
+            mined = self._mined_blocks[camp]
+            surviving = sum(1 for b in mined if b in active)
+            recent = mined[-window:]
+            ratio = (sum(1 for b in recent if b in active) / len(recent)) if len(recent) >= 5 else 1.0
+            self.chain_state['survival'][camp] = {
+                'mined': len(mined),
+                'surviving': surviving,
+                'orphaned': len(mined) - surviving,
+                'window_ratio': ratio,
+            }
+
+    def survival_ratio(self, camp: str) -> float:
+        return self.chain_state['survival'][camp]['window_ratio']
+
+    def observed_price_inputs(self):
+        """
+        (v27_height, v26_height, common_ancestor_height, v27_chain_weight,
+        v26_chain_weight) for the price oracle from observed chain state, or
+        None if nothing observed yet. Chain weight is each camp's share of
+        surviving self-mined blocks; fork depth uses observed heights and the
+        observed LCA (tips on one chain => the lower tip is the ancestor).
+        """
+        final = self.chain_state.get('final')
+        if not final or final.get('v27_height') is None or final.get('v26_height') is None:
+            return None
+        v27_h, v26_h = final['v27_height'], final['v26_height']
+        if final.get('fork_height') is not None:
+            ancestor = final['fork_height']
+        elif final.get('relation') in ('same_tip', 'v26_ahead_on_v27_chain', 'v27_ahead_on_v26_chain'):
+            ancestor = min(v27_h, v26_h)
+        else:
+            ancestor = self.options.start_height
+        s27 = self.chain_state['survival']['v27']['surviving']
+        s26 = self.chain_state['survival']['v26']['surviving']
+        total = s27 + s26
+        w27 = s27 / total if total else 0.5
+        return v27_h, v26_h, ancestor, w27, 1.0 - w27
+
+    def observe_chain_state(self, elapsed: int):
+        """
+        Observation only: record what the nodes actually report, as opposed to
+        the blocks_mined counters (which only count which camp the mining loop
+        picked). Captures:
+          - each camp's majority tip among sampled nodes, and how the two
+            relate (same tip, one camp's tip in the other's active chain, or
+            diverged with LCA + branch lengths)
+          - reorgs on sampled nodes (e.g. Core nodes switching to a longer
+            Knots chain, which Core considers valid)
+          - whether the injected RDTS tx is in the Core chain, back in the
+            mempool after a reorg, or conflicted
+          - how many distinct invalid branches a Knots node has seen (each
+            re-mining of the injected tx after a Core reorg adds one)
+        Never mines, submits blocks, or touches peers.
+        """
+        if not self.chain_state['enabled'] or not self.v27_nodes or not self.v26_nodes:
+            return
+
+        camp_tips = {}
+        for camp, nodes in (('v27', self.v27_nodes), ('v26', self.v26_nodes)):
+            observed = []
+            for node in self._chain_state_sample(nodes):
+                node_name = f"node-{node.index:04d}"
+                try:
+                    tip = node.getbestblockhash()
+                    height = node.getblockcount()
+                except Exception as e:
+                    self.log.debug(f"  [chain-state] tip query failed on {node_name}: {e}")
+                    continue
+                observed.append((node, height, tip))
+                self._detect_reorg(node, node_name, camp, height, tip, elapsed)
+            camp_tips[camp] = observed
+
+        ts = self.chain_state['time_series']
+        relation, fork_height, v27_branch, v26_branch = 'unknown', None, None, None
+        v27_height = v26_height = v27_tip = v26_tip = None
+
+        if camp_tips['v27'] and camp_tips['v26']:
+            def majority(observed):
+                counts = Counter(tip for _, _, tip in observed)
+                tip = counts.most_common(1)[0][0]
+                node, height, _ = next(o for o in observed if o[2] == tip)
+                return node, height, tip
+            k_node, v27_height, v27_tip = majority(camp_tips['v27'])
+            c_node, v26_height, v26_tip = majority(camp_tips['v26'])
+            try:
+                if v27_tip == v26_tip:
+                    relation = 'same_tip'
+                elif v26_height > v27_height and c_node.getblockhash(v27_height) == v27_tip:
+                    relation = 'v26_ahead_on_v27_chain'
+                elif v27_height > v26_height and k_node.getblockhash(v26_height) == v26_tip:
+                    relation = 'v27_ahead_on_v26_chain'
+                else:
+                    relation = 'diverged'
+                    fork_height = self._find_lca_height(k_node, [c_node])
+                    v27_branch = v27_height - fork_height
+                    v26_branch = v26_height - fork_height
+            except Exception as e:
+                self.log.debug(f"  [chain-state] relation check failed: {e}")
+                relation = 'unknown'
+
+            try:
+                self._update_active_chain('v27', k_node, v27_height, v27_tip)
+                self._update_active_chain('v26', c_node, v26_height, v26_tip)
+                self._update_survival()
+            except Exception as e:
+                self.log.debug(f"  [chain-state] active-chain update failed: {e}")
+
+        tx_state, tx_height = self._injected_tx_state()
+
+        invalid_tips = None
+        if camp_tips['v27']:
+            try:
+                invalid_tips = sum(1 for t in camp_tips['v27'][0][0].getchaintips()
+                                   if t.get('status') == 'invalid')
+                self.chain_state['max_invalid_tips'] = max(
+                    self.chain_state['max_invalid_tips'], invalid_tips)
+            except Exception:
+                pass
+
+        ts['timestamps'].append(elapsed)
+        ts['relation'].append(relation)
+        ts['v27_height'].append(v27_height)
+        ts['v26_height'].append(v26_height)
+        ts['v27_tip'].append(v27_tip)
+        ts['v26_tip'].append(v26_tip)
+        ts['fork_height'].append(fork_height)
+        ts['v27_branch_len'].append(v27_branch)
+        ts['v26_branch_len'].append(v26_branch)
+        ts['v27_distinct_tips'].append(len({t for _, _, t in camp_tips['v27']}))
+        ts['v26_distinct_tips'].append(len({t for _, _, t in camp_tips['v26']}))
+        ts['injected_tx_state'].append(tx_state)
+        ts['injected_tx_height'].append(tx_height)
+        ts['v27_invalid_tips'].append(invalid_tips)
+        survival = self.chain_state['survival']
+        ts['v27_surviving'].append(survival['v27']['surviving'])
+        ts['v26_surviving'].append(survival['v26']['surviving'])
+        ts['v27_survival_ratio'].append(survival['v27']['window_ratio'])
+        ts['v26_survival_ratio'].append(survival['v26']['window_ratio'])
+
+        prev_relation = ts['relation'][-2] if len(ts['relation']) > 1 else None
+        if relation != prev_relation:
+            self.chain_state['relation_changes'].append(
+                {'elapsed_s': elapsed, 'relation': relation, 'prev_relation': prev_relation})
+            detail = (f" (LCA={fork_height}, Knots branch={v27_branch}, Core branch={v26_branch})"
+                      if relation == 'diverged' else "")
+            self.log.info(
+                f"  [chain-state {elapsed:>5}s] tips: {prev_relation} -> {relation}{detail} | "
+                f"Knots h={v27_height} Core h={v26_height} | injected tx: {tx_state}"
+            )
+
+        self.chain_state['final'] = {
+            'elapsed_s': elapsed,
+            'relation': relation,
+            'v27_height': v27_height,
+            'v26_height': v26_height,
+            'v27_tip': v27_tip,
+            'v26_tip': v26_tip,
+            'fork_height': fork_height,
+            'v27_branch_len': v27_branch,
+            'v26_branch_len': v26_branch,
+            'injected_tx_state': tx_state,
+            'injected_tx_height': tx_height,
+            'v27_invalid_tips': invalid_tips,
+        }
 
     def build_partition_peer_lists(self):
         """
@@ -2157,6 +2588,31 @@ class KnotsMeshPilot(Commander):
         self.inject_rdts_violation()
         last_rdts_check = start_time
 
+        # Real-tip observation (independent of blocks_mined bookkeeping).
+        self.chain_state['enabled'] = self.options.chain_state_interval > 0
+        self.chain_state['interval_s'] = self.options.chain_state_interval
+
+        # What the price/pool oracles treat as each camp's chain.
+        source = self.options.oracle_chain_source or (
+            'observed' if self.options.node_classification == 'subversion' else 'mined')
+        if source == 'observed' and not self.chain_state['enabled']:
+            self.log.warning("  --oracle-chain-source=observed needs --chain-state-interval > 0; "
+                             "falling back to mined")
+            source = 'mined'
+        self.oracle_chain_source = source
+        self.chain_state['oracle_chain_source'] = source
+        self.log.info(f"  Oracle chain source: {source}"
+                      + (f" (pool revenue scaled by survival over last {self.options.survival_window} "
+                         f"blocks per camp)" if source == 'observed' else ""))
+        for camp, nodes in (('v27', self.v27_nodes), ('v26', self.v26_nodes)):
+            self.chain_state['sample_nodes'][camp] = [
+                f"node-{n.index:04d}" for n in self._chain_state_sample(nodes)]
+        if self.chain_state['enabled']:
+            self.log.info(f"  Chain-state observation every {self.options.chain_state_interval}s on "
+                          f"{self.chain_state['sample_nodes']}")
+        self.observe_chain_state(0)
+        last_chain_state_check = start_time
+
         self.log.info(f"\n{'='*70}")
         if self.difficulty_oracle:
             self.log.info(f"Starting partition mining (DIFFICULTY MODE)...")
@@ -2230,6 +2686,11 @@ class KnotsMeshPilot(Commander):
                 self.check_rdts_rejection(elapsed)
                 last_rdts_check = current_time
 
+            if (self.chain_state['enabled'] and
+                    current_time - last_chain_state_check >= self.options.chain_state_interval):
+                self.observe_chain_state(elapsed)
+                last_chain_state_check = current_time
+
             # Update prices (every minute by default)
             if current_time - last_price_update >= self.options.price_update_interval:
                 # Use blocks_mined counters for reliable fork depth calculation
@@ -2246,6 +2707,15 @@ class KnotsMeshPilot(Commander):
                 if self.difficulty_oracle:
                     v27_cw_override = self.difficulty_oracle.get_chain_weight('v27')
                     v26_cw_override = self.difficulty_oracle.get_chain_weight('v26')
+                common_ancestor_height = self.options.start_height
+
+                # Observed chain state instead: heights/LCA from real tips, chain
+                # weight from surviving (non-orphaned) self-mined blocks.
+                observed = self.observed_price_inputs() if self.oracle_chain_source == 'observed' else None
+                if observed:
+                    (v27_height, v26_height, common_ancestor_height,
+                     v27_cw_override, v26_cw_override) = observed
+                    fork_depth = v27_height + v26_height - 2 * common_ancestor_height
 
                 # Debug: log price update inputs
                 if self.options.debug_prices:
@@ -2286,7 +2756,7 @@ class KnotsMeshPilot(Commander):
                     v26_economic_pct=self.current_v26_economic,
                     v27_hashrate_pct=self.current_v27_hashrate,
                     v26_hashrate_pct=self.current_v26_hashrate,
-                    common_ancestor_height=self.options.start_height,
+                    common_ancestor_height=common_ancestor_height,
                     v27_chain_weight_override=v27_cw_override,
                     v26_chain_weight_override=v26_cw_override,
                     v27_block_rate_ratio=v27_rate_ratio,
@@ -2334,10 +2804,13 @@ class KnotsMeshPilot(Commander):
                 old_v27_hash = self.current_v27_hashrate
                 old_v26_hash = self.current_v26_hashrate
 
+                pool_difficulty = self.difficulty_oracle
+                if self.oracle_chain_source == 'observed' and self.difficulty_oracle:
+                    pool_difficulty = SurvivalAdjustedDifficulty(self.difficulty_oracle, self.survival_ratio)
                 self.current_v27_hashrate, self.current_v26_hashrate = \
                     self.pool_strategy.calculate_hashrate_allocation(
                         current_time, self.price_oracle, self.fee_oracle,
-                        difficulty_oracle=self.difficulty_oracle,
+                        difficulty_oracle=pool_difficulty,
                     )
 
                 # Ensure fork heights are current before detecting reorgs
@@ -2412,7 +2885,8 @@ class KnotsMeshPilot(Commander):
                         try:
                             miner_wallet = Commander.ensure_miner(miner)
                             address = miner_wallet.getnewaddress()
-                            self.generatetoaddress(miner, 1, address, sync_fun=self.no_op)
+                            mined_hashes = self.generatetoaddress(miner, 1, address, sync_fun=self.no_op)
+                            self._mined_blocks[fork_id].extend(mined_hashes or [])
 
                             # Asymmetric fork: push v27 blocks into the v26 island.
                             # Gated (default off) — real P2P relay across the mesh
@@ -2495,7 +2969,8 @@ class KnotsMeshPilot(Commander):
                 try:
                     miner_wallet = Commander.ensure_miner(miner)
                     address = miner_wallet.getnewaddress()
-                    self.generatetoaddress(miner, 1, address, sync_fun=self.no_op)
+                    mined_hashes = self.generatetoaddress(miner, 1, address, sync_fun=self.no_op)
+                    self._mined_blocks[partition].extend(mined_hashes or [])
 
                     # Asymmetric fork: push v27 blocks into the v26 island.
                     # Gated (default off), same reasoning as the difficulty-mode branch.
@@ -2566,6 +3041,30 @@ class KnotsMeshPilot(Commander):
             self.log.info(f"  Rejection: not observed during this run")
         else:
             self.log.info(f"  Rejection: n/a (injection not sent)")
+
+        # Final observed chain state (real node tips, not blocks_mined counters)
+        self.observe_chain_state(int(time() - start_time))
+        if self.chain_state['enabled']:
+            cs = self.chain_state
+            final = cs['final'] or {}
+            self.log.info("")
+            self.log.info("OBSERVED CHAIN STATE (real node tips)")
+            self.log.info(f"  Final relation: {final.get('relation')} | "
+                          f"Knots h={final.get('v27_height')} Core h={final.get('v26_height')}"
+                          + (f" | LCA={final.get('fork_height')}, branches Knots={final.get('v27_branch_len')} "
+                             f"Core={final.get('v26_branch_len')}" if final.get('relation') == 'diverged' else ""))
+            self.log.info(f"  Reorgs observed: Knots={cs['reorg_count']['v27']} "
+                          f"(max depth {cs['max_reorg_depth']['v27']}), "
+                          f"Core={cs['reorg_count']['v26']} (max depth {cs['max_reorg_depth']['v26']})")
+            self.log.info(f"  Tip relation changes: {len(cs['relation_changes'])}")
+            self.log.info(f"  Injected tx: {final.get('injected_tx_state')}"
+                          + (f" at height {final.get('injected_tx_height')}" if final.get('injected_tx_height') else ""))
+            self.log.info(f"  Knots invalid branches (max seen): {cs['max_invalid_tips']}")
+            for camp, label in (('v27', 'Knots'), ('v26', 'Core')):
+                sv = cs['survival'][camp]
+                self.log.info(f"  {label} blocks: mined={sv['mined']} surviving={sv['surviving']} "
+                              f"orphaned={sv['orphaned']} (recent survival {sv['window_ratio']:.2f})")
+            self.log.info(f"  Oracle chain source: {self.oracle_chain_source}")
 
         # Fork reunion (before final summary so we can log it inline)
         reunion_results = self.reunite_forks()
@@ -2744,6 +3243,7 @@ class KnotsMeshPilot(Commander):
                 },
                 'fork_convergence': dict(self.fork_convergence),
                 'rdts_rejection': dict(self.rdts_rejection),
+                'chain_state': self.chain_state,
             }
 
             # Capture final snapshot

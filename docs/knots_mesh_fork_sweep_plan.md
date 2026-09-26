@@ -86,6 +86,44 @@ real-fork mode and how to run the same script in its legacy
 manual-network-control mode for direct comparison (per user's stated future
 plan to compare the two methods), plus all of the above troubleshooting.
 
+## Starting-allocation fixes (2026-09-24)
+
+Found while reviewing how starting hashrate/economic weight are assigned
+(neither affected the RDTS rejection itself):
+
+1. **Every economic/user node started on v26 (Core).**
+   `economic_node_strategy.py` picks a node's starting fork with
+   `'27' in image_tag`; neither `29.4-local` nor `30.2` contains "27".
+   Result as run: economic weight 0.0/100.0 Knots/Core. Fixed in
+   `load_network_metadata()`: under `--node-classification subversion` the
+   `image_tag` passed to the library is a camp label from the image
+   repository (`27-knots`/`26-core`); `check_metadata_camps()` logs any
+   disagreement with the live subversion classification. Tag mode is
+   unchanged. Now 43.0/57.0.
+2. **`realistic_current` pools didn't match the network.** Three config
+   pools had no node, spiderpool had a node but no config entry, and
+   neutral pools were alternately assigned to camps regardless of where
+   their node was (f2pool/marapool assigned to the camp they have no node
+   in). New pool scenario `knots_mesh_current` in
+   `mining_pools_config.yaml`, generated from the network's pool nodes
+   (hashrate/preference/ideology from node metadata, `initial_fork` = the
+   camp its node runs), now the default `--pool-scenario`.
+   Starting pool hashrate: **Knots 38.1% / Core 48.3%** (sums to 86.4%;
+   solo-miner hashrate 2.85/8.90 is not part of the block-rate split,
+   same as prior sweeps) — Knots is now the *minority* chain, unlike the
+   pilot's 52.5/45.9.
+
+Also: the saved `knots_mesh_pilot_20260923_001852` run predates the
+bundled-network fix (its log shows `Loaded metadata for 25 nodes`), so its
+pool/economic numbers come from the generic 25-node example; only its RDTS
+rejection result is valid.
+
+Remaining limitation: each pool has one node in one camp. If a pool's
+strategy switches camps, its hashrate moves in the block-rate split, but
+its blocks are mined by other nodes in that camp (it has no node there).
+Paired per-pool nodes would fix attribution — a network redesign, deferred
+to Phase 2.
+
 ## Goal
 
 Test whether Knots (RDTS/BIP-110) and Core v30 nodes, connected on an
@@ -249,8 +287,14 @@ rather than touching well-tested library code for a cosmetic rename.
   `self.rdts_rejection` and exported in the JSON results under
   `rdts_rejection`.
 
-None of this has been run yet — only `python3 -m py_compile` syntax-checked
-and cross-referenced against the file it derives from.
+- `observe_chain_state()` (added 2026-09-24) — observation-only sampling of
+  real node tips per camp: tip relation/LCA/branch lengths, reorgs, injected
+  tx confirmation state, Knots invalid-branch count. Exported as
+  `chain_state`. Added because the 2026-09-23 run's `v27=16 / v26=11` and
+  `[SUSTAINED]` were mining-loop counters, never checked against the nodes:
+  Core accepts Knots blocks, so once the Knots chain pulled ahead (~527s)
+  the Core nodes most likely reorged onto it — unobserved. Verified against
+  a mock chain simulation only; not yet run live.
 
 ## Network config: `networks/knots-mesh-pilot/`
 
@@ -334,6 +378,52 @@ byte-identical to `realistic-economy-v2/node-defaults.yaml`.
 - [ ] Longer/quieter run (not sharing the box with repeated `kubectl exec`
       debugging) to confirm stability over 20+ blocks per camp without the
       transient timeouts observed this run
+- [x] Confirm whether the split actually persists on the nodes — **yes, with
+      Knots as the hashrate minority** (2026-09-24, 1800s run,
+      `results/knots_mesh_pilot_20260924_163848/`, `knots_mesh_current` pools
+      38.1/48.3, economic 43.0/57.0). Observed tips: diverged from 102s to
+      end, LCA 104, final Knots h=148 (branch 44) vs Core h=168 (branch 64),
+      matching `blocks_mined` 47/64 (incl. 3 pre-split). Zero reorgs on
+      either camp, one invalid branch, injected tx confirmed at 105 on Core
+      throughout. `bad-txns-vout-script-toolarge` for the injected txid
+      confirmed in node-0010's log. No pool or economic reallocations over
+      the run (ideology held everyone). 6 transient mining RPC errors
+      (1 timeout, 5 `No route to host`), recovered.
+- [x] Knots-majority case — **confirmed** (2026-09-24, 1800s, fresh
+      deploy, `--randomseed 20260924`, pool scenario
+      `knots_mesh_knots_majority` = knots_mesh_current with camp totals
+      mirrored to 48.3/38.1; `results/knots_mesh_pilot_20260924_174116_knots_majority/`).
+      Repeated wipe-out cycle: 10 Core reorgs onto the Knots chain (depth
+      1–10), 10 distinct invalid branches on Knots (the injected tx re-mined
+      after each reorg and rejected again), 0 Knots reorgs. Final: Knots
+      h=155 = 101 + all 54 Knots blocks; Core h=156 = the Knots chain + 1
+      fresh bad block — i.e. 42 of 43 Core-mined blocks were orphaned.
+      Tip relation over 150 samples: diverged 93, Core-one-bad-block-ahead
+      36, same tip 21.
+      **Model gap exposed:** `blocks_mined` credits Core with 43 blocks and
+      the price/fee/pool oracles run off those counters, so Core's price
+      stayed ≈ Knots' ($59.8k vs $59.5k) and nobody switched — the
+      economic layer doesn't know Core's chain is being orphaned.
+      **Addressed 2026-09-25:** `--oracle-chain-source observed` (default in
+      subversion mode) feeds surviving-block chain weight + observed fork
+      depth into the price oracle and survival-scaled blocks/hour into pool
+      profitability (see runbook). Mock-tested only (6 wipe-out cycles: Core
+      survival 0.08, AntPool's Core-side profit $5.36M/h → $0.41M/h);
+      **Live-confirmed 2026-09-25** (`--randomseed 20260925`, fresh deploy,
+      `results/knots_mesh_pilot_20260925_093746_knots_majority_observed/`):
+      Core's branch led for the first ~1000s (35 blocks deep); at 1068s
+      Core reorged onto Knots (depth 35), recent Core survival → ~0. At the
+      ~1206s pool decision all four Core pools force-switched to Knots
+      ("loss 79.9% exceeds tolerance"), hashrate 48.3/38.1 → 86.4/0. One
+      more Core reorg (1342s, depth 7), then Core stopped mining; network
+      converged on the Knots chain (same tip h=175 at end), injected tx left
+      in Core mempools (Knots policy won't relay/mine it). Totals: Knots
+      74/74 blocks survived, Core 0/42. Price moved to $64.5k / $54.8k.
+      Economic weight stayed 43/57 all run — not a bug: `realistic_current`
+      switching cooldowns (1800s economic, 3600s user) are ≥ the run length,
+      so nodes decided only once at t=0. Longer runs or shorter cooldowns
+      are needed to see economic nodes move. Also: each run needs a fresh deploy — the
+      chain persists across `warnet run`s on the same network.
 
 ### Phase 2 — not started
 No LHS sweep infrastructure exists yet. Given how much this session's

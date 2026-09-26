@@ -45,6 +45,43 @@ the spec changes.
 4. Enough pod capacity: 60 tanks + 1 commander per runner (`max-pods=600`
    per `PARALLEL_SWEEPS.md`).
 
+## Smoke test first (~20 min)
+
+The real-fork methods, `inplace` especially, have only been verified offline
+(Docker harnesses in `tools/knots_switch_test/`, `helm template`, dry runs).
+Before the 22h launch, run one short `inplace` scenario at vr=1.0 (the
+fastest to fork) to exercise the parts only a cluster can:
+- pod exec (the RBAC patch);
+- the seed init container;
+- restart after `stop` (`restartPolicy: Always`);
+- the per-scenario metadata bundle.
+
+```bash
+cd ~/bitcoin/warnetScenarioDiscovery
+M=tools/sweep/knots_method_pilot
+python3 tools/sweep/3_run_sweep.py --input $M/build_manifest.json \
+  --scenario-config tools/sweep/configs/knots_method_pilot_run.yaml \
+  --method inplace --namespace kmp-smoke --results-dir /tmp/kmp_smoke \
+  --scenarios sweep_0004 --duration 1200 --econ-switching-cooldown 300 --user-switching-cooldown 300
+```
+(The shorter cooldowns only make economic switches happen within 20 minutes.)
+
+Pass criteria, in the commander log and `/tmp/kmp_smoke/sweep_0004/`:
+- the "Check early in each real-fork run" lines below all appear;
+- at least one `IN-PLACE SWITCH` with every node `success` and a downtime
+  (not `did not come back ... within 180s`);
+- no `pods/exec`, `Forbidden` or `switch.conf not written` errors;
+- `results.json` has `outcomes`, `violations` and `inplace_switching`
+  sections, and `failed_switches` is 0.
+
+If downtime is near the 180s limit (kubelet restart back-off), raise
+`--switch-restart-timeout` (a `knots_mesh_pilot.py` flag; not passed by the
+runner yet). If no switch happens in 20 minutes, check that prices diverged.
+Pools re-decide every 600s.
+
+Then tear down the namespace (`kubectl delete namespace kmp-smoke`) and
+launch the full runs.
+
 ## Run (from the repo root, one runner per method, own namespace and results dir)
 
 ```bash

@@ -332,6 +332,15 @@ method receives its own form. Details, the comparison ladder, and prerequisites
 are in `docs/running_knots_mesh_scenarios.md`, section "Sweeps: running the same
 spec under each method".
 
+Real-fork spec parameters (per scenario; legacy runs ignore them):
+- `violation_rate`: probability each Core-camp block carries a new
+  RDTS-violating tx (or give `v26_acceptance_probability`, = 1 − violation_rate).
+- `fork_links`: the exact number of two-way peer links between nodes that start
+  on different forks (runner default `--fork-links 5`). 0 = forks cannot
+  exchange blocks. The achieved count (it can fall short when removing more
+  would strand nodes) is saved to `<results>/<scenario>/network_conversion.json`.
+- `link_seed`: which nodes get linked (default 0).
+
 Also fixed then: `random_seed` in a spec is now passed as `--randomseed` (the
 runner used to pass `--random-seed`, which commander rejects as an unrecognized
 argument).

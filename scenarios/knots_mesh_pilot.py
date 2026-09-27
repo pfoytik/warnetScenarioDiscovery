@@ -71,6 +71,8 @@ But actors can switch which fork they support:
 
 from collections import Counter
 from time import sleep, time
+
+from test_framework.authproxy import JSONRPCException
 from random import random, choices
 import argparse
 import yaml
@@ -711,6 +713,26 @@ class KnotsMeshPilot(Commander):
         self.log.info(f"  v27 nodes: {len(self.v27_nodes)}")
         self.log.info(f"  v26 nodes: {len(self.v26_nodes)}")
 
+    def _query_until_up(self, node, query, timeout=180):
+        """
+        Run query(node), retrying connection errors for up to timeout seconds.
+        The runner starts the commander a fixed time after deploy, so the last
+        tank can still be coming up; a node that fails classification is left
+        out of both camps for the whole run.
+        """
+        deadline = time() + timeout
+        while True:
+            try:
+                return query(node)
+            except (ConnectionError, OSError, JSONRPCException) as e:
+                # -28: RPC up but still warming up (loading block index)
+                if isinstance(e, JSONRPCException) and e.error.get('code') != -28:
+                    raise
+                if time() >= deadline:
+                    raise
+                self.log.info(f"  node {node.index} not reachable yet ({e}), retrying...")
+                sleep(5)
+
     def classify_nodes_by_subversion(self):
         """
         Separate nodes into v27 (Knots-enforcing) and v26 (Core-v30) camps by
@@ -726,7 +748,7 @@ class KnotsMeshPilot(Commander):
 
         for node in self.nodes:
             try:
-                subversion = node.getnetworkinfo().get('subversion', '')
+                subversion = self._query_until_up(node, lambda n: n.getnetworkinfo().get('subversion', ''))
                 if 'Knots' in subversion:
                     self.v27_nodes.append(node)
                 else:
@@ -768,7 +790,7 @@ class KnotsMeshPilot(Commander):
 
         for node in self.nodes:
             try:
-                if self._rdts_active(node):
+                if self._query_until_up(node, self._rdts_active):
                     self.v27_nodes.append(node)
                 else:
                     self.v26_nodes.append(node)
@@ -1022,7 +1044,7 @@ class KnotsMeshPilot(Commander):
             return self.generatetoaddress(miner, 1, address, sync_fun=self.no_op)
         if (self.options.inplace_switching and fork_id == 'v26' and self._violating_tx_hex
                 and self._violation_in_chain(miner) is None):
-            block_hash = miner.generateblock(address, [self._violating_tx_hex])['hash']
+            block_hash = self.generateblock(miner, address, [self._violating_tx_hex], sync_fun=self.no_op)['hash']
             self._violating_blocks.append(block_hash)
             self.log.info(f"  [RDTS] node-{miner.index:04d} (Core-mode) mined violating tx "
                           f"in block {block_hash[:16]} (violating block #{len(self._violating_blocks)})")
@@ -1048,7 +1070,7 @@ class KnotsMeshPilot(Commander):
         tx = wallet.gettransaction(txid, True, True)['decoded']
         vout = next(o['n'] for o in tx['vout']
                     if o['scriptPubKey'].get('address') == ADDRESS_BCRT1_P2WSH_OP_TRUE)
-        block_hash = node.generateblock(wallet.getnewaddress(), [txid])['hash']
+        block_hash = self.generateblock(node, wallet.getnewaddress(), [txid], sync_fun=self.no_op)['hash']
         deadline = time() + 120
         while time() < deadline:
             lagging = []
@@ -1122,7 +1144,7 @@ class KnotsMeshPilot(Commander):
             pending.append(self._new_violating_tx())
         if not pending:
             return None
-        block_hash = miner.generateblock(address, [v['hex'] for v in pending])['hash']
+        block_hash = self.generateblock(miner, address, [v['hex'] for v in pending], sync_fun=self.no_op)['hash']
         for v in pending:
             self._vtx_blocks[v['txid']].append(block_hash)
         self._violating_blocks.append(block_hash)

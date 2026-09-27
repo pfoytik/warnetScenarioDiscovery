@@ -80,6 +80,7 @@ def seed_container(camp: str) -> dict:
     return {
         'name': 'seed-switch-conf',
         'image': 'alpine:latest',
+        'imagePullPolicy': 'IfNotPresent',  # :latest defaults to Always (Docker Hub rate limits)
         'command': ['/bin/sh', '-c'],
         'args': [f"[ -f /root/.bitcoin/switch.conf ] || printf '{body}' > /root/.bitcoin/switch.conf"],
         'volumeMounts': [{'name': 'data', 'mountPath': '/root/.bitcoin'}],
@@ -257,8 +258,20 @@ def convert_network(net: dict, style: str, fork_links=5, link_seed: int = 0, poo
     return net, report
 
 
+# Keys the warnet bitcoincore chart already writes into bitcoin.conf. Base
+# networks such as realistic-economy-v2 repeat them in defaultConfig; the old
+# Core 26/27 images tolerated that, but Knots 29.4 binds rpcbind twice and
+# exits with "Address in use", crash-looping every tank.
+CHART_CONFIG_KEYS = {'regtest', 'rpcuser', 'rpcpassword', 'rpcallowip', 'rpcbind',
+                     'rpcport', 'zmqpubrawblock', 'zmqpubrawtx', 'fallbackfee'}
+
+
 def convert_defaults(defaults: dict, style: str) -> dict:
     defaults = copy.deepcopy(defaults or {})
+    if 'defaultConfig' in defaults:
+        lines = [l for l in str(defaults['defaultConfig']).split('\n') if l.strip()]
+        defaults['defaultConfig'] = '\n'.join(
+            l for l in lines if l.split('=', 1)[0].strip() not in CHART_CONFIG_KEYS)
     if style == 'inplace':
         defaults['restartPolicy'] = 'Always'
     return defaults

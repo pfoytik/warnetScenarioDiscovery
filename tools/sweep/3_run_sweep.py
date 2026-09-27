@@ -796,6 +796,10 @@ def run_scenario(
     except Exception as e:
         print(f"  Warning: Error extracting results: {e}")
 
+    # A commander that crashed still gets here; don't count it as a success.
+    if not (scenario_results_dir / "results.json").exists():
+        print(f"  Error: no results.json for {scenario_id} (commander completed={completed})")
+        return False
     return True
 
 

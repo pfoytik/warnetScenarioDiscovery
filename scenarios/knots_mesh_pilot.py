@@ -962,10 +962,27 @@ class KnotsMeshPilot(Commander):
         funding_node = self.v26_nodes[0] if self.v26_nodes else self.nodes[0]
         self.log.info(f"  Mining 101 maturity blocks via node-{funding_node.index:04d} "
                       f"(funds the RDTS injection tx)...")
+        self._wait_for_peers()
         wallet = self._ensure_miner(funding_node)
         addr = wallet.getnewaddress()
         self.generatetoaddress(funding_node, 101, addr, sync_fun=self.sync_all)
         self.log.info(f"  Mined 101 blocks, height now {funding_node.getblockcount()}")
+
+    def _wait_for_peers(self, timeout=600):
+        """
+        Wait until every node has at least one peer. sync_all asserts this, and
+        when several namespaces deploy at once some tanks are still making
+        their addnode connections when the commander starts.
+        """
+        deadline = time() + timeout
+        while True:
+            isolated = [n.index for n in self.nodes if not n.getpeerinfo()]
+            if not isolated:
+                return
+            if time() >= deadline:
+                raise AssertionError(f"nodes still have no peers after {timeout}s: {isolated}")
+            self.log.info(f"  Waiting for peers on {len(isolated)} node(s): {isolated[:10]}")
+            sleep(10)
 
     def inject_rdts_violation(self):
         """

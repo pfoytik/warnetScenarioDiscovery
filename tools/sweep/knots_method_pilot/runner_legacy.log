@@ -1,0 +1,222 @@
+
+============================================================
+Parameter Sweep Runner
+============================================================
+Total scenarios: 6
+Already completed: 0
+Pending: 6
+Duration per scenario: 13000s (217 min)
+Startup wait: 60s
+Estimated total time: 21.8 hours
+Results directory: tools/sweep/knots_method_pilot/results_legacy
+Namespace: kmp-legacy
+Auto-restart: disabled
+
+Starting sweep at 2026-09-27T07:52:20.453912...
+------------------------------------------------------------
+Initial cleanup - stopping any running networks...
+  Cooldown 30s...
+[1/6] Running sweep_0000...
+  Injecting sweep config...
+  Injecting network metadata (network_metadata.yaml)...
+  Stopping previous network...
+  Cooldown 30s...
+  Deploying network...
+  Waiting 60s for nodes to start...
+  Network deployed with 60 pods
+  Deploying scenario commander...
+  Waiting for scenario completion (up to 16600s)...
+    Found commander pod: commander-partitionminerwithpools-1790510069
+    Still waiting... (720s elapsed, pod: Running)
+    Still waiting... (1350s elapsed, pod: Running)
+    Still waiting... (2700s elapsed, pod: Running)
+    Still waiting... (3330s elapsed, pod: Running)
+    Still waiting... (3960s elapsed, pod: Running)
+    Still waiting... (4590s elapsed, pod: Running)
+    Still waiting... (5220s elapsed, pod: Running)
+    Still waiting... (5850s elapsed, pod: Running)
+    Still waiting... (6480s elapsed, pod: Running)
+    Still waiting... (7650s elapsed, pod: Running)
+    Still waiting... (8280s elapsed, pod: Running)
+    Still waiting... (8820s elapsed, pod: Running)
+    Still waiting... (9990s elapsed, pod: Running)
+    Still waiting... (11160s elapsed, pod: Running)
+    Still waiting... (11700s elapsed, pod: Running)
+    Still waiting... (12240s elapsed, pod: Running)
+    Still waiting... (12780s elapsed, pod: Running)
+    Pod status: Succeeded after 13014s
+  Extracting results...
+  Results extracted successfully
+  OK (13115s) - ETA: 18:12:57
+[2/6] Running sweep_0001...
+  Injecting sweep config...
+  Injecting network metadata (network_metadata.yaml)...
+  Stopping previous network...
+  Cooldown 30s...
+  Deploying network...
+  Waiting 60s for nodes to start...
+  Network deployed with 60 pods
+  Deploying scenario commander...
+  Waiting for scenario completion (up to 16600s)...
+    Found commander pod: commander-partitionminerwithpools-1790523221
+    Still waiting... (720s elapsed, pod: Running)
+    Still waiting... (1440s elapsed, pod: Running)
+    Still waiting... (2160s elapsed, pod: Running)
+    Still waiting... (2880s elapsed, pod: Running)
+    Still waiting... (4230s elapsed, pod: Running)
+    Still waiting... (5580s elapsed, pod: Running)
+    Still waiting... (6210s elapsed, pod: Running)
+    Still waiting... (6840s elapsed, pod: Running)
+    Still waiting... (7470s elapsed, pod: Running)
+    Still waiting... (8100s elapsed, pod: Running)
+    Still waiting... (8730s elapsed, pod: Running)
+    Still waiting... (9360s elapsed, pod: Running)
+    Still waiting... (10530s elapsed, pod: Running)
+    Still waiting... (11160s elapsed, pod: Running)
+    Still waiting... (11700s elapsed, pod: Running)
+    Still waiting... (12870s elapsed, pod: Running)
+    Pod status: Succeeded after 13012s
+  Extracting results...
+  Results extracted successfully
+  OK (13151s) - ETA: 14:35:33
+[3/6] Running sweep_0002...
+  Injecting sweep config...
+  Injecting network metadata (network_metadata.yaml)...
+  Stopping previous network...
+  Cooldown 30s...
+  Deploying network...
+  Waiting 60s for nodes to start...
+  Network deployed with 60 pods
+  Deploying scenario commander...
+  Waiting for scenario completion (up to 16600s)...
+    Found commander pod: commander-partitionminerwithpools-1790536368
+    Still waiting... (720s elapsed, pod: Running)
+    Still waiting... (1440s elapsed, pod: Running)
+    Still waiting... (2160s elapsed, pod: Running)
+    Still waiting... (3510s elapsed, pod: Running)
+    Still waiting... (4230s elapsed, pod: Running)
+    Still waiting... (4860s elapsed, pod: Running)
+    Still waiting... (6210s elapsed, pod: Running)
+    Still waiting... (6840s elapsed, pod: Running)
+    Still waiting... (7470s elapsed, pod: Running)
+    Still waiting... (8100s elapsed, pod: Running)
+    Still waiting... (8730s elapsed, pod: Running)
+    Still waiting... (9900s elapsed, pod: Running)
+    Still waiting... (10530s elapsed, pod: Running)
+    Still waiting... (11700s elapsed, pod: Running)
+    Still waiting... (12240s elapsed, pod: Running)
+    Pod status: Succeeded after 13013s
+  Extracting results...
+  Results extracted successfully
+  OK (13148s) - ETA: 10:56:54
+[4/6] Running sweep_0003...
+  Injecting sweep config...
+  Injecting network metadata (network_metadata.yaml)...
+  Stopping previous network...
+  Cooldown 30s...
+  Deploying network...
+  Waiting 60s for nodes to start...
+  Network deployed with 60 pods
+  Deploying scenario commander...
+  Waiting for scenario completion (up to 16600s)...
+    Found commander pod: commander-partitionminerwithpools-1790549503
+    Still waiting... (720s elapsed, pod: Running)
+    Still waiting... (1440s elapsed, pod: Running)
+    Still waiting... (2160s elapsed, pod: Running)
+    Still waiting... (3510s elapsed, pod: Running)
+    Still waiting... (4860s elapsed, pod: Running)
+    Still waiting... (5490s elapsed, pod: Running)
+    Still waiting... (6120s elapsed, pod: Running)
+    Still waiting... (6750s elapsed, pod: Running)
+    Still waiting... (7380s elapsed, pod: Running)
+    Still waiting... (8010s elapsed, pod: Running)
+    Still waiting... (8640s elapsed, pod: Running)
+    Still waiting... (9810s elapsed, pod: Running)
+    Still waiting... (10440s elapsed, pod: Running)
+    Still waiting... (10980s elapsed, pod: Running)
+    Still waiting... (11610s elapsed, pod: Running)
+    Still waiting... (12150s elapsed, pod: Running)
+  Scenario completed (found export marker) after 13005s
+  Extracting results...
+  Results extracted successfully
+  OK (13126s) - ETA: 7:17:50
+[5/6] Running sweep_0004...
+  Injecting sweep config...
+  Injecting network metadata (network_metadata.yaml)...
+  Stopping previous network...
+  Cooldown 30s...
+  Deploying network...
+  Waiting 60s for nodes to start...
+  Network deployed with 60 pods
+  Deploying scenario commander...
+  Waiting for scenario completion (up to 16600s)...
+    Found commander pod: commander-partitionminerwithpools-1790562641
+    Still waiting... (720s elapsed, pod: Running)
+    Still waiting... (1440s elapsed, pod: Running)
+    Still waiting... (2160s elapsed, pod: Running)
+    Still waiting... (3510s elapsed, pod: Running)
+    Still waiting... (4860s elapsed, pod: Running)
+    Still waiting... (5490s elapsed, pod: Running)
+    Still waiting... (6120s elapsed, pod: Running)
+    Still waiting... (6750s elapsed, pod: Running)
+    Still waiting... (7380s elapsed, pod: Running)
+    Still waiting... (8010s elapsed, pod: Running)
+    Still waiting... (8640s elapsed, pod: Running)
+    Still waiting... (9180s elapsed, pod: Running)
+    Still waiting... (9810s elapsed, pod: Running)
+    Still waiting... (10350s elapsed, pod: Running)
+    Still waiting... (10980s elapsed, pod: Running)
+    Still waiting... (11520s elapsed, pod: Running)
+  Scenario completed (found export marker) after 13006s
+  Extracting results...
+  Results extracted successfully
+  OK (13139s) - ETA: 3:38:55
+[6/6] Running sweep_0005...
+  Injecting sweep config...
+  Injecting network metadata (network_metadata.yaml)...
+  Stopping previous network...
+  Cooldown 30s...
+  Deploying network...
+  Waiting 60s for nodes to start...
+  Network deployed with 60 pods
+  Deploying scenario commander...
+  Waiting for scenario completion (up to 16600s)...
+    Found commander pod: commander-partitionminerwithpools-1790575785
+    Still waiting... (720s elapsed, pod: Running)
+    Still waiting... (1440s elapsed, pod: Running)
+    Still waiting... (2070s elapsed, pod: Running)
+    Still waiting... (2790s elapsed, pod: Running)
+    Still waiting... (3420s elapsed, pod: Running)
+    Still waiting... (4050s elapsed, pod: Running)
+    Still waiting... (4680s elapsed, pod: Running)
+    Still waiting... (5310s elapsed, pod: Running)
+    Still waiting... (5940s elapsed, pod: Running)
+    Still waiting... (6570s elapsed, pod: Running)
+    Still waiting... (7740s elapsed, pod: Running)
+    Still waiting... (8370s elapsed, pod: Running)
+    Still waiting... (8910s elapsed, pod: Running)
+    Still waiting... (9540s elapsed, pod: Running)
+    Still waiting... (10080s elapsed, pod: Running)
+    Still waiting... (11790s elapsed, pod: Running)
+    Still waiting... (12330s elapsed, pod: Running)
+    Still waiting... (12870s elapsed, pod: Running)
+    Pod status: Succeeded after 13013s
+  Extracting results...
+  Results extracted successfully
+  OK (13151s) - ETA: 0:00:00
+
+============================================================
+Final cleanup - ensuring cluster is clean...
+============================================================
+  Force cleaning cluster...
+  Cluster is clean
+
+============================================================
+Sweep Complete!
+============================================================
+Completed: 6
+Failed: 0
+Total time: 21:54:18
+Results saved to: tools/sweep/knots_method_pilot/results_legacy
+
+Next step: python 4_analyze_results.py --input tools/sweep/knots_method_pilot/results_legacy

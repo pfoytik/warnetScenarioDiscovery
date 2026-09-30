@@ -1,0 +1,67 @@
+Filtered to 1 specified scenarios
+
+============================================================
+Parameter Sweep Runner
+============================================================
+Total scenarios: 1
+Already completed: 0
+Pending: 1
+Duration per scenario: 13000s (217 min)
+Startup wait: 60s
+Estimated total time: 3.6 hours
+Results directory: tools/sweep/knots_method_pilot/results_realfork_s0
+Namespace: kmp-realfork-s0
+Auto-restart: disabled
+
+Starting sweep at 2026-09-27T07:58:29.992265...
+------------------------------------------------------------
+Initial cleanup - stopping any running networks...
+  Cooldown 30s...
+[1/1] Running sweep_0000...
+  Injecting sweep config...
+  Converted network (mixed): 60 nodes, v27=19 v26=41, fork links 8 -> 5 (target 5), islands 2 -> 1, pool nodes realigned to pool config: [('node-0001', 'v26', 'v27'), ('node-0002', 'v26', 'v27'), ('node-0003', 'v26', 'v27')]
+  Injecting network metadata (network_metadata__sweep_0000__realfork.yaml)...
+  Stopping previous network...
+  Cooldown 30s...
+  Deploying network...
+  Waiting 60s for nodes to start...
+  Network deployed with 60 pods
+  Deploying scenario commander...
+  Waiting for scenario completion (up to 16600s)...
+    Found commander pod: commander-knotsmeshpilot-1790510447
+    Still waiting... (720s elapsed, pod: Running)
+    Still waiting... (1350s elapsed, pod: Running)
+    Still waiting... (2700s elapsed, pod: Running)
+    Still waiting... (3330s elapsed, pod: Running)
+    Still waiting... (3960s elapsed, pod: Running)
+    Still waiting... (4590s elapsed, pod: Running)
+    Still waiting... (5220s elapsed, pod: Running)
+    Still waiting... (5850s elapsed, pod: Running)
+    Still waiting... (6480s elapsed, pod: Running)
+    Still waiting... (7110s elapsed, pod: Running)
+    Still waiting... (7740s elapsed, pod: Running)
+    Still waiting... (8910s elapsed, pod: Running)
+    Still waiting... (9540s elapsed, pod: Running)
+    Still waiting... (10710s elapsed, pod: Running)
+    Still waiting... (11880s elapsed, pod: Running)
+    Still waiting... (12420s elapsed, pod: Running)
+  Scenario completed (found export marker) after 13010s
+  Extracting results...
+  Results extracted successfully
+  OK (13121s) - ETA: 0:00:00
+
+============================================================
+Final cleanup - ensuring cluster is clean...
+============================================================
+  Force cleaning cluster...
+  Cluster is clean
+
+============================================================
+Sweep Complete!
+============================================================
+Completed: 1
+Failed: 0
+Total time: 3:39:09
+Results saved to: tools/sweep/knots_method_pilot/results_realfork_s0
+
+Next step: python 4_analyze_results.py --input tools/sweep/knots_method_pilot/results_realfork_s0

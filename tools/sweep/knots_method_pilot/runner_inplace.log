@@ -1,0 +1,221 @@
+
+============================================================
+Parameter Sweep Runner
+============================================================
+Total scenarios: 6
+Already completed: 0
+Pending: 6
+Duration per scenario: 13000s (217 min)
+Startup wait: 60s
+Estimated total time: 21.8 hours
+Results directory: tools/sweep/knots_method_pilot/results_inplace
+Namespace: kmp-inplace
+Auto-restart: disabled
+
+Starting sweep at 2026-09-27T07:52:20.455308...
+------------------------------------------------------------
+Initial cleanup - stopping any running networks...
+  Cooldown 30s...
+[1/6] Running sweep_0000...
+  Injecting sweep config...
+  Converted network (inplace): 60 nodes, v27=19 v26=41, fork links 8 -> 5 (target 5), islands 2 -> 1, pool nodes realigned to pool config: [('node-0001', 'v26', 'v27'), ('node-0002', 'v26', 'v27'), ('node-0003', 'v26', 'v27')]
+  Injecting network metadata (network_metadata__sweep_0000__inplace.yaml)...
+  Stopping previous network...
+  Cooldown 30s...
+  Deploying network...
+  Waiting 60s for nodes to start...
+  Network deployed with 60 pods
+  Deploying scenario commander...
+  Waiting for scenario completion (up to 16600s)...
+    Found commander pod: commander-knotsmeshpilot-1790510091
+    Still waiting... (720s elapsed, pod: Running)
+    Still waiting... (1350s elapsed, pod: Running)
+    Still waiting... (1980s elapsed, pod: Running)
+    Still waiting... (3330s elapsed, pod: Running)
+    Still waiting... (3960s elapsed, pod: Running)
+    Still waiting... (4590s elapsed, pod: Running)
+    Still waiting... (5220s elapsed, pod: Running)
+    Still waiting... (5850s elapsed, pod: Running)
+    Still waiting... (6480s elapsed, pod: Running)
+    Still waiting... (7110s elapsed, pod: Running)
+    Still waiting... (8280s elapsed, pod: Running)
+    Still waiting... (8910s elapsed, pod: Running)
+    Still waiting... (9540s elapsed, pod: Running)
+    Still waiting... (10170s elapsed, pod: Running)
+    Still waiting... (11340s elapsed, pod: Running)
+    Still waiting... (11970s elapsed, pod: Running)
+    Pod status: Succeeded after 13017s
+  Extracting results...
+  Results extracted successfully
+  OK (13142s) - ETA: 18:15:07
+[2/6] Running sweep_0001...
+  Injecting sweep config...
+  Converted network (inplace): 60 nodes, v27=19 v26=41, fork links 8 -> 5 (target 5), islands 2 -> 1, pool nodes realigned to pool config: [('node-0001', 'v26', 'v27'), ('node-0002', 'v26', 'v27'), ('node-0003', 'v26', 'v27')]
+  Injecting network metadata (network_metadata__sweep_0001__inplace.yaml)...
+  Stopping previous network...
+  Cooldown 30s...
+  Deploying network...
+  Waiting 60s for nodes to start...
+  Network deployed with 60 pods
+  Deploying scenario commander...
+  Waiting for scenario completion (up to 16600s)...
+    Found commander pod: commander-knotsmeshpilot-1790523245
+    Still waiting... (720s elapsed, pod: Running)
+    Still waiting... (1440s elapsed, pod: Running)
+    Still waiting... (2160s elapsed, pod: Running)
+    Still waiting... (2880s elapsed, pod: Running)
+    Still waiting... (3510s elapsed, pod: Running)
+    Still waiting... (4230s elapsed, pod: Running)
+    Still waiting... (4860s elapsed, pod: Running)
+    Still waiting... (5580s elapsed, pod: Running)
+    Still waiting... (6210s elapsed, pod: Running)
+    Still waiting... (6840s elapsed, pod: Running)
+    Still waiting... (7470s elapsed, pod: Running)
+    Still waiting... (8100s elapsed, pod: Running)
+    Still waiting... (8730s elapsed, pod: Running)
+    Still waiting... (9360s elapsed, pod: Running)
+    Still waiting... (10530s elapsed, pod: Running)
+    Still waiting... (11160s elapsed, pod: Running)
+    Still waiting... (11790s elapsed, pod: Running)
+    Still waiting... (12330s elapsed, pod: Running)
+    Pod status: Succeeded after 13011s
+  Extracting results...
+  Results extracted successfully
+  OK (13148s) - ETA: 14:36:19
+[3/6] Running sweep_0002...
+  Injecting sweep config...
+  Converted network (inplace): 60 nodes, v27=19 v26=41, fork links 8 -> 5 (target 5), islands 2 -> 1, pool nodes realigned to pool config: [('node-0001', 'v26', 'v27'), ('node-0002', 'v26', 'v27'), ('node-0003', 'v26', 'v27')]
+  Injecting network metadata (network_metadata__sweep_0002__inplace.yaml)...
+  Stopping previous network...
+  Cooldown 30s...
+  Deploying network...
+  Waiting 60s for nodes to start...
+  Network deployed with 60 pods
+  Deploying scenario commander...
+  Waiting for scenario completion (up to 16600s)...
+    Found commander pod: commander-knotsmeshpilot-1790536394
+    Still waiting... (720s elapsed, pod: Running)
+    Still waiting... (1440s elapsed, pod: Running)
+    Still waiting... (2160s elapsed, pod: Running)
+    Still waiting... (2880s elapsed, pod: Running)
+    Still waiting... (3510s elapsed, pod: Running)
+    Still waiting... (4230s elapsed, pod: Running)
+    Still waiting... (4860s elapsed, pod: Running)
+    Still waiting... (6210s elapsed, pod: Running)
+    Still waiting... (6840s elapsed, pod: Running)
+    Still waiting... (7470s elapsed, pod: Running)
+    Still waiting... (8100s elapsed, pod: Running)
+    Still waiting... (8730s elapsed, pod: Running)
+    Still waiting... (9360s elapsed, pod: Running)
+    Still waiting... (9990s elapsed, pod: Running)
+    Still waiting... (11790s elapsed, pod: Running)
+    Still waiting... (12420s elapsed, pod: Running)
+    Still waiting... (12960s elapsed, pod: Running)
+  Scenario completed (found export marker) after 13010s
+  Extracting results...
+  Results extracted successfully
+  OK (13147s) - ETA: 10:57:16
+[4/6] Running sweep_0003...
+  Injecting sweep config...
+  Converted network (inplace): 60 nodes, v27=19 v26=41, fork links 8 -> 5 (target 5), islands 2 -> 1, pool nodes realigned to pool config: [('node-0001', 'v26', 'v27'), ('node-0002', 'v26', 'v27'), ('node-0003', 'v26', 'v27')]
+  Injecting network metadata (network_metadata__sweep_0003__inplace.yaml)...
+  Stopping previous network...
+  Cooldown 30s...
+  Deploying network...
+  Waiting 60s for nodes to start...
+  Network deployed with 60 pods
+  Deploying scenario commander...
+  Waiting for scenario completion (up to 16600s)...
+    Found commander pod: commander-knotsmeshpilot-1790549540
+    Still waiting... (720s elapsed, pod: Running)
+    Still waiting... (1440s elapsed, pod: Running)
+    Still waiting... (2790s elapsed, pod: Running)
+    Still waiting... (4140s elapsed, pod: Running)
+    Still waiting... (4770s elapsed, pod: Running)
+    Still waiting... (7920s elapsed, pod: Running)
+    Still waiting... (8550s elapsed, pod: Running)
+    Still waiting... (9720s elapsed, pod: Running)
+    Still waiting... (10890s elapsed, pod: Running)
+    Still waiting... (11430s elapsed, pod: Running)
+    Pod status: Succeeded after 13018s
+  Extracting results...
+  Results extracted successfully
+  OK (13154s) - ETA: 7:18:15
+[5/6] Running sweep_0004...
+  Injecting sweep config...
+  Converted network (inplace): 60 nodes, v27=19 v26=41, fork links 8 -> 5 (target 5), islands 2 -> 1, pool nodes realigned to pool config: [('node-0001', 'v26', 'v27'), ('node-0002', 'v26', 'v27'), ('node-0003', 'v26', 'v27')]
+  Injecting network metadata (network_metadata__sweep_0004__inplace.yaml)...
+  Stopping previous network...
+  Cooldown 30s...
+  Deploying network...
+  Waiting 60s for nodes to start...
+  Network deployed with 60 pods
+  Deploying scenario commander...
+  Waiting for scenario completion (up to 16600s)...
+    Found commander pod: commander-knotsmeshpilot-1790562694
+    Still waiting... (720s elapsed, pod: Running)
+    Still waiting... (1440s elapsed, pod: Running)
+    Still waiting... (2070s elapsed, pod: Running)
+    Still waiting... (2790s elapsed, pod: Running)
+    Still waiting... (3420s elapsed, pod: Running)
+    Still waiting... (4050s elapsed, pod: Running)
+    Still waiting... (5400s elapsed, pod: Running)
+    Still waiting... (6030s elapsed, pod: Running)
+    Still waiting... (6660s elapsed, pod: Running)
+    Still waiting... (7290s elapsed, pod: Running)
+    Still waiting... (9720s elapsed, pod: Running)
+    Still waiting... (10350s elapsed, pod: Running)
+    Still waiting... (10890s elapsed, pod: Running)
+    Still waiting... (11520s elapsed, pod: Running)
+    Still waiting... (12690s elapsed, pod: Running)
+    Pod status: Succeeded after 13016s
+  Extracting results...
+  Results extracted successfully
+  OK (13152s) - ETA: 3:39:08
+[6/6] Running sweep_0005...
+  Injecting sweep config...
+  Converted network (inplace): 60 nodes, v27=19 v26=41, fork links 8 -> 5 (target 5), islands 2 -> 1, pool nodes realigned to pool config: [('node-0001', 'v26', 'v27'), ('node-0002', 'v26', 'v27'), ('node-0003', 'v26', 'v27')]
+  Injecting network metadata (network_metadata__sweep_0005__inplace.yaml)...
+  Stopping previous network...
+  Cooldown 30s...
+  Deploying network...
+  Waiting 60s for nodes to start...
+  Network deployed with 60 pods
+  Deploying scenario commander...
+  Waiting for scenario completion (up to 16600s)...
+    Found commander pod: commander-knotsmeshpilot-1790575847
+    Still waiting... (720s elapsed, pod: Running)
+    Still waiting... (1350s elapsed, pod: Running)
+    Still waiting... (2700s elapsed, pod: Running)
+    Still waiting... (3330s elapsed, pod: Running)
+    Still waiting... (3960s elapsed, pod: Running)
+    Still waiting... (5130s elapsed, pod: Running)
+    Still waiting... (5760s elapsed, pod: Running)
+    Still waiting... (6300s elapsed, pod: Running)
+    Still waiting... (7470s elapsed, pod: Running)
+    Still waiting... (8010s elapsed, pod: Running)
+    Still waiting... (8550s elapsed, pod: Running)
+    Still waiting... (9090s elapsed, pod: Running)
+    Still waiting... (10620s elapsed, pod: Running)
+    Still waiting... (11160s elapsed, pod: Running)
+    Still waiting... (12150s elapsed, pod: Running)
+    Pod status: Succeeded after 13018s
+  Extracting results...
+  Results extracted successfully
+  OK (13155s) - ETA: 0:00:00
+
+============================================================
+Final cleanup - ensuring cluster is clean...
+============================================================
+  Force cleaning cluster...
+  Cluster is clean
+
+============================================================
+Sweep Complete!
+============================================================
+Completed: 6
+Failed: 0
+Total time: 21:55:26
+Results saved to: tools/sweep/knots_method_pilot/results_inplace
+
+Next step: python 4_analyze_results.py --input tools/sweep/knots_method_pilot/results_inplace

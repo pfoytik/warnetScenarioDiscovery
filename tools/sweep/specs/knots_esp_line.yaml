@@ -1,0 +1,88 @@
+name: knots_esp_line
+description: |
+  Knots ESP Line: does the economic threshold hold under a real soft fork?
+
+  PURPOSE: Re-test the prior economic_split findings with the real-fork
+  method. The prior results were all produced by the legacy scripted
+  partition (partition_miner_with_pools.py), where economic nodes never
+  actually switch (F10's "permanent lock"):
+    - F7:  ESP at econ ~0.74 (v26_dominant at 0.70, v27_dominant at 0.78)
+    - F12: economic_split is the global separator at 2016-block;
+           PRIM v27 box economic_split >= 0.665
+    - F13: full-network transition-zone threshold ~0.563
+  Under --method inplace, economic/user nodes and pools really change what
+  their node enforces (25 economic/user nodes switched within 15 minutes in
+  the 2026-09-27 smoke test), so this is where the threshold is most likely
+  to move if the legacy method was biased.
+
+  DESIGN:
+  - 5 economic_split values x 2 seeds = 10 scenarios, plus the pilot's
+    E=0.55 as a sixth level
+  - Each scenario run once per method from the same build manifest:
+      legacy   (prior method; the reference)
+      inplace  (real fork + real switching)
+      realfork (add only if the knots_method_pilot shows realfork and
+                inplace differ at E=0.55)
+    -> 20 runs (30 with realfork)
+  - Network: full (realistic-economy-v2, 60 nodes)
+  - Everything except economic_split fixed at the knots_method_pilot values,
+    so the pilot's violation_rate=1.00 scenarios are the E=0.55 point of
+    this line (same C, ideology, max_loss, seeds).
+  - violation_rate 1.00 (legacy p=0.0): strict, the prior baseline.
+  - Run settings: configs/knots_method_pilot_run.yaml (13000s, 10s
+    interval, 2016-block retarget).
+
+  E VALUES: economic_split is quantized by whole economic nodes on the full
+  network. v27 custody share by E (2_build_configs, realistic-economy-v2):
+    E <= 0.42 -> 30.1%    0.44-0.56 -> 50.1%    0.58-0.66 -> 62.2%
+    0.68-0.72 -> 70.2%    0.74-0.78 -> 76.2%    0.80-0.82 -> 80.8%
+  so one E per level (two E values in one level build identical networks):
+  - 0.35 (30.1%): low anchor; tests whether real switching moves the
+          threshold down (expect v26 under legacy)
+  - 0.55 (50.1%): the knots_method_pilot's violation_rate=1.00 runs
+  - 0.62 (62.2%): F12's PRIM boundary level (0.665 is in this band)
+  - 0.70 (70.2%): F7's v26 side
+  - 0.78 (76.2%): F7's v27 side (the ESP flip is between 0.70 and 0.78)
+  - 0.82 (80.8%): F8's economic override (expect v27 under every method)
+
+  WHAT TO COMPARE (per E, legacy vs real-fork):
+  - winner (legacy fork_convergence / real-fork outcomes.winner) -> where
+    the flip happens along E for each method
+  - time of the first pool switch and of economic node switches
+  - final economic weight per camp (legacy never moves; inplace can)
+  - price gap trajectory
+
+  DEPENDS ON: knots_method_pilot results (finishing ~2026-09-28 06:00). If
+  the pilot's methods agree at E=0.55, run legacy + inplace; if realfork
+  and inplace differ, add realfork.
+
+type: grid
+network: full
+n_scenarios: 10
+
+grid:
+  economic_split: [0.35, 0.62, 0.70, 0.78, 0.82]
+  random_seed:    [101, 102]
+
+fixed:
+  # knots_method_pilot fixed values
+  hashrate_split: 0.25
+  pool_committed_split: 0.30
+  pool_neutral_pct: 30.0
+  pool_profitability_threshold: 0.16
+  pool_ideology_strength: 0.51
+  pool_max_loss_pct: 0.26
+  econ_ideology_strength: 0.40
+  econ_switching_threshold: 0.10
+  econ_inertia: 0.05
+  user_ideology_strength: 0.49
+  user_switching_threshold: 0.12
+  user_nodes_per_partition: 6
+  economic_nodes_per_partition: 2
+  transaction_velocity: 0.5
+  solo_miner_hashrate: 0.085
+  violation_rate: 1.00
+  # real-fork topology (ignored by legacy)
+  fork_links: 5
+  link_seed: 0
+  fork_heal_exit: false
